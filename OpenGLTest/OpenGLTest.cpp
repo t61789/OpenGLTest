@@ -3,17 +3,21 @@
 #include <iostream>
 
 auto vertexShaderSource = "#version 330 core\n"
- "layout (location = 0) in vec3 aPos;\n"
- "void main()\n"
- "{\n"
- "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
- "}\0";
+"layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec4 vertexColor;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"   vertexColor = vec4(aColor, 1.0);\n"
+"}\0";
 
 auto fragShaderSource = "#version 330 core\n"
+"in vec4 vertexColor;\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(0.2f, 0.3f, 0.4f, 1f);\n"
+"   FragColor = vertexColor;\n"
 "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -64,6 +68,10 @@ int main(int argc, char* argv[])
         std::cout << "Failed to initialize GLAD\n";
         return -1;
     }
+    
+    int maxVertexAttributes;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
+    std::cout << "Max vertex attributes: " << maxVertexAttributes << "\n";
 
     // shaders
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -81,44 +89,69 @@ int main(int argc, char* argv[])
     glAttachShader(shaderProgram, fragShader);
     glLinkProgram(shaderProgram);
 
+    int colorId = glGetUniformLocation(shaderProgram, "_Color");
+
     glDeleteShader(vertexShader);
     glDeleteShader(fragShader);
 
     // vertices
-    float vertices[] =
-    {
-        -0.5f, -2.0f, 0,
-        0.5f, -0.5f, 0,
-        0, 0.5f, 0
-    };
+    float vertices[] = {
+        // positions         // colors
+        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+       -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
+   };    
+
+    unsigned int indices[] = {  // note that we start from 0!
+        0, 1, 2
+    };  
     
-    GLuint VAO, VBO;
+    GLuint VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    
+    glGenBuffers(1, &EBO);
+
     glBindVertexArray(VAO);
     
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)0);
     glEnableVertexAttribArray(0);
+    
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    double timeCount = 0;
+    int frameCount = 0;
     // render loop
     while(!glfwWindowShouldClose(window))
     {
+        frameCount ++;
+        double curTime = glfwGetTime();
+        if(curTime - timeCount > 1)
+        {
+            std::cout << "Frame Rate: " << frameCount / (curTime - timeCount) << "\n";
+            frameCount = 0;
+            timeCount = curTime;
+        }
+        
         processInput(window);
 
-        glClearColor(0.7f, 0.3f, 0.6f, 1);
+        glClearColor(0.2f, 0.2f, 0.2f, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // render
         glUseProgram(shaderProgram);
+        glUniform4f(colorId, 0, 1, 0, 1);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
         glfwSwapBuffers(window);
         glfwPollEvents();
