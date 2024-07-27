@@ -158,10 +158,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="OpenGLTest.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="src\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestFragShader.frag" />
+    <Content Include="TestVertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

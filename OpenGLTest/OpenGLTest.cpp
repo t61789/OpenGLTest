@@ -1,24 +1,7 @@
 #include <glad/glad.h>
 #include <glfw3.h>
 #include <iostream>
-
-auto vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec4 vertexColor;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"   vertexColor = vec4(aColor, 1.0);\n"
-"}\0";
-
-auto fragShaderSource = "#version 330 core\n"
-"in vec4 vertexColor;\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vertexColor;\n"
-"}\0";
+#include "Shader.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -31,18 +14,6 @@ void processInput(GLFWwindow* window)
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);
-    }
-}
-
-void checkShaderCompiation(GLuint vertexShader)
-{
-    int success;
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        char info[512];
-        glGetShaderInfoLog(vertexShader, 512, nullptr, info);
-        std::cout << "ERROR: COMPILATION FAILED: " << info << "\n";
     }
 }
 
@@ -73,26 +44,7 @@ int main(int argc, char* argv[])
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
     std::cout << "Max vertex attributes: " << maxVertexAttributes << "\n";
 
-    // shaders
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
-    checkShaderCompiation(vertexShader);
-
-    GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragShader, 1, &fragShaderSource, nullptr);
-    glCompileShader(fragShader);
-    checkShaderCompiation(fragShader);
-    
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragShader);
-    glLinkProgram(shaderProgram);
-
-    int colorId = glGetUniformLocation(shaderProgram, "_Color");
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragShader);
+    auto testShader = Shader("./TestVertShader.vert", "./TestFragShader.frag");
 
     // vertices
     float vertices[] = {
@@ -100,7 +52,7 @@ int main(int argc, char* argv[])
         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
-   };    
+    };    
 
     unsigned int indices[] = {  // note that we start from 0!
         0, 1, 2
@@ -148,8 +100,8 @@ int main(int argc, char* argv[])
         glClear(GL_COLOR_BUFFER_BIT);
 
         // render
-        glUseProgram(shaderProgram);
-        glUniform4f(colorId, 0, 1, 0, 1);
+        testShader.use();
+        
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
@@ -159,7 +111,6 @@ int main(int argc, char* argv[])
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
 
     glfwTerminate();
     return 0;
