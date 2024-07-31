@@ -2,8 +2,11 @@
 #include <glfw3.h>
 #include <iostream>
 #include "Shader.h"
+#include "glm.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "../lib/stb_image.h"
+
+GLFWwindow* g_Window;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -93,47 +96,71 @@ void genMesh(GLuint* VAO, GLuint* VBO, GLuint* EBO)
     glBindVertexArray(0);
 }
 
-int process()
+bool initGlfw()
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "YeahTitle", nullptr, nullptr);
-    if(!window)
+    g_Window = glfwCreateWindow(800, 600, "YeahTitle", nullptr, nullptr);
+    if(!g_Window)
     {
         std::cout << "Failed to create a window\n";
         glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+        return false;
+    }
+    glfwMakeContextCurrent(g_Window);
+    glfwSetFramebufferSizeCallback(g_Window, framebuffer_size_callback);
+
+    return true;
+}
+
+bool initGl()
+{
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD\n";
-        return -1;
+        return false;
     }
 
-    stbi_set_flip_vertically_on_load(true); 
+    stbi_set_flip_vertically_on_load(true);
     
     int maxVertexAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
     std::cout << "Max vertex attributes: " << maxVertexAttributes << "\n";
 
+    return true;
+}
+
+int process()
+{
+    if(!initGlfw())
+    {
+        return -1;
+    }
+
+    if(!initGl())
+    {
+        return -1;
+    }
+
+    // Shader
     auto testShader = Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
     testShader.setInt("tex", 0);
 
+    // Texture
     GLuint texture = loadTexture("../assets/o2.png");
 
+    // Mesh
     GLuint VAO, VBO, EBO;
     genMesh(&VAO, &VBO, &EBO);
 
+    // Render loop
     double timeCount = 0;
     int frameCount = 0;
-    // render loop
-    while(!glfwWindowShouldClose(window))
+    while(!glfwWindowShouldClose(g_Window))
     {
         frameCount ++;
         double curTime = glfwGetTime();
@@ -144,7 +171,7 @@ int process()
             timeCount = curTime;
         }
         
-        processInput(window);
+        processInput(g_Window);
 
         glClearColor(0.2f, 0.2f, 0.2f, 1);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -158,7 +185,7 @@ int process()
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(g_Window);
         glfwPollEvents();
     }
 
