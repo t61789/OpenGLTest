@@ -4,9 +4,18 @@
 #include "Shader.h"
 #include "glm.hpp"
 #define STB_IMAGE_IMPLEMENTATION
+#include "Mesh.h"
+#include "Object.h"
 #include "../lib/stb_image.h"
 
 GLFWwindow* g_Window;
+
+Object g_MainCamera;
+Object g_Cube;
+
+Shader* g_TestShader;
+Mesh* g_TestMesh;
+GLuint g_TestTexture;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -134,28 +143,76 @@ bool initGl()
     return true;
 }
 
-int process()
+bool initFrame()
 {
     if(!initGlfw())
     {
-        return -1;
+        return false;
     }
 
     if(!initGl())
     {
+        return false;
+    }
+
+    return true;
+}
+
+void initGame()
+{
+    // Shader
+    g_TestShader = new Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
+    g_TestShader->setInt("tex", 0);
+
+    // Texture
+    g_TestTexture = loadTexture("../assets/o2.png");
+
+    // Mesh
+    float position[] = {
+        0.5f,  0.5f, 0.0f, // top right
+        0.5f, -0.5f, 0.0f, // bottom right
+       -0.5f, -0.5f, 0.0f, // bottom left
+       -0.5f,  0.5f, 0.0f, // top left 
+    };
+    float texcoord[] = {
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+        0.0f, 1.0f
+    };
+    float color[] = {
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 0.0f
+    };
+    unsigned int indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+
+    g_TestMesh = new Mesh(position, texcoord, color, indices, 6);
+}
+
+void releaseAll()
+{
+    delete g_TestShader;
+    delete g_TestMesh;
+}
+
+void update()
+{
+    
+}
+
+int process()
+{
+    if(!initFrame())
+    {
         return -1;
     }
 
-    // Shader
-    auto testShader = Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
-    testShader.setInt("tex", 0);
-
-    // Texture
-    GLuint texture = loadTexture("../assets/o2.png");
-
-    // Mesh
-    GLuint VAO, VBO, EBO;
-    genMesh(&VAO, &VBO, &EBO);
+    initGame();
 
     // Render loop
     double timeCount = 0;
@@ -173,25 +230,24 @@ int process()
         
         processInput(g_Window);
 
+        // Render
         glClearColor(0.2f, 0.2f, 0.2f, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_2D, g_TestTexture);
 
-        // render
-        testShader.use();
+        g_TestShader->use();
+
+        g_TestMesh->use();
         
-        glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
         glfwSwapBuffers(g_Window);
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-
+    releaseAll();
     glfwTerminate();
     return 0;
 }

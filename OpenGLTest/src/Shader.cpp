@@ -14,6 +14,8 @@ void checkShaderCompilation(GLuint vertexShader, const char* shaderPath)
     }
 }
 
+Shader::Shader() = default;
+
 Shader::Shader(const char* vertexPath, const char* fragPath)
 {
     string vSource, fSource;

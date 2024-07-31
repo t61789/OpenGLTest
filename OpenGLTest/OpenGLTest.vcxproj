@@ -231,6 +231,9 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="src\Entity.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\OpenGLTest.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -382,6 +385,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\stb_image.h" />
+    <ClInclude Include="src\Entity.h" />
+    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Shader.h" />
   </ItemGroup>
   <ItemGroup>
