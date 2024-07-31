@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void checkShaderCompilation(GLuint vertexShader)
+void checkShaderCompilation(GLuint vertexShader, const char* shaderPath)
 {
     int success;
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -10,7 +10,7 @@ void checkShaderCompilation(GLuint vertexShader)
     {
         char info[512];
         glGetShaderInfoLog(vertexShader, 512, nullptr, info);
-        throw runtime_error(string("ERROR: Shader compilation failed: ") + info);
+        throw runtime_error(string("ERROR>> Shader compilation failed:\n") + string(shaderPath) + "\n" + info);
     }
 }
 
@@ -42,7 +42,7 @@ Shader::Shader(const char* vertexPath, const char* fragPath)
         vFile.close();
         fFile.close();
         
-        throw runtime_error(string("ERROR: Failed to access shader files: ") + e.what());
+        throw runtime_error(string("ERROR>> Failed to access shader files: ") + + e.what());
     }
 
     auto vCharSource = vSource.c_str();
@@ -51,12 +51,12 @@ Shader::Shader(const char* vertexPath, const char* fragPath)
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vCharSource, nullptr);
     glCompileShader(vertexShader);
-    checkShaderCompilation(vertexShader);
+    checkShaderCompilation(vertexShader, vertexPath);
 
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragShader, 1, &fCharSource, nullptr);
     glCompileShader(fragShader);
-    checkShaderCompilation(fragShader);
+    checkShaderCompilation(fragShader, fragPath);
 
     ID = glCreateProgram();
     glAttachShader(ID, vertexShader);
