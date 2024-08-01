@@ -130,7 +130,7 @@ bool initGl()
 {
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Failed to initialize GLAD\n";
+        std::cout << "ERROR>> Failed to initialize GLAD\n";
         return false;
     }
 
@@ -169,29 +169,94 @@ void initGame()
 
     // Mesh
     float position[] = {
-        0.5f,  0.5f, 0.0f, // top right
-        0.5f, -0.5f, 0.0f, // bottom right
-       -0.5f, -0.5f, 0.0f, // bottom left
-       -0.5f,  0.5f, 0.0f, // top left 
+        // 下
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, 0.5f,
+
+        // 后
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
+
+        // 左
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, -0.5f, 0.5f,
+
+        // 右
+        0.5f, -0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+
+        // 前
+        -0.5f, -0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
+
+        // 上
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, 0.5f,
     };
     float texcoord[] = {
+        0.0f, 0.0f,
+        0.0f, 1.0f,
         1.0f, 1.0f,
         1.0f, 0.0f,
+
         0.0f, 0.0f,
-        0.0f, 1.0f
-    };
-    float color[] = {
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 0.0f
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f
     };
     unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+        0, 1, 2,
+        0, 2, 3,
+
+        4, 5, 6,
+        4, 6, 7,
+
+        8, 9, 10,
+        8, 10, 11,
+
+        12, 13, 14,
+        12, 14, 15,
+
+        16, 17, 18,
+        16, 18, 19,
+
+        20, 21, 22,
+        20, 22, 23
     };
 
-    g_TestMesh = new Mesh(position, texcoord, color, indices, 6);
+    g_TestMesh = new Mesh(position, texcoord, nullptr, indices, sizeof(indices) / sizeof(int));
 }
 
 void releaseAll()
@@ -205,9 +270,27 @@ void update()
     
 }
 
+void render()
+{
+    glClearColor(0.2f, 0.2f, 0.2f, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, g_TestTexture);
+
+    g_TestShader->use();
+
+    g_TestMesh->use();
+
+    glDrawElements(GL_TRIANGLES, g_TestMesh->vertexCount, GL_UNSIGNED_INT, 0);
+
+    glfwSwapBuffers(g_Window);
+    glfwPollEvents();
+}
+
 int process()
 {
-    if(!initFrame())
+    if (!initFrame())
     {
         return -1;
     }
@@ -217,34 +300,21 @@ int process()
     // Render loop
     double timeCount = 0;
     int frameCount = 0;
-    while(!glfwWindowShouldClose(g_Window))
+    while (!glfwWindowShouldClose(g_Window))
     {
-        frameCount ++;
+        frameCount++;
         double curTime = glfwGetTime();
-        if(curTime - timeCount > 1)
+        if (curTime - timeCount > 1)
         {
             std::cout << "Frame Rate: " << frameCount / (curTime - timeCount) << "\n";
             frameCount = 0;
             timeCount = curTime;
         }
-        
+
         processInput(g_Window);
 
         // Render
-        glClearColor(0.2f, 0.2f, 0.2f, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // glActiveTexture(GL_TEXTURE0);
-        // glBindTexture(GL_TEXTURE_2D, g_TestTexture);
-
-        g_TestShader->use();
-
-        g_TestMesh->use();
-        
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        
-        glfwSwapBuffers(g_Window);
-        glfwPollEvents();
+        render();
     }
 
     releaseAll();
@@ -258,7 +328,7 @@ int main(int argc, char* argv[])
     {
         process();
     }
-    catch(std::exception &e)
+    catch (std::exception& e)
     {
         std::cout << e.what() << "\n";
     }
