@@ -3,6 +3,8 @@
 #include <iostream>
 #include "Shader.h"
 #include "glm.hpp"
+#include "gtc/matrix_transform.hpp"
+#include "gtc/type_ptr.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "Mesh.h"
 #include "Object.h"
@@ -17,9 +19,14 @@ Shader* g_TestShader;
 Mesh* g_TestMesh;
 GLuint g_TestTexture;
 
+int g_ScreenWidth = 800;
+int g_ScreenHeight = 600;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     std::cout << width << " " << height << "\n";
+    g_ScreenWidth = width;
+    g_ScreenHeight = height;
     glViewport(0, 0, width, height);
 }
 
@@ -57,7 +64,7 @@ GLuint loadTexture(char const* path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // TODO may cause performance problem
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data); // TODO errors here
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     
     glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -112,7 +119,7 @@ bool initGlfw()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    g_Window = glfwCreateWindow(800, 600, "YeahTitle", nullptr, nullptr);
+    g_Window = glfwCreateWindow(g_ScreenWidth, g_ScreenHeight, "YeahTitle", nullptr, nullptr);
     if(!g_Window)
     {
         std::cout << "Failed to create a window\n";
@@ -167,93 +174,112 @@ void initGame()
     // Texture
     g_TestTexture = loadTexture("../assets/o2.png");
 
-    // Mesh
+    // // Mesh
+    // float position[] = {
+    //     // 下
+    //     -0.5f, -0.5f, -0.5f,
+    //     -0.5f, -0.5f, -0.5f,
+    //     0.5f, -0.5f, -0.5f,
+    //     0.5f, -0.5f, 0.5f,
+    //
+    //     // 后
+    //     0.5f, -0.5f, -0.5f,
+    //     0.5f, -0.5f, -0.5f,
+    //     -0.5f, -0.5f, -0.5f,
+    //     -0.5f, 0.5f, -0.5f,
+    //
+    //     // 左
+    //     -0.5f, -0.5f, -0.5f,
+    //     -0.5f, 0.5f, -0.5f,
+    //     -0.5f, 0.5f, 0.5f,
+    //     -0.5f, -0.5f, 0.5f,
+    //
+    //     // 右
+    //     0.5f, -0.5f, 0.5f,
+    //     0.5f, 0.5f, 0.5f,
+    //     0.5f, 0.5f, -0.5f,
+    //     0.5f, -0.5f, -0.5f,
+    //
+    //     // 前
+    //     -0.5f, -0.5f, 0.5f,
+    //     -0.5f, 0.5f, 0.5f,
+    //     0.5f, 0.5f, 0.5f,
+    //     0.5f, -0.5f, 0.5f,
+    //
+    //     // 上
+    //     -0.5f, 0.5f, 0.5f,
+    //     -0.5f, 0.5f, -0.5f,
+    //     0.5f, 0.5f, -0.5f,
+    //     0.5f, 0.5f, 0.5f,
+    // };
+    // float texcoord[] = {
+    //     0.0f, 0.0f,
+    //     0.0f, 1.0f,
+    //     1.0f, 1.0f,
+    //     1.0f, 0.0f,
+    //
+    //     0.0f, 0.0f,
+    //     0.0f, 1.0f,
+    //     1.0f, 1.0f,
+    //     1.0f, 0.0f,
+    //
+    //     0.0f, 0.0f,
+    //     0.0f, 1.0f,
+    //     1.0f, 1.0f,
+    //     1.0f, 0.0f,
+    //
+    //     0.0f, 0.0f,
+    //     0.0f, 1.0f,
+    //     1.0f, 1.0f,
+    //     1.0f, 0.0f,
+    //
+    //     0.0f, 0.0f,
+    //     0.0f, 1.0f,
+    //     1.0f, 1.0f,
+    //     1.0f, 0.0f,
+    //
+    //     0.0f, 0.0f,
+    //     0.0f, 1.0f,
+    //     1.0f, 1.0f,
+    //     1.0f, 0.0f
+    // };
+    // unsigned int indices[] = {
+    //     0, 1, 2,
+    //     0, 2, 3,
+    //
+    //     4, 5, 6,
+    //     4, 6, 7,
+    //
+    //     8, 9, 10,
+    //     8, 10, 11,
+    //
+    //     12, 13, 14,
+    //     12, 14, 15,
+    //
+    //     16, 17, 18,
+    //     16, 18, 19,
+    //
+    //     20, 21, 22,
+    //     20, 22, 23
+    // };
+
     float position[] = {
-        // 下
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, 0.5f,
-
-        // 后
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-
-        // 左
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, -0.5f, 0.5f,
-
-        // 右
-        0.5f, -0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-
-        // 前
-        -0.5f, -0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-
-        // 上
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, 0.5f,
+        -0.5f, 0.0f, 0.5f,
+        -0.5f, 0.0f, -0.5f,
+        0.5f, 0.0f, -0.5f,
+        0.5f, 0.0f, 0.5f
     };
+
     float texcoord[] = {
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-
         0.0f, 0.0f,
         0.0f, 1.0f,
         1.0f, 1.0f,
         1.0f, 0.0f
     };
+
     unsigned int indices[] = {
         0, 1, 2,
-        0, 2, 3,
-
-        4, 5, 6,
-        4, 6, 7,
-
-        8, 9, 10,
-        8, 10, 11,
-
-        12, 13, 14,
-        12, 14, 15,
-
-        16, 17, 18,
-        16, 18, 19,
-
-        20, 21, 22,
-        20, 22, 23
+        0, 2, 3
     };
 
     g_TestMesh = new Mesh(position, texcoord, nullptr, indices, sizeof(indices) / sizeof(int));
@@ -275,12 +301,28 @@ void render()
     glClearColor(0.2f, 0.2f, 0.2f, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, g_TestTexture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, g_TestTexture);
 
     g_TestShader->use();
 
     g_TestMesh->use();
+
+    glm::mat4 objectMatrix = glm::mat4(1);
+    objectMatrix = glm::rotate(objectMatrix, glm::radians(55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+    glm::mat4 viewMatrix = glm::mat4(1.0f);
+    // matrix[i] 取的是矩阵的第i列
+    // 填写每一个单元时，先列再行
+    viewMatrix[3][2] = -3.0f;
+    
+    glm::mat4 projectionMatrix = glm::perspective(
+        glm::radians(45.0f),
+        static_cast<float>(g_ScreenWidth) / static_cast<float>(g_ScreenHeight),
+        0.1f,
+        30.0f);
+    glm::mat4 mvp = projectionMatrix * viewMatrix * objectMatrix;
+    int location = glGetUniformLocation(g_TestShader->ID, "_MVP");
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mvp));
 
     glDrawElements(GL_TRIANGLES, g_TestMesh->vertexCount, GL_UNSIGNED_INT, 0);
 
