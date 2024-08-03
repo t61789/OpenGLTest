@@ -147,6 +147,8 @@ bool initGl()
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
     std::cout << "Max vertex attributes: " << maxVertexAttributes << "\n";
 
+    glEnable(GL_DEPTH_TEST);
+
     return true;
 }
 
@@ -174,112 +176,93 @@ void initGame()
     // Texture
     g_TestTexture = loadTexture("../assets/o2.png");
 
-    // // Mesh
-    // float position[] = {
-    //     // 下
-    //     -0.5f, -0.5f, -0.5f,
-    //     -0.5f, -0.5f, -0.5f,
-    //     0.5f, -0.5f, -0.5f,
-    //     0.5f, -0.5f, 0.5f,
-    //
-    //     // 后
-    //     0.5f, -0.5f, -0.5f,
-    //     0.5f, -0.5f, -0.5f,
-    //     -0.5f, -0.5f, -0.5f,
-    //     -0.5f, 0.5f, -0.5f,
-    //
-    //     // 左
-    //     -0.5f, -0.5f, -0.5f,
-    //     -0.5f, 0.5f, -0.5f,
-    //     -0.5f, 0.5f, 0.5f,
-    //     -0.5f, -0.5f, 0.5f,
-    //
-    //     // 右
-    //     0.5f, -0.5f, 0.5f,
-    //     0.5f, 0.5f, 0.5f,
-    //     0.5f, 0.5f, -0.5f,
-    //     0.5f, -0.5f, -0.5f,
-    //
-    //     // 前
-    //     -0.5f, -0.5f, 0.5f,
-    //     -0.5f, 0.5f, 0.5f,
-    //     0.5f, 0.5f, 0.5f,
-    //     0.5f, -0.5f, 0.5f,
-    //
-    //     // 上
-    //     -0.5f, 0.5f, 0.5f,
-    //     -0.5f, 0.5f, -0.5f,
-    //     0.5f, 0.5f, -0.5f,
-    //     0.5f, 0.5f, 0.5f,
-    // };
-    // float texcoord[] = {
-    //     0.0f, 0.0f,
-    //     0.0f, 1.0f,
-    //     1.0f, 1.0f,
-    //     1.0f, 0.0f,
-    //
-    //     0.0f, 0.0f,
-    //     0.0f, 1.0f,
-    //     1.0f, 1.0f,
-    //     1.0f, 0.0f,
-    //
-    //     0.0f, 0.0f,
-    //     0.0f, 1.0f,
-    //     1.0f, 1.0f,
-    //     1.0f, 0.0f,
-    //
-    //     0.0f, 0.0f,
-    //     0.0f, 1.0f,
-    //     1.0f, 1.0f,
-    //     1.0f, 0.0f,
-    //
-    //     0.0f, 0.0f,
-    //     0.0f, 1.0f,
-    //     1.0f, 1.0f,
-    //     1.0f, 0.0f,
-    //
-    //     0.0f, 0.0f,
-    //     0.0f, 1.0f,
-    //     1.0f, 1.0f,
-    //     1.0f, 0.0f
-    // };
-    // unsigned int indices[] = {
-    //     0, 1, 2,
-    //     0, 2, 3,
-    //
-    //     4, 5, 6,
-    //     4, 6, 7,
-    //
-    //     8, 9, 10,
-    //     8, 10, 11,
-    //
-    //     12, 13, 14,
-    //     12, 14, 15,
-    //
-    //     16, 17, 18,
-    //     16, 18, 19,
-    //
-    //     20, 21, 22,
-    //     20, 22, 23
-    // };
-
+    // Mesh
     float position[] = {
-        -0.5f, 0.0f, 0.5f,
-        -0.5f, 0.0f, -0.5f,
-        0.5f, 0.0f, -0.5f,
-        0.5f, 0.0f, 0.5f
+        // 下
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
+        0.5f, -0.5f, -0.5f,
+    
+        // 后
+        0.5f, -0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+    
+        // 左
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, -0.5f, 0.5f,
+    
+        // 右
+        0.5f, -0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+    
+        // 前
+        -0.5f, -0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
+    
+        // 上
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, 0.5f,
     };
-
     float texcoord[] = {
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+    
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+    
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+    
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+    
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+    
         0.0f, 0.0f,
         0.0f, 1.0f,
         1.0f, 1.0f,
         1.0f, 0.0f
     };
-
     unsigned int indices[] = {
         0, 1, 2,
-        0, 2, 3
+        0, 2, 3,
+    
+        4, 5, 6,
+        4, 6, 7,
+    
+        8, 9, 10,
+        8, 10, 11,
+    
+        12, 13, 14,
+        12, 14, 15,
+    
+        16, 17, 18,
+        16, 18, 19,
+    
+        20, 21, 22,
+        20, 22, 23
     };
 
     g_TestMesh = new Mesh(position, texcoord, nullptr, indices, sizeof(indices) / sizeof(int));
@@ -299,7 +282,7 @@ void update()
 void render()
 {
     glClearColor(0.2f, 0.2f, 0.2f, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, g_TestTexture);
@@ -308,8 +291,9 @@ void render()
 
     g_TestMesh->use();
 
+    
     glm::mat4 objectMatrix = glm::mat4(1);
-    objectMatrix = glm::rotate(objectMatrix, glm::radians(55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+    objectMatrix = glm::rotate(objectMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
     glm::mat4 viewMatrix = glm::mat4(1.0f);
     // matrix[i] 取的是矩阵的第i列
     // 填写每一个单元时，先列再行
