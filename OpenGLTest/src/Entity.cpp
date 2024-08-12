@@ -1,12 +1,6 @@
 ﻿#include "Entity.h"
 
-Entity::Entity(Shader* shader, Mesh* mesh):
-shader(shader),
-mesh(mesh)
+Entity::Entity(Shader* shader, Mesh* mesh, Material* mat):
+shader(shader), mesh(mesh), mat(mat)
 {
-}
-
-void Entity::draw()
-{
-    shader->use();
 }

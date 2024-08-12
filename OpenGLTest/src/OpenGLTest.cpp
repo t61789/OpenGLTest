@@ -1,14 +1,4 @@
-#include <glad/glad.h>
-#include <glfw3.h>
-#include <iostream>
-#include "Shader.h"
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#include "Mesh.h"
-#include "Object.h"
-#include "../lib/stb_image.h"
+#include "OpenGLTest.h"
 
 GLFWwindow* g_Window;
 
@@ -17,7 +7,11 @@ Object g_Cube;
 
 Shader* g_TestShader;
 Mesh* g_TestMesh;
-GLuint g_TestTexture;
+Texture* g_TestTexture;
+Material* g_TestMat;
+Entity* g_Entity;
+
+RenderPipeline* g_RenderPipeline;
 
 int g_ScreenWidth = 800;
 int g_ScreenHeight = 600;
@@ -28,6 +22,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     g_ScreenWidth = width;
     g_ScreenHeight = height;
     glViewport(0, 0, width, height);
+    g_RenderPipeline->SetScreenSize(width, height);
 }
 
 void processInput(GLFWwindow* window)
@@ -36,41 +31,6 @@ void processInput(GLFWwindow* window)
     {
         glfwSetWindowShouldClose(window, true);
     }
-}
-
-GLuint loadTexture(char const* path)
-{
-    int width, height, nChannels;
-    stbi_uc* data;
-    try
-    {
-        data = stbi_load(path, &width, &height, &nChannels, 0);
-        if(!data)
-        {
-            throw std::runtime_error("ERROR>> Failed to load texture: " + std::string(path));
-        }
-    }
-    catch(std::exception)
-    {
-        throw;
-    }
-
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // TODO may cause performance problem
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(data);
-
-    return texture;
 }
 
 void genMesh(GLuint* VAO, GLuint* VBO, GLuint* EBO)
@@ -141,8 +101,6 @@ bool initGl()
         return false;
     }
 
-    stbi_set_flip_vertically_on_load(true);
-    
     int maxVertexAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
     std::cout << "Max vertex attributes: " << maxVertexAttributes << "\n";
@@ -174,7 +132,11 @@ void initGame()
     g_TestShader->setInt("tex", 0);
 
     // Texture
-    g_TestTexture = loadTexture("../assets/o2.png");
+    g_TestTexture = new Texture("../assets/o2.png");
+
+    // Material
+    g_TestMat = new Material();
+    g_TestMat->SetTextureValue("tex", g_TestTexture);
 
     // Mesh
     float position[] = {
@@ -266,12 +228,21 @@ void initGame()
     };
 
     g_TestMesh = new Mesh(position, texcoord, nullptr, indices, sizeof(indices) / sizeof(int));
+
+    g_RenderPipeline = new RenderPipeline(g_ScreenWidth, g_ScreenHeight, g_Window);
+
+    g_Entity = new Entity(g_TestShader, g_TestMesh, g_TestMat);
+    g_RenderPipeline->AddEntity(g_Entity);
 }
 
 void releaseAll()
 {
     delete g_TestShader;
     delete g_TestMesh;
+    delete g_TestTexture;
+    delete g_RenderPipeline;
+    delete g_TestMat;
+    delete g_Entity;
 }
 
 void update()
@@ -281,37 +252,7 @@ void update()
 
 void render()
 {
-    glClearColor(0.2f, 0.2f, 0.2f, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, g_TestTexture);
-
-    g_TestShader->use();
-
-    g_TestMesh->use();
-
-    
-    glm::mat4 objectMatrix = glm::mat4(1);
-    objectMatrix = glm::rotate(objectMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-    glm::mat4 viewMatrix = glm::mat4(1.0f);
-    // matrix[i] 取的是矩阵的第i列
-    // 填写每一个单元时，先列再行
-    viewMatrix[3][2] = -3.0f;
-    
-    glm::mat4 projectionMatrix = glm::perspective(
-        glm::radians(45.0f),
-        static_cast<float>(g_ScreenWidth) / static_cast<float>(g_ScreenHeight),
-        0.1f,
-        30.0f);
-    glm::mat4 mvp = projectionMatrix * viewMatrix * objectMatrix;
-    int location = glGetUniformLocation(g_TestShader->ID, "_MVP");
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mvp));
-
-    glDrawElements(GL_TRIANGLES, g_TestMesh->vertexCount, GL_UNSIGNED_INT, 0);
-
-    glfwSwapBuffers(g_Window);
-    glfwPollEvents();
+    g_RenderPipeline->Render();
 }
 
 int process()

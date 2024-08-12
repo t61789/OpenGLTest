@@ -79,6 +79,12 @@ void Shader::use() const
     glUseProgram(ID);
 }
 
+bool Shader::hasParam(const std::string &name) const
+{
+    int location = glGetUniformLocation(ID, name.c_str());
+    return location != -1;
+}
+
 void Shader::setBool(const std::string& name, const bool value) const
 {
     int location = glGetUniformLocation(ID, name.c_str());
@@ -87,6 +93,10 @@ void Shader::setBool(const std::string& name, const bool value) const
 
 void Shader::setBool(const int& name, const bool value)
 {
+    if(name == -1)
+    {
+        return;
+    }
     glUniform1i(name, value);
 }
 
@@ -98,6 +108,10 @@ void Shader::setInt(const std::string& name, const int value) const
 
 void Shader::setInt(const int& name, const int value)
 {
+    if(name == -1)
+    {
+        return;
+    }
     glUniform1i(name, value);
 }
 
@@ -109,7 +123,41 @@ void Shader::setFloat(const std::string& name, const float value) const
 
 void Shader::setFloat(const int& name, const float value)
 {
+    if(name == -1)
+    {
+        return;
+    }
     glUniform1f(name, value);
 }
 
+void Shader::setMatrix(const std::string& name, const glm::mat4& value) const
+{
+    int location = glGetUniformLocation(ID, name.c_str());
+    setMatrix(location, value);
+}
 
+void Shader::setMatrix(const int& name, const glm::mat4& value)
+{
+    if(name == -1)
+    {
+        return;
+    }
+    glUniformMatrix4fv(name, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void Shader::setTexture(const std::string& name, const int slot, const Texture* value) const
+{
+    int location = glGetUniformLocation(ID, name.c_str());
+    setTexture(location, slot, value);
+}
+
+void Shader::setTexture(const int& name, const int slot, const Texture* value)
+{
+    if(name == -1)
+    {
+        return;
+    }
+    setInt(name, slot);
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, value->textureId);
+}
