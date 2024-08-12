@@ -3,6 +3,9 @@
 
 #include "Entity.h"
 #include <glfw3.h>
+#include "Material.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "gtx/euler_angles.hpp"
 
 class RenderPipeline
 {

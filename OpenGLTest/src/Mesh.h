@@ -11,5 +11,5 @@ public:
     Mesh(const float* position, const float* texcoord, const float* color, const unsigned int* indices, size_t vertexCount);
     ~Mesh();
 
-    void use() const;
+    void Use() const;
 };

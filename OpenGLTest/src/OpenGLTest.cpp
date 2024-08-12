@@ -129,7 +129,7 @@ void initGame()
 {
     // Shader
     g_TestShader = new Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
-    g_TestShader->setInt("tex", 0);
+    g_TestShader->SetInt("tex", 0);
 
     // Texture
     g_TestTexture = new Texture("../assets/o2.png");
@@ -232,6 +232,7 @@ void initGame()
     g_RenderPipeline = new RenderPipeline(g_ScreenWidth, g_ScreenHeight, g_Window);
 
     g_Entity = new Entity(g_TestShader, g_TestMesh, g_TestMat);
+    g_Entity->rotation = glm::vec3(30, 0, 0);
     g_RenderPipeline->AddEntity(g_Entity);
 }
 
@@ -245,9 +246,9 @@ void releaseAll()
     delete g_Entity;
 }
 
-void update()
+void update(const double& time, const double& deltaTime)
 {
-    
+    g_Entity->rotation.y += deltaTime * 60.0f;
 }
 
 void render()
@@ -266,22 +267,27 @@ int process()
 
     // Render loop
     double timeCount = 0;
+    double preFrameTime = 0;
     int frameCount = 0;
     while (!glfwWindowShouldClose(g_Window))
     {
         frameCount++;
-        double curTime = glfwGetTime();
-        if (curTime - timeCount > 1)
+        double curFrameTime = glfwGetTime();
+        if (curFrameTime - timeCount > 1)
         {
-            std::cout << "Frame Rate: " << frameCount / (curTime - timeCount) << "\n";
+            std::cout << "Frame Rate: " << frameCount / (curFrameTime - timeCount) << "\n";
             frameCount = 0;
-            timeCount = curTime;
+            timeCount = curFrameTime;
         }
 
         processInput(g_Window);
 
+        update(curFrameTime, curFrameTime - preFrameTime);
+
         // Render
         render();
+        
+        preFrameTime = curFrameTime;
     }
 
     releaseAll();

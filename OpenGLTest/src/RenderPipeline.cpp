@@ -1,7 +1,5 @@
 ﻿#include "RenderPipeline.h"
 
-#include "Material.h"
-
 RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
 {
     m_Window = window;
@@ -24,7 +22,6 @@ void RenderPipeline::Render() const
     auto viewMatrix = glm::mat4(1.0f);
     // matrix[i] 取的是矩阵的第i列
     // 填写每一个单元时，先列再行
-    viewMatrix[3][1] = -1.0f;
     viewMatrix[3][2] = -3.0f;
     auto projectionMatrix = glm::perspective(
         glm::radians(45.0f),
@@ -78,16 +75,20 @@ void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatri
     }
 
     auto objectMatrix = glm::mat4(1);
-    objectMatrix = translate(objectMatrix, entity->rotation);
+    objectMatrix = translate(objectMatrix, entity->position);
+    objectMatrix = glm::eulerAngleXYZ(
+        glm::radians(entity->rotation.x),
+        glm::radians(entity->rotation.y),
+        glm::radians(entity->rotation.z)) * objectMatrix;
     auto mvp = vpMatrix * objectMatrix;
 
-    entity->shader->setMatrix("_MVP", mvp);
+    entity->shader->SetMatrix("_MVP", mvp);
 
-    entity->shader->use();
+    entity->shader->Use();
     
     entity->mat->FillParams(entity->shader);
 
-    entity->mesh->use();
+    entity->mesh->Use();
 
     glDrawElements(GL_TRIANGLES, entity->mesh->vertexCount, GL_UNSIGNED_INT, 0);
 }

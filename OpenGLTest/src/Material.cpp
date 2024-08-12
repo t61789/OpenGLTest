@@ -29,33 +29,33 @@ void Material::FillParams(const Shader* shader) const
 {
     for (const auto& element : intValues)
     {
-        shader->setInt(element.first, element.second);
+        shader->SetInt(element.first, element.second);
     }
     
     for (const auto& element : boolValues)
     {
-        shader->setBool(element.first, element.second);
+        shader->SetBool(element.first, element.second);
     }
     
     for (const auto& element : floatValues)
     {
-        shader->setFloat(element.first, element.second);
+        shader->SetFloat(element.first, element.second);
     }
     
     for (const auto& element : mat4Values)
     {
-        shader->setMatrix(element.first, element.second);
+        shader->SetMatrix(element.first, element.second);
     }
 
     int slot = 0;
     for (auto& element : textureValues)
     {
-        if(!shader->hasParam(element.first))
+        if(!shader->HasParam(element.first))
         {
             return;
         }
         
-        shader->setTexture(element.first, slot, element.second);
+        shader->SetTexture(element.first, slot, element.second);
         slot++;
     }
 }
