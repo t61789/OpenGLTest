@@ -6,10 +6,11 @@ class Object
 {
 public:
     glm::vec3 position;
+    glm::vec3 scale;
     glm::vec3 rotation;
 
     Object();
-    Object(glm::vec3 position, glm::vec3 rotation);
+    Object(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
     virtual ~Object();
 
     glm::mat4 GetLocalToWorld() const;

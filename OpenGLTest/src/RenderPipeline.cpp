@@ -74,9 +74,12 @@ void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatri
         return;
     }
 
-    auto mvp = vpMatrix * entity->GetLocalToWorld();
+    auto m = entity->GetLocalToWorld();
+    auto mvp = vpMatrix * m;
 
     entity->shader->SetMatrix("_MVP", mvp);
+    entity->shader->SetMatrix("_ITM", transpose(inverse(m)));
+    entity->shader->SetMatrix("_M", m);
 
     entity->shader->Use();
     

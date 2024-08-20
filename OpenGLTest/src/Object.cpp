@@ -7,11 +7,13 @@
 Object::Object()
 {
     position = glm::vec3(0, 0, 0);
+    scale = glm::vec3(1, 1, 1);
     rotation = glm::vec3(0, 0, 0);
 }
 
-Object::Object(glm::vec3 position, glm::vec3 rotation):
+Object::Object(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation):
 position(position),
+scale(scale),
 rotation(rotation)
 {
 }
@@ -26,6 +28,7 @@ glm::mat4 Object::GetLocalToWorld() const
         glm::radians(rotation.y),
         glm::radians(rotation.x),
         glm::radians(rotation.z));
+    objectMatrix = glm::scale(objectMatrix, scale);
     return objectMatrix;
 }
 

@@ -36,11 +36,14 @@ public:
 private:
     GLFWwindow* _window;
 
-    Shader* _testShader;
-    Mesh* _testMesh;
+    Shader* _commonShader;
+    Mesh* _bunnyMesh;
+    Mesh* _groundMesh;
     Texture* _testTexture;
-    Material* _testMat;
-    Entity* _entity;
+    Material* _bunnyMat;
+    Material* _groundMat;
+    Entity* _bunny;
+    Entity* _ground;
     Camera* _camera;
 
     RenderPipeline* _renderPipeline;

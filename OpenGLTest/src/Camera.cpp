@@ -5,7 +5,7 @@
 
 #include "GameFramework.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 rotation) : Object(position, rotation)
+Camera::Camera(glm::vec3 position, glm::vec3 rotation) : Object(position, glm::vec3(1, 1, 1), rotation)
 {
     _targetPosition = position;
     _targetRotation = rotation;

@@ -18,7 +18,8 @@ int main(int argc, char* argv[])
     {
         std::cout << e.what() << "\n";
     }
-
+    
     delete gf;
+    
     return 0;
 }

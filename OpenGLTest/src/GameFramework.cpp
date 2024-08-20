@@ -28,12 +28,15 @@ GameFramework::GameFramework()
 
 GameFramework::~GameFramework()
 {
-    delete _testShader;
-    delete _testMesh;
+    delete _commonShader;
+    delete _bunnyMesh;
+    delete _groundMesh;
     delete _testTexture;
     delete _renderPipeline;
-    delete _testMat;
-    delete _entity;
+    delete _bunnyMat;
+    delete _groundMat;
+    delete _bunny;
+    delete _ground;
     delete _camera;
 
     instance = nullptr;
@@ -166,113 +169,53 @@ void GameFramework::FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, i
 void GameFramework::InitGame()
 {
     _camera = new Camera(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0));
+    _renderPipeline = new RenderPipeline(_screenWidth, _screenHeight, _window);
     
     // Shader
-    _testShader = new Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
-    _testShader->SetInt("tex", 0);
+    _commonShader = new Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
+    _commonShader->SetInt("tex", 0);
 
     // Texture
     _testTexture = new Texture("../assets/o2.png");
 
     // Material
-    _testMat = new Material();
-    _testMat->SetTextureValue("tex", _testTexture);
+    _bunnyMat = new Material();
+    _bunnyMat->SetFloatValue("_ShowTex", 0);
+
+    _groundMat = new Material();
+    _groundMat->SetTextureValue("_MainTex", _testTexture);
+    _groundMat->SetFloatValue("_ShowTex", 1);
 
     // Mesh
-    float position[] = {
-        // 下
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-        0.5f, -0.5f, -0.5f,
+    _bunnyMesh = Mesh::LoadFromFile("../assets/stanford-bunny.obj");
     
-        // 后
-        0.5f, -0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-    
-        // 左
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, -0.5f, 0.5f,
-    
-        // 右
-        0.5f, -0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-    
-        // 前
-        -0.5f, -0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-    
-        // 上
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, 0.5f,
+    float vertices[] = {
+        0.5f,  0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+       -0.5f, -0.5f, 0.0f,
+       -0.5f,  0.5f, 0.0f,
     };
-    float texcoord[] = {
-        0.0f, 0.0f,
-        0.0f, 1.0f,
+    float texcoords[] = {
         1.0f, 1.0f,
         1.0f, 0.0f,
-    
         0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-    
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-    
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-    
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-    
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f
+        0.0f, 1.0f
     };
     unsigned int indices[] = {
-        0, 1, 2,
-        0, 2, 3,
-    
-        4, 5, 6,
-        4, 6, 7,
-    
-        8, 9, 10,
-        8, 10, 11,
-    
-        12, 13, 14,
-        12, 14, 15,
-    
-        16, 17, 18,
-        16, 18, 19,
-    
-        20, 21, 22,
-        20, 22, 23
+        0, 1, 3,
+        1, 2, 3
     };
+    _groundMesh = new Mesh(vertices, nullptr, texcoords, nullptr, indices, sizeof(indices) / sizeof(unsigned int));
 
-    _testMesh = new Mesh(position, texcoord, nullptr, indices, sizeof(indices) / sizeof(int));
+    // Entity
+    _bunny = new Entity(_commonShader, _bunnyMesh, _bunnyMat);
+    _bunny->scale = glm::vec3(10, 10, 10);
+    _bunny->rotation = glm::vec3(0, 0, 0);
+    _renderPipeline->AddEntity(_bunny);
 
-    _renderPipeline = new RenderPipeline(_screenWidth, _screenHeight, _window);
-
-    _entity = new Entity(_testShader, _testMesh, _testMat);
-    _entity->rotation = glm::vec3(0, 0, 0);
-    _renderPipeline->AddEntity(_entity);
+    _ground = new Entity(_commonShader, _groundMesh, _groundMat);
+    _ground->scale = glm::vec3(10, 10, 1);
+    _ground->rotation = glm::vec3(-90, 0, 0);
+    _renderPipeline->AddEntity(_ground);
 }
 
