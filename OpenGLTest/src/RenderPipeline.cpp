@@ -1,5 +1,7 @@
 ﻿#include "RenderPipeline.h"
 
+#include <iostream>
+
 RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
 {
     m_Window = window;
@@ -14,15 +16,13 @@ void RenderPipeline::SetScreenSize(const int width, const int height)
     m_ScreenHeight = height;
 }
 
-void RenderPipeline::Render() const
+void RenderPipeline::Render(const Camera* camera) const
 {
     glClearColor(0.2f, 0.2f, 0.2f, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    auto viewMatrix = glm::mat4(1.0f);
-    // matrix[i] 取的是矩阵的第i列
-    // 填写每一个单元时，先列再行
-    viewMatrix[3][2] = -3.0f;
+
+    auto cameraLocalToWorld = camera->GetLocalToWorld();
+    auto viewMatrix = inverse(cameraLocalToWorld);
     auto projectionMatrix = glm::perspective(
         glm::radians(45.0f),
         static_cast<float>(m_ScreenWidth) / static_cast<float>(m_ScreenHeight),
@@ -74,13 +74,7 @@ void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatri
         return;
     }
 
-    auto objectMatrix = glm::mat4(1);
-    objectMatrix = translate(objectMatrix, entity->position);
-    objectMatrix = glm::eulerAngleXYZ(
-        glm::radians(entity->rotation.x),
-        glm::radians(entity->rotation.y),
-        glm::radians(entity->rotation.z)) * objectMatrix;
-    auto mvp = vpMatrix * objectMatrix;
+    auto mvp = vpMatrix * entity->GetLocalToWorld();
 
     entity->shader->SetMatrix("_MVP", mvp);
 

@@ -34,6 +34,9 @@ GameFramework::~GameFramework()
     delete _renderPipeline;
     delete _testMat;
     delete _entity;
+    delete _camera;
+
+    instance = nullptr;
 }
 
 bool GameFramework::Init()
@@ -57,25 +60,41 @@ void GameFramework::StartGameLoop()
     while (!glfwWindowShouldClose(_window))
     {
         frameCount++;
-        double curFrameTime = glfwGetTime();
-        if (curFrameTime - timeCount > 1)
+        _curFrameTime = glfwGetTime();
+        _deltaTime = static_cast<float>(_curFrameTime - preFrameTime);
+        if (_curFrameTime - timeCount > 1)
         {
-            std::cout << "Frame Rate: " << frameCount / (curFrameTime - timeCount) << "\n";
+            std::cout << "Frame Rate: " << frameCount / (_curFrameTime - timeCount) << "\n";
             frameCount = 0;
-            timeCount = curFrameTime;
+            timeCount = _curFrameTime;
         }
 
         ProcessInput();
 
-        Update(curFrameTime, curFrameTime - preFrameTime);
+        Update();
 
         // Render
         Render();
         
-        preFrameTime = curFrameTime;
+        preFrameTime = _curFrameTime;
     }
 
     glfwTerminate();
+}
+
+float GameFramework::GetDeltaTime()
+{
+    return _deltaTime;
+}
+
+float GameFramework::GetCurFrameTime()
+{
+    return _curFrameTime;
+}
+
+bool GameFramework::KeyPressed(int glfwKey) const
+{
+    return glfwGetKey(_window, glfwKey) == GLFW_PRESS;
 }
 
 bool GameFramework::InitFrame()
@@ -117,20 +136,22 @@ bool GameFramework::InitGlfw()
 
 void GameFramework::ProcessInput()
 {
-    if(glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if(KeyPressed(GLFW_KEY_ESCAPE))
     {
         glfwSetWindowShouldClose(_window, true);
     }
 }
 
-void GameFramework::Update(const double& time, const double& deltaTime)
+void GameFramework::Update()
 {
-    _entity->rotation.y += deltaTime * 60.0f;
+    _camera->Update();
+    
+    // _entity->rotation.y += GetDeltaTime() * 60.0f;
 }
 
 void GameFramework::Render()
 {
-    _renderPipeline->Render();
+    _renderPipeline->Render(_camera);
 }
 
 void GameFramework::FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, int height)
@@ -144,6 +165,8 @@ void GameFramework::FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, i
 
 void GameFramework::InitGame()
 {
+    _camera = new Camera(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0));
+    
     // Shader
     _testShader = new Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
     _testShader->SetInt("tex", 0);
@@ -249,7 +272,7 @@ void GameFramework::InitGame()
     _renderPipeline = new RenderPipeline(_screenWidth, _screenHeight, _window);
 
     _entity = new Entity(_testShader, _testMesh, _testMat);
-    _entity->rotation = glm::vec3(30, 0, 0);
+    _entity->rotation = glm::vec3(0, 0, 0);
     _renderPipeline->AddEntity(_entity);
 }
 

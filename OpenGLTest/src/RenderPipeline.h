@@ -4,8 +4,7 @@
 #include "Entity.h"
 #include <glfw3.h>
 #include "Material.h"
-#define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "Camera.h"
 
 class RenderPipeline
 {
@@ -13,7 +12,7 @@ public:
     RenderPipeline(int width, int height, GLFWwindow* window);
     ~RenderPipeline();
     void SetScreenSize(int width, int height);
-    void Render() const;
+    void Render(const Camera* camera) const;
     bool AddEntity(Entity* entity);
     bool RemoveEntity(const Entity* entity);
 
