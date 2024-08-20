@@ -32,7 +32,7 @@ void RenderPipeline::Render(const Camera* camera) const
     
     for (auto& entity : m_Entities)
     {
-        RenderEntity(entity, vpMatrix);
+        RenderEntity(entity, vpMatrix, camera->position);
     }
 
     glfwSwapBuffers(m_Window);
@@ -67,7 +67,7 @@ bool RenderPipeline::RemoveEntity(const Entity* entity)
     return false;
 }
 
-void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatrix)
+void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatrix, const glm::vec3& cameraPositionWS)
 {
     if(entity->mesh == nullptr || entity->shader == nullptr)
     {
@@ -80,6 +80,7 @@ void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatri
     entity->shader->SetMatrix("_MVP", mvp);
     entity->shader->SetMatrix("_ITM", transpose(inverse(m)));
     entity->shader->SetMatrix("_M", m);
+    entity->shader->SetVector("_CameraPositionWS", glm::vec4(cameraPositionWS, 1));
 
     entity->shader->Use();
     

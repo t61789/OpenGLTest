@@ -21,5 +21,5 @@ private:
     int m_ScreenHeight;
     GLFWwindow* m_Window;
     std::vector<Entity*> m_Entities;
-    static void RenderEntity(const ::Entity* entity, const glm::mat4& vpMatrix);
+    static void RenderEntity(const ::Entity* entity, const glm::mat4& vpMatrix, const glm::vec3& cameraPositionWS);
 };

@@ -91,13 +91,13 @@ void Shader::SetBool(const std::string& name, const bool value) const
     SetBool(location, value);
 }
 
-void Shader::SetBool(const int& name, const bool value)
+void Shader::SetBool(const int& location, const bool value)
 {
-    if(name == -1)
+    if(location == -1)
     {
         return;
     }
-    glUniform1i(name, value);
+    glUniform1i(location, value);
 }
 
 void Shader::SetInt(const std::string& name, const int value) const
@@ -106,13 +106,13 @@ void Shader::SetInt(const std::string& name, const int value) const
     SetInt(location, value);
 }
 
-void Shader::SetInt(const int& name, const int value)
+void Shader::SetInt(const int& location, const int value)
 {
-    if(name == -1)
+    if(location == -1)
     {
         return;
     }
-    glUniform1i(name, value);
+    glUniform1i(location, value);
 }
 
 void Shader::SetFloat(const std::string& name, const float value) const
@@ -121,13 +121,28 @@ void Shader::SetFloat(const std::string& name, const float value) const
     SetFloat(location, value);
 }
 
-void Shader::SetFloat(const int& name, const float value)
+void Shader::SetFloat(const int& location, const float value)
 {
-    if(name == -1)
+    if(location == -1)
     {
         return;
     }
-    glUniform1f(name, value);
+    glUniform1f(location, value);
+}
+
+void Shader::SetVector(const std::string& name, glm::vec4 value) const
+{
+    int location = glGetUniformLocation(ID, name.c_str());
+    SetVector(location, value);
+}
+
+void Shader::SetVector(const int& location, glm::vec4 value)
+{
+    if(location == -1)
+    {
+        return;
+    }
+    glUniform4f(location, value.x, value.y, value.z, value.w);
 }
 
 void Shader::SetMatrix(const std::string& name, const glm::mat4& value) const
@@ -136,13 +151,13 @@ void Shader::SetMatrix(const std::string& name, const glm::mat4& value) const
     SetMatrix(location, value);
 }
 
-void Shader::SetMatrix(const int& name, const glm::mat4& value)
+void Shader::SetMatrix(const int& location, const glm::mat4& value)
 {
-    if(name == -1)
+    if(location == -1)
     {
         return;
     }
-    glUniformMatrix4fv(name, 1, GL_FALSE, glm::value_ptr(value));
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 void Shader::SetTexture(const std::string& name, const int slot, const Texture* value) const
@@ -151,13 +166,13 @@ void Shader::SetTexture(const std::string& name, const int slot, const Texture* 
     SetTexture(location, slot, value);
 }
 
-void Shader::SetTexture(const int& name, const int slot, const Texture* value)
+void Shader::SetTexture(const int& location, const int slot, const Texture* value)
 {
-    if(name == -1)
+    if(location == -1)
     {
         return;
     }
-    SetInt(name, slot);
+    SetInt(location, slot);
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, value->textureId);
 }

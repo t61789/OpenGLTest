@@ -12,11 +12,13 @@ uniform mat4 _M;
 out vec4 vertexColor;
 out vec2 texCoord;
 out vec3 normalWS;
+out vec3 positionWS;
 
 void main()
 {
    gl_Position = _MVP * vec4(aPos, 1);
    vertexColor = vec4(aColor, 1.0);
    texCoord = aTexCoord;
-   normalWS = (_ITM * vec4(aNormal, 0)).xyz;
+   normalWS = normalize((_ITM * vec4(aNormal, 0)).xyz);
+   positionWS = (_M * vec4(aPos, 1)).xyz;
 };
