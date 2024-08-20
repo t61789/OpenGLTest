@@ -11,3 +11,13 @@ position(position),
 rotation(rotation)
 {
 }
+
+Object::~Object()
+{
+    
+}
+
+void Object::Update()
+{
+    // pass
+}
