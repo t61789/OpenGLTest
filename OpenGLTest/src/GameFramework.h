@@ -31,6 +31,7 @@ public:
 
     float GetDeltaTime();
     float GetCurFrameTime();
+    float GetFrameCount();
     bool KeyPressed(int glfwKey) const;
     
 private:
@@ -53,6 +54,7 @@ private:
 
     float _deltaTime;
     float _curFrameTime;
+    int _frameCount;
 
     void InitGame();
     bool InitFrame();

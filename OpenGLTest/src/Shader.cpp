@@ -1,5 +1,9 @@
 ﻿#include "Shader.h"
 
+#include <iostream>
+
+#include "GameFramework.h"
+
 using namespace std;
 
 void checkShaderCompilation(GLuint vertexShader, const char* shaderPath)
@@ -74,9 +78,29 @@ Shader::~Shader()
     glDeleteProgram(ID);
 }
 
-void Shader::Use() const
+void Shader::Use(Mesh* mesh) const
 {
     glUseProgram(ID);
+
+    for (size_t i = 0; i < VERTEX_ATTRIB_NUM; ++i)
+    {
+        int curLayout = glGetAttribLocation(ID, VERTEX_ATTRIB_NAMES[i]);
+        bool existInShader = curLayout != -1;
+        bool existInMesh = mesh->vertexAttribEnabled[i];
+        if(!existInShader || !existInMesh)
+        {
+            continue;
+        }
+
+        glVertexAttribPointer(
+            curLayout,
+            VERTEX_ATTRIB_FLOAT_COUNT[i],
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(float) * mesh->vertexDataStride,
+            (void*)(mesh->vertexDataOffset[i] * sizeof(float)));
+        glEnableVertexAttribArray(curLayout);
+    }
 }
 
 bool Shader::HasParam(const std::string &name) const

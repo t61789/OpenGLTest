@@ -232,6 +232,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\ConstVars.cpp" />
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Object.cpp" />
@@ -391,6 +392,7 @@
   <ItemGroup>
     <ClInclude Include="lib\stb_image.h" />
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\ConstVars.h" />
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\Event.h" />
     <ClInclude Include="src\Mesh.h" />

@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "Mesh.h"
 #include "Texture.h"
 
 class Shader
@@ -19,7 +20,7 @@ public:
     Shader(const char* vertexPath, const char* fragPath);
     ~Shader();
 
-    void Use() const;
+    void Use(Mesh* mesh) const;
     bool HasParam(const std::string &name) const;
     void SetBool(const std::string &name, bool value) const;
     static void SetBool(const int &location, bool value);

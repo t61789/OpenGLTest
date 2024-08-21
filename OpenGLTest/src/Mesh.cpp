@@ -36,15 +36,42 @@ Mesh::Mesh(
     const size_t vertexCount):
 vertexCount(vertexCount)
 {
-    constexpr size_t vertexDataStride = 3 + 3 + 2 + 3;
+    const float* vertexAttribSource[] = {
+        position,
+        normal,
+        texcoord,
+        color
+    };
+
+    auto vertexAttribNum = sizeof(VERTEX_ATTRIB_FLOAT_COUNT) / sizeof(int);
+    vertexDataStride = 0;
+    for (size_t i = 0; i < vertexAttribNum; ++i)
+    {
+        vertexAttribEnabled[i] = vertexAttribSource[i];
+        if(vertexAttribSource[i])
+        {
+            vertexDataStride += VERTEX_ATTRIB_FLOAT_COUNT[i];
+        }
+    }
     size_t dataLength = vertexDataStride * vertexCount;
 
     auto data = new float[dataLength];
-
-    copyDataTo(position, data, 0, 3, vertexCount, vertexDataStride);
-    copyDataTo(normal, data, 3, 3, vertexCount, vertexDataStride);
-    copyDataTo(texcoord, data, 6, 2, vertexCount, vertexDataStride);
-    copyDataTo(color, data, 8, 3, vertexCount, vertexDataStride);
+    int curOffset = 0;
+    for (size_t i = 0; i < vertexAttribNum; ++i)
+    {
+        if(vertexAttribSource[i])
+        {
+            copyDataTo(
+                vertexAttribSource[i],
+                data,
+                curOffset,
+                VERTEX_ATTRIB_FLOAT_COUNT[i],
+                vertexCount,
+                vertexDataStride);
+            vertexDataOffset[i] = curOffset;
+            curOffset += VERTEX_ATTRIB_FLOAT_COUNT[i];
+        }
+    }
     
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -57,30 +84,9 @@ vertexCount(vertexCount)
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexCount * sizeof(int)), indices, GL_STATIC_DRAW);
-
-    if(position)
-    {
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * vertexDataStride, (void*)0);
-        glEnableVertexAttribArray(0);
-    }
-    if(normal)
-    {
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * vertexDataStride, (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-    }
-    if(texcoord)
-    {
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * vertexDataStride, (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-    }
-    if(color)
-    {
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(float) * vertexDataStride, (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     delete[] data;
 }
@@ -157,6 +163,7 @@ Mesh* Mesh::LoadFromFile(std::string modelPath)
 void Mesh::Use() const
 {
     glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 }
 
 

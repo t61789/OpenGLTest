@@ -60,8 +60,10 @@ void GameFramework::StartGameLoop()
     double timeCount = 0;
     double preFrameTime = 0;
     int frameCount = 0;
+    _frameCount = -1;
     while (!glfwWindowShouldClose(_window))
     {
+        _frameCount++;
         frameCount++;
         _curFrameTime = glfwGetTime();
         _deltaTime = static_cast<float>(_curFrameTime - preFrameTime);
@@ -93,6 +95,11 @@ float GameFramework::GetDeltaTime()
 float GameFramework::GetCurFrameTime()
 {
     return _curFrameTime;
+}
+
+float GameFramework::GetFrameCount()
+{
+    return _frameCount;
 }
 
 bool GameFramework::KeyPressed(int glfwKey) const

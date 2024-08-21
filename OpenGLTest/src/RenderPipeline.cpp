@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "GameFramework.h"
+
 RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
 {
     m_Window = window;
@@ -82,11 +84,10 @@ void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatri
     entity->shader->SetMatrix("_M", m);
     entity->shader->SetVector("_CameraPositionWS", glm::vec4(cameraPositionWS, 1));
 
-    entity->shader->Use();
+    entity->mesh->Use();
+    entity->shader->Use(entity->mesh);
     
     entity->mat->FillParams(entity->shader);
-
-    entity->mesh->Use();
-
+    
     glDrawElements(GL_TRIANGLES, entity->mesh->vertexCount, GL_UNSIGNED_INT, 0);
 }
