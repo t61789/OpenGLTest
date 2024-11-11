@@ -17,6 +17,7 @@
 #include "RenderPipeline.h"
 #include "Entity.h"
 #include "Event.h"
+#include "Scene.h"
 
 class GameFramework
 {
@@ -46,6 +47,8 @@ private:
     Entity* _bunny;
     Entity* _ground;
     Camera* _camera;
+
+    Scene* m_scene;
 
     RenderPipeline* _renderPipeline;
 

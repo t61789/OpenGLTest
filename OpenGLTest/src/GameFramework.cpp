@@ -216,13 +216,21 @@ void GameFramework::InitGame()
 
     // Entity
     _bunny = new Entity(_commonShader, _bunnyMesh, _bunnyMat);
-    _bunny->scale = glm::vec3(10, 10, 10);
-    _bunny->rotation = glm::vec3(0, 0, 0);
+    _bunny->m_scale = glm::vec3(10, 10, 10);
+    _bunny->m_rotation = glm::vec3(0, 0, 0);
     _renderPipeline->AddEntity(_bunny);
 
     _ground = new Entity(_commonShader, _groundMesh, _groundMat);
-    _ground->scale = glm::vec3(10, 10, 1);
-    _ground->rotation = glm::vec3(-90, 0, 0);
+    _ground->m_scale = glm::vec3(10, 10, 1);
+    _ground->m_rotation = glm::vec3(-90, 0, 0);
     _renderPipeline->AddEntity(_ground);
+
+    m_scene = new Scene("F://Shit.json");
+
+    auto sceneRoot = Object::GetObjectPtr(m_scene->m_sceneRoot);
+    for (auto& child : sceneRoot->m_children)
+    {
+        std::cout << Object::GetObjectPtr(child)->m_name << std::endl;
+    }
 }
 

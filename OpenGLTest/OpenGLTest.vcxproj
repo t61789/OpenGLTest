@@ -311,6 +311,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="src\RenderPipeline.cpp" />
+    <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -400,6 +401,7 @@
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\OpenGLTest.h" />
     <ClInclude Include="src\RenderPipeline.h" />
+    <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Texture.h" />
