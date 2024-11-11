@@ -5,6 +5,8 @@
 
 #include "glm.hpp"
 
+#include "../lib/json.hpp"
+
 typedef unsigned long long OBJECT_ID;
 
 class Object
@@ -25,6 +27,7 @@ public:
 
     glm::mat4 GetLocalToWorld() const;
     virtual void Update();
+    virtual void LoadFromJson(const nlohmann::json& objJson);
 
     void AddChild(OBJECT_ID child);
 
