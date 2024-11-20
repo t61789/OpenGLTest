@@ -17,7 +17,7 @@ Texture::~Texture()
 
 RESOURCE_ID Texture::LoadFromFile(const std::string& path)
 {
-    if(ResourceMgr::HasResourceRegistered(path))
+    if(ResourceMgr::IsResourceRegistered(path))
     {
         return ResourceMgr::GetRegisteredResource(path);
     }

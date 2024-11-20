@@ -73,7 +73,7 @@ void Material::FillParams(const Shader* shader) const
 
 RESOURCE_ID Material::LoadFromFile(const std::string& path)
 {
-    if(ResourceMgr::HasResourceRegistered(path))
+    if(ResourceMgr::IsResourceRegistered(path))
     {
         return ResourceMgr::GetRegisteredResource(path);
     }
@@ -91,34 +91,64 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
         const auto& elemKey = elem.key();
         const auto& elemValue = elem.value();
         
-        if(elemKey == "vert")
+        if (elemKey == "vert")
         {
             vertShaderPath = elemValue.get<std::string>();
+            continue;
         }
-        else if(elemKey == "frag")
+        
+        if (elemKey == "frag")
         {
             fragShaderPath = elemValue.get<std::string>();
+            continue;
         }
-        else if(elem.value().is_number_integer())
+        
+        if (elem.value().is_number_integer())
         {
             result->SetIntValue(elemKey, elemValue.get<int>());
+            continue;
         }
-        else if(elemValue.is_number_float())
+        
+        if (elemValue.is_number_float())
         {
             result->SetFloatValue(elemKey, elemValue.get<float>());
+            continue;
         }
-        else if(elemValue.is_boolean())
+        
+        if (elemValue.is_boolean())
         {
             result->SetBoolValue(elemKey, elemValue.get<bool>());
+            continue;
         }
-        else
+        
+        if (elemValue.is_array() && elemValue.size() == 4)
         {
-            std::string textureSuffix = "Tex";
-            // ends with suffix
-            if(elemKey.size() >= textureSuffix.size() && elemKey.rfind(textureSuffix) == elemKey.size() - textureSuffix.size())
+            bool allFloat = true;
+            for (auto& e : elemValue)
             {
-                result->SetTextureValue(elemKey, Texture::LoadFromFile(elemValue.get<std::string>()));
+                allFloat &= e.is_number_float();
             }
+            if(allFloat)
+            {
+                result->SetVector4Value(
+                    elemKey,
+                    glm::vec4(
+                        elemValue[0].get<float>(),
+                        elemValue[1].get<float>(),
+                        elemValue[2].get<float>(),
+                        elemValue[3].get<float>()));
+                continue;
+            }
+        }
+        
+        const std::string textureSuffix = "Tex";
+        // ends with suffix
+        if (elemKey.size() >= textureSuffix.size() &&
+            elemKey.rfind(textureSuffix) == elemKey.size() - textureSuffix.size() &&
+            elemValue.is_string())
+        {
+            result->SetTextureValue(elemKey, Texture::LoadFromFile(elemValue.get<std::string>()));
+            continue;
         }
     }
 

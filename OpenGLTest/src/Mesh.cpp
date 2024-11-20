@@ -121,7 +121,7 @@ RESOURCE_ID Mesh::CreateMesh(
 
 RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
 {
-    if(ResourceMgr::HasResourceRegistered(modelPath))
+    if(ResourceMgr::IsResourceRegistered(modelPath))
     {
         return ResourceMgr::GetRegisteredResource(modelPath);
     }

@@ -139,7 +139,7 @@ void Shader::SetMatrix(const int& location, const glm::mat4& value)
 RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::string& fragPath)
 {
     std::string checkPath = vertexPath + fragPath;
-    if(ResourceMgr::HasResourceRegistered(checkPath))
+    if(ResourceMgr::IsResourceRegistered(checkPath))
     {
         return ResourceMgr::GetRegisteredResource(checkPath);
     }
