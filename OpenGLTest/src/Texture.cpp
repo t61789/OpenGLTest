@@ -3,8 +3,25 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../lib/stb_image.h"
 
-Texture::Texture(const std::string& path)
+Texture::Texture(const GLuint glTextureId)
 {
+    m_glTextureId = glTextureId;
+    m_id = ResourceMgr::AddPtr(this);
+}
+
+Texture::~Texture()
+{
+    glDeleteTextures(1, &m_glTextureId);
+    ResourceMgr::RemovePtr(m_id);
+}
+
+RESOURCE_ID Texture::LoadFromFile(const std::string& path)
+{
+    if(ResourceMgr::HasResourceRegistered(path))
+    {
+        return ResourceMgr::GetResourceId(path);
+    }
+
     stbi_set_flip_vertically_on_load(true);
     
     int width, height, nChannels;
@@ -22,8 +39,9 @@ Texture::Texture(const std::string& path)
         throw;
     }
 
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
+    GLuint glTextureId;
+    glGenTextures(1, &glTextureId);
+    glBindTexture(GL_TEXTURE_2D, glTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -35,4 +53,8 @@ Texture::Texture(const std::string& path)
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(data);
+
+    auto texture = new Texture(glTextureId);
+    ResourceMgr::RegisterResource(path, texture->m_id);
+    return texture->m_id;
 }

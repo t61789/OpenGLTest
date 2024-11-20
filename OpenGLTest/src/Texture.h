@@ -1,12 +1,23 @@
 ﻿#pragma once
 #include <string>
 #include <stdexcept>
+#include <unordered_map>
 #include <glad/glad.h>
+
+#include "ResourceMgr.h"
 
 class Texture
 {
 public:
-    GLuint textureId;
+    RESOURCE_ID m_id;
+    GLuint m_glTextureId;
     
-    Texture(const std::string& path);
+    static RESOURCE_ID LoadFromFile(const std::string& path);
+
+private:
+    
+    Texture(GLuint glTextureId);
+    ~Texture();
+
+    // TODO 卸载纹理
 };

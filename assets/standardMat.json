@@ -1,0 +1,5 @@
+{
+	"vert":"TestVertShader.vert",
+	"frag":"TestFragShader.frag",
+	"_ShowTex":0
+}

@@ -8,10 +8,13 @@ class Material;
 class Entity : public Object
 {
 public:
+    ~Entity();
+    
+    RESOURCE_ID m_shader = -1;
+    RESOURCE_ID m_mesh = -1;
+    RESOURCE_ID m_mat = -1;
 
-    Shader* shader;
-    Mesh* mesh;
-    Material* mat;
+private:
 
-    Entity(Shader* shader, Mesh* mesh, Material* mat);
+    void LoadFromJson(const nlohmann::json& objJson) override;
 };

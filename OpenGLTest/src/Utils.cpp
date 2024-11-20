@@ -9,3 +9,8 @@ glm::vec3 Utils::ToVec3(nlohmann::json arr)
     };
 }
 
+std::string Utils::GetRealAssetPath(const std::string& relativePath)
+{
+    return std::string("../assets/") + relativePath;
+}
+

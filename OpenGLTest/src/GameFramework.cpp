@@ -1,6 +1,7 @@
 ﻿#include "GameFramework.h"
 
 #include <iostream>
+#include "Windows.h"
 
 bool initGl()
 {
@@ -32,12 +33,12 @@ GameFramework::~GameFramework()
     delete _bunnyMesh;
     delete _groundMesh;
     delete _testTexture;
-    delete _renderPipeline;
+    delete m_renderPipeline;
     delete _bunnyMat;
     delete _groundMat;
     delete _bunny;
     delete _ground;
-    delete _camera;
+    delete m_scene;
 
     instance = nullptr;
 }
@@ -152,16 +153,41 @@ void GameFramework::ProcessInput()
     }
 }
 
+void UpdateObject(OBJECT_ID objId)
+{
+    auto obj = Object::GetObjectPtr(objId);
+    if(obj != nullptr)
+    {
+        obj->Update();
+        for (auto child : obj->m_children)
+        {
+            UpdateObject(child);
+        }
+    }
+}
+
 void GameFramework::Update()
 {
-    _camera->Update();
+    if(m_scene != nullptr)
+    {
+        UpdateObject(m_scene->m_sceneRoot);
+    }
     
     // _entity->rotation.y += GetDeltaTime() * 60.0f;
 }
 
 void GameFramework::Render()
 {
-    _renderPipeline->Render(_camera);
+    auto mainCamera = Camera::GetMainCamera();
+    if(mainCamera != nullptr)
+    {
+        m_renderPipeline->Render(mainCamera);
+    }
+    else
+    {
+        std::cout << "未找到可用摄像机\n";
+        Sleep(16);
+    }
 }
 
 void GameFramework::FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, int height)
@@ -170,13 +196,12 @@ void GameFramework::FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, i
     instance->_screenWidth = width;
     instance->_screenHeight = height;
     glViewport(0, 0, width, height);
-    instance->_renderPipeline->SetScreenSize(width, height);
+    instance->m_renderPipeline->SetScreenSize(width, height);
 }
 
 void GameFramework::InitGame()
 {
-    _camera = new Camera(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0));
-    _renderPipeline = new RenderPipeline(_screenWidth, _screenHeight, _window);
+    m_renderPipeline = new RenderPipeline(_screenWidth, _screenHeight, _window);
     
     // Shader
     _commonShader = new Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
@@ -194,7 +219,9 @@ void GameFramework::InitGame()
     _groundMat->SetFloatValue("_ShowTex", 1);
 
     // Mesh
-    _bunnyMesh = Mesh::LoadFromFile("../assets/stanford-bunny.obj");
+    // _bunnyMesh = Mesh::LoadFromFile("../assets/stanford-bunny.obj");
+    _bunnyMesh = Mesh::LoadFromFile("../assets/beetle.obj");
+    // _bunnyMesh = Mesh::LoadFromFile("../assets/beast.obj");
     
     float vertices[] = {
         0.5f,  0.5f, 0.0f,
@@ -218,19 +245,13 @@ void GameFramework::InitGame()
     _bunny = new Entity(_commonShader, _bunnyMesh, _bunnyMat);
     _bunny->m_scale = glm::vec3(10, 10, 10);
     _bunny->m_rotation = glm::vec3(0, 0, 0);
-    _renderPipeline->AddEntity(_bunny);
+    m_renderPipeline->AddEntity(_bunny);
 
     _ground = new Entity(_commonShader, _groundMesh, _groundMat);
     _ground->m_scale = glm::vec3(10, 10, 1);
     _ground->m_rotation = glm::vec3(-90, 0, 0);
-    _renderPipeline->AddEntity(_ground);
+    m_renderPipeline->AddEntity(_ground);
 
     m_scene = new Scene("F://Shit.json");
-
-    auto sceneRoot = Object::GetObjectPtr(m_scene->m_sceneRoot);
-    for (auto& child : sceneRoot->m_children)
-    {
-        std::cout << Object::GetObjectPtr(child)->m_name << std::endl;
-    }
 }
 

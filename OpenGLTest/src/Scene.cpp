@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 
+#include "Camera.h"
+#include "Entity.h"
 #include "../lib/json.hpp"
 
 Object* LoadObject(const nlohmann::json& objJson)
@@ -13,7 +15,11 @@ Object* LoadObject(const nlohmann::json& objJson)
         auto type = objJson["type"].get<std::string>();
         if(type == "camera")
         {
-            result = new Object();
+            result = new Camera();
+        }
+        else if(type == "entity")
+        {
+            result = new Entity();
         }
         else
         {

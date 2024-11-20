@@ -4,10 +4,14 @@
 class Camera : public Object
 {
 public:
-    Camera(glm::vec3 position, glm::vec3 rotation);
+    Camera();
+    ~Camera() override;
     void Update() override;
+    void LoadFromJson(const nlohmann::json& objJson) override;
+    static Camera* GetMainCamera();
+    
 private:
-
-    glm::vec3 _targetPosition;
-    glm::vec3 _targetRotation;
+    glm::vec3 m_targetPosition = {};
+    glm::vec3 m_targetRotation = {};
+    static std::vector<OBJECT_ID> s_cameras;
 };

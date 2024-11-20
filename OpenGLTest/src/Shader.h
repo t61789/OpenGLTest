@@ -14,11 +14,8 @@
 class Shader
 {
 public:
-    GLuint ID;
-
-    Shader();
-    Shader(const char* vertexPath, const char* fragPath);
-    ~Shader();
+    RESOURCE_ID m_id;
+    GLuint m_glShaderId;
 
     void Use(Mesh* mesh) const;
     bool HasParam(const std::string &name) const;
@@ -32,6 +29,12 @@ public:
     static void SetVector(const int &location, glm::vec4 value);
     void SetMatrix(const std::string& name, const glm::mat4& value) const;
     static void SetMatrix(const int& location, const glm::mat4& value);
-    void SetTexture(const std::string& name, const int slot, const Texture* value) const;
-    static void SetTexture(const int& location, const int slot, const Texture* value);
+    void SetTexture(const std::string& name, const int slot, const RESOURCE_ID value) const;
+    static void SetTexture(const int& location, const int slot, const RESOURCE_ID value);
+
+    static RESOURCE_ID LoadFromFile(const std::string &vertexPath, const std::string &fragPath);
+
+private:
+    Shader();
+    ~Shader();
 };

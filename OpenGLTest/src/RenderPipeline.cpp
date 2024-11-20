@@ -71,7 +71,7 @@ bool RenderPipeline::RemoveEntity(const Entity* entity)
 
 void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatrix, const glm::vec3& cameraPositionWS)
 {
-    if(entity->mesh == nullptr || entity->shader == nullptr)
+    if(entity->m_mesh == nullptr || entity->m_shader == nullptr)
     {
         return;
     }
@@ -79,15 +79,15 @@ void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatri
     auto m = entity->GetLocalToWorld();
     auto mvp = vpMatrix * m;
 
-    entity->shader->SetMatrix("_MVP", mvp);
-    entity->shader->SetMatrix("_ITM", transpose(inverse(m)));
-    entity->shader->SetMatrix("_M", m);
-    entity->shader->SetVector("_CameraPositionWS", glm::vec4(cameraPositionWS, 1));
+    entity->m_shader->SetMatrix("_MVP", mvp);
+    entity->m_shader->SetMatrix("_ITM", transpose(inverse(m)));
+    entity->m_shader->SetMatrix("_M", m);
+    entity->m_shader->SetVector("_CameraPositionWS", glm::vec4(cameraPositionWS, 1));
 
-    entity->mesh->Use();
-    entity->shader->Use(entity->mesh);
+    entity->m_mesh->Use();
+    entity->m_shader->Use(entity->m_mesh);
     
-    entity->mat->FillParams(entity->shader);
+    entity->m_mat->FillParams(entity->m_shader);
     
-    glDrawElements(GL_TRIANGLES, entity->mesh->vertexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, entity->m_mesh->vertexCount, GL_UNSIGNED_INT, 0);
 }

@@ -2,11 +2,11 @@
 
 #include <iostream>
 
+#include "ResourceMgr.h"
+#include "Utils.h"
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
-
-Mesh::Mesh() = default;
 
 void copyDataTo(
     const float* src,
@@ -27,51 +27,70 @@ void copyDataTo(
     }
 }
 
-Mesh::Mesh(
+Mesh::Mesh()
+{
+    m_id = ResourceMgr::AddPtr(this);
+}
+
+Mesh::~Mesh()
+{
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
+    glDeleteBuffers(1, &m_ebo);
+
+    ResourceMgr::RemovePtr(m_id);
+}
+
+RESOURCE_ID Mesh::CreateMesh(
     const float* position,
     const float* normal,
-    const float* texcoord,
+    const float* uv0,
     const float* color,
     const unsigned int* indices,
-    const size_t vertexCount):
-vertexCount(vertexCount)
+    const size_t vertexCount)
 {
     const float* vertexAttribSource[] = {
         position,
         normal,
-        texcoord,
+        uv0,
         color
     };
 
-    auto vertexAttribNum = sizeof(VERTEX_ATTRIB_FLOAT_COUNT) / sizeof(int);
-    vertexDataStride = 0;
+    // 根据是否提供了对应属性数组的指针来计算顶点数据的步长
+    // 并记录每一个属性在一个步长中的偏移值
+    constexpr auto vertexAttribNum = std::size(vertexAttribSource);
+    auto vertexDataStride = 0;
+    bool vertexAttribEnabled[vertexAttribNum];
+    int vertexAttribOffset[vertexAttribNum] = {};
     for (size_t i = 0; i < vertexAttribNum; ++i)
     {
-        vertexAttribEnabled[i] = vertexAttribSource[i];
-        if(vertexAttribSource[i])
+        vertexAttribEnabled[i] = vertexAttribSource[i] != nullptr;
+        if(vertexAttribEnabled[i])
         {
+            vertexAttribOffset[i] = vertexDataStride;
             vertexDataStride += VERTEX_ATTRIB_FLOAT_COUNT[i];
         }
     }
-    size_t dataLength = vertexDataStride * vertexCount;
+    size_t vertexDataSumSize = vertexDataStride * vertexCount;
 
-    auto data = new float[dataLength];
-    int curOffset = 0;
+    // 将多个独立存储属性的数组合并成一个属性交叉的顶点数据数组
+    auto data = new float[vertexDataSumSize];
     for (size_t i = 0; i < vertexAttribNum; ++i)
     {
-        if(vertexAttribSource[i])
+        if(vertexAttribEnabled[i])
         {
             copyDataTo(
                 vertexAttribSource[i],
                 data,
-                curOffset,
+                vertexAttribOffset[i],
                 VERTEX_ATTRIB_FLOAT_COUNT[i],
                 vertexCount,
                 vertexDataStride);
-            vertexDataOffset[i] = curOffset;
-            curOffset += VERTEX_ATTRIB_FLOAT_COUNT[i];
         }
     }
+
+    // 将顶点数据传入OpenGL中
+    GLuint VAO, VBO, EBO;
     
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -80,7 +99,7 @@ vertexCount(vertexCount)
     glBindVertexArray(VAO);
     
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(dataLength * sizeof(float)), data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexDataSumSize * sizeof(float)), data, GL_STATIC_DRAW);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexCount * sizeof(int)), indices, GL_STATIC_DRAW);
@@ -89,34 +108,45 @@ vertexCount(vertexCount)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     delete[] data;
+
+    auto result = new Mesh();
+    result->m_vao = VAO;
+    result->m_vbo = VBO;
+    result->m_ebo = EBO;
+    result->m_vertexCount = vertexCount;
+    std::memcpy(&result->m_vertexAttribEnabled, &vertexAttribEnabled, sizeof(vertexAttribEnabled));
+    std::memcpy(&result->m_vertexAttribOffset, &vertexAttribOffset, sizeof(vertexAttribOffset));
+    return result->m_id;
 }
 
-Mesh::~Mesh()
+RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
 {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-}
-
-Mesh* Mesh::LoadFromFile(std::string modelPath)
-{
+    if(ResourceMgr::HasResourceRegistered(modelPath))
+    {
+        return ResourceMgr::GetResourceId(modelPath);
+    }
+    
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(modelPath.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+    const aiScene *scene = importer.ReadFile(Utils::GetRealAssetPath(modelPath).c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         throw std::runtime_error(std::string("ERROR>> Load model failed: ") + importer.GetErrorString());
     }
 
     auto mesh = scene->mMeshes[0];
-    std::vector<float> positionsContainer;
+
+    // Load positionOS
+    std::vector<float> positionOSContainer;
     for (size_t i = 0; i < mesh->mNumVertices; ++i)
     {
-        positionsContainer.push_back(mesh->mVertices[i].x);
-        positionsContainer.push_back(mesh->mVertices[i].y);
-        positionsContainer.push_back(mesh->mVertices[i].z);
+        positionOSContainer.push_back(mesh->mVertices[i].x);
+        positionOSContainer.push_back(mesh->mVertices[i].y);
+        positionOSContainer.push_back(mesh->mVertices[i].z);
     }
+    auto positionOSData = positionOSContainer.data();
 
-    float* normals = nullptr;
+    // Load normalOS
+    float* normalOSData = nullptr;
     std::vector<float> normalsContainer;
     if(mesh->mNormals)
     {
@@ -126,21 +156,23 @@ Mesh* Mesh::LoadFromFile(std::string modelPath)
             normalsContainer.push_back(mesh->mNormals[i].y);
             normalsContainer.push_back(mesh->mNormals[i].z);
         }
-        normals = normalsContainer.data();
+        normalOSData = normalsContainer.data();
     }
 
-    float* texcoords = nullptr;
-    std::vector<float> texcoordsContainer;
+    // Load UV0
+    float* uv0Data = nullptr;
+    std::vector<float> uv0Container;
     if(mesh->HasTextureCoords(0))
     {
         for (size_t i = 0; i < mesh->mNumVertices; ++i)
         {
-            texcoordsContainer.push_back(mesh->mTextureCoords[i]->x);
-            texcoordsContainer.push_back(mesh->mTextureCoords[i]->y);
+            uv0Container.push_back(mesh->mTextureCoords[i]->x);
+            uv0Container.push_back(mesh->mTextureCoords[i]->y);
         }
-        texcoords = texcoordsContainer.data();
+        uv0Data = uv0Container.data();
     }
 
+    // Load indices
     std::vector<unsigned int> indicesContainer;
     for (size_t i = 0; i < mesh->mNumFaces; ++i)
     {
@@ -150,20 +182,24 @@ Mesh* Mesh::LoadFromFile(std::string modelPath)
             indicesContainer.push_back(face.mIndices[j]);
         }
     }
+    auto indicesData = indicesContainer.data();
+    auto indicesCount = indicesContainer.size();
 
-    return new Mesh(
-        positionsContainer.data(),
-        normals,
-        texcoords,
+    auto result = CreateMesh(
+        positionOSData,
+        normalOSData,
+        uv0Data,
         nullptr,
-        indicesContainer.data(),
-        indicesContainer.size());
+        indicesData,
+        indicesCount);
+    ResourceMgr::RegisterResource(modelPath, result);
+    return result;
 }
 
 void Mesh::Use() const
 {
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 }
 
 

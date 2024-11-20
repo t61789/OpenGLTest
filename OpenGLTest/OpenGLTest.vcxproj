@@ -402,6 +402,7 @@
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\OpenGLTest.h" />
     <ClInclude Include="src\RenderPipeline.h" />
+    <ClInclude Include="src\ResourceMgr.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Material.h" />
