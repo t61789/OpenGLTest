@@ -1,9 +1,8 @@
 ﻿#include "Entity.h"
 
-Entity::~Entity()
-{
-    delete m_mesh;
-}
+#include "Material.h"
+
+Entity::~Entity() = default;
 
 void Entity::LoadFromJson(const nlohmann::json& objJson)
 {
@@ -16,5 +15,6 @@ void Entity::LoadFromJson(const nlohmann::json& objJson)
 
     if(objJson.contains("material"))
     {
+        m_material = Material::LoadFromFile(objJson["material"].get<std::string>());
     }
 }

@@ -17,7 +17,7 @@ public:
     RESOURCE_ID m_id = UNDEFINED_RESOURCE;
     GLuint m_glShaderId;
 
-    void Use(Mesh* mesh) const;
+    void Use(const Mesh* mesh) const;
     bool HasParam(const std::string &name) const;
     void SetBool(const std::string &name, bool value) const;
     static void SetBool(const int &location, bool value);
@@ -25,8 +25,8 @@ public:
     static void SetInt(const int &location, int value);
     void SetFloat(const std::string &name, float value) const;
     static void SetFloat(const int &location, float value);
-    void SetVector(const std::string &name, glm::vec4 value) const;
-    static void SetVector(const int &location, glm::vec4 value);
+    void SetVector(const std::string &name, const glm::vec4& value) const;
+    static void SetVector(const int &location, const glm::vec4& value);
     void SetMatrix(const std::string& name, const glm::mat4& value) const;
     static void SetMatrix(const int& location, const glm::mat4& value);
     void SetTexture(const std::string& name, const int slot, const RESOURCE_ID value) const;

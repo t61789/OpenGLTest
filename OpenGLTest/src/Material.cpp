@@ -26,6 +26,11 @@ void Material::SetTextureValue(const std::string& name, RESOURCE_ID value)
     m_textureValues[name] = value;
 }
 
+void Material::SetVector4Value(const std::string& name, const glm::vec4& value)
+{
+    m_vec4Values[name] = value;
+}
+
 void Material::FillParams(const Shader* shader) const
 {
     for (const auto& element : m_intValues)
@@ -41,6 +46,11 @@ void Material::FillParams(const Shader* shader) const
     for (const auto& element : m_floatValues)
     {
         shader->SetFloat(element.first, element.second);
+    }
+    
+    for (const auto& element : m_vec4Values)
+    {
+        shader->SetVector(element.first, element.second);
     }
     
     for (const auto& element : m_mat4Values)

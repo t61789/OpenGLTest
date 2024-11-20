@@ -30,7 +30,7 @@ Shader::~Shader()
     ResourceMgr::RemovePtr(m_id);
 }
 
-void Shader::Use(Mesh* mesh) const
+void Shader::Use(const Mesh* mesh) const
 {
     glUseProgram(m_glShaderId);
 
@@ -106,13 +106,13 @@ void Shader::SetFloat(const int& location, const float value)
     glUniform1f(location, value);
 }
 
-void Shader::SetVector(const std::string& name, glm::vec4 value) const
+void Shader::SetVector(const std::string& name, const glm::vec4& value) const
 {
     int location = glGetUniformLocation(m_glShaderId, name.c_str());
     SetVector(location, value);
 }
 
-void Shader::SetVector(const int& location, glm::vec4 value)
+void Shader::SetVector(const int& location, const glm::vec4& value)
 {
     if(location == -1)
     {

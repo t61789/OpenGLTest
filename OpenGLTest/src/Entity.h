@@ -8,11 +8,10 @@ class Material;
 class Entity : public Object
 {
 public:
-    ~Entity();
+    ~Entity() override;
     
-    RESOURCE_ID m_shader = -1;
-    RESOURCE_ID m_mesh = -1;
-    RESOURCE_ID m_mat = -1;
+    RESOURCE_ID m_mesh = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_material = UNDEFINED_RESOURCE;
 
 private:
 

@@ -71,7 +71,14 @@ bool RenderPipeline::RemoveEntity(const Entity* entity)
 
 void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatrix, const glm::vec3& cameraPositionWS)
 {
-    if(entity->m_mesh == nullptr || entity->m_shader == nullptr)
+    auto mesh = ResourceMgr::GetPtr<Mesh>(entity->m_mesh);
+    auto material = ResourceMgr::GetPtr<Material>(entity->m_material);
+    if(mesh == nullptr || material == nullptr)
+    {
+        return;
+    }
+    auto shader = ResourceMgr::GetPtr<Shader>(material->m_shader);
+    if(shader == nullptr)
     {
         return;
     }
@@ -79,15 +86,14 @@ void RenderPipeline::RenderEntity(const Entity* entity, const glm::mat4& vpMatri
     auto m = entity->GetLocalToWorld();
     auto mvp = vpMatrix * m;
 
-    entity->m_shader->SetMatrix("_MVP", mvp);
-    entity->m_shader->SetMatrix("_ITM", transpose(inverse(m)));
-    entity->m_shader->SetMatrix("_M", m);
-    entity->m_shader->SetVector("_CameraPositionWS", glm::vec4(cameraPositionWS, 1));
+    material->SetMat4Value("_MVP", mvp);
+    material->SetMat4Value("_ITM", transpose(inverse(m)));
+    material->SetMat4Value("_M", m);
+    material->SetVector4Value("_CameraPositionWS", glm::vec4(cameraPositionWS, 1));
 
-    entity->m_mesh->Use();
-    entity->m_shader->Use(entity->m_mesh);
+    mesh->Use();
+    shader->Use(mesh);
+    material->FillParams(shader);
     
-    entity->m_mat->FillParams(entity->m_shader);
-    
-    glDrawElements(GL_TRIANGLES, entity->m_mesh->vertexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, mesh->m_vertexCount, GL_UNSIGNED_INT, 0);
 }

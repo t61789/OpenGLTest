@@ -1,8 +1,9 @@
 ﻿#pragma once
+#include <unordered_map>
 #include <vector>
 
 typedef unsigned long long RESOURCE_ID;
-#define UNDEFINED_RESOURCE (-1)
+#define UNDEFINED_RESOURCE ((RESOURCE_ID)(-1))
 
 class ResourceMgr
 {
@@ -17,7 +18,7 @@ public:
     template <typename T>
     static T* GetPtr(const RESOURCE_ID id)
     {
-        if(id < 0 || id >= s_ptr.size())
+        if(id == UNDEFINED_RESOURCE || id < 0 || id >= s_ptr.size())
         {
             return nullptr;
         }
@@ -27,7 +28,7 @@ public:
 
     static void RemovePtr(const RESOURCE_ID id)
     {
-        if(id < 0 || id >= s_ptr.size())
+        if(id == UNDEFINED_RESOURCE || id < 0 || id >= s_ptr.size())
         {
             return;
         }
