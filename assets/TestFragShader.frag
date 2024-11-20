@@ -23,5 +23,6 @@ void main()
       vec3 viewDir = normalize(_CameraPositionWS.xyz - positionWS);
       float d = clamp(dot(viewDir, normalWS), 0, 1);
       FragColor = vec4(d, d, d, 1);
+//      FragColor = vec4(1, 1, 1, 1);
    }
 };

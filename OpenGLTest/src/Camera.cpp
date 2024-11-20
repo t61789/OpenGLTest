@@ -115,14 +115,23 @@ void Camera::LoadFromJson(const nlohmann::json& objJson)
     m_targetRotation = this->m_rotation;
 }
 
-Camera* Camera::GetMainCamera()
+RESOURCE_ID Camera::GetMainCamera()
 {
     if(s_cameras.empty())
     {
-        return nullptr;
+        return UNDEFINED_RESOURCE;
     }
 
-    return (Camera*)GetObjectPtr(s_cameras[0]);
+    for (size_t i = 0; i < s_cameras.size(); ++i)
+    {
+        auto result = ResourceMgr::GetPtr<Camera>(s_cameras[i]);
+        if(result != nullptr)
+        {
+            return s_cameras[i];
+        }
+    }
+
+    return UNDEFINED_RESOURCE;
 }
 
 

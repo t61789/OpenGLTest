@@ -10,11 +10,9 @@
 
 typedef RESOURCE_ID OBJECT_ID;
 
-class Object
+class Object : public ResourceBase
 {
 public:
-    OBJECT_ID m_id;
-
     bool m_enabled = true;
     
     std::string m_name = "Unnamed object";
@@ -23,10 +21,6 @@ public:
     glm::vec3 m_rotation = glm::vec3(0, 0, 0);
 
     std::vector<OBJECT_ID> m_children;
-
-    Object();
-    Object(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
-    virtual ~Object();
 
     glm::mat4 GetLocalToWorld() const;
     virtual void Update();

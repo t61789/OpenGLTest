@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "GameFramework.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -18,16 +19,9 @@ void checkShaderCompilation(const GLuint vertexShader, const std::string &shader
     }
 }
 
-Shader::Shader()
-{
-    m_id = ResourceMgr::AddPtr(this);
-}
-
 Shader::~Shader()
 {
     glDeleteProgram(m_glShaderId);
-
-    ResourceMgr::RemovePtr(m_id);
 }
 
 void Shader::Use(const Mesh* mesh) const
@@ -49,7 +43,7 @@ void Shader::Use(const Mesh* mesh) const
             VERTEX_ATTRIB_FLOAT_COUNT[i],
             GL_FLOAT,
             GL_FALSE,
-            sizeof(float) * mesh->vertexDataStride,
+            sizeof(float) * mesh->m_vertexDataFloatNum,
             (void*)(mesh->m_vertexAttribOffset[i] * sizeof(float)));
         glEnableVertexAttribArray(curLayout);
     }
@@ -152,8 +146,8 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
 
     try
     {
-        vFile.open(vertexPath);
-        fFile.open(fragPath);
+        vFile.open(Utils::GetRealAssetPath(vertexPath));
+        fFile.open(Utils::GetRealAssetPath(fragPath));
 
         stringstream vStream, fStream;
         vStream << vFile.rdbuf();
@@ -197,6 +191,8 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     auto result = new Shader();
     result->m_glShaderId = glShaderId;
     ResourceMgr::RegisterResource(checkPath, result->m_id);
+    Utils::LogInfo("成功载入VertShader " + vertexPath);
+    Utils::LogInfo("成功载入FragShader " + fragPath);
     return result->m_id;
 }
 

@@ -29,15 +29,7 @@ GameFramework::GameFramework()
 
 GameFramework::~GameFramework()
 {
-    delete _commonShader;
-    delete _bunnyMesh;
-    delete _groundMesh;
-    delete _testTexture;
     delete m_renderPipeline;
-    delete _bunnyMat;
-    delete _groundMat;
-    delete _bunny;
-    delete _ground;
     delete m_scene;
 
     instance = nullptr;
@@ -179,9 +171,9 @@ void GameFramework::Update()
 void GameFramework::Render()
 {
     auto mainCamera = Camera::GetMainCamera();
-    if(mainCamera != nullptr)
+    if(mainCamera != UNDEFINED_RESOURCE)
     {
-        m_renderPipeline->Render(mainCamera);
+        m_renderPipeline->Render(mainCamera, m_scene->m_sceneRoot);
     }
     else
     {
@@ -203,30 +195,6 @@ void GameFramework::InitGame()
 {
     m_renderPipeline = new RenderPipeline(_screenWidth, _screenHeight, _window);
 
-    float vertices[] = {
-        0.5f,  0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-       -0.5f, -0.5f, 0.0f,
-       -0.5f,  0.5f, 0.0f,
-    };
-    float texcoords[] = {
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-        0.0f, 1.0f
-    };
-    unsigned int indices[] = {
-        0, 1, 3,
-        1, 2, 3
-    };
-    m_groundMesh = Mesh::CreateMesh(
-        vertices,
-        nullptr,
-        texcoords,
-        nullptr,
-        indices,
-        sizeof(indices) / sizeof(unsigned int));
-
-    m_scene = new Scene("F://Shit.json");
+    m_scene = new Scene("TestScene.json");
 }
 

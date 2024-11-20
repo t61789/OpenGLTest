@@ -11,10 +11,9 @@
 #include "Mesh.h"
 #include "Texture.h"
 
-class Shader
+class Shader : public ResourceBase
 {
 public:
-    RESOURCE_ID m_id = UNDEFINED_RESOURCE;
     GLuint m_glShaderId;
 
     void Use(const Mesh* mesh) const;
@@ -35,6 +34,5 @@ public:
     static RESOURCE_ID LoadFromFile(const std::string &vertexPath, const std::string &fragPath);
 
 private:
-    Shader();
-    ~Shader();
+    ~Shader() override;
 };

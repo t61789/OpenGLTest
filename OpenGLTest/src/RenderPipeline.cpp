@@ -25,7 +25,7 @@ void RenderPipeline::SetScreenSize(const int width, const int height)
 void RenderPipeline::Render(const RESOURCE_ID cameraId, const RESOURCE_ID sceneRootId) const
 {
     auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
-    auto sceneRoot = ResourceMgr::GetPtr<Entity>(sceneRootId);
+    auto sceneRoot = ResourceMgr::GetPtr<Object>(sceneRootId);
     if(camera == nullptr || sceneRoot == nullptr)
     {
         return;
@@ -45,12 +45,12 @@ void RenderPipeline::Render(const RESOURCE_ID cameraId, const RESOURCE_ID sceneR
     auto vpMatrix = projectionMatrix * viewMatrix;
 
     // BFS地绘制场景
-    std::queue<RESOURCE_ID> entityQueue;
-    entityQueue.push(sceneRootId);
-    while(!entityQueue.empty())
+    std::queue<RESOURCE_ID> objectQueue;
+    objectQueue.push(sceneRootId);
+    while(!objectQueue.empty())
     {
-        auto entityId = entityQueue.front();
-        entityQueue.pop();
+        auto entityId = objectQueue.front();
+        objectQueue.pop();
         auto entity = ResourceMgr::GetPtr<Entity>(entityId);
         if(entity != nullptr)
         {
@@ -61,7 +61,7 @@ void RenderPipeline::Render(const RESOURCE_ID cameraId, const RESOURCE_ID sceneR
         {
             for (auto& child : object->m_children)
             {
-                entityQueue.push(child);
+                objectQueue.push(child);
             }
         }
     }
@@ -100,6 +100,6 @@ void RenderEntity(const Entity* entity, const glm::mat4& vpMatrix, const glm::ve
     shader->Use(mesh);
     material->FillParams(shader);
     
-    glDrawElements(GL_TRIANGLES, mesh->m_vertexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, mesh->m_indicesCount, GL_UNSIGNED_INT, 0);
 }
 

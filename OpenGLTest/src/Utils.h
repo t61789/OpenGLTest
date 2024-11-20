@@ -2,6 +2,16 @@
 #include <vec3.hpp>
 #include "../lib/json.hpp"
 
+class Bounds
+{
+public:
+    glm::vec3 center;
+    glm::vec3 extents;
+
+    Bounds();
+    Bounds(glm::vec3 center, glm::vec3 extents);
+};
+
 class Utils
 {
 public:
@@ -12,4 +22,16 @@ public:
     {
         return dynamic_cast<const Base*>(ptr) != nullptr;
     }
+    static void LogInfo(const std::string& msg);
+    static void LogInfo(const bool& msg);
+    static void LogInfo(const float& msg);
+    static void LogInfo(const int& msg);
+    static void LogInfo(const unsigned int& msg);
+    static void LogInfo(const size_t& msg);
+    static void LogInfo(const glm::vec3& msg);
+    static void LogWarning(const std::string& msg);
+    static void LogError(const std::string& msg);
+
+    static std::string ToString(float val, int fixed);
+    static std::string ToString(const glm::vec3& val);
 };

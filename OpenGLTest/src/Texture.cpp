@@ -1,18 +1,17 @@
 ﻿#include "Texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "Utils.h"
 #include "../lib/stb_image.h"
 
 Texture::Texture(const GLuint glTextureId)
 {
     m_glTextureId = glTextureId;
-    m_id = ResourceMgr::AddPtr(this);
 }
 
 Texture::~Texture()
 {
     glDeleteTextures(1, &m_glTextureId);
-    ResourceMgr::RemovePtr(m_id);
 }
 
 RESOURCE_ID Texture::LoadFromFile(const std::string& path)
@@ -28,7 +27,7 @@ RESOURCE_ID Texture::LoadFromFile(const std::string& path)
     stbi_uc* data;
     try
     {
-        data = stbi_load(path.c_str(), &width, &height, &nChannels, 0);
+        data = stbi_load(Utils::GetRealAssetPath(path).c_str(), &width, &height, &nChannels, 0);
         if(!data)
         {
             throw std::runtime_error("ERROR>> Failed to load texture: " + std::string(path));

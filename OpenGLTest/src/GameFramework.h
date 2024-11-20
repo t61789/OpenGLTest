@@ -38,7 +38,6 @@ public:
 private:
     GLFWwindow* _window;
 
-    RESOURCE_ID m_groundMesh;
     Scene* m_scene;
 
     RenderPipeline* m_renderPipeline;

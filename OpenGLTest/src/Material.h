@@ -5,11 +5,9 @@
 #include "Texture.h"
 #include "Shader.h"
 
-class Material
+class Material : public ResourceBase
 {
 public:
-    RESOURCE_ID m_id = UNDEFINED_RESOURCE;
-
     RESOURCE_ID m_shader = UNDEFINED_RESOURCE;
     
     std::unordered_map<std::string, int> m_intValues;
@@ -29,8 +27,4 @@ public:
     void FillParams(const Shader* shader) const;
 
     static RESOURCE_ID LoadFromFile(const std::string& path);
-
-private:
-    Material();
-    ~Material();
 };

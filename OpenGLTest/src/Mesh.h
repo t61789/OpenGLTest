@@ -4,15 +4,17 @@
 
 #include "ConstVars.h"
 #include "ResourceMgr.h"
+#include "Utils.h"
 
-class Mesh
+class Mesh : public ResourceBase
 {
 public:
-    RESOURCE_ID m_id;
     GLuint m_vao, m_vbo, m_ebo;
-    
+
+    Bounds m_bounds;
     size_t m_vertexCount;
-    int vertexDataStride;
+    size_t m_indicesCount;
+    int m_vertexDataFloatNum;
     bool m_vertexAttribEnabled[VERTEX_ATTRIB_NUM];
     int m_vertexAttribOffset[VERTEX_ATTRIB_NUM];
     
@@ -20,16 +22,17 @@ public:
     
     static RESOURCE_ID LoadFromFile(const std::string& modelPath);
     static RESOURCE_ID CreateMesh(
+        const Bounds& bounds,
         const float* position,
         const float* normal,
         const float* uv0,
         const float* color,
         const unsigned int* indices,
-        size_t vertexCount
+        size_t vertexCount,
+        size_t indicesCount
     );
 
 private:
 
-    Mesh();
-    ~Mesh();
+    ~Mesh() override;
 };

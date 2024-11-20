@@ -1,4 +1,6 @@
 ﻿#include "Material.h"
+
+#include "Utils.h"
 #include "../lib/json.hpp"
 
 void Material::SetIntValue(const std::string& name, const int value)
@@ -78,7 +80,7 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
         return ResourceMgr::GetRegisteredResource(path);
     }
     
-    auto s = std::ifstream(path);
+    auto s = std::ifstream(Utils::GetRealAssetPath(path));
     nlohmann::json json;
     s >> json;
     s.close();
@@ -158,15 +160,6 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
     }
 
     ResourceMgr::RegisterResource(path, result->m_id);
+    Utils::LogInfo("成功载入Material " + path);
     return result->m_id;
-}
-
-Material::Material()
-{
-    m_id = ResourceMgr::AddPtr(this);
-}
-
-Material::~Material()
-{
-    ResourceMgr::RemovePtr(m_id);
 }

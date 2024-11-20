@@ -16,24 +16,6 @@ glm::vec3 ToVec3(nlohmann::json arr)
     };
 }
 
-Object::Object()
-{
-    ResourceMgr::AddPtr(this);
-}
-
-Object::Object(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation):
-m_position(position),
-m_scale(scale),
-m_rotation(rotation)
-{
-    ResourceMgr::AddPtr(this);
-}
-
-Object::~Object()
-{
-    ResourceMgr::RemovePtr(m_id);
-}
-
 glm::mat4 Object::GetLocalToWorld() const
 {
     auto objectMatrix = glm::mat4(1);

@@ -5,10 +5,13 @@
 typedef unsigned long long RESOURCE_ID;
 #define UNDEFINED_RESOURCE ((RESOURCE_ID)(-1))
 
-struct ResourceInfo
+class ResourceInfo
 {
-    RESOURCE_ID id;
+public:
+    RESOURCE_ID id = UNDEFINED_RESOURCE;
     std::string path;
+
+    ResourceInfo() = default;
 
     ResourceInfo(const RESOURCE_ID id, const std::string& path)
     {
@@ -17,10 +20,19 @@ struct ResourceInfo
     }
 };
 
+class ResourceBase
+{
+public:
+    RESOURCE_ID m_id = UNDEFINED_RESOURCE;
+
+    ResourceBase();
+    virtual ~ResourceBase();
+};
+
 class ResourceMgr
 {
 public:
-    static RESOURCE_ID AddPtr(void* ptr)
+    static RESOURCE_ID AddPtr(ResourceBase* ptr)
     {
         RESOURCE_ID result = s_ptr.size();
         s_ptr.push_back(ptr);
@@ -35,7 +47,7 @@ public:
             return nullptr;
         }
 
-        return dynamic_cast<T>(s_ptr[id]);
+        return dynamic_cast<T*>(s_ptr[id]);
     }
 
     static void RemovePtr(const RESOURCE_ID id)
@@ -102,7 +114,18 @@ public:
     }
 
 private:
-    static std::vector<void*> s_ptr;
+    static std::vector<ResourceBase*> s_ptr;
     static std::unordered_map<std::string, ResourceInfo> s_pathMap;
     static std::unordered_map<RESOURCE_ID, ResourceInfo> s_resourceInfoMap;
 };
+
+inline ResourceBase::ResourceBase()
+{
+    m_id = ResourceMgr::AddPtr(this);
+}
+
+inline ResourceBase::~ResourceBase()
+{
+    ResourceMgr::RemovePtr(m_id);
+}
+

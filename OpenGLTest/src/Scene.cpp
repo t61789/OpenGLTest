@@ -5,6 +5,7 @@
 
 #include "Camera.h"
 #include "Entity.h"
+#include "Utils.h"
 #include "../lib/json.hpp"
 
 Object* LoadObject(const nlohmann::json& objJson)
@@ -57,7 +58,7 @@ Scene::Scene(const std::string& sceneJsonPath)
 
 void Scene::LoadScene(const std::string& sceneJsonPath)
 {
-    auto s = std::ifstream(sceneJsonPath);
+    auto s = std::ifstream(Utils::GetRealAssetPath(sceneJsonPath));
     nlohmann::json json;
     s >> json;
     s.close();
@@ -66,6 +67,6 @@ void Scene::LoadScene(const std::string& sceneJsonPath)
     sceneRoot->m_name = "Scene Root";
     
     AddTo(sceneRoot, json);
-    
+
     m_sceneRoot = sceneRoot->m_id;
 }
