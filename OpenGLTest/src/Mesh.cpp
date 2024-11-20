@@ -123,7 +123,7 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
 {
     if(ResourceMgr::HasResourceRegistered(modelPath))
     {
-        return ResourceMgr::GetResourceId(modelPath);
+        return ResourceMgr::GetRegisteredResource(modelPath);
     }
     
     Assimp::Importer importer;

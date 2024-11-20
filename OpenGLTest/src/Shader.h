@@ -14,7 +14,7 @@
 class Shader
 {
 public:
-    RESOURCE_ID m_id;
+    RESOURCE_ID m_id = UNDEFINED_RESOURCE;
     GLuint m_glShaderId;
 
     void Use(Mesh* mesh) const;

@@ -19,7 +19,7 @@ RESOURCE_ID Texture::LoadFromFile(const std::string& path)
 {
     if(ResourceMgr::HasResourceRegistered(path))
     {
-        return ResourceMgr::GetResourceId(path);
+        return ResourceMgr::GetRegisteredResource(path);
     }
 
     stbi_set_flip_vertically_on_load(true);

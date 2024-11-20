@@ -9,7 +9,8 @@
 class Texture
 {
 public:
-    RESOURCE_ID m_id;
+    RESOURCE_ID m_id = UNDEFINED_RESOURCE;
+    
     GLuint m_glTextureId;
     
     static RESOURCE_ID LoadFromFile(const std::string& path);
@@ -18,6 +19,4 @@ private:
     
     Texture(GLuint glTextureId);
     ~Texture();
-
-    // TODO 卸载纹理
 };

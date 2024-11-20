@@ -8,19 +8,27 @@
 class Material
 {
 public:
-    std::unordered_map<std::string, int> intValues;
-    std::unordered_map<std::string, bool> boolValues;
-    std::unordered_map<std::string, float> floatValues;
-    std::unordered_map<std::string, glm::mat4> mat4Values;
-    std::unordered_map<std::string, TEXTURE_ID> textureValues;
+    RESOURCE_ID m_id = UNDEFINED_RESOURCE;
+
+    RESOURCE_ID m_shader = UNDEFINED_RESOURCE;
+    
+    std::unordered_map<std::string, int> m_intValues;
+    std::unordered_map<std::string, bool> m_boolValues;
+    std::unordered_map<std::string, float> m_floatValues;
+    std::unordered_map<std::string, glm::mat4> m_mat4Values;
+    std::unordered_map<std::string, RESOURCE_ID> m_textureValues;
 
     void SetIntValue(const std::string& name, int value);
     void SetBoolValue(const std::string& name, bool value);
     void SetFloatValue(const std::string& name, float value);
     void SetMat4Value(const std::string& name, const glm::mat4& value);
-    void SetTextureValue(const std::string& name, TEXTURE_ID value);
+    void SetTextureValue(const std::string& name, RESOURCE_ID value);
 
     void FillParams(const Shader* shader) const;
 
-    static Material* LoadFromFile(const std::string& path);
+    static RESOURCE_ID LoadFromFile(const std::string& path);
+
+private:
+    Material();
+    ~Material();
 };

@@ -3,53 +3,53 @@
 
 void Material::SetIntValue(const std::string& name, const int value)
 {
-    intValues[name] = value;
+    m_intValues[name] = value;
 }
 
 void Material::SetBoolValue(const std::string& name, const bool value)
 {
-    boolValues[name] = value;
+    m_boolValues[name] = value;
 }
 
 void Material::SetFloatValue(const std::string& name, const float value)
 {
-    floatValues[name] = value;
+    m_floatValues[name] = value;
 }
 
 void Material::SetMat4Value(const std::string& name, const glm::mat4& value)
 {
-    mat4Values[name] = value;
+    m_mat4Values[name] = value;
 }
 
-void Material::SetTextureValue(const std::string& name, TEXTURE_ID value)
+void Material::SetTextureValue(const std::string& name, RESOURCE_ID value)
 {
-    textureValues[name] = value;
+    m_textureValues[name] = value;
 }
 
 void Material::FillParams(const Shader* shader) const
 {
-    for (const auto& element : intValues)
+    for (const auto& element : m_intValues)
     {
         shader->SetInt(element.first, element.second);
     }
     
-    for (const auto& element : boolValues)
+    for (const auto& element : m_boolValues)
     {
         shader->SetBool(element.first, element.second);
     }
     
-    for (const auto& element : floatValues)
+    for (const auto& element : m_floatValues)
     {
         shader->SetFloat(element.first, element.second);
     }
     
-    for (const auto& element : mat4Values)
+    for (const auto& element : m_mat4Values)
     {
         shader->SetMatrix(element.first, element.second);
     }
 
     int slot = 0;
-    for (auto& element : textureValues)
+    for (auto& element : m_textureValues)
     {
         if(!shader->HasParam(element.first))
         {
@@ -61,16 +61,21 @@ void Material::FillParams(const Shader* shader) const
     }
 }
 
-Material* Material::LoadFromFile(const std::string& path)
+RESOURCE_ID Material::LoadFromFile(const std::string& path)
 {
+    if(ResourceMgr::HasResourceRegistered(path))
+    {
+        return ResourceMgr::GetRegisteredResource(path);
+    }
+    
     auto s = std::ifstream(path);
     nlohmann::json json;
     s >> json;
     s.close();
 
     auto result = new Material();
-    std::string vertShaderPath = nullptr;
-    std::string fragShaderPath = nullptr;
+    std::string vertShaderPath;
+    std::string fragShaderPath;
     for (const auto& elem : json.items())
     {
         const auto& elemKey = elem.key();
@@ -107,4 +112,21 @@ Material* Material::LoadFromFile(const std::string& path)
         }
     }
 
+    if(!vertShaderPath.empty() && !fragShaderPath.empty())
+    {
+        result->m_shader = Shader::LoadFromFile(vertShaderPath, fragShaderPath);
+    }
+
+    ResourceMgr::RegisterResource(path, result->m_id);
+    return result->m_id;
+}
+
+Material::Material()
+{
+    m_id = ResourceMgr::AddPtr(this);
+}
+
+Material::~Material()
+{
+    ResourceMgr::RemovePtr(m_id);
 }

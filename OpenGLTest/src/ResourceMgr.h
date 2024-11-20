@@ -2,6 +2,7 @@
 #include <vector>
 
 typedef unsigned long long RESOURCE_ID;
+#define UNDEFINED_RESOURCE (-1)
 
 class ResourceMgr
 {
@@ -34,7 +35,7 @@ public:
         s_ptr[id] = nullptr;
     }
 
-    static RESOURCE_ID GetResourceId(const std::string& path)
+    static RESOURCE_ID GetRegisteredResource(const std::string& path)
     {
         if(!HasResourceRegistered(path))
         {

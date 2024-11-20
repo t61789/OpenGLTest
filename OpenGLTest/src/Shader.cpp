@@ -141,7 +141,7 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     std::string checkPath = vertexPath + fragPath;
     if(ResourceMgr::HasResourceRegistered(checkPath))
     {
-        return ResourceMgr::GetResourceId(checkPath);
+        return ResourceMgr::GetRegisteredResource(checkPath);
     }
     
     string vSource, fSource;
