@@ -23,7 +23,7 @@ public:
             return nullptr;
         }
 
-        return (T*)s_ptr[id];
+        return dynamic_cast<T>(s_ptr[id]);
     }
 
     static void RemovePtr(const RESOURCE_ID id)

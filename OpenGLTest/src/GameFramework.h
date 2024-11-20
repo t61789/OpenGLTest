@@ -38,15 +38,7 @@ public:
 private:
     GLFWwindow* _window;
 
-    Shader* _commonShader;
-    Mesh* _bunnyMesh;
-    Mesh* _groundMesh;
-    Texture* _testTexture;
-    Material* _bunnyMat;
-    Material* _groundMat;
-    Entity* _bunny;
-    Entity* _ground;
-
+    RESOURCE_ID m_groundMesh;
     Scene* m_scene;
 
     RenderPipeline* m_renderPipeline;

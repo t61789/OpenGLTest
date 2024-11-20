@@ -96,6 +96,21 @@ void Camera::LoadFromJson(const nlohmann::json& objJson)
 {
     Object::LoadFromJson(objJson);
 
+    if(objJson.contains("fov"))
+    {
+        fov = objJson["fov"].get<float>();
+    }
+
+    if(objJson.contains("nearClip"))
+    {
+        nearClip = objJson["nearClip"].get<float>();
+    }
+
+    if(objJson.contains("farClip"))
+    {
+        farClip = objJson["farClip"].get<float>();
+    }
+
     m_targetPosition = this->m_position;
     m_targetRotation = this->m_rotation;
 }

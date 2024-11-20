@@ -155,7 +155,7 @@ void GameFramework::ProcessInput()
 
 void UpdateObject(OBJECT_ID objId)
 {
-    auto obj = Object::GetObjectPtr(objId);
+    auto obj = ResourceMgr::GetPtr<Object>(objId);
     if(obj != nullptr)
     {
         obj->Update();
@@ -202,27 +202,7 @@ void GameFramework::FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, i
 void GameFramework::InitGame()
 {
     m_renderPipeline = new RenderPipeline(_screenWidth, _screenHeight, _window);
-    
-    // Shader
-    _commonShader = new Shader("../assets/TestVertShader.vert", "../assets/TestFragShader.frag");
-    _commonShader->SetInt("tex", 0);
 
-    // Texture
-    _testTexture = new Texture("../assets/o2.png");
-
-    // Material
-    _bunnyMat = new Material();
-    _bunnyMat->SetFloatValue("_ShowTex", 0);
-
-    _groundMat = new Material();
-    _groundMat->SetTextureValue("_MainTex", _testTexture);
-    _groundMat->SetFloatValue("_ShowTex", 1);
-
-    // Mesh
-    // _bunnyMesh = Mesh::LoadFromFile("../assets/stanford-bunny.obj");
-    _bunnyMesh = Mesh::LoadFromFile("../assets/beetle.obj");
-    // _bunnyMesh = Mesh::LoadFromFile("../assets/beast.obj");
-    
     float vertices[] = {
         0.5f,  0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
@@ -239,18 +219,13 @@ void GameFramework::InitGame()
         0, 1, 3,
         1, 2, 3
     };
-    _groundMesh = new Mesh(vertices, nullptr, texcoords, nullptr, indices, sizeof(indices) / sizeof(unsigned int));
-
-    // Entity
-    _bunny = new Entity(_commonShader, _bunnyMesh, _bunnyMat);
-    _bunny->m_scale = glm::vec3(10, 10, 10);
-    _bunny->m_rotation = glm::vec3(0, 0, 0);
-    m_renderPipeline->AddEntity(_bunny);
-
-    _ground = new Entity(_commonShader, _groundMesh, _groundMat);
-    _ground->m_scale = glm::vec3(10, 10, 1);
-    _ground->m_rotation = glm::vec3(-90, 0, 0);
-    m_renderPipeline->AddEntity(_ground);
+    m_groundMesh = Mesh::CreateMesh(
+        vertices,
+        nullptr,
+        texcoords,
+        nullptr,
+        indices,
+        sizeof(indices) / sizeof(unsigned int));
 
     m_scene = new Scene("F://Shit.json");
 }
