@@ -389,6 +389,7 @@
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
+    <ClCompile Include="src\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\json.hpp" />
@@ -406,6 +407,7 @@
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\GameFramework.h" />
+    <ClInclude Include="src\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\assets\o2.png" />
