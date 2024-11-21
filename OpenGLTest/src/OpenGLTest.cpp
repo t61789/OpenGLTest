@@ -1,5 +1,7 @@
 #include "OpenGLTest.h"
 
+#include <iostream>
+
 #include "GameFramework.h"
 
 int main(int argc, char* argv[])

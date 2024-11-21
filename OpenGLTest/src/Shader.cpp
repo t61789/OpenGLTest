@@ -1,9 +1,12 @@
 ﻿#include "Shader.h"
 
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "GameFramework.h"
 #include "Utils.h"
+#include "gtc/type_ptr.hpp"
 
 using namespace std;
 

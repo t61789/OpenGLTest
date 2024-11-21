@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <string>
 #include <unordered_map>
-#include <vector>
-#include "Texture.h"
 #include "Shader.h"
 
 class Material : public ResourceBase

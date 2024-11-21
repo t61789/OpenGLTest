@@ -1,16 +1,18 @@
 ﻿#include "RenderPipeline.h"
 
-#include <iostream>
 #include <queue>
+#include <stack>
+#include <ext/matrix_clip_space.hpp>
 
+#include "Camera.h"
+#include "Entity.h"
 #include "GameFramework.h"
-#include "Utils.h"
 
-void RenderEntity(const Entity* entity, const glm::mat4& vpMatrix, const glm::vec3& cameraPositionWS);
+void RenderEntity(const Entity* entity, const RenderContext& renderContext);
 
 RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
 {
-    m_Window = window;
+    m_window = window;
     SetScreenSize(width, height);
 }
 
@@ -18,14 +20,19 @@ RenderPipeline::~RenderPipeline() = default;
 
 void RenderPipeline::SetScreenSize(const int width, const int height)
 {
-    m_ScreenWidth = width;
-    m_ScreenHeight = height;
+    m_screenWidth = width;
+    m_screenHeight = height;
 }
 
-void RenderPipeline::Render(const RESOURCE_ID cameraId, const RESOURCE_ID sceneRootId) const
+void RenderPipeline::Render(const RESOURCE_ID cameraId, const Scene* scene) const
 {
+    if(scene == nullptr)
+    {
+        return;
+    }
+    
     auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
-    auto sceneRoot = ResourceMgr::GetPtr<Object>(sceneRootId);
+    auto sceneRoot = ResourceMgr::GetPtr<Object>(scene->m_sceneRoot);
     if(camera == nullptr || sceneRoot == nullptr)
     {
         return;
@@ -39,38 +46,43 @@ void RenderPipeline::Render(const RESOURCE_ID cameraId, const RESOURCE_ID sceneR
     auto viewMatrix = inverse(cameraLocalToWorld);
     auto projectionMatrix = glm::perspective(
         glm::radians(camera->fov),
-        static_cast<float>(m_ScreenWidth) / static_cast<float>(m_ScreenHeight),
+        static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight),
         camera->nearClip,
         camera->farClip);
     auto vpMatrix = projectionMatrix * viewMatrix;
 
-    // BFS地绘制场景
-    std::queue<RESOURCE_ID> objectQueue;
-    objectQueue.push(sceneRootId);
-    while(!objectQueue.empty())
+    RenderContext renderContext;
+    renderContext.m_vpMatrix = vpMatrix;
+    renderContext.m_cameraPositionWS = camera->m_position;
+    renderContext.m_lightDirection = scene->m_lightDirection;
+
+    // DFS地绘制场景
+    std::stack<RESOURCE_ID> drawingStack;
+    drawingStack.push(scene->m_sceneRoot);
+    while(!drawingStack.empty())
     {
-        auto entityId = objectQueue.front();
-        objectQueue.pop();
+        auto entityId = drawingStack.top();
+        drawingStack.pop();
         auto entity = ResourceMgr::GetPtr<Entity>(entityId);
         if(entity != nullptr)
         {
-            RenderEntity(entity, vpMatrix, camera->m_position);
+            RenderEntity(entity, renderContext);
         }
         auto object = ResourceMgr::GetPtr<Object>(entityId);
         if(object != nullptr)
         {
             for (auto& child : object->m_children)
             {
-                objectQueue.push(child);
+                drawingStack.push(child);
             }
         }
     }
 
-    glfwSwapBuffers(m_Window);
+    glfwSwapBuffers(m_window);
     glfwPollEvents();
 }
 
-void RenderEntity(const Entity* entity, const glm::mat4& vpMatrix, const glm::vec3& cameraPositionWS)
+void RenderEntity(const Entity* entity, const RenderContext& renderContext)
 {
     if(entity == nullptr)
     {
@@ -89,12 +101,12 @@ void RenderEntity(const Entity* entity, const glm::mat4& vpMatrix, const glm::ve
     }
 
     auto m = entity->GetLocalToWorld();
-    auto mvp = vpMatrix * m;
+    auto mvp = renderContext.m_vpMatrix * m;
 
     material->SetMat4Value("_MVP", mvp);
     material->SetMat4Value("_ITM", transpose(inverse(m)));
     material->SetMat4Value("_M", m);
-    material->SetVector4Value("_CameraPositionWS", glm::vec4(cameraPositionWS, 1));
+    material->SetVector4Value("_CameraPositionWS", glm::vec4(renderContext.m_cameraPositionWS, 1));
 
     mesh->Use();
     shader->Use(mesh);

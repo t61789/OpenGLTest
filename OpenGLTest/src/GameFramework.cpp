@@ -1,6 +1,8 @@
 ﻿#include "GameFramework.h"
 
 #include <iostream>
+
+#include "Camera.h"
 #include "Windows.h"
 
 bool initGl()
@@ -53,18 +55,18 @@ void GameFramework::StartGameLoop()
     double timeCount = 0;
     double preFrameTime = 0;
     int frameCount = 0;
-    _frameCount = -1;
-    while (!glfwWindowShouldClose(_window))
+    m_frameCount = -1;
+    while (!glfwWindowShouldClose(m_window))
     {
-        _frameCount++;
+        m_frameCount++;
         frameCount++;
-        _curFrameTime = glfwGetTime();
-        _deltaTime = static_cast<float>(_curFrameTime - preFrameTime);
-        if (_curFrameTime - timeCount > 1)
+        m_curFrameTime = glfwGetTime();
+        m_deltaTime = static_cast<float>(m_curFrameTime - preFrameTime);
+        if (m_curFrameTime - timeCount > 1)
         {
-            std::cout << "Frame Rate: " << frameCount / (_curFrameTime - timeCount) << "\n";
+            std::cout << "Frame Rate: " << frameCount / (m_curFrameTime - timeCount) << "\n";
             frameCount = 0;
-            timeCount = _curFrameTime;
+            timeCount = m_curFrameTime;
         }
 
         ProcessInput();
@@ -74,7 +76,7 @@ void GameFramework::StartGameLoop()
         // Render
         Render();
         
-        preFrameTime = _curFrameTime;
+        preFrameTime = m_curFrameTime;
     }
 
     glfwTerminate();
@@ -82,22 +84,22 @@ void GameFramework::StartGameLoop()
 
 float GameFramework::GetDeltaTime()
 {
-    return _deltaTime;
+    return m_deltaTime;
 }
 
 float GameFramework::GetCurFrameTime()
 {
-    return _curFrameTime;
+    return m_curFrameTime;
 }
 
 float GameFramework::GetFrameCount()
 {
-    return _frameCount;
+    return m_frameCount;
 }
 
 bool GameFramework::KeyPressed(int glfwKey) const
 {
-    return glfwGetKey(_window, glfwKey) == GLFW_PRESS;
+    return glfwGetKey(m_window, glfwKey) == GLFW_PRESS;
 }
 
 bool GameFramework::InitFrame()
@@ -123,16 +125,16 @@ bool GameFramework::InitGlfw()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    _window = glfwCreateWindow(_screenWidth, _screenHeight, "YeahTitle", nullptr, nullptr);
-    if(!_window)
+    m_window = glfwCreateWindow(m_screenWidth, m_screenHeight, "YeahTitle", nullptr, nullptr);
+    if(!m_window)
     {
         std::cout << "Failed to create a window\n";
         glfwTerminate();
 
         return false;
     }
-    glfwMakeContextCurrent(_window);
-    glfwSetFramebufferSizeCallback(_window, FRAME_BUFFER_SIZE_CALL_BACK);
+    glfwMakeContextCurrent(m_window);
+    glfwSetFramebufferSizeCallback(m_window, FRAME_BUFFER_SIZE_CALL_BACK);
 
     return true;
 }
@@ -141,7 +143,7 @@ void GameFramework::ProcessInput()
 {
     if(KeyPressed(GLFW_KEY_ESCAPE))
     {
-        glfwSetWindowShouldClose(_window, true);
+        glfwSetWindowShouldClose(m_window, true);
     }
 }
 
@@ -173,7 +175,7 @@ void GameFramework::Render()
     auto mainCamera = Camera::GetMainCamera();
     if(mainCamera != UNDEFINED_RESOURCE)
     {
-        m_renderPipeline->Render(mainCamera, m_scene->m_sceneRoot);
+        m_renderPipeline->Render(mainCamera, m_scene);
     }
     else
     {
@@ -185,15 +187,15 @@ void GameFramework::Render()
 void GameFramework::FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, int height)
 {
     std::cout << width << " " << height << "\n";
-    instance->_screenWidth = width;
-    instance->_screenHeight = height;
+    instance->m_screenWidth = width;
+    instance->m_screenHeight = height;
     glViewport(0, 0, width, height);
     instance->m_renderPipeline->SetScreenSize(width, height);
 }
 
 void GameFramework::InitGame()
 {
-    m_renderPipeline = new RenderPipeline(_screenWidth, _screenHeight, _window);
+    m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
 
     m_scene = new Scene("TestScene.json");
 }

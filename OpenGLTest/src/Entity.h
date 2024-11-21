@@ -1,7 +1,5 @@
 ﻿#pragma once
-#include "Mesh.h"
 #include "Object.h"
-#include "Shader.h"
 
 class Material;
 

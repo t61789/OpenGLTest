@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <functional>
 #include <unordered_map>
-#include <vector>
 
 template<typename ...T>
 class Event

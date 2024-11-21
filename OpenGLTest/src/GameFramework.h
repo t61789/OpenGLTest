@@ -2,21 +2,9 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include <glad/glad.h>
 #include <glfw3.h>
-#include "gtc/type_ptr.hpp"
 
-#include <iostream>
-
-#include "Camera.h"
-#include "Texture.h"
-#include "Shader.h"
-#include "Mesh.h"
-#include "Object.h"
-#include "Material.h"
 #include "RenderPipeline.h"
-#include "Entity.h"
-#include "Event.h"
 #include "Scene.h"
 
 class GameFramework
@@ -36,18 +24,16 @@ public:
     bool KeyPressed(int glfwKey) const;
     
 private:
-    GLFWwindow* _window;
+    GLFWwindow* m_window = nullptr;
+    Scene* m_scene = nullptr;
+    RenderPipeline* m_renderPipeline = nullptr;
 
-    Scene* m_scene;
+    int m_screenWidth = 800;
+    int m_screenHeight = 600;
 
-    RenderPipeline* m_renderPipeline;
-
-    int _screenWidth = 800;
-    int _screenHeight = 600;
-
-    float _deltaTime;
-    float _curFrameTime;
-    int _frameCount;
+    float m_deltaTime;
+    float m_curFrameTime;
+    int m_frameCount;
 
     void InitGame();
     bool InitFrame();
@@ -55,5 +41,6 @@ private:
     void ProcessInput();
     void Update();
     void Render();
+    
     static void FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, int height);
 };

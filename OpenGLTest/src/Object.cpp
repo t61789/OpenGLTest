@@ -2,7 +2,6 @@
 
 #include "gtc/matrix_transform.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
-#include <iostream>
 
 #include "Utils.h"
 #include "gtx/euler_angles.hpp"

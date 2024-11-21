@@ -2,11 +2,8 @@
 
 #include <glad/glad.h>
 #include "glm.hpp"
-#include "gtc/type_ptr.hpp"
 
 #include <string>
-#include <fstream>
-#include <sstream>
 
 #include "Mesh.h"
 #include "Texture.h"
