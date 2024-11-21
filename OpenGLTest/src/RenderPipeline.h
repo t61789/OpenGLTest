@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Entity.h"
 #include "Material.h"
 #include "Scene.h"
 
@@ -19,10 +20,19 @@ public:
     RenderPipeline(int width, int height, GLFWwindow* window);
     ~RenderPipeline();
     void setScreenSize(int width, int height);
-    void render(RESOURCE_ID cameraId, const Scene* scene) const;
+    void render(RESOURCE_ID cameraId, const Scene* scene);
 
 private:
     int m_screenWidth;
     int m_screenHeight;
     GLFWwindow* m_window;
+    GLuint m_frameBuffer = -1;
+    GLuint m_cameraColorAttachment = -1;
+    GLuint m_cameraDepthAttachment = -1;
+
+    RESOURCE_ID m_fullScreenQuad;
+    RESOURCE_ID m_blitShader;
+
+    void _renderEntity(const Entity* entity, const RenderContext& renderContext);
+    void _updateCameraAttachments();
 };

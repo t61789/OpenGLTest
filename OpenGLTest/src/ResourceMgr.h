@@ -113,6 +113,22 @@ public:
         s_resourceInfoMap.erase(id);
     }
 
+    static void DeleteResource(const RESOURCE_ID id)
+    {
+        auto ptr = GetPtr<ResourceBase>(id);
+        if(ptr == nullptr)
+        {
+            return;
+        }
+        
+        if(IsResourceRegistered(id))
+        {
+            UnregisterResource(id);
+        }
+
+        delete ptr;
+    }
+
 private:
     static std::vector<ResourceBase*> s_ptr;
     static std::unordered_map<std::string, ResourceInfo> s_pathMap;

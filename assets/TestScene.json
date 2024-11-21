@@ -19,7 +19,7 @@
 			"name":"Bunny",
 			"type":"entity",
 			"scale":[0.01, 0.01, 0.01],
-			"mesh":"beast.obj",
+			"mesh":"Meshes/beast.obj",
 			"material":"standardMat.json"
 		}
 	]

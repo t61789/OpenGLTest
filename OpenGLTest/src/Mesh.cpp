@@ -133,8 +133,6 @@ Mesh::~Mesh()
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ebo);
-
-    ResourceMgr::RemovePtr(id);
 }
 
 RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
@@ -145,7 +143,7 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
     }
     
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(Utils::GetRealAssetPath(modelPath).c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
+    const aiScene *scene = importer.ReadFile(Utils::GetRealAssetPath(modelPath).c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals);
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         throw std::runtime_error(std::string("ERROR>> Load model failed: ") + importer.GetErrorString());

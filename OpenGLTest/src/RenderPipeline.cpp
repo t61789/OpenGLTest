@@ -8,15 +8,24 @@
 #include "Entity.h"
 #include "GameFramework.h"
 
-void RenderEntity(const Entity* entity, const RenderContext& renderContext);
-
 RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
 {
     m_window = window;
     setScreenSize(width, height);
+    glGenFramebuffers(1, &this->m_frameBuffer);
+
+    m_fullScreenQuad = Mesh::LoadFromFile("Meshes/fullScreenMesh.obj");
+
+    m_blitShader = Shader::LoadFromFile("Shaders/Blit.vert", "Shaders/Blit.frag");
 }
 
-RenderPipeline::~RenderPipeline() = default;
+RenderPipeline::~RenderPipeline()
+{
+    glDeleteFramebuffers(1, &this->m_frameBuffer);
+
+    ResourceMgr::DeleteResource(m_fullScreenQuad);
+    ResourceMgr::DeleteResource(m_blitShader);
+}
 
 void RenderPipeline::setScreenSize(const int width, const int height)
 {
@@ -24,7 +33,7 @@ void RenderPipeline::setScreenSize(const int width, const int height)
     m_screenHeight = height;
 }
 
-void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene) const
+void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
 {
     if(scene == nullptr)
     {
@@ -58,33 +67,99 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene) cons
     renderContext.mainLightColor = scene->mainLightColor;
     renderContext.ambientLightColor = scene->ambientLightColor;
 
-    // DFS地绘制场景
-    std::stack<RESOURCE_ID> drawingStack;
-    drawingStack.push(scene->sceneRoot);
-    while(!drawingStack.empty())
+    auto shader = ResourceMgr::GetPtr<Shader>(m_blitShader);
+    auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_fullScreenQuad);
+
+    if(shader == nullptr || fullScreenQuad == nullptr)
     {
-        auto entityId = drawingStack.top();
-        drawingStack.pop();
-        auto entity = ResourceMgr::GetPtr<Entity>(entityId);
-        if(entity != nullptr)
-        {
-            RenderEntity(entity, renderContext);
-        }
-        auto object = ResourceMgr::GetPtr<Object>(entityId);
-        if(object != nullptr)
-        {
-            for (auto& child : object->children)
-            {
-                drawingStack.push(child);
-            }
-        }
+        return;
     }
+
+    fullScreenQuad->use();
+    shader->use(fullScreenQuad);
+    
+    glDrawElements(GL_TRIANGLES, fullScreenQuad->indicesCount, GL_UNSIGNED_INT, 0);
+
+    // DFS地绘制场景
+    // std::stack<RESOURCE_ID> drawingStack;
+    // drawingStack.push(scene->sceneRoot);
+    // while(!drawingStack.empty())
+    // {
+    //     auto entityId = drawingStack.top();
+    //     drawingStack.pop();
+    //     auto entity = ResourceMgr::GetPtr<Entity>(entityId);
+    //     if(entity != nullptr)
+    //     {
+    //         _renderEntity(entity, renderContext);
+    //     }
+    //     auto object = ResourceMgr::GetPtr<Object>(entityId);
+    //     if(object != nullptr)
+    //     {
+    //         for (auto& child : object->children)
+    //         {
+    //             drawingStack.push(child);
+    //         }
+    //     }
+    // }
 
     glfwSwapBuffers(m_window);
     glfwPollEvents();
 }
 
-void RenderEntity(const Entity* entity, const RenderContext& renderContext)
+void RenderPipeline::_updateCameraAttachments()
+{
+    if(this->m_cameraColorAttachment != (GLuint)-1)
+    {
+        glDeleteTextures(1, &this->m_cameraColorAttachment);
+        glDeleteTextures(1, &this->m_cameraDepthAttachment);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, this->m_frameBuffer);
+    
+    glGenTextures(1, &this->m_cameraColorAttachment);
+    glGenTextures(1, &this->m_cameraDepthAttachment);
+
+    glBindTexture(GL_TEXTURE_2D, this->m_cameraColorAttachment);
+    glTexImage2D(
+        this->m_cameraColorAttachment,
+        0,
+        GL_RGB,
+        m_screenWidth,
+        m_screenHeight,
+        0,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->m_cameraColorAttachment, 0);
+    
+    glBindTexture(GL_TEXTURE_2D, this->m_cameraDepthAttachment);
+    glTexImage2D(
+        this->m_cameraDepthAttachment,
+        0,
+        GL_DEPTH24_STENCIL8,
+        m_screenWidth,
+        m_screenHeight,
+        0,
+        GL_DEPTH24_STENCIL8,
+        GL_UNSIGNED_INT_24_8,
+        nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, this->m_cameraDepthAttachment, 0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        Utils::LogError("FrameBufferAttachment绑定失败");
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderPipeline::_renderEntity(const Entity* entity, const RenderContext& renderContext)
 {
     if(entity == nullptr)
     {
