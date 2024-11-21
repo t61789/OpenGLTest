@@ -31,9 +31,6 @@ GameFramework::GameFramework()
 
 GameFramework::~GameFramework()
 {
-    delete m_renderPipeline;
-    delete m_scene;
-
     instance = nullptr;
 }
 
@@ -179,7 +176,7 @@ void GameFramework::Render() const
     auto mainCamera = Camera::GetMainCamera();
     if(mainCamera != UNDEFINED_RESOURCE)
     {
-        m_renderPipeline->Render(mainCamera, m_scene);
+        m_renderPipeline->Render(mainCamera, m_scene.get());
     }
     else
     {
@@ -199,8 +196,7 @@ void GameFramework::FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, i
 
 void GameFramework::InitGame()
 {
-    m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
-
-    m_scene = new Scene("TestScene.json");
+    m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
+    m_scene = std::make_unique<Scene>("TestScene.json");
 }
 

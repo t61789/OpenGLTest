@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[])
 {
-    auto gf = new GameFramework();
+    auto gf = std::make_unique<GameFramework>();
     try
     {
         if(!gf->Init())
@@ -20,8 +20,6 @@ int main(int argc, char* argv[])
     {
         std::cout << e.what() << "\n";
     }
-    
-    delete gf;
     
     return 0;
 }

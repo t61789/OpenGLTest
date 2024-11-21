@@ -25,8 +25,8 @@ public:
     
 private:
     GLFWwindow* m_window = nullptr;
-    Scene* m_scene = nullptr;
-    RenderPipeline* m_renderPipeline = nullptr;
+    std::unique_ptr<Scene> m_scene = nullptr;
+    std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
 
     int m_screenWidth = 800;
     int m_screenHeight = 600;
