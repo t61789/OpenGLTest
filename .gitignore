@@ -37,3 +37,5 @@ glfw-3.4/build/*
 
 OpenGLTest/OpenGLTest/x64/*
 OpenGLTest/x64/*
+
+!/assets/*
