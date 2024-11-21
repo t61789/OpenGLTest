@@ -105,7 +105,7 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
             continue;
         }
         
-        if (elem.value().is_number_integer())
+        if (elemValue.is_number_integer())
         {
             result->SetIntValue(elemKey, elemValue.get<int>());
             continue;
@@ -123,31 +123,13 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
             continue;
         }
         
-        if (elemValue.is_array() && elemValue.size() == 4)
+        if (Utils::IsVec4(elemValue))
         {
-            bool allFloat = true;
-            for (auto& e : elemValue)
-            {
-                allFloat &= e.is_number_float();
-            }
-            if(allFloat)
-            {
-                result->SetVector4Value(
-                    elemKey,
-                    glm::vec4(
-                        elemValue[0].get<float>(),
-                        elemValue[1].get<float>(),
-                        elemValue[2].get<float>(),
-                        elemValue[3].get<float>()));
-                continue;
-            }
+            result->SetVector4Value(elemKey, Utils::ToVec4(elemValue));
+            continue;
         }
         
-        const std::string textureSuffix = "Tex";
-        // ends with suffix
-        if (elemKey.size() >= textureSuffix.size() &&
-            elemKey.rfind(textureSuffix) == elemKey.size() - textureSuffix.size() &&
-            elemValue.is_string())
+        if (elemValue.is_string() && Utils::EndsWith(elemKey, "Tex"))
         {
             result->SetTextureValue(elemKey, Texture::LoadFromFile(elemValue.get<std::string>()));
             continue;

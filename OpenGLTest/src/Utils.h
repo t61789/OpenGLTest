@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <vec3.hpp>
+#include <vec4.hpp>
+
 #include "../lib/json.hpp"
 
 class Bounds
@@ -16,12 +18,16 @@ class Utils
 {
 public:
     static glm::vec3 ToVec3(nlohmann::json arr);
+    static glm::vec4 ToVec4(nlohmann::json arr);
+    
     static std::string GetRealAssetPath(const std::string& relativePath);
+    
     template<typename Base, typename T>
     static bool InstanceOf(const T* ptr)
     {
         return dynamic_cast<const Base*>(ptr) != nullptr;
     }
+    
     static void LogInfo(const std::string& msg);
     static void LogInfo(const bool& msg);
     static void LogInfo(const float& msg);
@@ -34,4 +40,10 @@ public:
 
     static std::string ToString(float val, int fixed);
     static std::string ToString(const glm::vec3& val);
+
+    static bool IsVec(const nlohmann::json& jsonValue, size_t components);
+    static bool IsVec3(const nlohmann::json& jsonValue);
+    static bool IsVec4(const nlohmann::json& jsonValue);
+
+    static bool EndsWith(const std::string& str, const std::string& suffix);
 };

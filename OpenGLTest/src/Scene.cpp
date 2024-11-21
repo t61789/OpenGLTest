@@ -62,11 +62,27 @@ void Scene::LoadScene(const std::string& sceneJsonPath)
     nlohmann::json json;
     s >> json;
     s.close();
-    
-    auto sceneRoot = new Object();
-    sceneRoot->m_name = "Scene Root";
-    
-    AddTo(sceneRoot, json);
 
-    m_sceneRoot = sceneRoot->m_id;
+    if(json.contains("config"))
+    {
+        LoadSceneConfig(json["config"]);
+    }
+
+    if(json.contains("root"))
+    {
+        auto sceneRoot = new Object();
+        sceneRoot->m_name = "Scene Root";
+        
+        AddTo(sceneRoot, json["root"]);
+
+        m_sceneRoot = sceneRoot->m_id;
+    }
+}
+
+void Scene::LoadSceneConfig(const nlohmann::json& configJson)
+{
+    if(configJson.contains("lightDirection"))
+    {
+        m_lightDirection = Utils::ToVec3(configJson["lightDirection"]);
+    }
 }

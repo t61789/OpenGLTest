@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <vec4.hpp>
 
 Bounds::Bounds() = default;
 
@@ -14,10 +15,30 @@ Bounds::Bounds(const glm::vec3 center, const glm::vec3 extents)
 
 glm::vec3 Utils::ToVec3(nlohmann::json arr)
 {
+    if(!IsVec3(arr))
+    {
+        return {};
+    }
+    
     return {
         arr[0].get<float>(),
         arr[1].get<float>(),
         arr[2].get<float>()
+    };
+}
+
+glm::vec4 Utils::ToVec4(nlohmann::json arr)
+{
+    if(!IsVec4(arr))
+    {
+        return {};
+    }
+    
+    return {
+        arr[0].get<float>(),
+        arr[1].get<float>(),
+        arr[2].get<float>(),
+        arr[3].get<float>()
     };
 }
 
@@ -81,5 +102,35 @@ std::string Utils::ToString(const float val, const int fixed)
 std::string Utils::ToString(const glm::vec3& val)
 {
     return "(" + ToString(val.x, 2) + ", " + ToString(val.y, 2) + ", " + ToString(val.z, 2) + ")";   
+}
+
+bool Utils::IsVec(const nlohmann::json& jsonValue, const size_t components)
+{
+    if (jsonValue.is_array() && jsonValue.size() == components)
+    {
+        bool allFloat = true;
+        for (auto& e : jsonValue)
+        {
+            allFloat &= e.is_number_float();
+        }
+        return allFloat;
+    }
+
+    return false;
+}
+
+bool Utils::IsVec3(const nlohmann::json& jsonValue)
+{
+    return IsVec(jsonValue, 3);
+}
+
+bool Utils::IsVec4(const nlohmann::json& jsonValue)
+{
+    return IsVec(jsonValue, 4);
+}
+
+bool Utils::EndsWith(const std::string& str, const std::string& suffix)
+{
+    return str.size() >= suffix.size() && str.rfind(suffix) == str.size() - suffix.size();
 }
 
