@@ -1,14 +1,11 @@
 ﻿#version 330 core
 
+#include "Common.glsl"
+
 in vec4 vertexColor;
 in vec2 texCoord;
 in vec3 normalWS;
 in vec3 positionWS;
-
-uniform vec4 _CameraPositionWS;
-uniform vec4 _MainLightDirection;
-uniform vec4 _MainLightColor;
-uniform vec4 _AmbientLightColor;
 
 uniform sampler2D _MainTex;
 uniform float _ShowTex;
@@ -26,7 +23,7 @@ void main()
    
    normalWS = normalize(normalWS);
    
-   vec3 viewDir = normalize(_CameraPositionWS.xyz - positionWS);
+   vec3 viewDir = normalize(GetCameraPositionWS() - positionWS);
    
    vec3 ambient = _AmbientLightColor.rgb;
    vec3 diffuse = _MainLightColor.rgb * _Albedo.rgb * max(dot(normalWS, _MainLightDirection.xyz), 0);
