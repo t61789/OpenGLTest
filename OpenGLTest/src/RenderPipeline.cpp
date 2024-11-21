@@ -45,7 +45,7 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene) cons
     auto cameraLocalToWorld = camera->getLocalToWorld();
     auto viewMatrix = inverse(cameraLocalToWorld);
     auto projectionMatrix = glm::perspective(
-        glm::radians(camera->fov),
+        glm::radians(camera->fov * 0.5f),
         static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight),
         camera->nearClip,
         camera->farClip);
@@ -55,6 +55,8 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene) cons
     renderContext.vpMatrix = vpMatrix;
     renderContext.cameraPositionWS = camera->position;
     renderContext.mainLightDirection = normalize(scene->mainLightDirection);
+    renderContext.mainLightColor = scene->mainLightColor;
+    renderContext.ambientLightColor = scene->ambientLightColor;
 
     // DFS地绘制场景
     std::stack<RESOURCE_ID> drawingStack;
@@ -112,7 +114,7 @@ void RenderEntity(const Entity* entity, const RenderContext& renderContext)
     shader->setMatrix("_M", m);
     shader->setVector("_CameraPositionWS", glm::vec4(renderContext.cameraPositionWS, 1));
     shader->setVector("_MainLightDirection", glm::vec4(renderContext.mainLightDirection, 1));
-    shader->setVector("_MainLightColor", glm::vec4(renderContext.mainLightDirection, 1));
+    shader->setVector("_MainLightColor", glm::vec4(renderContext.mainLightColor, 1));
     shader->setVector("_AmbientLightColor", glm::vec4(renderContext.ambientLightColor, 1));
     
     glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);

@@ -106,6 +106,11 @@ std::string Utils::ToString(const glm::vec3& val)
     return "(" + ToString(val.x, 2) + ", " + ToString(val.y, 2) + ", " + ToString(val.z, 2) + ")";   
 }
 
+std::string Utils::ToString(const glm::vec4& val)
+{
+    return "(" + ToString(val.x, 2) + ", " + ToString(val.y, 2) + ", " + ToString(val.z, 2) + ", " + ToString(val.w, 2) + ")";   
+}
+
 bool Utils::IsVec(const nlohmann::json& jsonValue, const size_t components)
 {
     if (jsonValue.is_array() && jsonValue.size() == components)
@@ -113,7 +118,7 @@ bool Utils::IsVec(const nlohmann::json& jsonValue, const size_t components)
         bool allFloat = true;
         for (auto& e : jsonValue)
         {
-            allFloat &= e.is_number_float();
+            allFloat &= e.is_number();
         }
         return allFloat;
     }

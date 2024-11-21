@@ -1,11 +1,8 @@
 ﻿#pragma once
 
-#define GLM_ENABLE_EXPERIMENTAL
-
-#include <glfw3.h>
-
 #include "RenderPipeline.h"
 #include "Scene.h"
+#include "glfw3.h"
 
 class GameFramework
 {

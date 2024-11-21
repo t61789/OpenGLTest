@@ -1,12 +1,10 @@
 ﻿#pragma once
 
-#include <glad/glad.h>
-#include "glm.hpp"
-
 #include <string>
 
 #include "Mesh.h"
 #include "Texture.h"
+#include "glm.hpp"
 
 class Shader : public ResourceBase
 {

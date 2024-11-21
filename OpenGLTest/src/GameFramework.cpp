@@ -5,6 +5,8 @@
 #include "Camera.h"
 #include "Windows.h"
 
+#include "glad/glad.h"
+
 GameFramework* GameFramework::s_instance = nullptr;
 
 bool initGl()

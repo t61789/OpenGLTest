@@ -1,9 +1,9 @@
 ﻿#include "Camera.h"
 
+#include "GameFramework.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <gtx/euler_angles.hpp>
-
-#include "GameFramework.h"
 
 std::vector<OBJECT_ID> Camera::s_cameras;
 

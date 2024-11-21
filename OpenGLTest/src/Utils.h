@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include <glfw3.h>
 #include <vec3.hpp>
 #include <vec4.hpp>
 
 #include "Event.h"
 #include "../lib/json.hpp"
+#include "glfw3.h"
 
 class Bounds
 {
@@ -44,6 +44,7 @@ public:
 
     static std::string ToString(float val, int fixed);
     static std::string ToString(const glm::vec3& val);
+    static std::string ToString(const glm::vec4& val);
 
     static bool IsVec(const nlohmann::json& jsonValue, size_t components);
     static bool IsVec3(const nlohmann::json& jsonValue);

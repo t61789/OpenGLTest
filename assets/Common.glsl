@@ -14,7 +14,7 @@ vec4 TransformObjectToHClip(vec3 positionOS)
 
 vec3 TransformObjectToWorldNormal(vec3 normalOS)
 {
-    return normalize((_ITM * vec4(aNormalOS, 0)).xyz);
+    return normalize((_ITM * vec4(normalOS, 0)).xyz);
 }
 
 vec3 TransformObjectToWorld(vec3 positionOS)

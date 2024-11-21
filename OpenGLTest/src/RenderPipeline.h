@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <glfw3.h>
 #include "Material.h"
 #include "Scene.h"
 

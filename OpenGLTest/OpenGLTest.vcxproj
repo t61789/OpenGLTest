@@ -157,7 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\assets\Common.glsl" />
+    <None Include="..\assets\Common.glsl" />
     <ClCompile Include="lib\glad.c">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -413,9 +413,14 @@
     <ClInclude Include="src\Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\assets\beast.obj" />
+    <Content Include="..\assets\beetle.obj" />
+    <Content Include="..\assets\ground.obj" />
     <Content Include="..\assets\o2.png" />
+    <Content Include="..\assets\standardMat.json" />
     <Content Include="..\assets\stanford-bunny.obj" />
     <Content Include="..\assets\TestFragShader.frag" />
+    <Content Include="..\assets\TestScene.json" />
     <Content Include="..\assets\TestVertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -160,7 +160,7 @@ std::vector<std::string> loadFileToLines(const std::string& path)
     return lines;
 }
 
-void replaceIncludes(const std::string& curFilePath, std::vector<std::string> lines)
+void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines)
 {
     std::unordered_set<std::string> hasInclude;
     hasInclude.insert(curFilePath);
@@ -182,7 +182,7 @@ void replaceIncludes(const std::string& curFilePath, std::vector<std::string> li
 
         auto includePath = matches[1].str();
         lines.erase(lines.begin() + i);
-        if(hasInclude.find(includePath) != hasInclude.begin())
+        if(hasInclude.find(includePath) != hasInclude.end())
         {
             continue;
         }

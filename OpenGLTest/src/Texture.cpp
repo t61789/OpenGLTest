@@ -1,12 +1,12 @@
 ﻿#include "Texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "Utils.h"
 #include "../lib/stb_image.h"
+#include "Utils.h"
 
 Texture::Texture(const GLuint glTextureId)
 {
-    glTextureId = glTextureId;
+    this->glTextureId = glTextureId;
 }
 
 Texture::~Texture()
