@@ -1,36 +1,33 @@
 ﻿#pragma once
+
 #include <functional>
 #include <unordered_map>
 
-template<typename ...T>
+template<typename... Args>
 class Event
 {
 public:
-    void Register(long long key, std::function<void(T...)> func);
-    void UnRegister(long long key);
-    void Dispatch(T... params);
-    
-private:
-    std::unordered_map<long long, std::function<void(T...)>> _funcs;
-};
-
-template <typename ... T>
-void Event<T...>::Register(long long key, std::function<void(T...)> func)
-{
-    _funcs[key] = func;
-}
-
-template <typename ... T>
-void Event<T...>::UnRegister(long long key)
-{
-    _funcs.erase(key);
-}
-
-template <typename ... T>
-void Event<T...>::Dispatch(T... params)
-{
-    for (auto& p : _funcs)
+    size_t AddListener(std::function<void(Args...)> callback)
     {
-        p.second(params...);
+        auto id = m_eventHandlerId ++;
+        m_callbacks[id] = callback;
+        return id;
     }
-}
+
+    void RemoveListener(size_t id)
+    {
+        m_callbacks.erase(id);
+    }
+
+    void Invoke(Args... args)
+    {
+        for (auto& callback : m_callbacks)
+        {
+            callback.second(args...);
+        }
+    }
+
+private:
+    size_t m_eventHandlerId = 0;
+    std::unordered_map<size_t, std::function<void(Args...)>> m_callbacks;
+};

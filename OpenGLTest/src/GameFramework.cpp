@@ -49,7 +49,7 @@ bool GameFramework::Init()
     return true;
 }
 
-void GameFramework::StartGameLoop()
+void GameFramework::GameLoop()
 {
     // Render loop
     double timeCount = 0;
@@ -73,12 +73,16 @@ void GameFramework::StartGameLoop()
 
         Update();
 
-        // Render
         Render();
         
         preFrameTime = m_curFrameTime;
     }
 
+    if(m_window)
+    {
+        glfwDestroyWindow(m_window);
+        m_window = nullptr;
+    }
     glfwTerminate();
 }
 

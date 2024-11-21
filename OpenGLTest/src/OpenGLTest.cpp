@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
             return -1;
         }
         
-        gf->StartGameLoop();
+        gf->GameLoop();
     }
     catch (std::exception& e)
     {

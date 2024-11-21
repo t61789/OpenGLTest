@@ -16,7 +16,7 @@ public:
     ~GameFramework();
 
     bool Init();
-    void StartGameLoop();
+    void GameLoop();
 
     float GetDeltaTime() const;
     float GetCurFrameTime() const;
