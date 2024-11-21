@@ -9,7 +9,9 @@ class RenderContext
 public:
     glm::mat4 vpMatrix;
     glm::vec3 cameraPositionWS;
-    glm::vec3 lightDirection;
+    glm::vec3 mainLightDirection;
+    glm::vec3 mainLightColor;
+    glm::vec3 ambientLightColor;
 };
 
 class RenderPipeline

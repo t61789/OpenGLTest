@@ -5,25 +5,35 @@ in vec2 texCoord;
 in vec3 normalWS;
 in vec3 positionWS;
 
+uniform vec4 _CameraPositionWS;
+uniform vec4 _MainLightDirection;
+uniform vec4 _MainLightColor;
+uniform vec4 _AmbientLightColor;
+
 uniform sampler2D _MainTex;
 uniform float _ShowTex;
-uniform vec4 _CameraPositionWS;
-uniform vec4 _LightDirection;
+uniform vec4 _Albedo;
 
 out vec4 FragColor;
 
 void main()
 {
+   vec3 albedo = _Albedo.rgb;
    if(_ShowTex > 0.5)
    {
-      vec4 texCol = texture(_MainTex, texCoord);
-      FragColor = vec4(texCol.rgb, 1);
+      albedo *= texture(_MainTex, texCoord).rgb;
    }
-   else
-   {
-      vec3 viewDir = normalize(_CameraPositionWS.xyz - positionWS);
-      float d = clamp(dot(viewDir, normalWS), 0, 1);
-      FragColor = vec4(d, d, d, 1);
-//      FragColor = vec4(1, 1, 1, 1);
-   }
+   
+   normalWS = normalize(normalWS);
+   
+   vec3 viewDir = normalize(_CameraPositionWS.xyz - positionWS);
+   
+   vec3 ambient = _AmbientLightColor.rgb;
+   vec3 diffuse = _MainLightColor.rgb * _Albedo.rgb * max(dot(normalWS, _MainLightDirection.xyz), 0);
+   vec3 H = (_MainLightDirection.xyz + viewDir) * 0.5;
+   vec3 specular = _MainLightColor.rgb * pow(max(dot(normalWS, H), 0), 3);
+   
+   vec3 finalColor = diffuse + specular + ambient;
+           
+   FragColor = vec4(finalColor, 1);
 };

@@ -81,8 +81,18 @@ void Scene::_loadScene(const std::string& sceneJsonPath)
 
 void Scene::_loadSceneConfig(const nlohmann::json& configJson)
 {
-    if(configJson.contains("lightDirection"))
+    if(configJson.contains("mainLightDirection"))
     {
-        lightDirection = Utils::ToVec3(configJson["lightDirection"]);
+        mainLightDirection = Utils::ToVec3(configJson["mainLightDirection"]);
+    }
+    
+    if(configJson.contains("mainLightColor"))
+    {
+        mainLightColor = Utils::ToVec3(configJson["mainLightColor"]);
+    }
+    
+    if(configJson.contains("ambientLightColor"))
+    {
+        ambientLightColor = Utils::ToVec3(configJson["ambientLightColor"]);
     }
 }
