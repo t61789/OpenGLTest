@@ -5,6 +5,8 @@
 #include <sstream>
 #include <vec4.hpp>
 
+Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
+
 Bounds::Bounds() = default;
 
 Bounds::Bounds(const glm::vec3 center, const glm::vec3 extents)

@@ -13,18 +13,18 @@ typedef RESOURCE_ID OBJECT_ID;
 class Object : public ResourceBase
 {
 public:
-    bool m_enabled = true;
+    bool enabled = true;
     
-    std::string m_name = "Unnamed object";
-    glm::vec3 m_position = glm::vec3(0, 0, 0);
-    glm::vec3 m_scale = glm::vec3(1, 1, 1);
-    glm::vec3 m_rotation = glm::vec3(0, 0, 0);
+    std::string name = "Unnamed object";
+    glm::vec3 position = glm::vec3(0, 0, 0);
+    glm::vec3 scale = glm::vec3(1, 1, 1);
+    glm::vec3 rotation = glm::vec3(0, 0, 0);
 
-    std::vector<OBJECT_ID> m_children;
+    std::vector<OBJECT_ID> children;
 
-    glm::mat4 GetLocalToWorld() const;
-    virtual void Update();
-    virtual void LoadFromJson(const nlohmann::json& objJson);
+    glm::mat4 getLocalToWorld() const;
+    virtual void update();
+    virtual void loadFromJson(const nlohmann::json& objJson);
 
-    void AddChild(OBJECT_ID child);
+    void addChild(OBJECT_ID child);
 };

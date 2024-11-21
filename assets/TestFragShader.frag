@@ -8,6 +8,7 @@ in vec3 positionWS;
 uniform sampler2D _MainTex;
 uniform float _ShowTex;
 uniform vec4 _CameraPositionWS;
+uniform vec4 _LightDirection;
 
 out vec4 FragColor;
 

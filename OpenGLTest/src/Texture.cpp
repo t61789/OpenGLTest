@@ -6,12 +6,12 @@
 
 Texture::Texture(const GLuint glTextureId)
 {
-    m_glTextureId = glTextureId;
+    glTextureId = glTextureId;
 }
 
 Texture::~Texture()
 {
-    glDeleteTextures(1, &m_glTextureId);
+    glDeleteTextures(1, &glTextureId);
 }
 
 RESOURCE_ID Texture::LoadFromFile(const std::string& path)
@@ -54,6 +54,6 @@ RESOURCE_ID Texture::LoadFromFile(const std::string& path)
     stbi_image_free(data);
 
     auto texture = new Texture(glTextureId);
-    ResourceMgr::RegisterResource(path, texture->m_id);
-    return texture->m_id;
+    ResourceMgr::RegisterResource(path, texture->id);
+    return texture->id;
 }

@@ -9,14 +9,14 @@ std::vector<OBJECT_ID> Camera::s_cameras;
 
 Camera::Camera()
 {
-    s_cameras.push_back(m_id);
+    s_cameras.push_back(id);
 }
 
 Camera::~Camera()
 {
     for(size_t i = 0; i < s_cameras.size(); i++)
     {
-        if(s_cameras[i] != m_id)
+        if(s_cameras[i] != id)
         {
             continue;
         }
@@ -27,9 +27,9 @@ Camera::~Camera()
     }
 }
 
-void Camera::Update()
+void Camera::update()
 {
-    auto localToWorld = GetLocalToWorld();
+    auto localToWorld = getLocalToWorld();
     glm::vec3 forward = localToWorld * glm::vec4(0, 0, -1.0f, 0.0f);
     glm::vec3 right = localToWorld * glm::vec4(1.0f, 0, 0, 0.0f);
 
@@ -37,64 +37,66 @@ void Camera::Update()
     float rotateSpeed = 80;
     float damp = 0.07f;
 
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_W))
+    GameFramework* gameFramework = GameFramework::getInstance();
+
+    if(gameFramework->keyPressed(GLFW_KEY_W))
     {
-        m_targetPosition += forward * GameFramework::instance->GetDeltaTime() * moveSpeed;
+        m_targetPosition += forward * gameFramework->getDeltaTime() * moveSpeed;
     }
     
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_S))
+    if(gameFramework->keyPressed(GLFW_KEY_S))
     {
-        m_targetPosition += -forward * GameFramework::instance->GetDeltaTime() * moveSpeed;
+        m_targetPosition += -forward * gameFramework->getDeltaTime() * moveSpeed;
     }
     
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_A))
+    if(gameFramework->keyPressed(GLFW_KEY_A))
     {
-        m_targetPosition += -right * GameFramework::instance->GetDeltaTime() * moveSpeed;
+        m_targetPosition += -right * gameFramework->getDeltaTime() * moveSpeed;
     }
     
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_D))
+    if(gameFramework->keyPressed(GLFW_KEY_D))
     {
-        m_targetPosition += right * GameFramework::instance->GetDeltaTime() * moveSpeed;
+        m_targetPosition += right * gameFramework->getDeltaTime() * moveSpeed;
     }
     
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_E))
+    if(gameFramework->keyPressed(GLFW_KEY_E))
     {
-        m_targetPosition += glm::vec3(0, 1.0f, 0) * GameFramework::instance->GetDeltaTime() * moveSpeed;
+        m_targetPosition += glm::vec3(0, 1.0f, 0) * gameFramework->getDeltaTime() * moveSpeed;
     }
 
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_Q))
+    if(gameFramework->keyPressed(GLFW_KEY_Q))
     {
-        m_targetPosition += glm::vec3(0, -1.0f, 0) * GameFramework::instance->GetDeltaTime() * moveSpeed;
+        m_targetPosition += glm::vec3(0, -1.0f, 0) * gameFramework->getDeltaTime() * moveSpeed;
     }
 
-    m_position = lerp(m_position, m_targetPosition, damp);
+    position = lerp(position, m_targetPosition, damp);
     
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_UP))
+    if(gameFramework->keyPressed(GLFW_KEY_UP))
     {
-        m_targetRotation.x += GameFramework::instance->GetDeltaTime() * rotateSpeed;
+        m_targetRotation.x += gameFramework->getDeltaTime() * rotateSpeed;
     }
     
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_DOWN))
+    if(gameFramework->keyPressed(GLFW_KEY_DOWN))
     {
-        m_targetRotation.x += -GameFramework::instance->GetDeltaTime() * rotateSpeed;
+        m_targetRotation.x += -gameFramework->getDeltaTime() * rotateSpeed;
     }
     
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_LEFT))
+    if(gameFramework->keyPressed(GLFW_KEY_LEFT))
     {
-        m_targetRotation.y += GameFramework::instance->GetDeltaTime() * rotateSpeed;
+        m_targetRotation.y += gameFramework->getDeltaTime() * rotateSpeed;
     }
     
-    if(GameFramework::instance->KeyPressed(GLFW_KEY_RIGHT))
+    if(gameFramework->keyPressed(GLFW_KEY_RIGHT))
     {
-        m_targetRotation.y += -GameFramework::instance->GetDeltaTime() * rotateSpeed;
+        m_targetRotation.y += -gameFramework->getDeltaTime() * rotateSpeed;
     }
 
-    m_rotation = lerp(m_rotation, m_targetRotation, damp);
+    rotation = lerp(rotation, m_targetRotation, damp);
 }
 
-void Camera::LoadFromJson(const nlohmann::json& objJson)
+void Camera::loadFromJson(const nlohmann::json& objJson)
 {
-    Object::LoadFromJson(objJson);
+    Object::loadFromJson(objJson);
 
     if(objJson.contains("fov"))
     {
@@ -111,8 +113,8 @@ void Camera::LoadFromJson(const nlohmann::json& objJson)
         farClip = objJson["farClip"].get<float>();
     }
 
-    m_targetPosition = this->m_position;
-    m_targetRotation = this->m_rotation;
+    m_targetPosition = this->position;
+    m_targetRotation = this->rotation;
 }
 
 RESOURCE_ID Camera::GetMainCamera()

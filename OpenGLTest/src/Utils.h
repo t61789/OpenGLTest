@@ -1,7 +1,9 @@
 ﻿#pragma once
+#include <glfw3.h>
 #include <vec3.hpp>
 #include <vec4.hpp>
 
+#include "Event.h"
 #include "../lib/json.hpp"
 
 class Bounds
@@ -17,6 +19,8 @@ public:
 class Utils
 {
 public:
+    static Event<GLFWwindow*, int, int> s_setFrameBufferSizeEvent;
+    
     static glm::vec3 ToVec3(nlohmann::json arr);
     static glm::vec4 ToVec4(nlohmann::json arr);
     

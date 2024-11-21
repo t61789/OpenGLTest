@@ -7,9 +7,9 @@
 class RenderContext
 {
 public:
-    glm::mat4 m_vpMatrix;
-    glm::vec3 m_cameraPositionWS;
-    glm::vec3 m_lightDirection;
+    glm::mat4 vpMatrix;
+    glm::vec3 cameraPositionWS;
+    glm::vec3 lightDirection;
 };
 
 class RenderPipeline
@@ -17,8 +17,8 @@ class RenderPipeline
 public:
     RenderPipeline(int width, int height, GLFWwindow* window);
     ~RenderPipeline();
-    void SetScreenSize(int width, int height);
-    void Render(RESOURCE_ID cameraId, const Scene* scene) const;
+    void setScreenSize(int width, int height);
+    void render(RESOURCE_ID cameraId, const Scene* scene) const;
 
 private:
     int m_screenWidth;

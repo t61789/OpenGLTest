@@ -23,7 +23,7 @@ public:
 class ResourceBase
 {
 public:
-    RESOURCE_ID m_id = UNDEFINED_RESOURCE;
+    RESOURCE_ID id = UNDEFINED_RESOURCE;
 
     ResourceBase();
     virtual ~ResourceBase();
@@ -121,11 +121,11 @@ private:
 
 inline ResourceBase::ResourceBase()
 {
-    m_id = ResourceMgr::AddPtr(this);
+    id = ResourceMgr::AddPtr(this);
 }
 
 inline ResourceBase::~ResourceBase()
 {
-    ResourceMgr::RemovePtr(m_id);
+    ResourceMgr::RemovePtr(id);
 }
 

@@ -115,25 +115,25 @@ RESOURCE_ID Mesh::CreateMesh(
     delete[] data;
 
     auto result = new Mesh();
-    result->m_bounds = bounds;
-    result->m_vao = VAO;
-    result->m_vbo = VBO;
-    result->m_ebo = EBO;
-    result->m_vertexDataFloatNum = vertexDataFloatNum;
-    result->m_vertexCount = vertexCount;
-    result->m_indicesCount = indicesCount;
-    std::memcpy(&result->m_vertexAttribEnabled, &vertexAttribEnabled, sizeof(vertexAttribEnabled));
-    std::memcpy(&result->m_vertexAttribOffset, &vertexAttribOffset, sizeof(vertexAttribOffset));
-    return result->m_id;
+    result->bounds = bounds;
+    result->vao = VAO;
+    result->vbo = VBO;
+    result->ebo = EBO;
+    result->vertexDataFloatNum = vertexDataFloatNum;
+    result->vertexCount = vertexCount;
+    result->indicesCount = indicesCount;
+    std::memcpy(&result->vertexAttribEnabled, &vertexAttribEnabled, sizeof(vertexAttribEnabled));
+    std::memcpy(&result->vertexAttribOffset, &vertexAttribOffset, sizeof(vertexAttribOffset));
+    return result->id;
 }
 
 Mesh::~Mesh()
 {
-    glDeleteVertexArrays(1, &m_vao);
-    glDeleteBuffers(1, &m_vbo);
-    glDeleteBuffers(1, &m_ebo);
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
 
-    ResourceMgr::RemovePtr(m_id);
+    ResourceMgr::RemovePtr(id);
 }
 
 RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
@@ -245,10 +245,10 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
     return result;
 }
 
-void Mesh::Use() const
+void Mesh::use() const
 {
-    glBindVertexArray(m_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 
 

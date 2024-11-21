@@ -13,18 +13,18 @@ void RenderEntity(const Entity* entity, const RenderContext& renderContext);
 RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
 {
     m_window = window;
-    SetScreenSize(width, height);
+    setScreenSize(width, height);
 }
 
 RenderPipeline::~RenderPipeline() = default;
 
-void RenderPipeline::SetScreenSize(const int width, const int height)
+void RenderPipeline::setScreenSize(const int width, const int height)
 {
     m_screenWidth = width;
     m_screenHeight = height;
 }
 
-void RenderPipeline::Render(const RESOURCE_ID cameraId, const Scene* scene) const
+void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene) const
 {
     if(scene == nullptr)
     {
@@ -32,7 +32,7 @@ void RenderPipeline::Render(const RESOURCE_ID cameraId, const Scene* scene) cons
     }
     
     auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
-    auto sceneRoot = ResourceMgr::GetPtr<Object>(scene->m_sceneRoot);
+    auto sceneRoot = ResourceMgr::GetPtr<Object>(scene->sceneRoot);
     if(camera == nullptr || sceneRoot == nullptr)
     {
         return;
@@ -42,7 +42,7 @@ void RenderPipeline::Render(const RESOURCE_ID cameraId, const Scene* scene) cons
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 准备绘制参数
-    auto cameraLocalToWorld = camera->GetLocalToWorld();
+    auto cameraLocalToWorld = camera->getLocalToWorld();
     auto viewMatrix = inverse(cameraLocalToWorld);
     auto projectionMatrix = glm::perspective(
         glm::radians(camera->fov),
@@ -52,13 +52,13 @@ void RenderPipeline::Render(const RESOURCE_ID cameraId, const Scene* scene) cons
     auto vpMatrix = projectionMatrix * viewMatrix;
 
     RenderContext renderContext;
-    renderContext.m_vpMatrix = vpMatrix;
-    renderContext.m_cameraPositionWS = camera->m_position;
-    renderContext.m_lightDirection = scene->m_lightDirection;
+    renderContext.vpMatrix = vpMatrix;
+    renderContext.cameraPositionWS = camera->position;
+    renderContext.lightDirection = scene->lightDirection;
 
     // DFS地绘制场景
     std::stack<RESOURCE_ID> drawingStack;
-    drawingStack.push(scene->m_sceneRoot);
+    drawingStack.push(scene->sceneRoot);
     while(!drawingStack.empty())
     {
         auto entityId = drawingStack.top();
@@ -71,7 +71,7 @@ void RenderPipeline::Render(const RESOURCE_ID cameraId, const Scene* scene) cons
         auto object = ResourceMgr::GetPtr<Object>(entityId);
         if(object != nullptr)
         {
-            for (auto& child : object->m_children)
+            for (auto& child : object->children)
             {
                 drawingStack.push(child);
             }
@@ -88,30 +88,31 @@ void RenderEntity(const Entity* entity, const RenderContext& renderContext)
     {
         return;
     }
-    auto mesh = ResourceMgr::GetPtr<Mesh>(entity->m_mesh);
-    auto material = ResourceMgr::GetPtr<Material>(entity->m_material);
+    auto mesh = ResourceMgr::GetPtr<Mesh>(entity->mesh);
+    auto material = ResourceMgr::GetPtr<Material>(entity->material);
     if(mesh == nullptr || material == nullptr)
     {
         return;
     }
-    auto shader = ResourceMgr::GetPtr<Shader>(material->m_shader);
+    auto shader = ResourceMgr::GetPtr<Shader>(material->shaderId);
     if(shader == nullptr)
     {
         return;
     }
 
-    auto m = entity->GetLocalToWorld();
-    auto mvp = renderContext.m_vpMatrix * m;
+    auto m = entity->getLocalToWorld();
+    auto mvp = renderContext.vpMatrix * m;
 
-    material->SetMat4Value("_MVP", mvp);
-    material->SetMat4Value("_ITM", transpose(inverse(m)));
-    material->SetMat4Value("_M", m);
-    material->SetVector4Value("_CameraPositionWS", glm::vec4(renderContext.m_cameraPositionWS, 1));
+    mesh->use();
+    shader->use(mesh);
+    material->fillParams(shader);
 
-    mesh->Use();
-    shader->Use(mesh);
-    material->FillParams(shader);
+    shader->setMatrix("_MVP", mvp);
+    shader->setMatrix("_ITM", transpose(inverse(m)));
+    shader->setMatrix("_M", m);
+    shader->setVector("_CameraPositionWS", glm::vec4(renderContext.cameraPositionWS, 1));
+    shader->setVector("_LightDirection", glm::vec4(renderContext.lightDirection, 1));
     
-    glDrawElements(GL_TRIANGLES, mesh->m_indicesCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);
 }
 

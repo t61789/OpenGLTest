@@ -6,13 +6,13 @@
 class Scene
 {
 public:
-    OBJECT_ID m_sceneRoot = UNDEFINED_RESOURCE;
+    OBJECT_ID sceneRoot = UNDEFINED_RESOURCE;
 
-    glm::vec3 m_lightDirection = glm::vec3(-1, -1, -1);
+    glm::vec3 lightDirection = glm::vec3(-1, -1, -1);
     
     Scene(const std::string& sceneJsonPath);
 
 private:
-    void LoadScene(const std::string& sceneJsonPath);
-    void LoadSceneConfig(const nlohmann::json& configJson);
+    void _loadScene(const std::string& sceneJsonPath);
+    void _loadSceneConfig(const nlohmann::json& configJson);
 };

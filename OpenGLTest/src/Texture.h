@@ -8,7 +8,7 @@
 class Texture : ResourceBase
 {
 public:
-    GLuint m_glTextureId;
+    GLuint glTextureId;
     
     static RESOURCE_ID LoadFromFile(const std::string& path);
 

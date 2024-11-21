@@ -7,19 +7,19 @@ template<typename... Args>
 class Event
 {
 public:
-    size_t AddListener(std::function<void(Args...)> callback)
+    size_t addListener(std::function<void(Args...)> callback)
     {
         auto id = m_eventHandlerId ++;
         m_callbacks[id] = callback;
         return id;
     }
 
-    void RemoveListener(size_t id)
+    void removeListener(size_t id)
     {
         m_callbacks.erase(id);
     }
 
-    void Invoke(Args... args)
+    void invoke(Args... args)
     {
         for (auto& callback : m_callbacks)
         {

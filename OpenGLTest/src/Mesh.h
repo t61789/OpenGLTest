@@ -9,16 +9,16 @@
 class Mesh : public ResourceBase
 {
 public:
-    GLuint m_vao, m_vbo, m_ebo;
+    GLuint vao, vbo, ebo;
 
-    Bounds m_bounds;
-    size_t m_vertexCount;
-    size_t m_indicesCount;
-    int m_vertexDataFloatNum;
-    bool m_vertexAttribEnabled[VERTEX_ATTRIB_NUM];
-    int m_vertexAttribOffset[VERTEX_ATTRIB_NUM];
+    Bounds bounds;
+    size_t vertexCount;
+    size_t indicesCount;
+    int vertexDataFloatNum;
+    bool vertexAttribEnabled[VERTEX_ATTRIB_NUM];
+    int vertexAttribOffset[VERTEX_ATTRIB_NUM];
     
-    void Use() const;
+    void use() const;
     
     static RESOURCE_ID LoadFromFile(const std::string& modelPath);
     static RESOURCE_ID CreateMesh(

@@ -11,22 +11,22 @@
 class Shader : public ResourceBase
 {
 public:
-    GLuint m_glShaderId;
+    GLuint glShaderId;
 
-    void Use(const Mesh* mesh) const;
-    bool HasParam(const std::string &name) const;
-    void SetBool(const std::string &name, bool value) const;
-    static void SetBool(const int &location, bool value);
-    void SetInt(const std::string &name, int value) const;
-    static void SetInt(const int &location, int value);
-    void SetFloat(const std::string &name, float value) const;
-    static void SetFloat(const int &location, float value);
-    void SetVector(const std::string &name, const glm::vec4& value) const;
-    static void SetVector(const int &location, const glm::vec4& value);
-    void SetMatrix(const std::string& name, const glm::mat4& value) const;
-    static void SetMatrix(const int& location, const glm::mat4& value);
-    void SetTexture(const std::string& name, const int slot, const RESOURCE_ID value) const;
-    static void SetTexture(const int& location, const int slot, const RESOURCE_ID value);
+    void use(const Mesh* mesh) const;
+    bool hasParam(const std::string &name) const;
+    void setBool(const std::string &name, bool value) const;
+    static void setBool(const int &location, bool value);
+    void setInt(const std::string &name, int value) const;
+    static void setInt(const int &location, int value);
+    void setFloat(const std::string &name, float value) const;
+    static void setFloat(const int &location, float value);
+    void setVector(const std::string &name, const glm::vec4& value) const;
+    static void setVector(const int &location, const glm::vec4& value);
+    void setMatrix(const std::string& name, const glm::mat4& value) const;
+    static void setMatrix(const int& location, const glm::mat4& value);
+    void setTexture(const std::string& name, const int slot, const RESOURCE_ID value) const;
+    static void setTexture(const int& location, const int slot, const RESOURCE_ID value);
 
     static RESOURCE_ID LoadFromFile(const std::string &vertexPath, const std::string &fragPath);
 

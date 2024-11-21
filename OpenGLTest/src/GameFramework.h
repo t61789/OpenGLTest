@@ -10,20 +10,22 @@
 class GameFramework
 {
 public:
-    static GameFramework* instance;
-
+    static GameFramework* getInstance();
+    
     GameFramework();
     ~GameFramework();
 
-    bool Init();
-    void GameLoop();
+    bool init();
+    void gameLoop();
 
-    float GetDeltaTime() const;
-    float GetCurFrameTime() const;
-    float GetFrameCount() const;
-    bool KeyPressed(int glfwKey) const;
+    float getDeltaTime() const;
+    float getCurFrameTime() const;
+    float getFrameCount() const;
+    bool keyPressed(int glfwKey) const;
     
 private:
+    static GameFramework* s_instance;
+    
     GLFWwindow* m_window = nullptr;
     std::unique_ptr<Scene> m_scene = nullptr;
     std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
@@ -35,12 +37,13 @@ private:
     float m_curFrameTime;
     int m_frameCount;
 
-    void InitGame();
-    bool InitFrame();
-    bool InitGlfw();
-    void ProcessInput() const;
-    void Update() const;
-    void Render() const;
-    
-    static void FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, int height);
+    size_t m_setFrameBufferSizeEventHandler;
+
+    void _initGame();
+    bool _initFrame();
+    bool _initGlfw();
+    void _processInput() const;
+    void _update() const;
+    void _render() const;
+    void _onSetFrameBufferSize(GLFWwindow* window, int width, int height);
 };

@@ -15,49 +15,49 @@ glm::vec3 ToVec3(nlohmann::json arr)
     };
 }
 
-glm::mat4 Object::GetLocalToWorld() const
+glm::mat4 Object::getLocalToWorld() const
 {
     auto objectMatrix = glm::mat4(1);
-    objectMatrix = translate(objectMatrix, m_position);
+    objectMatrix = translate(objectMatrix, position);
     objectMatrix = objectMatrix * glm::eulerAngleYXZ(
-        glm::radians(m_rotation.y),
-        glm::radians(m_rotation.x),
-        glm::radians(m_rotation.z));
-    objectMatrix = glm::scale(objectMatrix, m_scale);
+        glm::radians(rotation.y),
+        glm::radians(rotation.x),
+        glm::radians(rotation.z));
+    objectMatrix = glm::scale(objectMatrix, scale);
     return objectMatrix;
 }
 
-void Object::Update()
+void Object::update()
 {
     // pass
 }
 
-void Object::LoadFromJson(const nlohmann::json& objJson)
+void Object::loadFromJson(const nlohmann::json& objJson)
 {
     if(objJson.contains("name"))
     {
-        m_name = objJson["name"].get<std::string>();
+        name = objJson["name"].get<std::string>();
     }
     if(objJson.contains("position"))
     {
-        m_position = Utils::ToVec3(objJson["position"]);
+        position = Utils::ToVec3(objJson["position"]);
     }
     if(objJson.contains("rotation"))
     {
-        m_rotation = Utils::ToVec3(objJson["rotation"]);
+        rotation = Utils::ToVec3(objJson["rotation"]);
     }
     if(objJson.contains("scale"))
     {
-        m_scale = Utils::ToVec3(objJson["scale"]);
+        scale = Utils::ToVec3(objJson["scale"]);
     }
 }
 
-void Object::AddChild(const OBJECT_ID child)
+void Object::addChild(const OBJECT_ID child)
 {
-    if(std::find(m_children.begin(), m_children.end(), child) != m_children.end())
+    if(std::find(children.begin(), children.end(), child) != children.end())
     {
         return;
     }
 
-    m_children.push_back(child);
+    children.push_back(child);
 }

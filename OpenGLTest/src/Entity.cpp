@@ -4,17 +4,17 @@
 
 Entity::~Entity() = default;
 
-void Entity::LoadFromJson(const nlohmann::json& objJson)
+void Entity::loadFromJson(const nlohmann::json& objJson)
 {
-    Object::LoadFromJson(objJson);
+    Object::loadFromJson(objJson);
 
     if(objJson.contains("mesh"))
     {
-        m_mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
+        mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
     }
 
     if(objJson.contains("material"))
     {
-        m_material = Material::LoadFromFile(objJson["material"].get<std::string>());
+        material = Material::LoadFromFile(objJson["material"].get<std::string>());
     }
 }

@@ -32,7 +32,7 @@ Object* LoadObject(const nlohmann::json& objJson)
         result = new Object();
     }
     
-    result->LoadFromJson(objJson);
+    result->loadFromJson(objJson);
     return result;
 }
 
@@ -47,16 +47,16 @@ void AddTo(Object* parent, const nlohmann::json& children)
             AddTo(obj, elem["children"]);
         }
         
-        parent->AddChild(obj->m_id);
+        parent->addChild(obj->id);
     }
 }
 
 Scene::Scene(const std::string& sceneJsonPath)
 {
-    LoadScene(sceneJsonPath);
+    _loadScene(sceneJsonPath);
 }
 
-void Scene::LoadScene(const std::string& sceneJsonPath)
+void Scene::_loadScene(const std::string& sceneJsonPath)
 {
     auto s = std::ifstream(Utils::GetRealAssetPath(sceneJsonPath));
     nlohmann::json json;
@@ -65,24 +65,24 @@ void Scene::LoadScene(const std::string& sceneJsonPath)
 
     if(json.contains("config"))
     {
-        LoadSceneConfig(json["config"]);
+        _loadSceneConfig(json["config"]);
     }
 
     if(json.contains("root"))
     {
-        auto sceneRoot = new Object();
-        sceneRoot->m_name = "Scene Root";
+        auto rootObj = new Object();
+        rootObj->name = "Scene Root";
         
-        AddTo(sceneRoot, json["root"]);
+        AddTo(rootObj, json["root"]);
 
-        m_sceneRoot = sceneRoot->m_id;
+        sceneRoot = rootObj->id;
     }
 }
 
-void Scene::LoadSceneConfig(const nlohmann::json& configJson)
+void Scene::_loadSceneConfig(const nlohmann::json& configJson)
 {
     if(configJson.contains("lightDirection"))
     {
-        m_lightDirection = Utils::ToVec3(configJson["lightDirection"]);
+        lightDirection = Utils::ToVec3(configJson["lightDirection"]);
     }
 }
