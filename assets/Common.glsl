@@ -7,7 +7,7 @@ uniform vec4 _MainLightDirection;
 uniform vec4 _MainLightColor;
 uniform vec4 _AmbientLightColor;
 
-vec3 TransformObjectToHClip(vec3 positionOS)
+vec4 TransformObjectToHClip(vec3 positionOS)
 {
     return _MVP * vec4(positionOS, 1);
 }
