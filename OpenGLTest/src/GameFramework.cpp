@@ -60,7 +60,7 @@ void GameFramework::StartGameLoop()
     {
         m_frameCount++;
         frameCount++;
-        m_curFrameTime = glfwGetTime();
+        m_curFrameTime = static_cast<float>(glfwGetTime());
         m_deltaTime = static_cast<float>(m_curFrameTime - preFrameTime);
         if (m_curFrameTime - timeCount > 1)
         {
@@ -82,22 +82,22 @@ void GameFramework::StartGameLoop()
     glfwTerminate();
 }
 
-float GameFramework::GetDeltaTime()
+float GameFramework::GetDeltaTime() const
 {
     return m_deltaTime;
 }
 
-float GameFramework::GetCurFrameTime()
+float GameFramework::GetCurFrameTime() const
 {
     return m_curFrameTime;
 }
 
-float GameFramework::GetFrameCount()
+float GameFramework::GetFrameCount() const
 {
-    return m_frameCount;
+    return static_cast<float>(m_frameCount);
 }
 
-bool GameFramework::KeyPressed(int glfwKey) const
+bool GameFramework::KeyPressed(const int glfwKey) const
 {
     return glfwGetKey(m_window, glfwKey) == GLFW_PRESS;
 }
@@ -139,7 +139,7 @@ bool GameFramework::InitGlfw()
     return true;
 }
 
-void GameFramework::ProcessInput()
+void GameFramework::ProcessInput() const
 {
     if(KeyPressed(GLFW_KEY_ESCAPE))
     {
@@ -147,7 +147,7 @@ void GameFramework::ProcessInput()
     }
 }
 
-void UpdateObject(OBJECT_ID objId)
+void UpdateObject(const OBJECT_ID objId)
 {
     auto obj = ResourceMgr::GetPtr<Object>(objId);
     if(obj != nullptr)
@@ -160,7 +160,7 @@ void UpdateObject(OBJECT_ID objId)
     }
 }
 
-void GameFramework::Update()
+void GameFramework::Update() const
 {
     if(m_scene != nullptr)
     {
@@ -170,7 +170,7 @@ void GameFramework::Update()
     // _entity->rotation.y += GetDeltaTime() * 60.0f;
 }
 
-void GameFramework::Render()
+void GameFramework::Render() const
 {
     auto mainCamera = Camera::GetMainCamera();
     if(mainCamera != UNDEFINED_RESOURCE)

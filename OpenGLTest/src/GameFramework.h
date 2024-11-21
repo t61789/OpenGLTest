@@ -18,9 +18,9 @@ public:
     bool Init();
     void StartGameLoop();
 
-    float GetDeltaTime();
-    float GetCurFrameTime();
-    float GetFrameCount();
+    float GetDeltaTime() const;
+    float GetCurFrameTime() const;
+    float GetFrameCount() const;
     bool KeyPressed(int glfwKey) const;
     
 private:
@@ -38,9 +38,9 @@ private:
     void InitGame();
     bool InitFrame();
     bool InitGlfw();
-    void ProcessInput();
-    void Update();
-    void Render();
+    void ProcessInput() const;
+    void Update() const;
+    void Render() const;
     
     static void FRAME_BUFFER_SIZE_CALL_BACK(GLFWwindow* window, int width, int height);
 };

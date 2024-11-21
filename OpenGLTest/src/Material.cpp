@@ -1,5 +1,7 @@
 ﻿#include "Material.h"
 
+#include <fstream>
+
 #include "Utils.h"
 #include "../lib/json.hpp"
 
