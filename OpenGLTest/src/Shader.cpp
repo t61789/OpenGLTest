@@ -2,13 +2,13 @@
 
 #include <fstream>
 #include <iostream>
+#include <regex>
 #include <sstream>
+#include <unordered_set>
 
 #include "GameFramework.h"
 #include "Utils.h"
 #include "gtc/type_ptr.hpp"
-
-using namespace std;
 
 void checkShaderCompilation(const GLuint vertexShader, const std::string &shaderPath)
 {
@@ -18,7 +18,7 @@ void checkShaderCompilation(const GLuint vertexShader, const std::string &shader
     {
         char info[512];
         glGetShaderInfoLog(vertexShader, 512, nullptr, info);
-        throw runtime_error(string("ERROR>> Shader compilation failed:\n") + shaderPath + "\n" + info);
+        throw std::runtime_error(std::string("ERROR>> Shader compilation failed:\n") + shaderPath + "\n" + info);
     }
 }
 
@@ -133,6 +133,77 @@ void Shader::setMatrix(const int& location, const glm::mat4& value)
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
+std::vector<std::string> loadFileToLines(const std::string& path)
+{
+    std::ifstream fs;
+    fs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    std::stringstream ss;
+    try
+    {
+        fs.open(Utils::GetRealAssetPath(path));
+        ss << fs.rdbuf();
+    }
+    catch(std::exception&)
+    {
+        fs.close();
+        throw;
+    }
+    fs.close();
+    
+    std::vector<std::string> lines;
+    std::string line;
+    while(std::getline(ss, line, '\n'))
+    {
+        lines.push_back(line);
+    }
+
+    return lines;
+}
+
+void replaceIncludes(const std::string& curFilePath, std::vector<std::string> lines)
+{
+    std::unordered_set<std::string> hasInclude;
+    hasInclude.insert(curFilePath);
+    for (size_t i = 0; i < lines.size(); ++i)
+    {
+        auto line = lines[i];
+        auto includeCmdIndex = line.find("#include");
+        if(includeCmdIndex == std::string::npos)
+        {
+            continue;
+        }
+
+        std::regex pattern("^\\s*#include\\s+\"([^\"]+)\"\\s*$");
+        std::smatch matches;
+        if(!std::regex_match(line, matches, pattern))
+        {
+            continue;
+        }
+
+        auto includePath = matches[1].str();
+        lines.erase(lines.begin() + i);
+        if(hasInclude.find(includePath) != hasInclude.begin())
+        {
+            continue;
+        }
+        hasInclude.insert(includePath);
+
+        auto includeLines = loadFileToLines(includePath);
+        lines.insert(lines.begin() + i, includeLines.begin(), includeLines.end());
+        i--;
+    }
+}
+
+std::string joinLines(const std::vector<std::string>& lines)
+{
+    std::stringstream ss;
+    for (const auto& line : lines)
+    {
+        ss << line << "\n";
+    }
+    return ss.str();
+}
+
 RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::string& fragPath)
 {
     std::string checkPath = vertexPath + fragPath;
@@ -140,34 +211,22 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     {
         return ResourceMgr::GetRegisteredResource(checkPath);
     }
-    
-    string vSource, fSource;
-    ifstream vFile, fFile;
 
-    vFile.exceptions(ifstream::failbit | ifstream::badbit);
-    fFile.exceptions(ifstream::failbit | ifstream::badbit);
-
+    std::string vSource, fSource;
     try
     {
-        vFile.open(Utils::GetRealAssetPath(vertexPath));
-        fFile.open(Utils::GetRealAssetPath(fragPath));
+        auto vertLines = loadFileToLines(vertexPath);
+        auto fragLines = loadFileToLines(fragPath);
 
-        stringstream vStream, fStream;
-        vStream << vFile.rdbuf();
-        fStream << fFile.rdbuf();
+        replaceIncludes(vertexPath, vertLines);
+        replaceIncludes(fragPath, fragLines);
 
-        vFile.close();
-        fFile.close();
-
-        vSource = vStream.str();
-        fSource = fStream.str();
+        vSource = joinLines(vertLines);
+        fSource = joinLines(fragLines);
     }
-    catch (exception &e)
+    catch (std::exception &e)
     {
-        vFile.close();
-        fFile.close();
-        
-        throw runtime_error(string("ERROR>> Failed to access shader files: ") + + e.what());
+        throw std::runtime_error(std::string("ERROR>> Failed to access shader files: ") + + e.what());
     }
 
     auto vCharSource = vSource.c_str();
