@@ -51,7 +51,7 @@ void Camera::Update()
         _targetPosition += glm::vec3(0, -1.0f, 0) * GameFramework::instance->GetDeltaTime() * moveSpeed;
     }
 
-    position = lerp(position, _targetPosition, damp);
+    m_position = lerp(m_position, _targetPosition, damp);
     
     if(GameFramework::instance->KeyPressed(GLFW_KEY_UP))
     {
@@ -73,5 +73,5 @@ void Camera::Update()
         _targetRotation.y += -GameFramework::instance->GetDeltaTime() * rotateSpeed;
     }
 
-    rotation = lerp(rotation, _targetRotation, damp);
+    m_rotation = lerp(m_rotation, _targetRotation, damp);
 }

@@ -34,7 +34,7 @@ void RenderPipeline::Render(const Camera* camera) const
     
     for (auto& entity : m_Entities)
     {
-        RenderEntity(entity, vpMatrix, camera->position);
+        RenderEntity(entity, vpMatrix, camera->m_position);
     }
 
     glfwSwapBuffers(m_Window);
