@@ -1,6 +1,6 @@
 ﻿#version 330 core
 
-#include "Common.glsl"
+#include "Shaders/Common.glsl"
 
 in vec2 texCoord;
 
@@ -10,5 +10,5 @@ out vec4 FragColor;
 
 void main()
 {
-   FragColor = vec4(texCoord.xy, 0, 1);
+   FragColor = texture(_MainTex, texCoord);
 };

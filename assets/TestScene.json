@@ -3,7 +3,8 @@
 	{
 		"ambientLightColor":[0.1, 0.1, 0.1],
 		"mainLightColor":[1, 1, 1],
-		"mainLightDirection":[1, 1, 1]
+		"mainLightDirection":[1, 1, 1],
+		"tonemappingExposureMultiplier":1
 	},
 	"root": [
 		{

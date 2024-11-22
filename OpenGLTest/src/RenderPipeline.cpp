@@ -14,15 +14,15 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_window = window;
     setScreenSize(width, height);
     
-    glGenFramebuffers(1, &this->m_frameBuffer);
+    glGenFramebuffers(1, &this->m_backBuffer);
     
     m_fullScreenQuad = Mesh::LoadFromFile("Meshes/fullScreenMesh.obj");
-    m_blitShader = Shader::LoadFromFile("Shaders/Blit.vert", "Shaders/Blit.frag");
+    m_blitShader = Shader::LoadFromFile("Shaders/FinalBlit.vert", "Shaders/FinalBlit.frag");
 }
 
 RenderPipeline::~RenderPipeline()
 {
-    glDeleteFramebuffers(1, &this->m_frameBuffer);
+    glDeleteFramebuffers(1, &this->m_backBuffer);
 
     ResourceMgr::DeleteResource(m_fullScreenQuad);
     ResourceMgr::DeleteResource(m_blitShader);
@@ -43,11 +43,13 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
         return;
     }
 
+    RenderContext renderContext;
+
     _clearAttachments();
     
-    _renderScene(cameraId, scene);
+    _renderScene(cameraId, scene, renderContext);
 
-    _blitAttachmentToScreen();
+    _blitAttachmentToScreen(renderContext);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -70,9 +72,9 @@ bool RenderPipeline::_updateCameraAttachments()
         ResourceMgr::DeleteResource(m_cameraDepthAttachment);
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, this->m_frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->m_backBuffer);
 
-    colorAttachment = new RenderTexture(m_screenWidth, m_screenHeight, RGBA, Bilinear, Clamp);
+    colorAttachment = new RenderTexture(m_screenWidth, m_screenHeight, RGBAHdr, Bilinear, Clamp);
     m_cameraColorAttachment = colorAttachment->id;
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachment->glTextureId, 0);
 
@@ -94,14 +96,14 @@ bool RenderPipeline::_updateCameraAttachments()
 
 void RenderPipeline::_clearAttachments()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, this->m_frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->m_backBuffer);
     auto colorAttachment = ResourceMgr::GetPtr<RenderTexture>(m_cameraColorAttachment);
     glViewport(0, 0, colorAttachment->width, colorAttachment->height);
     glClearColor(0.1f, 0.1f, 0.2f, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void RenderPipeline::_renderScene(RESOURCE_ID cameraId, const Scene* scene)
+void RenderPipeline::_renderScene(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext)
 {
     if(scene == nullptr)
     {
@@ -115,7 +117,7 @@ void RenderPipeline::_renderScene(RESOURCE_ID cameraId, const Scene* scene)
         return;
     }
     
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->m_frameBuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->m_backBuffer);
 
     // 准备绘制参数
     auto cameraLocalToWorld = camera->getLocalToWorld();
@@ -126,13 +128,13 @@ void RenderPipeline::_renderScene(RESOURCE_ID cameraId, const Scene* scene)
         camera->nearClip,
         camera->farClip);
     auto vpMatrix = projectionMatrix * viewMatrix;
-
-    RenderContext renderContext;
+    
     renderContext.vpMatrix = vpMatrix;
     renderContext.cameraPositionWS = camera->position;
     renderContext.mainLightDirection = normalize(scene->mainLightDirection);
     renderContext.mainLightColor = scene->mainLightColor;
     renderContext.ambientLightColor = scene->ambientLightColor;
+    renderContext.tonemappingExposureMultiplier = scene->tonemappingExposureMultiplier;
 
     // DFS地绘制场景
     std::stack<RESOURCE_ID> drawingStack;
@@ -193,7 +195,7 @@ void RenderPipeline::_renderEntity(const Entity* entity, const RenderContext& re
     glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);
 }
 
-void RenderPipeline::_blitAttachmentToScreen()
+void RenderPipeline::_blitAttachmentToScreen(const RenderContext& renderContext)
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
@@ -204,6 +206,7 @@ void RenderPipeline::_blitAttachmentToScreen()
     blitShader->use(fullScreenQuad);
 
     blitShader->setTexture("_MainTex", 0, m_cameraColorAttachment);
+    blitShader->setFloat("_ExposureMultiplier", renderContext.tonemappingExposureMultiplier);
 
     glDrawElements(GL_TRIANGLES, fullScreenQuad->indicesCount, GL_UNSIGNED_INT, 0);
 }

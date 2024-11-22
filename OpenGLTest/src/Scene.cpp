@@ -95,4 +95,9 @@ void Scene::_loadSceneConfig(const nlohmann::json& configJson)
     {
         ambientLightColor = Utils::ToVec3(configJson["ambientLightColor"]);
     }
+
+    if(configJson.contains("tonemappingExposureMultiplier"))
+    {
+        tonemappingExposureMultiplier = configJson["tonemappingExposureMultiplier"].get<float>();
+    }
 }

@@ -12,6 +12,7 @@ public:
     glm::vec3 mainLightDirection;
     glm::vec3 mainLightColor;
     glm::vec3 ambientLightColor;
+    float tonemappingExposureMultiplier = 1;
 };
 
 class RenderPipeline
@@ -26,7 +27,7 @@ private:
     size_t m_screenWidth;
     size_t m_screenHeight;
     GLFWwindow* m_window;
-    GLuint m_frameBuffer = -1;
+    GLuint m_backBuffer = -1;
     RESOURCE_ID m_cameraColorAttachment = UNDEFINED_RESOURCE;
     RESOURCE_ID m_cameraDepthAttachment = UNDEFINED_RESOURCE;
 
@@ -34,8 +35,8 @@ private:
     RESOURCE_ID m_blitShader;
 
     void _clearAttachments();
-    void _renderScene(RESOURCE_ID cameraId, const Scene* scene);
+    void _renderScene(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext);
     void _renderEntity(const Entity* entity, const RenderContext& renderContext);
-    void _blitAttachmentToScreen();
+    void _blitAttachmentToScreen(const RenderContext& renderContext);
     bool _updateCameraAttachments();
 };

@@ -1,6 +1,6 @@
 ﻿#version 330 core
 
-#include "Common.glsl"
+#include "Shaders/Common.glsl"
 
 layout (location = 0) in vec3 aPositionOS;
 layout (location = 1) in vec3 aNormalOS;

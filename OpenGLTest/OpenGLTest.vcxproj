@@ -157,7 +157,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\assets\Common.glsl" />
     <ClCompile Include="lib\glad.c">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -422,11 +421,16 @@
     <Content Include="..\assets\o2.png" />
     <Content Include="..\assets\Shaders\Blit.frag" />
     <Content Include="..\assets\Shaders\Blit.vert" />
+    <Content Include="..\assets\Shaders\FinalBlit.frag" />
+    <Content Include="..\assets\Shaders\FinalBlit.vert" />
     <Content Include="..\assets\Shaders\TestFragShader.frag" />
     <Content Include="..\assets\Shaders\TestVertShader.vert" />
     <Content Include="..\assets\standardMat.json" />
     <Content Include="..\assets\stanford-bunny.obj" />
     <Content Include="..\assets\TestScene.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\assets\Shaders\Common.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
