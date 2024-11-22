@@ -7,10 +7,23 @@
 #include <unordered_set>
 
 #include "GameFramework.h"
+#include "RenderTexture.h"
 #include "Utils.h"
 #include "gtc/type_ptr.hpp"
 
-void checkShaderCompilation(const GLuint vertexShader, const std::string &shaderPath)
+std::string getShaderStr(const std::vector<std::string>& lines)
+{
+    std::stringstream ss;
+    for (int i = 0; i < lines.size(); ++i)
+    {
+        ss << std::to_string(i + 1) << ":  ";
+        ss << lines[i];
+        ss << "\n";
+    }
+    return ss.str();
+}
+
+void checkShaderCompilation(const GLuint vertexShader, const std::string &shaderPath, const std::vector<std::string>& lines)
 {
     int success;
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -18,7 +31,13 @@ void checkShaderCompilation(const GLuint vertexShader, const std::string &shader
     {
         char info[512];
         glGetShaderInfoLog(vertexShader, 512, nullptr, info);
-        throw std::runtime_error(std::string("ERROR>> Shader compilation failed:\n") + shaderPath + "\n" + info);
+        std::stringstream ss;
+        ss << "ERROR>> Shader compilation failed:\n";
+        ss << shaderPath;
+        ss << "\n";
+        ss << info;
+        ss << getShaderStr(lines);
+        throw std::runtime_error(ss.str());
     }
 }
 
@@ -85,6 +104,7 @@ void Shader::setInt(const int& location, const int value)
     {
         return;
     }
+
     glUniform1i(location, value);
 }
 
@@ -131,6 +151,42 @@ void Shader::setMatrix(const int& location, const glm::mat4& value)
         return;
     }
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void Shader::setTexture(const std::string& name, const int slot, const RESOURCE_ID value) const
+{
+    int location = glGetUniformLocation(glShaderId, name.c_str());
+    setTexture(location, slot, value);
+}
+
+void Shader::setTexture(const int& location, const int slot, RESOURCE_ID value)
+{
+    auto texturePtr = ResourceMgr::GetPtr<Texture>(value);
+    if(location == -1 || texturePtr == nullptr)
+    {
+        return;
+    }
+    setInt(location, slot);
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
+}
+
+void Shader::setRenderTexture(const std::string& name, const int slot, const RESOURCE_ID value) const
+{
+    int location = glGetUniformLocation(glShaderId, name.c_str());
+    setRenderTexture(location, slot, value);
+}
+
+void Shader::setRenderTexture(const int& location, const int slot, const RESOURCE_ID value)
+{
+    auto texturePtr = ResourceMgr::GetPtr<RenderTexture>(value);
+    if(location == -1 || texturePtr == nullptr)
+    {
+        return;
+    }
+    setInt(location, slot);
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
 }
 
 std::vector<std::string> loadFileToLines(const std::string& realAssetPath)
@@ -198,15 +254,14 @@ void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& l
             continue;
         }
         hasInclude.insert(includePath);
-        loadStack.push_back(lines.size());
         currentFilePath.push_back(includePath);
-
-        auto includeLines = loadFileToLines(Utils::GetRealAssetPath(includePath, currentFilePath[currentFilePath.size() - 1]));
+        auto includeLines = loadFileToLines(Utils::GetRealAssetPath(includePath, currentFilePath[currentFilePath.size() - 2]));
+        loadStack.push_back(includeLines.size());
+        
         lines.insert(lines.begin() + i, includeLines.begin(), includeLines.end());
         i--;
     }
 }
-
 
 RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::string& fragPath)
 {
@@ -217,10 +272,12 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     }
 
     std::string vSource, fSource;
+    std::vector<std::string> vertLines;
+    std::vector<std::string> fragLines;
     try
     {
-        auto vertLines = loadFileToLines(Utils::GetRealAssetPath(vertexPath));
-        auto fragLines = loadFileToLines(Utils::GetRealAssetPath(fragPath));
+        vertLines = loadFileToLines(Utils::GetRealAssetPath(vertexPath));
+        fragLines = loadFileToLines(Utils::GetRealAssetPath(fragPath));
 
         replaceIncludes(vertexPath, vertLines);
         replaceIncludes(fragPath, fragLines);
@@ -230,7 +287,11 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     }
     catch (std::exception &e)
     {
-        throw std::runtime_error(std::string("ERROR>> Failed to access shader files: ") + + e.what());
+        std::stringstream ss;
+        ss << "[ERROR] vert: " << vertexPath << "\n";
+        ss << "[ERROR] frag: " << fragPath << "\n";
+        ss << "[ERROR] 访问shader文件失败：" << e.what();
+        throw std::runtime_error(ss.str());
     }
 
     auto vCharSource = vSource.c_str();
@@ -239,12 +300,12 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vCharSource, nullptr);
     glCompileShader(vertexShader);
-    checkShaderCompilation(vertexShader, vertexPath);
+    checkShaderCompilation(vertexShader, vertexPath, vertLines);
 
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragShader, 1, &fCharSource, nullptr);
     glCompileShader(fragShader);
-    checkShaderCompilation(fragShader, fragPath);
+    checkShaderCompilation(fragShader, fragPath, fragLines);
 
     auto glShaderId = glCreateProgram();
     glAttachShader(glShaderId, vertexShader);
@@ -260,22 +321,4 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     Utils::LogInfo("成功载入VertShader " + vertexPath);
     Utils::LogInfo("成功载入FragShader " + fragPath);
     return result->id;
-}
-
-void Shader::setTexture(const std::string& name, const int slot, const RESOURCE_ID value) const
-{
-    int location = glGetUniformLocation(glShaderId, name.c_str());
-    setTexture(location, slot, value);
-}
-
-void Shader::setTexture(const int& location, const int slot, RESOURCE_ID value)
-{
-    auto texturePtr = ResourceMgr::GetPtr<Texture>(value);
-    if(location == -1 && texturePtr != nullptr)
-    {
-        return;
-    }
-    setInt(location, slot);
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
 }

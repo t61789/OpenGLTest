@@ -114,7 +114,7 @@ std::string Utils::GetRealAssetPath(const std::string& relativePath, const std::
         }
     }
 
-    return JoinStrings(curPathDirectories, "/");
+    return GetRealAssetPath(JoinStrings(curPathDirectories, "/"));
 }
 
 void Utils::LogInfo(const std::string& msg)
@@ -160,6 +160,11 @@ void Utils::LogWarning(const std::string& msg)
 void Utils::LogError(const std::string& msg)
 {
     std::cout << "[ERROR] " << msg << "\n";
+}
+
+void Utils::LogError(const int& msg)
+{
+    LogError(std::to_string(msg));
 }
 
 std::string Utils::ToString(const float val, const int fixed)

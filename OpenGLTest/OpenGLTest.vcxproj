@@ -418,6 +418,7 @@
     <Content Include="..\assets\Meshes\beetle.obj" />
     <Content Include="..\assets\Meshes\fullScreenMesh.obj" />
     <Content Include="..\assets\Meshes\ground.obj" />
+    <Content Include="..\assets\Meshes\stanford-bunny.obj" />
     <Content Include="..\assets\o2.png" />
     <Content Include="..\assets\Shaders\Blit.frag" />
     <Content Include="..\assets\Shaders\Blit.vert" />
@@ -426,7 +427,6 @@
     <Content Include="..\assets\Shaders\TestFragShader.frag" />
     <Content Include="..\assets\Shaders\TestVertShader.vert" />
     <Content Include="..\assets\standardMat.json" />
-    <Content Include="..\assets\stanford-bunny.obj" />
     <Content Include="..\assets\TestScene.json" />
   </ItemGroup>
   <ItemGroup>

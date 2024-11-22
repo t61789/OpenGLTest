@@ -31,8 +31,8 @@ private:
     RESOURCE_ID m_cameraColorAttachment = UNDEFINED_RESOURCE;
     RESOURCE_ID m_cameraDepthAttachment = UNDEFINED_RESOURCE;
 
-    RESOURCE_ID m_fullScreenQuad;
-    RESOURCE_ID m_blitShader;
+    RESOURCE_ID m_fullScreenQuad = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_blitShader = UNDEFINED_RESOURCE;
 
     void _clearAttachments();
     void _renderScene(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext);

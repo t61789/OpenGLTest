@@ -22,9 +22,10 @@ vec3 applyToneMapping(vec3 inputColor)
         -0.065202855, -0.130948950,  1.091555000
     );
 
-    mat3 exposedPreTonemappingTransform = _ExposureMultiplier * preTonemappingTransform;
-
-    vec3 color = vec3(exposedPreTonemappingTransform * inputColor);
+//    mat3 exposedPreTonemappingTransform = _ExposureMultiplier * preTonemappingTransform;
+//
+//    vec3 color = vec3(exposedPreTonemappingTransform * inputColor);
+    vec3 color = inputColor;
 
     const float a = 2.51;
     const float b = 0.03;
@@ -34,7 +35,7 @@ vec3 applyToneMapping(vec3 inputColor)
 
     color = clamp((color * (a * color + b)) / (color * (c * color + d) + e), 0, 1);
 
-    color = vec3(postTonemappingTransform, color);
+//    color = vec3(postTonemappingTransform * color);
     
     return color;
 }
@@ -42,8 +43,8 @@ vec3 applyToneMapping(vec3 inputColor)
 void main()
 {
     vec4 color = texture(_MainTex, texCoord);
+
+    color.rgb = applyToneMapping(color.rgb);
     
-    color.rgb = applyToneMapping(color);
-    
-    FragColor = color;
+    FragColor = vec4(color.rgb, 1);
 };

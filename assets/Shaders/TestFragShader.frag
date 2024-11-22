@@ -26,9 +26,9 @@ void main()
    vec3 ambient = _AmbientLightColor.rgb;
    vec3 diffuse = _MainLightColor.rgb * _Albedo.rgb * max(dot(normalWS, _MainLightDirection.xyz), 0);
    vec3 H = (_MainLightDirection.xyz + viewDir) * 0.5;
-   vec3 specular = _MainLightColor.rgb * pow(max(dot(normalWS, H), 0), 15);
+   vec3 specular = _MainLightColor.rgb * pow(max(dot(normalWS, H), 0), 20) * 5;
    
    vec3 finalColor = diffuse + specular + ambient;
-           
+   
    FragColor = vec4(finalColor, 1);
 };

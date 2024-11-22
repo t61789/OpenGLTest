@@ -44,6 +44,7 @@ public:
     static void LogInfo(const glm::vec3& msg);
     static void LogWarning(const std::string& msg);
     static void LogError(const std::string& msg);
+    static void LogError(const int& msg);
 
     static std::string ToString(float val, int fixed);
     static std::string ToString(const glm::vec3& val);
