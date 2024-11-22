@@ -1,6 +1,6 @@
 ﻿#version 330 core
 
-#include "Shaders/Common.glsl"
+#include "./Common.glsl"
 
 in vec4 vertexColor;
 in vec2 texCoord;

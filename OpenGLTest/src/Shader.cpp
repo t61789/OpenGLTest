@@ -133,14 +133,14 @@ void Shader::setMatrix(const int& location, const glm::mat4& value)
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-std::vector<std::string> loadFileToLines(const std::string& path)
+std::vector<std::string> loadFileToLines(const std::string& realAssetPath)
 {
     std::ifstream fs;
     fs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     std::stringstream ss;
     try
     {
-        fs.open(Utils::GetRealAssetPath(path));
+        fs.open(realAssetPath);
         ss << fs.rdbuf();
     }
     catch(std::exception&)
@@ -162,10 +162,21 @@ std::vector<std::string> loadFileToLines(const std::string& path)
 
 void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines)
 {
+    std::vector<int> loadStack;
+    std::vector<std::string> currentFilePath;
     std::unordered_set<std::string> hasInclude;
     hasInclude.insert(curFilePath);
+    loadStack.push_back(lines.size());
+    currentFilePath.push_back(curFilePath);
     for (size_t i = 0; i < lines.size(); ++i)
     {
+        loadStack[loadStack.size() - 1] -= 1;
+        if(loadStack[loadStack.size() - 1] == 0)
+        {
+            loadStack.pop_back();
+            currentFilePath.pop_back();
+        }
+        
         auto line = lines[i];
         auto includeCmdIndex = line.find("#include");
         if(includeCmdIndex == std::string::npos)
@@ -187,22 +198,15 @@ void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& l
             continue;
         }
         hasInclude.insert(includePath);
+        loadStack.push_back(lines.size());
+        currentFilePath.push_back(includePath);
 
-        auto includeLines = loadFileToLines(includePath);
+        auto includeLines = loadFileToLines(Utils::GetRealAssetPath(includePath, currentFilePath[currentFilePath.size() - 1]));
         lines.insert(lines.begin() + i, includeLines.begin(), includeLines.end());
         i--;
     }
 }
 
-std::string joinLines(const std::vector<std::string>& lines)
-{
-    std::stringstream ss;
-    for (const auto& line : lines)
-    {
-        ss << line << "\n";
-    }
-    return ss.str();
-}
 
 RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::string& fragPath)
 {
@@ -215,14 +219,14 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     std::string vSource, fSource;
     try
     {
-        auto vertLines = loadFileToLines(vertexPath);
-        auto fragLines = loadFileToLines(fragPath);
+        auto vertLines = loadFileToLines(Utils::GetRealAssetPath(vertexPath));
+        auto fragLines = loadFileToLines(Utils::GetRealAssetPath(fragPath));
 
         replaceIncludes(vertexPath, vertLines);
         replaceIncludes(fragPath, fragLines);
 
-        vSource = joinLines(vertLines);
-        fSource = joinLines(fragLines);
+        vSource = Utils::JoinStrings(vertLines, "\n");
+        fSource = Utils::JoinStrings(fragLines, "\n");
     }
     catch (std::exception &e)
     {

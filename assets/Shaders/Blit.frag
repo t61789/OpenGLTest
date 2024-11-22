@@ -1,7 +1,5 @@
 ﻿#version 330 core
 
-#include "Shaders/Common.glsl"
-
 in vec2 texCoord;
 
 uniform sampler2D _MainTex;

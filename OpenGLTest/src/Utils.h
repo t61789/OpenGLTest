@@ -23,8 +23,11 @@ public:
     
     static glm::vec3 ToVec3(nlohmann::json arr);
     static glm::vec4 ToVec4(nlohmann::json arr);
+
+    static std::vector<std::string> ToDirectories(const std::string& path);
     
     static std::string GetRealAssetPath(const std::string& relativePath);
+    static std::string GetRealAssetPath(const std::string& relativePath, const std::string& curPath);
     
     template<typename Base, typename T>
     static bool InstanceOf(const T* ptr)
@@ -51,4 +54,5 @@ public:
     static bool IsVec4(const nlohmann::json& jsonValue);
 
     static bool EndsWith(const std::string& str, const std::string& suffix);
+    static std::string JoinStrings(const std::vector<std::string>& strings, std::string delimiter);
 };

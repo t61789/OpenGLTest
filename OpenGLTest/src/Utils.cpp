@@ -44,9 +44,77 @@ glm::vec4 Utils::ToVec4(nlohmann::json arr)
     };
 }
 
+std::vector<std::string> Utils::ToDirectories(const std::string& path)
+{
+    std::string curPath = path;
+    if(!curPath.empty() && curPath[0] == '/')
+    {
+        curPath = curPath.substr(1);
+    }
+    if(!curPath.empty() && curPath[curPath.size() - 1] == '/')
+    {
+        curPath = curPath.substr(0, curPath.size() - 1);
+    }
+
+    std::vector<std::string> directories;
+    std::string directory;
+    std::stringstream ss(curPath);
+    while(std::getline(ss, directory, '/'))
+    {
+        directories.push_back(directory);
+    }
+
+    return directories;
+}
+
 std::string Utils::GetRealAssetPath(const std::string& relativePath)
 {
     return std::string("../assets/") + relativePath;
+}
+
+std::string Utils::GetRealAssetPath(const std::string& relativePath, const std::string& curPath)
+{
+    auto relativePathDirectories = ToDirectories(relativePath);
+    auto curPathDirectories = ToDirectories(curPath);
+
+    if(relativePathDirectories.empty() || curPathDirectories.empty())
+    {
+        return GetRealAssetPath(relativePath);
+    }
+
+    if(relativePathDirectories[0] != "." && relativePathDirectories[0] != "..")
+    {
+        return GetRealAssetPath(relativePath);
+    }
+
+    // 如果当前路径是文件，则把最后的文件名去掉
+    if(curPathDirectories[curPathDirectories.size() - 1] != "." &&
+        curPathDirectories[curPathDirectories.size() - 1].find(".") != std::string::npos)
+    {
+        curPathDirectories.pop_back();
+    }
+
+    for (const auto& dir : relativePathDirectories)
+    {
+        if(dir == "..")
+        {
+            if(curPathDirectories.empty())
+            {
+                return "pathError";
+            }
+            curPathDirectories.pop_back();
+        }
+        else if(dir == ".")
+        {
+            // do nothing
+        }
+        else
+        {
+            curPathDirectories.push_back(dir);
+        }
+    }
+
+    return JoinStrings(curPathDirectories, "/");
 }
 
 void Utils::LogInfo(const std::string& msg)
@@ -141,3 +209,16 @@ bool Utils::EndsWith(const std::string& str, const std::string& suffix)
     return str.size() >= suffix.size() && str.rfind(suffix) == str.size() - suffix.size();
 }
 
+std::string Utils::JoinStrings(const std::vector<std::string>& strings, std::string delimiter)
+{
+    std::stringstream ss;
+    for (int i = 0; i < strings.size(); ++i)
+    {
+        ss << strings[i];
+        if (i != strings.size() - 1)
+        {
+            ss << delimiter;
+        }
+    }
+    return ss.str();
+}
