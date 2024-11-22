@@ -312,6 +312,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="src\RenderPipeline.cpp" />
+    <ClCompile Include="src\RenderTexture.cpp" />
     <ClCompile Include="src\ResourceMgr.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp">
@@ -404,6 +405,7 @@
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\OpenGLTest.h" />
     <ClInclude Include="src\RenderPipeline.h" />
+    <ClInclude Include="src\RenderTexture.h" />
     <ClInclude Include="src\ResourceMgr.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />

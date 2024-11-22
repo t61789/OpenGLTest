@@ -142,6 +142,7 @@ inline ResourceBase::ResourceBase()
 
 inline ResourceBase::~ResourceBase()
 {
+    ResourceMgr::UnregisterResource(id);
     ResourceMgr::RemovePtr(id);
 }
 

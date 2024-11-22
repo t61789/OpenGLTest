@@ -23,16 +23,19 @@ public:
     void render(RESOURCE_ID cameraId, const Scene* scene);
 
 private:
-    int m_screenWidth;
-    int m_screenHeight;
+    size_t m_screenWidth;
+    size_t m_screenHeight;
     GLFWwindow* m_window;
     GLuint m_frameBuffer = -1;
-    GLuint m_cameraColorAttachment = -1;
-    GLuint m_cameraDepthAttachment = -1;
+    RESOURCE_ID m_cameraColorAttachment = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_cameraDepthAttachment = UNDEFINED_RESOURCE;
 
     RESOURCE_ID m_fullScreenQuad;
     RESOURCE_ID m_blitShader;
 
+    void _clearAttachments();
+    void _renderScene(RESOURCE_ID cameraId, const Scene* scene);
     void _renderEntity(const Entity* entity, const RenderContext& renderContext);
-    void _updateCameraAttachments();
+    void _blitAttachmentToScreen();
+    bool _updateCameraAttachments();
 };
