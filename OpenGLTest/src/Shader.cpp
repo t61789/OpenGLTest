@@ -288,9 +288,9 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     catch (std::exception &e)
     {
         std::stringstream ss;
-        ss << "[ERROR] vert: " << vertexPath << "\n";
-        ss << "[ERROR] frag: " << fragPath << "\n";
-        ss << "[ERROR] 访问shader文件失败：" << e.what();
+        ss << Utils::FormatLog(vertexPath) << "\n";
+        ss << Utils::FormatLog(fragPath) << "\n";
+        ss << Utils::FormatLog("访问shader文件失败") << e.what();
         throw std::runtime_error(ss.str());
     }
 
@@ -318,7 +318,7 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     auto result = new Shader();
     result->glShaderId = glShaderId;
     ResourceMgr::RegisterResource(checkPath, result->id);
-    Utils::LogInfo("成功载入VertShader " + vertexPath);
-    Utils::LogInfo("成功载入FragShader " + fragPath);
+    Utils::Log("成功载入VertShader " + vertexPath);
+    Utils::Log("成功载入FragShader " + fragPath);
     return result->id;
 }

@@ -22,14 +22,14 @@ void copyDataTo(
         return;
     }
 
-    // Utils::LogInfo(attribFloatNum * vertexCount);
-    // Utils::LogInfo(std::to_string(attribFloatNum) + " " + std::to_string(vertexCount));
+    // Utils::Log(attribFloatNum * vertexCount);
+    // Utils::Log(std::to_string(attribFloatNum) + " " + std::to_string(vertexCount));
     for(unsigned int i = 0; i < attribFloatNum * vertexCount; i++)
     {
         auto vertexIndex = i / attribFloatNum;
         auto destIndex = offset + vertexIndex * vertexDataFloatNum + i % attribFloatNum;
         auto srcIndex = i;
-        // Utils::LogInfo(std::to_string(destIndex) + " " + std::to_string(srcIndex));
+        // Utils::Log(std::to_string(destIndex) + " " + std::to_string(srcIndex));
         dest[destIndex] = src[srcIndex];
     }
 }
@@ -93,7 +93,7 @@ RESOURCE_ID Mesh::CreateMesh(
     //     }
     //     a += " " + std::to_string(data[i]);
     // }
-    // Utils::LogInfo(a);
+    // Utils::Log(a);
 
     // 将顶点数据传入OpenGL中
     GLuint VAO, VBO, EBO;
@@ -219,7 +219,7 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
             indicesContainer.push_back(face.mIndices[j]);
             // a += " " + std::to_string(face.mIndices[j]);
         }
-        // Utils::LogInfo(a);
+        // Utils::Log(a);
     }
     auto indicesData = indicesContainer.data();
     auto indicesCount = indicesContainer.size();
@@ -240,7 +240,7 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
     msg += "\t顶点数量 " + std::to_string(vertexCount) + "\n";
     msg += "\t三角形数量 " + std::to_string(indicesCount / 3) + "\n";
     msg += "\t包围盒 c:" + Utils::ToString(bounds.center) + " e:" + Utils::ToString(bounds.extents);
-    Utils::LogInfo(msg);
+    Utils::Log(msg);
     return result;
 }
 

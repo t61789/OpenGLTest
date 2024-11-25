@@ -117,54 +117,189 @@ std::string Utils::GetRealAssetPath(const std::string& relativePath, const std::
     return GetRealAssetPath(JoinStrings(curPathDirectories, "/"));
 }
 
-void Utils::LogInfo(const std::string& msg)
+std::string Utils::FormatLog(const std::string& msg, const LogType type)
 {
-    std::cout << "[INFO] " << msg << "\n";
+    std::stringstream ss;
+    switch (type)
+    {
+        case Info:
+            ss<<"[Info] ";
+        break;
+        case Warning:
+            ss<<"[Warning] ";
+        break;
+        case Error:
+            ss<<"[Error] ";
+        break;
+    }
+
+    ss << msg;
+    return ss.str();
 }
 
-void Utils::LogInfo(const bool& msg)
+void Utils::Log(const std::string& msg, const LogType type)
 {
-    LogInfo(msg ? std::string("True") : std::string("False"));
+    std::cout << FormatLog(msg, type) << '\n';
 }
 
-void Utils::LogInfo(const float& msg)
+void Utils::Log(const bool val, const LogType type)
 {
-    LogInfo(std::to_string(msg));
+    Log(ToString(val), type);
 }
 
-void Utils::LogInfo(const int& msg)
+void Utils::Log(const int val, const LogType type)
 {
-    LogInfo(std::to_string(msg));
+    Log(ToString(val), type);
 }
 
-void Utils::LogInfo(const unsigned int& msg)
+void Utils::Log(const unsigned int val, const LogType type)
 {
-    LogInfo(std::to_string(msg));
+    Log(ToString(val), type);
 }
 
-void Utils::LogInfo(const size_t& msg)
+void Utils::Log(const long val, const LogType type)
 {
-    LogInfo(std::to_string(msg));
+    Log(ToString(val), type);
 }
 
-void Utils::LogInfo(const glm::vec3& msg)
+void Utils::Log(const unsigned long val, const LogType type)
 {
-    LogInfo(ToString(msg));
+    Log(ToString(val), type);
 }
 
-void Utils::LogWarning(const std::string& msg)
+void Utils::Log(const long long val, const LogType type)
 {
-    std::cout << "[WARNING] " << msg << "\n";
+    Log(ToString(val), type);
 }
 
-void Utils::LogError(const std::string& msg)
+void Utils::Log(const unsigned long long val, const LogType type)
 {
-    std::cout << "[ERROR] " << msg << "\n";
+    Log(ToString(val), type);
 }
 
-void Utils::LogError(const int& msg)
+void Utils::Log(const float val, const LogType type)
 {
-    LogError(std::to_string(msg));
+    Log(ToString(val), type);
+}
+
+void Utils::Log(const double val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
+void Utils::Log(const long double val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
+void Utils::Log(const char val, const LogType type)
+{
+    Log(std::string(1, val), type);
+}
+
+void Utils::Log(const unsigned char val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
+void Utils::Log(const wchar_t val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
+void Utils::Log(const char16_t val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
+void Utils::Log(const char32_t val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
+void Utils::Log(const glm::vec3 val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
+void Utils::Log(const glm::vec4 val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
+std::string Utils::ToString(const bool val)
+{
+    return val ? "true" : "false";
+}
+
+std::string Utils::ToString(const int val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const unsigned int val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const long val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const unsigned long val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const long long val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const unsigned long long val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const float val)
+{
+    return ToString(val, 4);
+}
+
+std::string Utils::ToString(const double val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const long double val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const char val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const unsigned char val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const wchar_t val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const char16_t val)
+{
+    return std::to_string(val);
+}
+
+std::string Utils::ToString(const char32_t val)
+{
+    return std::to_string(val);
 }
 
 std::string Utils::ToString(const float val, const int fixed)
