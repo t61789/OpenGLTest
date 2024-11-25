@@ -78,7 +78,7 @@ RenderTexture::RenderTexture(
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
     {
-        Utils::LogError("创建纹理失败：" + std::to_string(error));
+        Utils::Log("创建纹理失败：" + std::to_string(error), Error);
     }
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrapModeToGLWrapMode[wrapMode]);
