@@ -37,9 +37,9 @@ uniform sampler2D _MainTex;
 uniform float _ShowTex;
 uniform vec4 _Albedo;
 
-out vec4 FragColor0;
-out vec4 FragColor1;
-out vec4 FragColor2;
+layout(location = 0) out vec4 FragColor0;
+layout(location = 1) out vec4 FragColor1;
+layout(location = 2) out vec4 FragColor2;
 
 void main()
 {
@@ -49,16 +49,7 @@ void main()
       albedo *= texture(_MainTex, texCoord).rgb;
    }
 
-   vec3 viewDir = normalize(GetCameraPositionWS() - positionWS);
-
-   vec3 ambient = _AmbientLightColor.rgb;
-   vec3 diffuse = _MainLightColor.rgb * _Albedo.rgb * max(dot(normalWS, _MainLightDirection.xyz), 0);
-   vec3 H = (_MainLightDirection.xyz + viewDir) * 0.5;
-   vec3 specular = _MainLightColor.rgb * pow(max(dot(normalWS, H), 0), 20) * 5;
-
-   vec3 finalColor = diffuse + specular + ambient;
-
-   FragColor0 = WriteGBuffer0(finalColor);
+   FragColor0 = WriteGBuffer0(albedo);
    FragColor1 = WriteGBuffer1(normalWS);
-   FragColor0 = WriteGBuffer2(positionCS.z / positionCS.w);
+   FragColor2 = WriteGBuffer2(positionCS.z / positionCS.w);
 };

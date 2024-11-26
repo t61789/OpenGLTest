@@ -23,7 +23,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     std::vector<RenderTargetAttachment> attachments;
     attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.5),RenderTextureDescriptor(0,0,RGBAHdr, Point, Clamp));
     attachments.emplace_back(GL_COLOR_ATTACHMENT1, glm::vec4(0), RenderTextureDescriptor(0,0,RGBA, Point, Clamp));
-    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(0), RenderTextureDescriptor(0,0,DepthTex, Point, Clamp));
+    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(1), RenderTextureDescriptor(0,0,DepthTex, Point, Clamp));
     attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(0), RenderTextureDescriptor(0,0,Depth, Point, Clamp));
     m_gBufferRenderTarget = (new RenderTarget(attachments, 3))->id;
 
@@ -87,6 +87,7 @@ bool RenderPipeline::_updateRenderTargetsPass()
 
     Material::SetGlobalRenderTextureValue("_GBuffer0Rt", gBufferRenderTarget->getRenderTexture(0));
     Material::SetGlobalRenderTextureValue("_GBuffer1Rt", gBufferRenderTarget->getRenderTexture(1));
+    Material::SetGlobalRenderTextureValue("_GBuffer2Rt", gBufferRenderTarget->getRenderTexture(2));
 
     return true;
 }
