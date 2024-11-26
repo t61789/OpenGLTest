@@ -23,7 +23,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     std::vector<RenderTargetAttachment> attachments;
     attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.5),RenderTextureDescriptor(0,0,RGBAHdr, Point, Clamp));
     attachments.emplace_back(GL_COLOR_ATTACHMENT1, glm::vec4(0), RenderTextureDescriptor(0,0,RGBA, Point, Clamp));
-    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(0), RenderTextureDescriptor(0,0,RGBA, Point, Clamp));
+    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(0), RenderTextureDescriptor(0,0,DepthTex, Point, Clamp));
     attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(0), RenderTextureDescriptor(0,0,Depth, Point, Clamp));
     m_gBufferRenderTarget = (new RenderTarget(attachments, 3))->id;
 

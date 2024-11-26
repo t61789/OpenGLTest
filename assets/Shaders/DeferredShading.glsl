@@ -29,14 +29,15 @@ void main()
     vec3 normalWS;
     ReadGBuffer0(texCoord, albedo);
     ReadGBuffer1(texCoord, normalWS);
+    
+    vec3 positionWS = TransformScreenToWorld(texCoord);
 
-//    vec3 viewDir = normalize(GetCameraPositionWS() - positionWS);
+    vec3 viewDir = normalize(GetCameraPositionWS() - positionWS);
 
     vec3 ambient = _AmbientLightColor.rgb;
     vec3 diffuse = _MainLightColor.rgb * max(dot(normalWS, _MainLightDirection.xyz), 0);
-//    vec3 H = (_MainLightDirection.xyz + viewDir) * 0.5;
-//    vec3 specular = _MainLightColor.rgb * pow(max(dot(normalWS, H), 0), 20) * 5;
-    vec3 specular = vec3(0);
+    vec3 H = (_MainLightDirection.xyz + viewDir) * 0.5;
+    vec3 specular = _MainLightColor.rgb * pow(max(dot(normalWS, H), 0), 20) * 5;
 
     vec3 finalColor = diffuse + specular + ambient;
 

@@ -10,7 +10,8 @@ enum RenderTextureFormat
     RGB,
     RGBAHdr,
     DepthStencil,
-    Depth
+    Depth,
+    DepthTex
 };
 
 enum TextureFilterMode

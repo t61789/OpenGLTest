@@ -8,7 +8,8 @@ extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLFo
     {RenderTextureFormat::RGB, GL_RGB},
     {RenderTextureFormat::RGBAHdr, GL_RGBA},
     {RenderTextureFormat::DepthStencil, GL_DEPTH24_STENCIL8},
-    {RenderTextureFormat::Depth, GL_DEPTH_COMPONENT}
+    {RenderTextureFormat::Depth, GL_DEPTH_COMPONENT},
+    {RenderTextureFormat::DepthTex, GL_RED}
 };
 
 std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLInternalFormat =
@@ -17,7 +18,8 @@ std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLInternalF
     {RenderTextureFormat::RGB, GL_RGB},
     {RenderTextureFormat::RGBAHdr, GL_RGBA},
     {RenderTextureFormat::DepthStencil, GL_DEPTH24_STENCIL8},
-    {RenderTextureFormat::Depth, GL_DEPTH_COMPONENT}
+    {RenderTextureFormat::Depth, GL_DEPTH_COMPONENT},
+    {RenderTextureFormat::DepthTex, GL_R32F}
 };
 
 std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLType =
@@ -26,7 +28,8 @@ std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLType =
     {RenderTextureFormat::RGB, GL_UNSIGNED_BYTE},
     {RenderTextureFormat::RGBAHdr, GL_UNSIGNED_SHORT},
     {RenderTextureFormat::DepthStencil, GL_UNSIGNED_INT_24_8},
-    {RenderTextureFormat::Depth, GL_FLOAT}
+    {RenderTextureFormat::Depth, GL_FLOAT},
+    {RenderTextureFormat::DepthTex, GL_FLOAT}
 };
 
 std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLFilterMode =

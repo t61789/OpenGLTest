@@ -11,10 +11,12 @@ out vec4 vertexColor;
 out vec2 texCoord;
 out vec3 normalWS;
 out vec3 positionWS;
+out vec4 positionCS;
 
 void main()
 {
    gl_Position = TransformObjectToHClip(aPositionOS);
+   positionCS = gl_Position;
    normalWS = TransformObjectToWorldNormal(aNormalOS);
    positionWS = TransformObjectToWorld(aPositionOS);
    vertexColor = vec4(aColor, 1.0);
@@ -29,6 +31,7 @@ in vec4 vertexColor;
 in vec2 texCoord;
 in vec3 normalWS;
 in vec3 positionWS;
+in vec4 positionCS;
 
 uniform sampler2D _MainTex;
 uniform float _ShowTex;
@@ -36,6 +39,7 @@ uniform vec4 _Albedo;
 
 out vec4 FragColor0;
 out vec4 FragColor1;
+out vec4 FragColor2;
 
 void main()
 {
@@ -56,4 +60,5 @@ void main()
 
    FragColor0 = WriteGBuffer0(finalColor);
    FragColor1 = WriteGBuffer1(normalWS);
+   FragColor0 = WriteGBuffer2(positionCS.z / positionCS.w);
 };

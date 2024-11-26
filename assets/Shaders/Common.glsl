@@ -1,6 +1,7 @@
 uniform mat4 _MVP;
 uniform mat4 _ITM;
 uniform mat4 _M;
+uniform mat4 _IVP;
 
 uniform vec4 _CameraPositionWS;
 uniform vec4 _MainLightDirection;
@@ -9,6 +10,40 @@ uniform vec4 _AmbientLightColor;
 
 uniform sampler2D _GBuffer0Rt;
 uniform sampler2D _GBuffer1Rt;
+uniform sampler2D _GBuffer2Rt;
+
+vec4 WriteGBuffer0(vec3 albedo)
+{
+    return vec4(albedo, 1);
+}
+
+vec4 WriteGBuffer1(vec3 normalWS)
+{
+    return vec4(normalWS.xyz * 0.5 + 0.5, 1);
+}
+
+vec4 WriteGBuffer2(float depth)
+{
+    return vec4(depth, 0, 0, 0);
+}
+
+void ReadGBuffer0(vec2 screenUV, out vec3 albedo)
+{
+    vec4 color = texture(_GBuffer0Rt, screenUV);
+    albedo = color.xyz;
+}
+
+void ReadGBuffer1(vec2 screenUV, out vec3 normalWS)
+{
+    vec4 color = texture(_GBuffer1Rt, screenUV);
+    normalWS = color.xyz * 2 - 1;
+}
+
+void ReadGBuffer2(vec2 screenUV, out float depth)
+{
+    vec4 color = texture(_GBuffer2Rt, screenUV);
+    depth = color.r;
+}
 
 vec4 TransformObjectToHClip(vec3 positionOS)
 {
@@ -25,29 +60,17 @@ vec3 TransformObjectToWorld(vec3 positionOS)
     return (_M * vec4(positionOS, 1)).xyz;
 }
 
+vec3 TransformScreenToWorld(vec2 screenUV)
+{
+    float depth;
+    ReadGBuffer2(screenUV, depth);
+    vec4 positionCS = vec4(screenUV * 2 - 1, depth, 1);
+    vec4 positionWS = _IVP * positionCS;
+    
+    return positionWS.xyz / positionWS.w;
+}
+
 vec3 GetCameraPositionWS()
 {
     return _CameraPositionWS.xyz;
-}
-
-vec4 WriteGBuffer0(vec3 albedo)
-{
-    return vec4(albedo, 1);
-}
-
-vec4 WriteGBuffer1(vec3 normalWS)
-{
-    return vec4(normalWS.xyz * 0.5 + 0.5, 1);
-}
-
-void ReadGBuffer0(vec2 screenUV, out vec3 albedo)
-{
-    vec4 color = texture(_GBuffer0Rt, screenUV);
-    albedo = color.xyz;
-}
-
-void ReadGBuffer1(vec2 screenUV, out vec3 normalWS)
-{
-    vec4 color = texture(_GBuffer1Rt, screenUV);
-    normalWS = color.xyz * 2 - 1;
 }
