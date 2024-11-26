@@ -420,12 +420,9 @@
     <Content Include="..\assets\Meshes\ground.obj" />
     <Content Include="..\assets\Meshes\stanford-bunny.obj" />
     <Content Include="..\assets\o2.png" />
-    <Content Include="..\assets\Shaders\Blit.frag" />
-    <Content Include="..\assets\Shaders\Blit.vert" />
-    <Content Include="..\assets\Shaders\FinalBlit.frag" />
-    <Content Include="..\assets\Shaders\FinalBlit.vert" />
-    <Content Include="..\assets\Shaders\TestFragShader.frag" />
-    <Content Include="..\assets\Shaders\TestVertShader.vert" />
+    <Content Include="..\assets\Shaders\Blit.glsl" />
+    <Content Include="..\assets\Shaders\FinalBlit.glsl" />
+    <Content Include="..\assets\Shaders\TestVertShader.glsl" />
     <Content Include="..\assets\standardMat.json" />
     <Content Include="..\assets\TestScene.json" />
   </ItemGroup>

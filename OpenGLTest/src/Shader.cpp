@@ -216,6 +216,39 @@ std::vector<std::string> loadFileToLines(const std::string& realAssetPath)
     return lines;
 }
 
+void divideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines)
+{
+    int divideIndex[2];
+    int curIndex = 0;
+    for (size_t i = 0; i < lines.size(); ++i)
+    {
+        if(lines[i].find("#version") != std::string::npos)
+        {
+            divideIndex[curIndex] = i;
+            curIndex ++;
+            if(curIndex == 2)
+            {
+                break;
+            }
+        }
+    }
+
+    if(curIndex != 2)
+    {
+        throw std::runtime_error("GLSL文件需求两个#version，但只找到" + Utils::ToString(curIndex) + "个");
+    }
+
+    for(int i = divideIndex[0]; i < divideIndex[1]; ++i)
+    {
+        vertLines.push_back(lines[i]);
+    }
+    
+    for(int i = divideIndex[1]; i < lines.size(); ++i)
+    {
+        fragLines.push_back(lines[i]);
+    }
+}
+
 void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines)
 {
     std::vector<int> loadStack;
@@ -263,24 +296,24 @@ void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& l
     }
 }
 
-RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::string& fragPath)
+RESOURCE_ID Shader::LoadFromFile(const std::string& glslPath)
 {
-    std::string checkPath = vertexPath + fragPath;
-    if(ResourceMgr::IsResourceRegistered(checkPath))
+    if(ResourceMgr::IsResourceRegistered(glslPath))
     {
-        return ResourceMgr::GetRegisteredResource(checkPath);
+        return ResourceMgr::GetRegisteredResource(glslPath);
     }
 
     std::string vSource, fSource;
+    std::vector<std::string> glslLines;
     std::vector<std::string> vertLines;
     std::vector<std::string> fragLines;
+
+    divideGlsl(glslLines, vertLines, fragLines);
+    
     try
     {
-        vertLines = loadFileToLines(Utils::GetRealAssetPath(vertexPath));
-        fragLines = loadFileToLines(Utils::GetRealAssetPath(fragPath));
-
-        replaceIncludes(vertexPath, vertLines);
-        replaceIncludes(fragPath, fragLines);
+        replaceIncludes(glslPath, vertLines);
+        replaceIncludes(glslPath, fragLines);
 
         vSource = Utils::JoinStrings(vertLines, "\n");
         fSource = Utils::JoinStrings(fragLines, "\n");
@@ -288,8 +321,7 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     catch (std::exception &e)
     {
         std::stringstream ss;
-        ss << Utils::FormatLog(vertexPath) << "\n";
-        ss << Utils::FormatLog(fragPath) << "\n";
+        ss << Utils::FormatLog(glslPath) << "\n";
         ss << Utils::FormatLog("访问shader文件失败") << e.what();
         throw std::runtime_error(ss.str());
     }
@@ -300,12 +332,12 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vCharSource, nullptr);
     glCompileShader(vertexShader);
-    checkShaderCompilation(vertexShader, vertexPath, vertLines);
+    checkShaderCompilation(vertexShader, glslPath, vertLines);
 
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragShader, 1, &fCharSource, nullptr);
     glCompileShader(fragShader);
-    checkShaderCompilation(fragShader, fragPath, fragLines);
+    checkShaderCompilation(fragShader, glslPath, fragLines);
 
     auto glShaderId = glCreateProgram();
     glAttachShader(glShaderId, vertexShader);
@@ -317,8 +349,7 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& vertexPath, const std::strin
 
     auto result = new Shader();
     result->glShaderId = glShaderId;
-    ResourceMgr::RegisterResource(checkPath, result->id);
-    Utils::Log("成功载入VertShader " + vertexPath);
-    Utils::Log("成功载入FragShader " + fragPath);
+    ResourceMgr::RegisterResource(glslPath, result->id);
+    Utils::Log("成功载入Shader " + glslPath);
     return result->id;
 }

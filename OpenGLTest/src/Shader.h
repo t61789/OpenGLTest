@@ -28,7 +28,7 @@ public:
     void setRenderTexture(const std::string& name, const int slot, const RESOURCE_ID value) const;
     static void setRenderTexture(const int& location, const int slot, const RESOURCE_ID value);
 
-    static RESOURCE_ID LoadFromFile(const std::string &vertexPath, const std::string &fragPath);
+    static RESOURCE_ID LoadFromFile(const std::string &glslPath);
 
 private:
     ~Shader() override;

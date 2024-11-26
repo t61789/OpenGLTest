@@ -88,22 +88,15 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
     s.close();
 
     auto result = new Material();
-    std::string vertShaderPath;
-    std::string fragShaderPath;
+    std::string shaderPath;
     for (const auto& elem : json.items())
     {
         const auto& elemKey = elem.key();
         const auto& elemValue = elem.value();
         
-        if (elemKey == "vert")
+        if (elemKey == "shader")
         {
-            vertShaderPath = elemValue.get<std::string>();
-            continue;
-        }
-        
-        if (elemKey == "frag")
-        {
-            fragShaderPath = elemValue.get<std::string>();
+            result->shaderId = Shader::LoadFromFile(elemValue.get<std::string>());
             continue;
         }
         
@@ -136,11 +129,6 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
             result->setTextureValue(elemKey, Texture::LoadFromFile(elemValue.get<std::string>()));
             continue;
         }
-    }
-
-    if(!vertShaderPath.empty() && !fragShaderPath.empty())
-    {
-        result->shaderId = Shader::LoadFromFile(vertShaderPath, fragShaderPath);
     }
 
     ResourceMgr::RegisterResource(path, result->id);

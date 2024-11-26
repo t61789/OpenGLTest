@@ -1,6 +1,5 @@
 {
-	"vert":"Shaders/TestVertShader.vert",
-	"frag":"Shaders/TestFragShader.frag",
+	"shader":"Shaders/TestVertShader.glsl",
 	"_ShowTex":0,
 	"_Albedo":[1, 1, 1, 1]
 }

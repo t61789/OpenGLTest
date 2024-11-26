@@ -17,8 +17,8 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     glGenFramebuffers(1, &this->m_backBuffer);
     
     m_fullScreenQuad = Mesh::LoadFromFile("Meshes/fullScreenMesh.obj");
-    m_blitShader = Shader::LoadFromFile("Shaders/FinalBlit.vert", "Shaders/FinalBlit.frag");
-    m_deferredShadingShader = Shader::LoadFromFile("Shaders/Shading.vert", "Shaders/DeferredShading.frag");
+    m_blitShader = Shader::LoadFromFile("Shaders/FinalBlit.glsl");
+    m_deferredShadingShader = Shader::LoadFromFile("Shaders/DeferredShading.glsl");
 }
 
 RenderPipeline::~RenderPipeline()
