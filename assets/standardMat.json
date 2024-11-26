@@ -1,5 +1,5 @@
 {
-	"shader":"Shaders/TestVertShader.glsl",
+	"shader":"Shaders/Lit.glsl",
 	"_ShowTex":0,
 	"_Albedo":[1, 1, 1, 1]
 }

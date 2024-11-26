@@ -17,7 +17,7 @@ void main()
 
 in vec2 texCoord;
 
-uniform sampler2D _MainTex;
+uniform sampler2D _ShadingBufferRt;
 
 uniform float _ExposureMultiplier;
 
@@ -57,7 +57,7 @@ vec3 applyToneMapping(vec3 inputColor)
 
 void main()
 {
-   vec4 color = texture(_MainTex, texCoord);
+   vec4 color = texture(_ShadingBufferRt, texCoord);
 
    color.rgb = applyToneMapping(color.rgb);
 

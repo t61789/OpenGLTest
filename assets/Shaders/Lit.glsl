@@ -34,7 +34,8 @@ uniform sampler2D _MainTex;
 uniform float _ShowTex;
 uniform vec4 _Albedo;
 
-out vec4 FragColor;
+out vec4 FragColor0;
+out vec4 FragColor1;
 
 void main()
 {
@@ -53,5 +54,6 @@ void main()
 
    vec3 finalColor = diffuse + specular + ambient;
 
-   FragColor = vec4(finalColor, 1);
+   FragColor0 = WriteGBuffer0(finalColor);
+   FragColor1 = WriteGBuffer1(normalWS);
 };

@@ -27,19 +27,18 @@ private:
     size_t m_screenWidth;
     size_t m_screenHeight;
     GLFWwindow* m_window;
-    GLuint m_backBuffer = -1;
-    RESOURCE_ID m_cameraColorAttachment0 = UNDEFINED_RESOURCE;
-    RESOURCE_ID m_cameraColorAttachment1 = UNDEFINED_RESOURCE;
-    RESOURCE_ID m_cameraDepthAttachment = UNDEFINED_RESOURCE;
+
+    RESOURCE_ID m_gBufferRenderTarget;
+    RESOURCE_ID m_shadingRenderTarget;
 
     RESOURCE_ID m_fullScreenQuad = UNDEFINED_RESOURCE;
-    RESOURCE_ID m_blitShader = UNDEFINED_RESOURCE;
     RESOURCE_ID m_deferredShadingShader = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_finalBlitShader = UNDEFINED_RESOURCE;
 
-    void _clearAttachmentsPass();
+    bool _updateRenderTargetsPass();
+    void _clearRenderTargetsPass();
     void _renderScenePass(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext);
     void _renderEntity(const Entity* entity, const RenderContext& renderContext);
     void _deferredShadingPass();
-    void _finalBlitPass(const RenderContext& renderContext);
-    bool _updateCameraAttachments();
+    void _finalBlitPass();
 };

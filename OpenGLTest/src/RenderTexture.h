@@ -26,19 +26,27 @@ enum TextureWrapMode
     MirroredRepeat,
 };
 
+class RenderTextureDescriptor
+{
+public:
+    std::string name = "Unnamed Render Texture";
+    size_t width;
+    size_t height;
+    RenderTextureFormat format;
+    TextureFilterMode filterMode;
+    TextureWrapMode wrapMode;
+
+    RenderTextureDescriptor();
+    RenderTextureDescriptor(size_t width, size_t height, RenderTextureFormat format, TextureFilterMode filterMode, TextureWrapMode wrapMode);
+};
+
 class RenderTexture : public ResourceBase
 {
 public:
     GLuint glTextureId;
     
-    size_t width;
-    size_t height;
+    RenderTextureDescriptor desc;
 
-    RenderTexture(
-        size_t width,
-        size_t height,
-        RenderTextureFormat format,
-        TextureFilterMode filterMode,
-        TextureWrapMode wrapMode);
+    RenderTexture(const RenderTextureDescriptor& desc);
     ~RenderTexture();
 };

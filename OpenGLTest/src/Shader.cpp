@@ -304,7 +304,7 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& glslPath)
     }
 
     std::string vSource, fSource;
-    std::vector<std::string> glslLines;
+    std::vector<std::string> glslLines = loadFileToLines(Utils::GetRealAssetPath(glslPath));
     std::vector<std::string> vertLines;
     std::vector<std::string> fragLines;
 

@@ -15,6 +15,7 @@ public:
     std::unordered_map<std::string, RESOURCE_ID> textureValues;
     std::unordered_map<std::string, glm::vec4> vec4Values;
 
+    static std::unordered_map<std::string, RESOURCE_ID> s_globalRenderTextureValues;
     void setIntValue(const std::string& name, int value);
     void setBoolValue(const std::string& name, bool value);
     void setFloatValue(const std::string& name, float value);
@@ -25,4 +26,23 @@ public:
     void fillParams(const Shader* shader) const;
 
     static RESOURCE_ID LoadFromFile(const std::string& path);
+
+    static void FillGlobalParams(const Shader* shader);
+
+    static void SetGlobalIntValue(const std::string& name, int value);
+    static void SetGlobalBoolValue(const std::string& name, bool value);
+    static void SetGlobalFloatValue(const std::string& name, float value);
+    static void SetGlobalMat4Value(const std::string& name, const glm::mat4& value);
+    static void SetGlobalTextureValue(const std::string& name, RESOURCE_ID value);
+    static void SetGlobalRenderTextureValue(const std::string& name, RESOURCE_ID value);
+    static void SetGlobalVector4Value(const std::string& name, const glm::vec4& value);
+
+private:
+
+    static std::unordered_map<std::string, int> s_globalIntValues;
+    static std::unordered_map<std::string, bool> s_globalBoolValues;
+    static std::unordered_map<std::string, float> s_globalFloatValues;
+    static std::unordered_map<std::string, glm::mat4> s_globalMat4Values;
+    static std::unordered_map<std::string, RESOURCE_ID> s_globalTextureValues;
+    static std::unordered_map<std::string, glm::vec4> s_globalVec4Values;
 };

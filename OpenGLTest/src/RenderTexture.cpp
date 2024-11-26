@@ -48,19 +48,29 @@ void checkGlFormatSupported(GLuint glFormat, RenderTextureFormat format)
     // glGetInternalformativ ()
 }
 
-RenderTexture::RenderTexture(
+RenderTextureDescriptor::RenderTextureDescriptor() = default;
+
+RenderTextureDescriptor::RenderTextureDescriptor(
     const size_t width,
     const size_t height,
     const RenderTextureFormat format,
     const TextureFilterMode filterMode,
     const TextureWrapMode wrapMode)
+    : width(width),
+      height(height),
+      format(format),
+      filterMode(filterMode),
+      wrapMode(wrapMode)
 {
-    this->width = width;
-    this->height = height;
+}
 
-    auto glInternalFormat = renderTextureFormatToGLInternalFormat[format];
-    auto glFormat = renderTextureFormatToGLFormat[format];
-    auto glType = renderTextureFormatToGLType[format];
+RenderTexture::RenderTexture(const RenderTextureDescriptor& desc)
+{
+    this->desc = desc;
+
+    auto glInternalFormat = renderTextureFormatToGLInternalFormat[desc.format];
+    auto glFormat = renderTextureFormatToGLFormat[desc.format];
+    auto glType = renderTextureFormatToGLType[desc.format];
 
     glGenTextures(1, &glTextureId);
     glBindTexture(GL_TEXTURE_2D, glTextureId);
@@ -68,23 +78,23 @@ RenderTexture::RenderTexture(
         GL_TEXTURE_2D,
         0,
         glInternalFormat,
-        static_cast<GLuint>(width),
-        static_cast<GLuint>(height),
+        static_cast<GLuint>(desc.width),
+        static_cast<GLuint>(desc.height),
         0,
         glFormat,
         glType,
         0);
-    
+
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
     {
         Utils::Log("创建纹理失败：" + std::to_string(error), Error);
     }
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrapModeToGLWrapMode[wrapMode]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrapModeToGLWrapMode[wrapMode]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilterModeToGLFilterMode[filterMode]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilterModeToGLFilterMode[filterMode]);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrapModeToGLWrapMode[desc.wrapMode]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrapModeToGLWrapMode[desc.wrapMode]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilterModeToGLFilterMode[desc.filterMode]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilterModeToGLFilterMode[desc.filterMode]);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 }
