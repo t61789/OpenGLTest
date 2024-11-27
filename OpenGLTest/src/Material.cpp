@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "Image.h"
 #include "Utils.h"
 #include "../lib/json.hpp"
 
@@ -10,7 +11,6 @@ std::unordered_map<std::string, bool> Material::s_globalBoolValues;
 std::unordered_map<std::string, float> Material::s_globalFloatValues;
 std::unordered_map<std::string, glm::mat4> Material::s_globalMat4Values;
 std::unordered_map<std::string, RESOURCE_ID> Material::s_globalTextureValues;
-std::unordered_map<std::string, RESOURCE_ID> Material::s_globalRenderTextureValues;
 std::unordered_map<std::string, glm::vec4> Material::s_globalVec4Values;
 
 void Material::setIntValue(const std::string& name, const int value)
@@ -66,11 +66,6 @@ void Material::SetGlobalMat4Value(const std::string& name, const glm::mat4& valu
 void Material::SetGlobalTextureValue(const std::string& name, RESOURCE_ID value)
 {
     s_globalTextureValues[name] = value;
-}
-
-void Material::SetGlobalRenderTextureValue(const std::string& name, RESOURCE_ID value)
-{
-    s_globalRenderTextureValues[name] = value;
 }
 
 void Material::SetGlobalVector4Value(const std::string& name, const glm::vec4& value)
@@ -171,7 +166,7 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
         
         if (elemValue.is_string() && Utils::EndsWith(elemKey, "Tex"))
         {
-            result->setTextureValue(elemKey, Texture::LoadFromFile(elemValue.get<std::string>()));
+            result->setTextureValue(elemKey, Image::LoadFromFile(elemValue.get<std::string>()));
             continue;
         }
     }
@@ -214,14 +209,6 @@ void Material::FillGlobalParams(const Shader* shader)
         if(shader->hasParam(element.first))
         {
             shader->setTexture(element.first, globalSlot, element.second);
-            globalSlot++;
-        }
-    }
-    for (const auto& element : s_globalRenderTextureValues)
-    {
-        if(shader->hasParam(element.first))
-        {
-            shader->setRenderTexture(element.first, globalSlot, element.second);
             globalSlot++;
         }
     }

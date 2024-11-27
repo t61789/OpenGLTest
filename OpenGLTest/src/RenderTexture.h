@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include "ResourceMgr.h"
+#include "Texture.h"
 
 enum RenderTextureFormat
 {
@@ -41,13 +42,12 @@ public:
     RenderTextureDescriptor(size_t width, size_t height, RenderTextureFormat format, TextureFilterMode filterMode, TextureWrapMode wrapMode);
 };
 
-class RenderTexture : public ResourceBase
+class RenderTexture : public Texture
 {
 public:
-    GLuint glTextureId;
     
     RenderTextureDescriptor desc;
 
     RenderTexture(const RenderTextureDescriptor& desc);
-    ~RenderTexture();
+    ~RenderTexture() override;
 };

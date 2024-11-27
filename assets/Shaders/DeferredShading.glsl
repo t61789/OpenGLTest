@@ -37,7 +37,7 @@ void main()
     vec3 ambient = _AmbientLightColor.rgb;
     vec3 diffuse = _MainLightColor.rgb * albedo * max(dot(normalWS, _MainLightDirection.xyz), 0);
     vec3 H = normalize(_MainLightDirection.xyz + viewDir);
-    vec3 specular = _MainLightColor.rgb * albedo * pow(max(dot(normalWS, H), 0), 7) * 5;
+    vec3 specular = _MainLightColor.rgb * albedo * pow(max(dot(normalWS, H), 0), 13) * 5;
 
     vec3 finalColor = diffuse + specular + ambient;
 

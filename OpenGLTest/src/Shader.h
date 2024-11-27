@@ -25,8 +25,6 @@ public:
     static void setMatrix(const int& location, const glm::mat4& value);
     void setTexture(const std::string& name, const int slot, const RESOURCE_ID value) const;
     static void setTexture(const int& location, const int slot, const RESOURCE_ID value);
-    void setRenderTexture(const std::string& name, const int slot, const RESOURCE_ID value) const;
-    static void setRenderTexture(const int& location, const int slot, const RESOURCE_ID value);
 
     static RESOURCE_ID LoadFromFile(const std::string &glslPath);
 

@@ -77,7 +77,7 @@ bool RenderPipeline::_updateRenderTargetsPass()
         return false;
     }
     
-    Material::SetGlobalRenderTextureValue("_ShadingBufferRt", shadingRenderTarget->getRenderTexture(0));
+    Material::SetGlobalTextureValue("_ShadingBufferTex", shadingRenderTarget->getRenderTexture(0));
 
     auto gBufferRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget);
     if(!gBufferRenderTarget->createAttachmentsRt(m_screenWidth, m_screenHeight))
@@ -85,9 +85,9 @@ bool RenderPipeline::_updateRenderTargetsPass()
         return false;
     }
 
-    Material::SetGlobalRenderTextureValue("_GBuffer0Rt", gBufferRenderTarget->getRenderTexture(0));
-    Material::SetGlobalRenderTextureValue("_GBuffer1Rt", gBufferRenderTarget->getRenderTexture(1));
-    Material::SetGlobalRenderTextureValue("_GBuffer2Rt", gBufferRenderTarget->getRenderTexture(2));
+    Material::SetGlobalTextureValue("_GBuffer0Tex", gBufferRenderTarget->getRenderTexture(0));
+    Material::SetGlobalTextureValue("_GBuffer1Tex", gBufferRenderTarget->getRenderTexture(1));
+    Material::SetGlobalTextureValue("_GBuffer2Tex", gBufferRenderTarget->getRenderTexture(2));
 
     return true;
 }

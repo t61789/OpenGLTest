@@ -171,24 +171,6 @@ void Shader::setTexture(const int& location, const int slot, RESOURCE_ID value)
     glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
 }
 
-void Shader::setRenderTexture(const std::string& name, const int slot, const RESOURCE_ID value) const
-{
-    int location = glGetUniformLocation(glShaderId, name.c_str());
-    setRenderTexture(location, slot, value);
-}
-
-void Shader::setRenderTexture(const int& location, const int slot, const RESOURCE_ID value)
-{
-    auto texturePtr = ResourceMgr::GetPtr<RenderTexture>(value);
-    if(location == -1 || texturePtr == nullptr)
-    {
-        return;
-    }
-    setInt(location, slot);
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
-}
-
 std::vector<std::string> loadFileToLines(const std::string& realAssetPath)
 {
     std::ifstream fs;

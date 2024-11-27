@@ -7,15 +7,13 @@
 
 #include "ResourceMgr.h"
 
-class Texture : ResourceBase
+class Texture : public ResourceBase
 {
 public:
     GLuint glTextureId;
-    
-    static RESOURCE_ID LoadFromFile(const std::string& path);
 
-private:
-    
+    size_t width;
+    size_t height;
+
     Texture(GLuint glTextureId);
-    ~Texture() override;
 };

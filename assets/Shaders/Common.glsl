@@ -8,9 +8,9 @@ uniform vec4 _MainLightDirection;
 uniform vec4 _MainLightColor;
 uniform vec4 _AmbientLightColor;
 
-uniform sampler2D _GBuffer0Rt;
-uniform sampler2D _GBuffer1Rt;
-uniform sampler2D _GBuffer2Rt;
+uniform sampler2D _GBuffer0Tex;
+uniform sampler2D _GBuffer1Tex;
+uniform sampler2D _GBuffer2Tex;
 
 vec4 WriteGBuffer0(vec3 albedo)
 {
@@ -29,19 +29,19 @@ vec4 WriteGBuffer2(float depth)
 
 void ReadGBuffer0(vec2 screenUV, out vec3 albedo)
 {
-    vec4 color = texture(_GBuffer0Rt, screenUV);
+    vec4 color = texture(_GBuffer0Tex, screenUV);
     albedo = color.xyz;
 }
 
 void ReadGBuffer1(vec2 screenUV, out vec3 normalWS)
 {
-    vec4 color = texture(_GBuffer1Rt, screenUV);
+    vec4 color = texture(_GBuffer1Tex, screenUV);
     normalWS = color.xyz * 2 - 1;
 }
 
 void ReadGBuffer2(vec2 screenUV, out float depth)
 {
-    vec4 color = texture(_GBuffer2Rt, screenUV);
+    vec4 color = texture(_GBuffer2Tex, screenUV);
     depth = color.r;
 }
 

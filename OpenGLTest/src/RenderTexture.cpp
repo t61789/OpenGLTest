@@ -67,7 +67,7 @@ RenderTextureDescriptor::RenderTextureDescriptor(
 {
 }
 
-RenderTexture::RenderTexture(const RenderTextureDescriptor& desc)
+RenderTexture::RenderTexture(const RenderTextureDescriptor& desc): Texture(0)
 {
     this->desc = desc;
 

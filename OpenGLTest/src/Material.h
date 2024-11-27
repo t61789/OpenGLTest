@@ -15,7 +15,6 @@ public:
     std::unordered_map<std::string, RESOURCE_ID> textureValues;
     std::unordered_map<std::string, glm::vec4> vec4Values;
 
-    static std::unordered_map<std::string, RESOURCE_ID> s_globalRenderTextureValues;
     void setIntValue(const std::string& name, int value);
     void setBoolValue(const std::string& name, bool value);
     void setFloatValue(const std::string& name, float value);
@@ -34,7 +33,6 @@ public:
     static void SetGlobalFloatValue(const std::string& name, float value);
     static void SetGlobalMat4Value(const std::string& name, const glm::mat4& value);
     static void SetGlobalTextureValue(const std::string& name, RESOURCE_ID value);
-    static void SetGlobalRenderTextureValue(const std::string& name, RESOURCE_ID value);
     static void SetGlobalVector4Value(const std::string& name, const glm::vec4& value);
 
 private:
