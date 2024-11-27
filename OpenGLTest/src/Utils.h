@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <glad/glad.h>
 #include <vec3.hpp>
 #include <vec4.hpp>
 
@@ -83,6 +84,9 @@ public:
     static bool IsVec(const nlohmann::json& jsonValue, size_t components);
     static bool IsVec3(const nlohmann::json& jsonValue);
     static bool IsVec4(const nlohmann::json& jsonValue);
+
+    static void ClearGlError();
+    static void CheckGlError(const std::string& position);
 
     static bool EndsWith(const std::string& str, const std::string& suffix);
     static std::string JoinStrings(const std::vector<std::string>& strings, std::string delimiter);

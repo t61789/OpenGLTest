@@ -58,13 +58,16 @@ RenderTextureDescriptor::RenderTextureDescriptor(
     const size_t height,
     const RenderTextureFormat format,
     const TextureFilterMode filterMode,
-    const TextureWrapMode wrapMode)
-    : width(width),
-      height(height),
-      format(format),
-      filterMode(filterMode),
-      wrapMode(wrapMode)
+    const TextureWrapMode wrapMode,
+    std::string name):
+    name(std::move(name)),
+    width(width),
+    height(height),
+    format(format),
+    filterMode(filterMode),
+    wrapMode(wrapMode)
 {
+    
 }
 
 RenderTexture::RenderTexture(const RenderTextureDescriptor& desc): Texture(0)
@@ -87,12 +90,7 @@ RenderTexture::RenderTexture(const RenderTextureDescriptor& desc): Texture(0)
         glFormat,
         glType,
         0);
-
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-    {
-        Utils::Log("创建纹理失败：" + std::to_string(error), Error);
-    }
+    Utils::CheckGlError("创建纹理");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrapModeToGLWrapMode[desc.wrapMode]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrapModeToGLWrapMode[desc.wrapMode]);

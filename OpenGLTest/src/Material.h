@@ -25,6 +25,7 @@ public:
     void fillParams(const Shader* shader) const;
 
     static RESOURCE_ID LoadFromFile(const std::string& path);
+    static RESOURCE_ID CreateEmptyMaterial(const std::string& shaderPath);
 
     static void FillGlobalParams(const Shader* shader);
 

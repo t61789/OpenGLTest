@@ -39,7 +39,8 @@ public:
     TextureWrapMode wrapMode;
 
     RenderTextureDescriptor();
-    RenderTextureDescriptor(size_t width, size_t height, RenderTextureFormat format, TextureFilterMode filterMode, TextureWrapMode wrapMode);
+    RenderTextureDescriptor(size_t width, size_t height, RenderTextureFormat format, TextureFilterMode filterMode, TextureWrapMode wrapMode,
+                            std::string name = "Unnamed RenderTexture");
 };
 
 class RenderTexture : public Texture

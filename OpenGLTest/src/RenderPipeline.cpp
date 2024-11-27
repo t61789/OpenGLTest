@@ -19,26 +19,26 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_window = window;
     setScreenSize(width, height);
 
-    m_drawShadowMat = Material::LoadFromFile("shadowMat.json");
+    m_drawShadowMat = Material::CreateEmptyMaterial("Shaders/DrawShadow.glsl");
 
     m_fullScreenQuad = Mesh::LoadFromFile("Meshes/fullScreenMesh.obj");
     m_deferredShadingShader = Shader::LoadFromFile("Shaders/DeferredShading.glsl");
     m_finalBlitShader = Shader::LoadFromFile("Shaders/FinalBlit.glsl");
 
     std::vector<RenderTargetAttachment> attachments;
-    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.5),RenderTextureDescriptor(0,0,RGBAHdr, Point, Clamp));
-    attachments.emplace_back(GL_COLOR_ATTACHMENT1, glm::vec4(0), RenderTextureDescriptor(0,0,RGBA, Point, Clamp));
-    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(1), RenderTextureDescriptor(0,0,DepthTex, Point, Clamp));
-    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(0), RenderTextureDescriptor(0,0,Depth, Point, Clamp));
-    m_gBufferRenderTarget = (new RenderTarget(attachments, 3))->id;
+    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.5),RenderTextureDescriptor(0,0,RGBAHdr, Point, Clamp, "_GBuffer0"));
+    attachments.emplace_back(GL_COLOR_ATTACHMENT1, glm::vec4(0), RenderTextureDescriptor(0,0,RGBA, Point, Clamp, "_GBuffer1"));
+    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(1), RenderTextureDescriptor(0,0,DepthTex, Point, Clamp, "_GBuffer2"));
+    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(0), RenderTextureDescriptor(0,0,Depth, Point, Clamp, "_GBufferDepthAttachment"));
+    m_gBufferRenderTarget = (new RenderTarget(attachments, 3, "GBuffer"))->id;
 
     attachments.clear();
-    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.77f, 0.77f, 0.83f, 1), RenderTextureDescriptor(0,0,RGBAHdr, Point, Clamp));
-    m_shadingRenderTarget = (new RenderTarget(attachments, 1))->id;
+    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.77f, 0.77f, 0.83f, 1), RenderTextureDescriptor(0,0,RGBAHdr, Point, Clamp, "_ShadingBuffer"));
+    m_shadingRenderTarget = (new RenderTarget(attachments, 1, "ShadingBuffer"))->id;
 
     attachments.clear();
-    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(1), RenderTextureDescriptor(0,0,Depth, Point, Clamp));
-    m_mainLightShadowRenderTarget = (new RenderTarget(attachments, 1))->id;
+    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(1), RenderTextureDescriptor(0,0,Depth, Point, Clamp, "_MainLightShadowMap"));
+    m_mainLightShadowRenderTarget = (new RenderTarget(attachments, 1, "MainLightShadowMap"))->id;
 }
 
 RenderPipeline::~RenderPipeline()
@@ -74,6 +74,8 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
 
     glfwSwapBuffers(m_window);
     glfwPollEvents();
+    
+    Utils::ClearGlError();
 }
 
 bool RenderPipeline::_updateRenderTargetsPass()

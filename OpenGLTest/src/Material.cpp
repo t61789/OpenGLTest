@@ -176,6 +176,13 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
     return result->id;
 }
 
+RESOURCE_ID Material::CreateEmptyMaterial(const std::string& shaderPath)
+{
+    auto result = new Material();
+    result->shaderId = Shader::LoadFromFile(shaderPath);
+    return result->id;
+}
+
 void Material::FillGlobalParams(const Shader* shader)
 {
     for (const auto& element : s_globalIntValues)

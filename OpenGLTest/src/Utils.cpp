@@ -344,6 +344,39 @@ bool Utils::IsVec4(const nlohmann::json& jsonValue)
     return IsVec(jsonValue, 4);
 }
 
+void Utils::ClearGlError()
+{
+    GLuint error;
+    while((error = glGetError()) != GL_NO_ERROR)
+    {
+    }
+}
+
+void Utils::CheckGlError(const std::string& position)
+{
+    std::vector<int> errors;
+    GLenum error;
+    while((error = glGetError()) != GL_NO_ERROR)
+    {
+        errors.push_back(error);
+    }
+
+    if(!errors.empty())
+    {
+        std::stringstream ss;
+        ss << "在 [" << position << "] 位置检测到以下GL错误：";
+        for (int i = 0; i < errors.size(); ++i)
+        {
+            if(i != 0)
+            {
+                ss << ", ";
+            }
+            ss << std::hex << error;
+        }
+        Log(ss.str(), Error);
+    }
+}
+
 bool Utils::EndsWith(const std::string& str, const std::string& suffix)
 {
     return str.size() >= suffix.size() && str.rfind(suffix) == str.size() - suffix.size();

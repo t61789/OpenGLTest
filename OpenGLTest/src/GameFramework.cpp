@@ -212,7 +212,6 @@ void GameFramework::_render() const
 
 void GameFramework::_onSetFrameBufferSize(GLFWwindow* window, const int width, const int height)
 {
-    std::cout << width << " " << height << "\n";
     m_screenWidth = width;
     m_screenHeight = height;
     glViewport(0, 0, width, height);

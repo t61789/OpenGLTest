@@ -11,8 +11,9 @@ RenderTargetAttachment::RenderTargetAttachment(const GLuint attachmentType, cons
 {
 }
 
-RenderTarget::RenderTarget(const std::vector<RenderTargetAttachment>& attachments, const int colorAttachmentsNum)
+RenderTarget::RenderTarget(const std::vector<RenderTargetAttachment>& attachments, const int colorAttachmentsNum, const std::string& name)
 {
+    this->name = name;
     width = 0;
     height = 0;
     glGenFramebuffers(1, &frameBufferId);
@@ -83,12 +84,15 @@ bool RenderTarget::createAttachmentsRt(const size_t width, const size_t height)
         return true;
     }
 
+    Utils::Log("重建RenderTarget[" + name + "] x:" + std::to_string(width) + " y:" + std::to_string(height), Info);
+
     this->width = width;
     this->height = height;
 
     _destroyAttachmentsRt();
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
+    Utils::CheckGlError("绑定FrameBuffer");
 
     for (auto& renderTargetAttachment : renderTargetAttachments)
     {
@@ -98,6 +102,7 @@ bool RenderTarget::createAttachmentsRt(const size_t width, const size_t height)
         auto rt = new RenderTexture(desc);
         attachments.push_back(rt->id);
         glFramebufferTexture2D(GL_FRAMEBUFFER, renderTargetAttachment.attachmentType, GL_TEXTURE_2D, rt->glTextureId, 0);
+        Utils::CheckGlError("指定FrameBuffer附件");
     }
 
     return checkRenderTargetComplete();
@@ -138,9 +143,11 @@ void RenderTarget::ClearFrameBuffer(const GLuint frameBuffer, const glm::vec4 cl
 
 void RenderTarget::_destroyAttachmentsRt()
 {
-    for (auto& attachment : attachments)
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
+    for (int i = 0; i < attachments.size(); ++i)
     {
-        ResourceMgr::DeleteResource(attachment);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, renderTargetAttachments[i].attachmentType, GL_TEXTURE_2D, 0, 0);
+        ResourceMgr::DeleteResource(attachments[i]);
     }
     attachments.clear();
 }

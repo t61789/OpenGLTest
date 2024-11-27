@@ -40,7 +40,7 @@ void checkShaderCompilation(const GLuint vertexShader, const std::string &shader
         throw std::runtime_error(ss.str());
     }
 }
-
+// TODO 判断参数的类型，类型不对不设置或者报错
 Shader::~Shader()
 {
     glDeleteProgram(glShaderId);
