@@ -4,28 +4,37 @@
 #include "Utils.h"
 
 
-RenderTargetAttachment::RenderTargetAttachment(const GLuint attachmentType, const glm::vec4 clearColor,RenderTextureDescriptor desc):
+RenderTargetAttachment::RenderTargetAttachment(const GLuint attachmentType, const glm::vec4 clearColor, RenderTextureDescriptor desc):
     attachmentType(attachmentType),
     clearColor(clearColor),
     desc(std::move(desc))
 {
 }
 
-RenderTarget::RenderTarget(const std::vector<RenderTargetAttachment>& colorAttachments, const int colorAttachmentsNum)
+RenderTarget::RenderTarget(const std::vector<RenderTargetAttachment>& attachments, const int colorAttachmentsNum)
 {
     width = 0;
     height = 0;
     glGenFramebuffers(1, &frameBufferId);
-    this->renderTargetAttachments = colorAttachments;
-
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
-    auto buffers = new GLuint[colorAttachmentsNum];
-    for (int i = 0; i < colorAttachmentsNum; ++i)
+    
+    this->renderTargetAttachments = attachments;
+    this->colorAttachmentsNum = colorAttachmentsNum;
+
+    if(colorAttachmentsNum == 0)
     {
-        buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+        glDrawBuffer(GL_NONE);
     }
-    glDrawBuffers(colorAttachmentsNum, buffers);
-    delete[] buffers;
+    else
+    {
+        auto buffers = new GLuint[colorAttachmentsNum];
+        for (int i = 0; i < colorAttachmentsNum; ++i)
+        {
+            buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+        }
+        glDrawBuffers(colorAttachmentsNum, buffers);
+        delete[] buffers;
+    }
 }
 
 RenderTarget::~RenderTarget()
@@ -54,6 +63,11 @@ void RenderTarget::clear(const GLuint clearBits)
         }
     }
 
+    if((clearBits & GL_DEPTH_BUFFER_BIT) != 0)
+    {
+        glClearDepth(1.0f);
+    }
+    
     glClear(clearBits);
 }
 

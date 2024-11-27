@@ -25,7 +25,7 @@ public:
 
     int colorAttachmentsNum;
     
-    RenderTarget(const std::vector<RenderTargetAttachment>& colorAttachments, int colorAttachmentsNum);
+    RenderTarget(const std::vector<RenderTargetAttachment>& attachments, int colorAttachmentsNum);
     ~RenderTarget();
 
     void use();

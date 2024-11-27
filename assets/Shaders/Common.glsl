@@ -2,11 +2,14 @@ uniform mat4 _MVP;
 uniform mat4 _ITM;
 uniform mat4 _M;
 uniform mat4 _IVP;
+uniform mat4 _MainLightShadowVP;
 
 uniform vec4 _CameraPositionWS;
 uniform vec4 _MainLightDirection;
 uniform vec4 _MainLightColor;
 uniform vec4 _AmbientLightColor;
+
+uniform sampler2D _MainLightShadowMapTex;
 
 uniform sampler2D _GBuffer0Tex;
 uniform sampler2D _GBuffer1Tex;
@@ -68,6 +71,24 @@ vec3 TransformScreenToWorld(vec2 screenUV)
     vec4 positionWS = _IVP * positionCS;
     
     return positionWS.xyz / positionWS.w;
+}
+
+float SampleShadowMap(vec3 positionWS)
+{
+    vec4 positionShadowSpace = _MainLightShadowVP * vec4(positionWS, 1);
+    positionShadowSpace.xyz /= positionShadowSpace.w;
+    vec2 shadowUV = positionShadowSpace.xy * 0.5 + 0.5;
+    
+    if(shadowUV.x < 0 || shadowUV.x > 1 || shadowUV.y < 0 || shadowUV.y > 1)
+    {
+        return 1;
+    }
+    
+    float shadowDepth = texture(_MainLightShadowMapTex, shadowUV).r * 2 - 1;
+    float objectDepth = positionShadowSpace.z;
+//    float bias = max(0.05 * (1 - dot(positionWS, _MainLightDirection.xyz)), 0.005);
+    float bias = 0.001;
+    return (shadowDepth + bias) < objectDepth ? 0 : 1;
 }
 
 vec3 GetCameraPositionWS()
