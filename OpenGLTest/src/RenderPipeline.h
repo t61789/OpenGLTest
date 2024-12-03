@@ -31,6 +31,9 @@ private:
     size_t m_screenHeight;
     GLFWwindow* m_window;
 
+    RESOURCE_ID m_sphereMesh = UNDEFINED_RESOURCE;
+
+    RESOURCE_ID m_skyboxMat = UNDEFINED_RESOURCE;
     RESOURCE_ID m_drawShadowMat = UNDEFINED_RESOURCE;
 
     RESOURCE_ID m_gBufferRenderTarget = UNDEFINED_RESOURCE;
@@ -42,14 +45,16 @@ private:
     RESOURCE_ID m_finalBlitShader = UNDEFINED_RESOURCE;
 
     bool _updateRenderTargetsPass();
-    void _clearRenderTargetsPass();
-    void _drawMainLightShadowPass(unsigned long long cameraId, const Scene* scene, RenderContext& renderContext);
+    void _preparingPass(RESOURCE_ID cameraId, RenderContext& renderContext);
+    void _renderMainLightShadowPass(unsigned long long cameraId, const Scene* scene, RenderContext& renderContext);
+    void _renderSkyboxPass(RESOURCE_ID cameraId, const RenderContext& renderContext);
     void _renderScenePass(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext);
     void _deferredShadingPass();
     void _finalBlitPass();
 
     void _renderScene(const Scene* scene, const RenderContext& renderContext);
     void _renderEntity(const Entity* entity, const RenderContext& renderContext);
+    void _renderMesh(const ::Mesh* mesh, const ::Material* mat, const glm::mat4& m, const RenderContext& renderContext);
     void _setViewProjMatrix(RESOURCE_ID camera, RenderContext& renderContext);
     void _setViewProjMatrix(const glm::mat4& view, const glm::mat4& proj, RenderContext& renderContext);
 };

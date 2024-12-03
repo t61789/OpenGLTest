@@ -178,8 +178,14 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
 
 RESOURCE_ID Material::CreateEmptyMaterial(const std::string& shaderPath)
 {
+    auto shader = Shader::LoadFromFile(shaderPath);
+    if(shader == UNDEFINED_RESOURCE)
+    {
+        return UNDEFINED_RESOURCE;
+    }
+    
     auto result = new Material();
-    result->shaderId = Shader::LoadFromFile(shaderPath);
+    result->shaderId = shader;
     return result->id;
 }
 

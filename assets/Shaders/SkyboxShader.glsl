@@ -15,8 +15,9 @@ out vec4 positionCS;
 
 void main()
 {
-   gl_Position = TransformObjectToHClip(aPositionOS);
-   positionCS = gl_Position;
+   positionCS = TransformObjectToHClip(aPositionOS);
+   positionCS.z = positionCS.w - 0.00001;
+   gl_Position = positionCS;
    normalWS = TransformObjectToWorldNormal(aNormalOS);
    positionWS = TransformObjectToWorld(aPositionOS);
    vertexColor = vec4(aColor, 1.0);
@@ -33,21 +34,13 @@ in vec3 normalWS;
 in vec3 positionWS;
 in vec4 positionCS;
 
-uniform sampler2D _MainTex;
-uniform float _ShowTex;
-uniform vec4 _Albedo;
-
 layout(location = 0) out vec4 FragColor0;
 layout(location = 1) out vec4 FragColor1;
 layout(location = 2) out vec4 FragColor2;
 
 void main()
 {
-   vec3 albedo = _Albedo.rgb;
-   if(_ShowTex > 0.5)
-   {
-      albedo *= texture(_MainTex, texCoord).rgb;
-   }
+   vec3 albedo = vec3(texCoord, 0);
 
    FragColor0 = WriteGBuffer0(albedo);
    FragColor1 = WriteGBuffer1(normalWS);

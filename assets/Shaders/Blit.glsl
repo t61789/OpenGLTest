@@ -11,7 +11,7 @@ void main()
 {
    gl_Position = vec4(aPositionOS.xy, 0, 1);
    texCoord = aTexcoord;
-};
+}
 
 #version 330 core
 
@@ -24,4 +24,4 @@ out vec4 FragColor;
 void main()
 {
    FragColor = texture(_MainTex, texCoord);
-};
+}

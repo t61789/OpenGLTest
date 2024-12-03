@@ -7,8 +7,6 @@
 #include <ext/quaternion_common.hpp>
 
 #include "Camera.h"
-#include "Camera.h"
-#include "Camera.h"
 #include "Entity.h"
 #include "GameFramework.h"
 #include "RenderTarget.h"
@@ -19,6 +17,9 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_window = window;
     setScreenSize(width, height);
 
+    m_sphereMesh = Mesh::LoadFromFile("Meshes/sphere.obj");
+
+    m_skyboxMat = Material::CreateEmptyMaterial("Shaders/SkyboxShader.glsl");
     m_drawShadowMat = Material::CreateEmptyMaterial("Shaders/DrawShadow.glsl");
 
     m_fullScreenQuad = Mesh::LoadFromFile("Meshes/fullScreenMesh.obj");
@@ -43,6 +44,8 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
 
 RenderPipeline::~RenderPipeline()
 {
+    ResourceMgr::DeleteResource(m_sphereMesh);
+    ResourceMgr::DeleteResource(m_skyboxMat);
     ResourceMgr::DeleteResource(m_drawShadowMat);
     ResourceMgr::DeleteResource(m_fullScreenQuad);
     ResourceMgr::DeleteResource(m_deferredShadingShader);
@@ -66,8 +69,9 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
 
     RenderContext renderContext;
 
-    _clearRenderTargetsPass();
-    _drawMainLightShadowPass(cameraId, scene, renderContext);
+    _preparingPass(cameraId, renderContext);
+    _renderMainLightShadowPass(cameraId, scene, renderContext);
+    _renderSkyboxPass(cameraId, renderContext);
     _renderScenePass(cameraId, scene, renderContext);
     _deferredShadingPass();
     _finalBlitPass();
@@ -114,12 +118,23 @@ bool RenderPipeline::_updateRenderTargetsPass()
     return true;
 }
 
-void RenderPipeline::_clearRenderTargetsPass()
+void RenderPipeline::_preparingPass(const RESOURCE_ID cameraId, RenderContext& renderContext)
 {
+    auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
+    if(camera == nullptr)
+    {
+        return;
+    }
+
+    Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(camera->position, 0));
     
+    renderContext.cameraPositionWS = camera->position;
+    
+    auto gBufferRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget);
+    gBufferRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void RenderPipeline::_drawMainLightShadowPass(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext)
+void RenderPipeline::_renderMainLightShadowPass(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext)
 {
     if(scene == nullptr)
     {
@@ -131,7 +146,6 @@ void RenderPipeline::_drawMainLightShadowPass(RESOURCE_ID cameraId, const Scene*
     {
         return;
     }
-
 
     constexpr float range = 10;
     float range2 = 50;
@@ -171,6 +185,32 @@ void RenderPipeline::_drawMainLightShadowPass(RESOURCE_ID cameraId, const Scene*
     renderContext.replaceMaterial = m_drawShadowMat;
     _renderScene(scene, renderContext);
     renderContext.replaceMaterial = UNDEFINED_RESOURCE;
+
+    // 准备绘制参数
+    _setViewProjMatrix(cameraId, renderContext);
+}
+
+void RenderPipeline::_renderSkyboxPass(const RESOURCE_ID cameraId, const RenderContext& renderContext)
+{
+    auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
+    auto sphereMesh = ResourceMgr::GetPtr<Mesh>(m_sphereMesh);
+    auto skyboxMat = ResourceMgr::GetPtr<Material>(m_skyboxMat);
+    if(camera == nullptr || sphereMesh == nullptr || skyboxMat == nullptr)
+    {
+        return;
+    }
+
+    ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget)->use();
+    
+    auto m = glm::mat4(1);
+    m = translate(m, camera->position);
+    m = scale(m, glm::vec3(1));
+
+    glDisable(GL_CULL_FACE);
+    
+    _renderMesh(sphereMesh, skyboxMat, m, renderContext);
+
+    // glEnable(GL_CULL_FACE);
 }
 
 void RenderPipeline::_renderScenePass(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext)
@@ -187,32 +227,25 @@ void RenderPipeline::_renderScenePass(RESOURCE_ID cameraId, const Scene* scene, 
         return;
     }
 
-    auto gBufferRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget);
-    gBufferRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    gBufferRenderTarget->use();
+    ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget)->use();
 
-    // 准备绘制参数
-    _setViewProjMatrix(cameraId, renderContext);
-
-    Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(camera->position, 0));
     Material::SetGlobalVector4Value("_MainLightDirection", glm::vec4(normalize(scene->mainLightDirection), 0));
     Material::SetGlobalVector4Value("_MainLightColor", glm::vec4(scene->mainLightColor, 0));
     Material::SetGlobalVector4Value("_AmbientLightColor", glm::vec4(scene->ambientLightColor, 0));
     Material::SetGlobalFloatValue("_ExposureMultiplier", scene->tonemappingExposureMultiplier);
     
-    renderContext.cameraPositionWS = camera->position;
     renderContext.mainLightDirection = normalize(scene->mainLightDirection);
     renderContext.mainLightColor = scene->mainLightColor;
     renderContext.ambientLightColor = scene->ambientLightColor;
     renderContext.tonemappingExposureMultiplier = scene->tonemappingExposureMultiplier;
-
+    
     _renderScene(scene, renderContext);
 }
 
 void RenderPipeline::_deferredShadingPass()
 {
     auto shadingRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_shadingRenderTarget);
-    shadingRenderTarget->clear(GL_COLOR_BUFFER_BIT);
+    shadingRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shadingRenderTarget->use();
 
     auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_fullScreenQuad);
@@ -299,18 +332,23 @@ void RenderPipeline::_renderEntity(const Entity* entity, const RenderContext& re
     {
         return;
     }
-    auto shader = ResourceMgr::GetPtr<Shader>(material->shaderId);
+
+    _renderMesh(mesh, material, entity->getLocalToWorld(), renderContext);
+}
+
+void RenderPipeline::_renderMesh(const Mesh* mesh, const Material* mat, const glm::mat4& m, const RenderContext& renderContext)
+{
+    auto shader = ResourceMgr::GetPtr<Shader>(mat->shaderId);
     if(shader == nullptr)
     {
         return;
     }
-
-    auto m = entity->getLocalToWorld();
+    
     auto mvp = renderContext.vpMatrix * m;
 
     mesh->use();
     shader->use(mesh);
-    material->fillParams(shader);
+    mat->fillParams(shader);
 
     shader->setMatrix("_MVP", mvp);
     shader->setMatrix("_ITM", transpose(inverse(m)));

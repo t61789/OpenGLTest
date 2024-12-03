@@ -9,6 +9,8 @@
 class Mesh : public ResourceBase
 {
 public:
+    std::string name = "Unnamed Mesh";
+    
     GLuint vao, vbo, ebo;
 
     Bounds bounds;
@@ -29,7 +31,8 @@ public:
         const float* color,
         const unsigned int* indices,
         size_t vertexCount,
-        size_t indicesCount
+        size_t indicesCount,
+        const std::string& name = "Unnamed Mesh"
     );
 
 private:

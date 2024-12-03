@@ -31,9 +31,9 @@ void main()
     ReadGBuffer1(texCoord, normalWS);
     
     vec3 positionWS = TransformScreenToWorld(texCoord);
-    
+
     float mainLightShadowAttenuation = SampleShadowMap(positionWS);
-    
+
     vec3 mainLightColor = _MainLightColor.rgb * mainLightShadowAttenuation;
 
     vec3 viewDir = normalize(GetCameraPositionWS() - positionWS);
@@ -46,6 +46,7 @@ void main()
     vec3 finalColor = diffuse + specular + ambient;
 
     FragColor = vec4(finalColor, 1);
+//    FragColor = vec4(albedo, 1);
 //    FragColor = vec4(mainLightShadowAttenuation);
 //    FragColor = vec4(mod(positionWS.xz, 1), 0, 1);
 }

@@ -8,6 +8,7 @@
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
+#include <fstream>
 
 void copyDataTo(
     const float* src,
@@ -22,14 +23,11 @@ void copyDataTo(
         return;
     }
 
-    // Utils::Log(attribFloatNum * vertexCount);
-    // Utils::Log(std::to_string(attribFloatNum) + " " + std::to_string(vertexCount));
     for(unsigned int i = 0; i < attribFloatNum * vertexCount; i++)
     {
         auto vertexIndex = i / attribFloatNum;
         auto destIndex = offset + vertexIndex * vertexDataFloatNum + i % attribFloatNum;
         auto srcIndex = i;
-        // Utils::Log(std::to_string(destIndex) + " " + std::to_string(srcIndex));
         dest[destIndex] = src[srcIndex];
     }
 }
@@ -42,7 +40,8 @@ RESOURCE_ID Mesh::CreateMesh(
     const float* color,
     const unsigned int* indices,
     const size_t vertexCount,
-    const size_t indicesCount)
+    const size_t indicesCount,
+    const std::string& name)
 {
     const float* vertexAttribSource[] = {
         position,
@@ -84,17 +83,6 @@ RESOURCE_ID Mesh::CreateMesh(
         }
     }
 
-    // std::string a;
-    // for (size_t i = 0; i < vertexDataSumSize; ++i)
-    // {
-    //     if(i % vertexDataFloatNum == 0)
-    //     {
-    //         a += "\n";
-    //     }
-    //     a += " " + std::to_string(data[i]);
-    // }
-    // Utils::Log(a);
-
     // 将顶点数据传入OpenGL中
     GLuint VAO, VBO, EBO;
     
@@ -123,6 +111,7 @@ RESOURCE_ID Mesh::CreateMesh(
     result->vertexDataFloatNum = vertexDataFloatNum;
     result->vertexCount = vertexCount;
     result->indicesCount = indicesCount;
+    result->name = name;
     std::memcpy(&result->vertexAttribEnabled, &vertexAttribEnabled, sizeof(vertexAttribEnabled));
     std::memcpy(&result->vertexAttribOffset, &vertexAttribOffset, sizeof(vertexAttribOffset));
     return result->id;
@@ -234,7 +223,8 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
         nullptr,
         indicesData,
         vertexCount,
-        indicesCount);
+        indicesCount,
+        modelPath);
     ResourceMgr::RegisterResource(modelPath, result);
     auto msg = "成功载入Mesh " + modelPath + "\n";
     msg += "\t顶点数量 " + std::to_string(vertexCount) + "\n";

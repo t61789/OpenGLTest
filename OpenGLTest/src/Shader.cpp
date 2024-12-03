@@ -184,6 +184,7 @@ std::vector<std::string> loadFileToLines(const std::string& realAssetPath)
     catch(std::exception&)
     {
         fs.close();
+        Utils::Log("读取文件失败：" + realAssetPath, Error);
         throw;
     }
     fs.close();

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <vec4.hpp>
+#include "glm.hpp"
 
 Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
 
@@ -227,6 +228,11 @@ void Utils::Log(const glm::vec4 val, const LogType type)
     Log(ToString(val), type);
 }
 
+void Utils::Log(const glm::mat4 val, const LogType type)
+{
+    Log(ToString(val), type);
+}
+
 std::string Utils::ToString(const bool val)
 {
     return val ? "true" : "false";
@@ -317,6 +323,14 @@ std::string Utils::ToString(const glm::vec3& val)
 std::string Utils::ToString(const glm::vec4& val)
 {
     return "(" + ToString(val.x, 2) + ", " + ToString(val.y, 2) + ", " + ToString(val.z, 2) + ", " + ToString(val.w, 2) + ")";   
+}
+
+std::string Utils::ToString(const glm::mat4& val)
+{
+    return "\t|" + ToString(val[0][0], 2) + ", " + ToString(val[1][0], 2) + ", " + ToString(val[2][0], 2) + ", " + ToString(val[3][0], 2) + "|\n" +
+           "\t|" + ToString(val[0][1], 2) + ", " + ToString(val[1][1], 2) + ", " + ToString(val[2][1], 2) + ", " + ToString(val[3][1], 2) + "|\n" +
+           "\t|" + ToString(val[0][2], 2) + ", " + ToString(val[1][2], 2) + ", " + ToString(val[2][2], 2) + ", " + ToString(val[3][2], 2) + "|\n" +
+           "\t|" + ToString(val[0][3], 2) + ", " + ToString(val[1][3], 2) + ", " + ToString(val[2][3], 2) + ", " + ToString(val[3][3], 2) + "|";
 }
 
 bool Utils::IsVec(const nlohmann::json& jsonValue, const size_t components)

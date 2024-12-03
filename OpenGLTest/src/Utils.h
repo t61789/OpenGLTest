@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include "glm.hpp"
 #include <glad/glad.h>
 #include <vec3.hpp>
 #include <vec4.hpp>
@@ -62,6 +64,7 @@ public:
     static void Log(char32_t val, LogType type = Info);
     static void Log(glm::vec3 val, LogType type = Info);
     static void Log(glm::vec4 val, LogType type = Info);
+    static void Log(glm::mat4 val, LogType type = Info);
     static std::string ToString(bool val);
     static std::string ToString(int val);
     static std::string ToString(unsigned int val);
@@ -80,6 +83,7 @@ public:
     static std::string ToString(float val, int fixed);
     static std::string ToString(const glm::vec3& val);
     static std::string ToString(const glm::vec4& val);
+    static std::string ToString(const glm::mat4& val);
 
     static bool IsVec(const nlohmann::json& jsonValue, size_t components);
     static bool IsVec3(const nlohmann::json& jsonValue);
