@@ -70,9 +70,32 @@ RenderTextureDescriptor::RenderTextureDescriptor(
     
 }
 
+void RenderTextureDescriptor::replaceSize(size_t width, size_t height)
+{
+    this->width = width;
+    this->height = height;
+}
+
 RenderTexture::RenderTexture(const RenderTextureDescriptor& desc): Texture(0)
 {
+    recreate(desc);
+}
+
+RenderTexture::~RenderTexture()
+{
+    release();
+}
+
+void RenderTexture::recreate(const RenderTextureDescriptor& desc)
+{
+    if(isCreated)
+    {
+        glDeleteTextures(1, &glTextureId);
+    }
+    
     this->desc = desc;
+    width = desc.width;
+    height = desc.height;
 
     auto glInternalFormat = renderTextureFormatToGLInternalFormat[desc.format];
     auto glFormat = renderTextureFormatToGLFormat[desc.format];
@@ -96,12 +119,31 @@ RenderTexture::RenderTexture(const RenderTextureDescriptor& desc): Texture(0)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrapModeToGLWrapMode[desc.wrapMode]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilterModeToGLFilterMode[desc.filterMode]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilterModeToGLFilterMode[desc.filterMode]);
-
+    
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    isCreated = true;
 }
 
-RenderTexture::~RenderTexture()
+void RenderTexture::release()
 {
+    if(!isCreated)
+    {
+        return;
+    }
+
     glDeleteTextures(1, &glTextureId);
+
+    isCreated = false;
 }
+
+void RenderTexture::resize(size_t width, size_t height)
+{
+    desc.width = width;
+    desc.height = height;
+
+    release();
+    recreate(desc);
+}
+
 

@@ -10,9 +10,9 @@ class RenderTargetAttachment
 public:
     GLuint attachmentType;
     glm::vec4 clearColor;
-    RenderTextureDescriptor desc;
+    RESOURCE_ID renderTexture;
 
-    RenderTargetAttachment(GLuint attachmentType, glm::vec4 clearColor, RenderTextureDescriptor desc);
+    RenderTargetAttachment(GLuint attachmentType, glm::vec4 clearColor, RESOURCE_ID renderTexture);
 };
 
 class RenderTarget : public ResourceBase
@@ -32,16 +32,13 @@ public:
 
     void use();
     void clear(GLuint clearBits);
-    bool createAttachmentsRt(size_t width, size_t height);
-    bool checkRenderTargetComplete();
-    RESOURCE_ID getRenderTexture(int index);
+    void rebindAttachments();
 
     static void UseScreenTarget();
     static void ClearFrameBuffer(GLuint frameBuffer, glm::vec4 clearColor, GLuint clearBits);
 
 private:
     std::vector<RenderTargetAttachment> renderTargetAttachments;
-    std::vector<RESOURCE_ID> attachments;
 
-    void _destroyAttachmentsRt();
+    void _checkRenderTargetComplete();
 };

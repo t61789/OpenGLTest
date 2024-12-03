@@ -162,7 +162,7 @@ void Shader::setTexture(const std::string& name, const int slot, const RESOURCE_
 void Shader::setTexture(const int& location, const int slot, RESOURCE_ID value)
 {
     auto texturePtr = ResourceMgr::GetPtr<Texture>(value);
-    if(location == -1 || texturePtr == nullptr)
+    if(location == -1 || texturePtr == nullptr || !texturePtr->isCreated)
     {
         return;
     }

@@ -4,18 +4,22 @@
 #include "Utils.h"
 
 
-RenderTargetAttachment::RenderTargetAttachment(const GLuint attachmentType, const glm::vec4 clearColor, RenderTextureDescriptor desc):
+RenderTargetAttachment::RenderTargetAttachment(const GLuint attachmentType, const glm::vec4 clearColor, const RESOURCE_ID renderTexture):
     attachmentType(attachmentType),
     clearColor(clearColor),
-    desc(std::move(desc))
+    renderTexture(renderTexture)
 {
 }
 
 RenderTarget::RenderTarget(const std::vector<RenderTargetAttachment>& attachments, const int colorAttachmentsNum, const std::string& name)
 {
+    if(attachments.empty())
+    {
+        throw std::runtime_error("创建了一个空的RenderTarget");
+    }
+
     this->name = name;
-    width = 0;
-    height = 0;
+    width = height = 0;
     glGenFramebuffers(1, &frameBufferId);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
     
@@ -36,11 +40,12 @@ RenderTarget::RenderTarget(const std::vector<RenderTargetAttachment>& attachment
         glDrawBuffers(colorAttachmentsNum, buffers);
         delete[] buffers;
     }
+
+    rebindAttachments();
 }
 
 RenderTarget::~RenderTarget()
 {
-    _destroyAttachmentsRt();
     glDeleteFramebuffers(1, &frameBufferId);
 }
 
@@ -72,61 +77,53 @@ void RenderTarget::clear(const GLuint clearBits)
     glClear(clearBits);
 }
 
-bool RenderTarget::createAttachmentsRt(const size_t width, const size_t height)
+void RenderTarget::rebindAttachments()
 {
     if(renderTargetAttachments.empty())
     {
-        return true;
+        return;
     }
 
-    if(width == this->width && height == this->height)
+    width = height = 0;
+    for (int i = 0; i < renderTargetAttachments.size(); ++i)
     {
-        return true;
+        auto renderTexture = ResourceMgr::GetPtr<RenderTexture>(renderTargetAttachments[i].renderTexture);
+        if(renderTexture == nullptr)
+        {
+            throw std::runtime_error("绑定Attachments时出错，RenderTexture[" + std::to_string(renderTargetAttachments[i].renderTexture) + "]不存在");
+        }
+
+        if(i == 0)
+        {
+            width = renderTexture->width;
+            height = renderTexture->height;
+        }
+        else if(width != renderTexture->width || height != renderTexture->height)
+        {
+            throw std::runtime_error("绑定Attachments时出错，RenderTexture[" + std::to_string(renderTargetAttachments[i].renderTexture) + "]的尺寸不一致");
+        }
     }
-
-    Utils::Log("重建RenderTarget[" + name + "] x:" + std::to_string(width) + " y:" + std::to_string(height), Info);
-
-    this->width = width;
-    this->height = height;
-
-    _destroyAttachmentsRt();
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
     Utils::CheckGlError("绑定FrameBuffer");
-
+    
     for (auto& renderTargetAttachment : renderTargetAttachments)
     {
-        auto desc = renderTargetAttachment.desc;
-        desc.width = width;
-        desc.height = height;
-        auto rt = new RenderTexture(desc);
-        attachments.push_back(rt->id);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, renderTargetAttachment.attachmentType, GL_TEXTURE_2D, rt->glTextureId, 0);
+        auto renderTexture = ResourceMgr::GetPtr<RenderTexture>(renderTargetAttachment.renderTexture);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, renderTargetAttachment.attachmentType, GL_TEXTURE_2D, renderTexture->glTextureId, 0);
         Utils::CheckGlError("指定FrameBuffer附件");
     }
 
-    return checkRenderTargetComplete();
+    _checkRenderTargetComplete();
 }
 
-bool RenderTarget::checkRenderTargetComplete()
+void RenderTarget::_checkRenderTargetComplete()
 {
     auto frameBufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(frameBufferStatus != GL_FRAMEBUFFER_COMPLETE)
     {
-        Utils::Log("FrameBufferAttachment绑定失败：" + std::to_string(frameBufferStatus), Error);
-        return false;
+        throw std::runtime_error("FrameBufferAttachment绑定失败：" + std::to_string(frameBufferStatus));
     }
-    return true;
-}
-
-RESOURCE_ID RenderTarget::getRenderTexture(const int index)
-{
-    if(index < 0 || index >= attachments.size())
-    {
-        return UNDEFINED_RESOURCE;
-    }
-
-    return attachments[index];
 }
 
 void RenderTarget::UseScreenTarget()
@@ -140,15 +137,3 @@ void RenderTarget::ClearFrameBuffer(const GLuint frameBuffer, const glm::vec4 cl
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(clearBits);
 }
-
-void RenderTarget::_destroyAttachmentsRt()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
-    for (int i = 0; i < attachments.size(); ++i)
-    {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, renderTargetAttachments[i].attachmentType, GL_TEXTURE_2D, 0, 0);
-        ResourceMgr::DeleteResource(attachments[i]);
-    }
-    attachments.clear();
-}
-

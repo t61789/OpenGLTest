@@ -10,6 +10,8 @@
 class Texture : public ResourceBase
 {
 public:
+    bool isCreated;
+    
     GLuint glTextureId;
 
     size_t width;

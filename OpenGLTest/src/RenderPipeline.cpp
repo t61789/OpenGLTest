@@ -25,21 +25,38 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_fullScreenQuad = Mesh::LoadFromFile("Meshes/fullScreenMesh.obj");
     m_deferredShadingShader = Shader::LoadFromFile("Shaders/DeferredShading.glsl");
     m_finalBlitShader = Shader::LoadFromFile("Shaders/FinalBlit.glsl");
+    
+
+    m_gBuffer0Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex")))->id;
+    m_gBuffer1Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBA, Point, Clamp, "_GBuffer1Tex")))->id;
+    m_gBuffer2Tex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex")))->id;
+    m_gBufferDepthTex = (new RenderTexture(RenderTextureDescriptor(width, height, Depth, Point, Clamp, "_GBufferDepthTex")))->id;
+    m_shadingBufferTex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_ShadingBufferTex")))->id;
+    m_mainLightShadowMapTex = (new RenderTexture(RenderTextureDescriptor(mainLightShadowTexSize, mainLightShadowTexSize, Depth, Point, Clamp, "_MainLightShadowMapTex")))->id;
+    Material::SetGlobalTextureValue("_GBuffer0Tex", m_gBuffer0Tex);
+    Material::SetGlobalTextureValue("_GBuffer1Tex", m_gBuffer1Tex);
+    Material::SetGlobalTextureValue("_GBuffer2Tex", m_gBuffer2Tex);
+    Material::SetGlobalTextureValue("_ShadingBufferTex", m_shadingBufferTex);
+    Material::SetGlobalTextureValue("_MainLightShadowMapTex", m_mainLightShadowMapTex);
+    
 
     std::vector<RenderTargetAttachment> attachments;
-    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.5),RenderTextureDescriptor(0,0,RGBAHdr, Point, Clamp, "_GBuffer0"));
-    attachments.emplace_back(GL_COLOR_ATTACHMENT1, glm::vec4(0), RenderTextureDescriptor(0,0,RGBA, Point, Clamp, "_GBuffer1"));
-    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(1), RenderTextureDescriptor(0,0,DepthTex, Point, Clamp, "_GBuffer2"));
-    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(0), RenderTextureDescriptor(0,0,Depth, Point, Clamp, "_GBufferDepthAttachment"));
-    m_gBufferRenderTarget = (new RenderTarget(attachments, 3, "GBuffer"))->id;
+    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.5), m_gBuffer0Tex);
+    attachments.emplace_back(GL_COLOR_ATTACHMENT1, glm::vec4(0), m_gBuffer1Tex);
+    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(1), m_gBuffer2Tex);
+    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex);
+    auto gBufferRenderTarget = new RenderTarget(attachments, 3, "GBuffer");
+    m_gBufferRenderTarget = gBufferRenderTarget->id;
 
     attachments.clear();
-    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.77f, 0.77f, 0.83f, 1), RenderTextureDescriptor(0,0,RGBAHdr, Point, Clamp, "_ShadingBuffer"));
-    m_shadingRenderTarget = (new RenderTarget(attachments, 1, "ShadingBuffer"))->id;
+    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.77f, 0.77f, 0.83f, 1), m_shadingBufferTex);
+    auto shadingRenderTarget = new RenderTarget(attachments, 1, "ShadingBuffer");
+    m_shadingRenderTarget = shadingRenderTarget->id;
 
     attachments.clear();
-    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(1), RenderTextureDescriptor(0,0,Depth, Point, Clamp, "_MainLightShadowMap"));
-    m_mainLightShadowRenderTarget = (new RenderTarget(attachments, 1, "MainLightShadowMap"))->id;
+    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(1), m_mainLightShadowMapTex);
+    auto mainLightShadowRenderTarget = new RenderTarget(attachments, 1, "MainLightShadowMap");
+    m_mainLightShadowRenderTarget = mainLightShadowRenderTarget->id;
 }
 
 RenderPipeline::~RenderPipeline()
@@ -49,6 +66,15 @@ RenderPipeline::~RenderPipeline()
     ResourceMgr::DeleteResource(m_drawShadowMat);
     ResourceMgr::DeleteResource(m_fullScreenQuad);
     ResourceMgr::DeleteResource(m_deferredShadingShader);
+    ResourceMgr::DeleteResource(m_finalBlitShader);
+    
+    ResourceMgr::DeleteResource(m_gBuffer0Tex);
+    ResourceMgr::DeleteResource(m_gBuffer1Tex);
+    ResourceMgr::DeleteResource(m_gBuffer2Tex);
+    ResourceMgr::DeleteResource(m_gBufferDepthTex);
+    ResourceMgr::DeleteResource(m_shadingBufferTex);
+    ResourceMgr::DeleteResource(m_mainLightShadowMapTex);
+    
     ResourceMgr::DeleteResource(m_gBufferRenderTarget);
     ResourceMgr::DeleteResource(m_shadingRenderTarget);
     ResourceMgr::DeleteResource(m_mainLightShadowRenderTarget);
@@ -84,36 +110,25 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
 
 bool RenderPipeline::_updateRenderTargetsPass()
 {
-    auto shadingRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_shadingRenderTarget);
-    if(shadingRenderTarget != nullptr && shadingRenderTarget->width == m_screenWidth && shadingRenderTarget->height == m_screenHeight)
+    auto gBuffer0Tex = ResourceMgr::GetPtr<RenderTexture>(m_gBuffer0Tex);
+    if(gBuffer0Tex->width != m_screenWidth || gBuffer0Tex->height != m_screenHeight)
     {
-        return true;
+        gBuffer0Tex->resize(m_screenWidth, m_screenHeight);
+        ResourceMgr::GetPtr<RenderTexture>(m_gBuffer1Tex)->resize(m_screenWidth, m_screenHeight);
+        ResourceMgr::GetPtr<RenderTexture>(m_gBuffer2Tex)->resize(m_screenWidth, m_screenHeight);
+        ResourceMgr::GetPtr<RenderTexture>(m_gBufferDepthTex)->resize(m_screenWidth, m_screenHeight);
+        ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget)->rebindAttachments();
+        
+        ResourceMgr::GetPtr<RenderTexture>(m_shadingBufferTex)->resize(m_screenWidth, m_screenHeight);
+        ResourceMgr::GetPtr<RenderTarget>(m_shadingRenderTarget)->rebindAttachments();
     }
 
-    if(!shadingRenderTarget->createAttachmentsRt(m_screenWidth, m_screenHeight))
+    auto mainLightShadowMapTex = ResourceMgr::GetPtr<RenderTexture>(m_mainLightShadowMapTex);
+    if(mainLightShadowMapTex->width != mainLightShadowTexSize)
     {
-        return false;
+        mainLightShadowMapTex->resize(mainLightShadowTexSize, mainLightShadowTexSize);
+        ResourceMgr::GetPtr<RenderTarget>(m_mainLightShadowRenderTarget)->rebindAttachments();
     }
-    
-    Material::SetGlobalTextureValue("_ShadingBufferTex", shadingRenderTarget->getRenderTexture(0));
-
-    auto gBufferRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget);
-    if(!gBufferRenderTarget->createAttachmentsRt(m_screenWidth, m_screenHeight))
-    {
-        return false;
-    }
-
-    Material::SetGlobalTextureValue("_GBuffer0Tex", gBufferRenderTarget->getRenderTexture(0));
-    Material::SetGlobalTextureValue("_GBuffer1Tex", gBufferRenderTarget->getRenderTexture(1));
-    Material::SetGlobalTextureValue("_GBuffer2Tex", gBufferRenderTarget->getRenderTexture(2));
-
-    auto mainLightShadowRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_mainLightShadowRenderTarget);
-    if(!mainLightShadowRenderTarget->createAttachmentsRt(mainLightShadowTexSize, mainLightShadowTexSize))
-    {
-        return false;
-    }
-
-    Material::SetGlobalTextureValue("_MainLightShadowMapTex", mainLightShadowRenderTarget->getRenderTexture(0));
 
     return true;
 }

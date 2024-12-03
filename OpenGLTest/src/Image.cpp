@@ -6,7 +6,10 @@
 
 Image::~Image()
 {
-    glDeleteTextures(1, &glTextureId);
+    if(isCreated)
+    {
+        glDeleteTextures(1, &glTextureId);
+    }
 }
 
 RESOURCE_ID Image::LoadFromFile(const std::string& path)
@@ -51,6 +54,7 @@ RESOURCE_ID Image::LoadFromFile(const std::string& path)
     auto texture = new Texture(glTextureId);
     texture->width = width;
     texture->height = height;
+    texture->isCreated = true;
     ResourceMgr::RegisterResource(path, texture->id);
     return texture->id;
 }

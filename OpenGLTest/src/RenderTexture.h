@@ -41,6 +41,7 @@ public:
     RenderTextureDescriptor();
     RenderTextureDescriptor(size_t width, size_t height, RenderTextureFormat format, TextureFilterMode filterMode, TextureWrapMode wrapMode,
                             std::string name = "Unnamed RenderTexture");
+    void replaceSize(size_t width, size_t height);
 };
 
 class RenderTexture : public Texture
@@ -51,4 +52,8 @@ public:
 
     RenderTexture(const RenderTextureDescriptor& desc);
     ~RenderTexture() override;
+
+    void recreate(const RenderTextureDescriptor& desc);
+    void release();
+    void resize(size_t width, size_t height);
 };

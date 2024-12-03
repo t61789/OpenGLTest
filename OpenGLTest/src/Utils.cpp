@@ -387,7 +387,7 @@ void Utils::CheckGlError(const std::string& position)
             }
             ss << std::hex << error;
         }
-        Log(ss.str(), Error);
+        throw std::runtime_error(ss.str());
     }
 }
 

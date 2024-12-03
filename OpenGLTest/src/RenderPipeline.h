@@ -44,6 +44,13 @@ private:
     RESOURCE_ID m_deferredShadingShader = UNDEFINED_RESOURCE;
     RESOURCE_ID m_finalBlitShader = UNDEFINED_RESOURCE;
 
+    RESOURCE_ID m_gBuffer0Tex = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_gBuffer1Tex = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_gBuffer2Tex = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_gBufferDepthTex = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_shadingBufferTex = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_mainLightShadowMapTex = UNDEFINED_RESOURCE;
+
     bool _updateRenderTargetsPass();
     void _preparingPass(RESOURCE_ID cameraId, RenderContext& renderContext);
     void _renderMainLightShadowPass(unsigned long long cameraId, const Scene* scene, RenderContext& renderContext);
