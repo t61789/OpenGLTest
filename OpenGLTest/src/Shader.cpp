@@ -168,7 +168,14 @@ void Shader::setTexture(const int& location, const int slot, RESOURCE_ID value)
     }
     setInt(location, slot);
     glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
+    if(texturePtr->isCubeMap)
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texturePtr->glTextureId);
+    }
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
+    }
 }
 
 std::vector<std::string> loadFileToLines(const std::string& realAssetPath)

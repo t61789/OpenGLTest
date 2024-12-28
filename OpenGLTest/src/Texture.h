@@ -17,5 +17,7 @@ public:
     size_t width;
     size_t height;
 
+    bool isCubeMap = false;
+
     Texture(GLuint glTextureId);
 };

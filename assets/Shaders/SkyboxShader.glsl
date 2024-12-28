@@ -40,7 +40,7 @@ layout(location = 2) out vec4 FragColor2;
 
 void main()
 {
-   vec3 albedo = vec3(texCoord, 0);
+   vec3 albedo = SampleSkybox(normalWS);
 
    FragColor0 = WriteGBuffer0(albedo, PIXEL_TYPE_SKYBOX);
    FragColor1 = WriteGBuffer1(normalWS);

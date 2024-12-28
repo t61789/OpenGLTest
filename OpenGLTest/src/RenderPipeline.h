@@ -31,6 +31,8 @@ private:
     size_t m_screenHeight;
     GLFWwindow* m_window;
 
+    RESOURCE_ID m_skyboxCubeTexture = UNDEFINED_RESOURCE;
+    
     RESOURCE_ID m_sphereMesh = UNDEFINED_RESOURCE;
 
     RESOURCE_ID m_skyboxMat = UNDEFINED_RESOURCE;

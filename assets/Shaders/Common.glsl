@@ -17,6 +17,7 @@ uniform sampler2D _MainLightShadowMapTex;
 uniform sampler2D _GBuffer0Tex;
 uniform sampler2D _GBuffer1Tex;
 uniform sampler2D _GBuffer2Tex;
+uniform samplerCube _SkyboxTex;
 
 vec4 WriteGBuffer0(vec3 albedo)
 {
@@ -109,4 +110,9 @@ float SampleShadowMap(vec3 positionWS)
 vec3 GetCameraPositionWS()
 {
     return _CameraPositionWS.xyz;
+}
+
+vec3 SampleSkybox(vec3 dir)
+{
+    return texture(_SkyboxTex, dir).rgb;
 }

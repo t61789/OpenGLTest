@@ -37,6 +37,9 @@ vec3 lit(vec3 albedo, vec3 normalWS)
     vec3 diffuse = mainLightColor * albedo * max(dot(normalWS, _MainLightDirection.xyz), 0);
     vec3 H = normalize(_MainLightDirection.xyz + viewDir);
     vec3 specular = mainLightColor * albedo * pow(max(dot(normalWS, H), 0), 20) * 5;
+    
+    albedo = SampleSkybox(normalWS);
+    return SampleSkybox(reflect(-viewDir, normalWS));
 
     return diffuse + specular + ambient;
 }

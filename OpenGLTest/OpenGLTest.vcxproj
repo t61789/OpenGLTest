@@ -424,7 +424,6 @@
     <Content Include="..\assets\Meshes\ground.obj" />
     <Content Include="..\assets\Meshes\sphere.obj" />
     <Content Include="..\assets\Meshes\stanford-bunny.obj" />
-    <Content Include="..\assets\o2.png" />
     <Content Include="..\assets\Shaders\Blit.glsl" />
     <Content Include="..\assets\Shaders\DeferredShading.glsl" />
     <Content Include="..\assets\Shaders\DrawShadow.glsl" />
@@ -435,6 +434,13 @@
     <Content Include="..\assets\skyboxMat.json" />
     <Content Include="..\assets\standardMat.json" />
     <Content Include="..\assets\TestScene.json" />
+    <Content Include="..\assets\Textures\o2.png" />
+    <Content Include="..\assets\Textures\Skybox\back.jpg" />
+    <Content Include="..\assets\Textures\Skybox\bottom.jpg" />
+    <Content Include="..\assets\Textures\Skybox\front.jpg" />
+    <Content Include="..\assets\Textures\Skybox\left.jpg" />
+    <Content Include="..\assets\Textures\Skybox\right.jpg" />
+    <Content Include="..\assets\Textures\Skybox\top.jpg" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\Shaders\Common.glsl" />

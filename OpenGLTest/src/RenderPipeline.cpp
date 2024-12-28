@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Entity.h"
 #include "GameFramework.h"
+#include "Image.h"
 #include "RenderTarget.h"
 #include "RenderTexture.h"
 
@@ -16,6 +17,9 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
 {
     m_window = window;
     setScreenSize(width, height);
+
+    m_skyboxCubeTexture = Image::LoadCubeFromFile("Textures/Skybox", "jpg");
+    Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
 
     m_sphereMesh = Mesh::LoadFromFile("Meshes/sphere.obj");
 
@@ -62,6 +66,8 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
 
 RenderPipeline::~RenderPipeline()
 {
+    ResourceMgr::DeleteResource(m_skyboxCubeTexture);
+    
     ResourceMgr::DeleteResource(m_sphereMesh);
     ResourceMgr::DeleteResource(m_skyboxMat);
     ResourceMgr::DeleteResource(m_drawShadowMat);
