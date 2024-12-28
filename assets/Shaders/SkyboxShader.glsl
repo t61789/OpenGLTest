@@ -42,7 +42,7 @@ void main()
 {
    vec3 albedo = vec3(texCoord, 0);
 
-   FragColor0 = WriteGBuffer0(albedo);
+   FragColor0 = WriteGBuffer0(albedo, PIXEL_TYPE_SKYBOX);
    FragColor1 = WriteGBuffer1(normalWS);
    FragColor2 = WriteGBuffer2(positionCS.z / positionCS.w);
 }

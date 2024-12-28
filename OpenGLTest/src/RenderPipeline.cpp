@@ -50,6 +50,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
 
     attachments.clear();
     attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.77f, 0.77f, 0.83f, 1), m_shadingBufferTex);
+    attachments.emplace_back(GL_DEPTH_STENCIL_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex);
     auto shadingRenderTarget = new RenderTarget(attachments, 1, "ShadingBuffer");
     m_shadingRenderTarget = shadingRenderTarget->id;
 

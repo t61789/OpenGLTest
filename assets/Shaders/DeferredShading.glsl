@@ -23,13 +23,8 @@ uniform float _ExposureMultiplier;
 
 out vec4 FragColor;
 
-void main()
+vec3 lit(vec3 albedo, vec3 normalWS)
 {
-    vec3 albedo;
-    vec3 normalWS;
-    ReadGBuffer0(texCoord, albedo);
-    ReadGBuffer1(texCoord, normalWS);
-    
     vec3 positionWS = TransformScreenToWorld(texCoord);
 
     float mainLightShadowAttenuation = SampleShadowMap(positionWS);
@@ -43,7 +38,26 @@ void main()
     vec3 H = normalize(_MainLightDirection.xyz + viewDir);
     vec3 specular = mainLightColor * albedo * pow(max(dot(normalWS, H), 0), 20) * 5;
 
-    vec3 finalColor = diffuse + specular + ambient;
+    return diffuse + specular + ambient;
+}
+
+void main()
+{
+    vec3 albedo;
+    int pixelType;
+    vec3 normalWS;
+    ReadGBuffer0(texCoord, albedo, pixelType);
+    ReadGBuffer1(texCoord, normalWS);
+    
+    vec3 finalColor;
+    if(pixelType == PIXEL_TYPE_LIT)
+    {
+        finalColor = lit(albedo, normalWS);
+    }
+    else
+    {
+        finalColor = albedo;
+    }
 
     FragColor = vec4(finalColor, 1);
 //    FragColor = vec4(albedo, 1);

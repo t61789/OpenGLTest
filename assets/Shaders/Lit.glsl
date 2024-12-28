@@ -49,7 +49,7 @@ void main()
       albedo *= texture(_MainTex, texCoord).rgb;
    }
 
-   FragColor0 = WriteGBuffer0(albedo);
+   FragColor0 = WriteGBuffer0(albedo, PIXEL_TYPE_LIT);
    FragColor1 = WriteGBuffer1(normalWS);
    FragColor2 = WriteGBuffer2(positionCS.z / positionCS.w);
 }
