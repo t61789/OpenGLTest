@@ -69,7 +69,7 @@ void main()
     
     color.rgb = applyToneMapping(color.rgb);
     
-    color.rgb = applyLut(color.rgb);
+//    color.rgb = applyLut(color.rgb);
 
     FragColor = vec4(color.rgb, 1);
 };

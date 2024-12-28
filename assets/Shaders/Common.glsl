@@ -1,6 +1,9 @@
 #define PIXEL_TYPE_SKYBOX 1
 #define PIXEL_TYPE_LIT 2
 
+#define PI 3.141592657
+#define SMALL 0.001
+
 uniform mat4 _MVP;
 uniform mat4 _ITM;
 uniform mat4 _M;
@@ -115,4 +118,14 @@ vec3 GetCameraPositionWS()
 vec3 SampleSkybox(vec3 dir)
 {
     return texture(_SkyboxTex, dir).rgb;
+}
+
+float square(float a)
+{
+    return a * a;
+}
+
+float Luminance(vec3 col)
+{
+    return 0.2126 * col.r + 0.7152 * col.g + 0.0722 * col.b;
 }

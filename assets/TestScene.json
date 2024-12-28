@@ -2,7 +2,7 @@
 	"config":
 	{
 		"ambientLightColor":[0.1, 0.1, 0.1],
-		"mainLightColor":[0.3, 0.3, 0.3],
+		"mainLightColor":[0.7, 0.7, 0.7],
 		"mainLightDirection":[1, 1, 1],
 		"tonemappingExposureMultiplier":1
 	},
