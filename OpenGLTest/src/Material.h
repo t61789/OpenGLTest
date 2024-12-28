@@ -6,6 +6,8 @@
 class Material : public ResourceBase
 {
 public:
+    std::string name = "Unnamed Material";
+    
     RESOURCE_ID shaderId = UNDEFINED_RESOURCE;
     
     std::unordered_map<std::string, int> intValues;
@@ -15,26 +17,27 @@ public:
     std::unordered_map<std::string, RESOURCE_ID> textureValues;
     std::unordered_map<std::string, glm::vec4> vec4Values;
 
-    void setIntValue(const std::string& name, int value);
-    void setBoolValue(const std::string& name, bool value);
-    void setFloatValue(const std::string& name, float value);
-    void setMat4Value(const std::string& name, const glm::mat4& value);
-    void setTextureValue(const std::string& name, RESOURCE_ID value);
-    void setVector4Value(const std::string& name, const glm::vec4& value);
+    void setIntValue(const std::string& paramName, int value);
+    void setBoolValue(const std::string& paramName, bool value);
+    void setFloatValue(const std::string& paramName, float value);
+    void setMat4Value(const std::string& paramName, const glm::mat4& value);
+    void setTextureValue(const std::string& paramName, RESOURCE_ID value);
+    void setVector4Value(const std::string& paramName, const glm::vec4& value);
 
     void fillParams(const Shader* shader) const;
+    void use(const Mesh* mesh) const;
 
     static RESOURCE_ID LoadFromFile(const std::string& path);
     static RESOURCE_ID CreateEmptyMaterial(const std::string& shaderPath);
 
-    static void FillGlobalParams(const Shader* shader);
+    static int FillGlobalParams(const Shader* shader);
 
-    static void SetGlobalIntValue(const std::string& name, int value);
-    static void SetGlobalBoolValue(const std::string& name, bool value);
-    static void SetGlobalFloatValue(const std::string& name, float value);
-    static void SetGlobalMat4Value(const std::string& name, const glm::mat4& value);
-    static void SetGlobalTextureValue(const std::string& name, RESOURCE_ID value);
-    static void SetGlobalVector4Value(const std::string& name, const glm::vec4& value);
+    static void SetGlobalIntValue(const std::string& paramName, int value);
+    static void SetGlobalBoolValue(const std::string& paramName, bool value);
+    static void SetGlobalFloatValue(const std::string& paramName, float value);
+    static void SetGlobalMat4Value(const std::string& paramName, const glm::mat4& value);
+    static void SetGlobalTextureValue(const std::string& paramName, RESOURCE_ID value);
+    static void SetGlobalVector4Value(const std::string& paramName, const glm::vec4& value);
 
 private:
 

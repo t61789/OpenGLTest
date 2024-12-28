@@ -1,6 +1,7 @@
 ﻿#include "Material.h"
 
 #include <fstream>
+#include <sstream>
 
 #include "Image.h"
 #include "Utils.h"
@@ -13,69 +14,69 @@ std::unordered_map<std::string, glm::mat4> Material::s_globalMat4Values;
 std::unordered_map<std::string, RESOURCE_ID> Material::s_globalTextureValues;
 std::unordered_map<std::string, glm::vec4> Material::s_globalVec4Values;
 
-void Material::setIntValue(const std::string& name, const int value)
+void Material::setIntValue(const std::string& paramName, const int value)
 {
-    intValues[name] = value;
+    intValues[paramName] = value;
 }
 
-void Material::setBoolValue(const std::string& name, const bool value)
+void Material::setBoolValue(const std::string& paramName, const bool value)
 {
-    boolValues[name] = value;
+    boolValues[paramName] = value;
 }
 
-void Material::setFloatValue(const std::string& name, const float value)
+void Material::setFloatValue(const std::string& paramName, const float value)
 {
-    floatValues[name] = value;
+    floatValues[paramName] = value;
 }
 
-void Material::setMat4Value(const std::string& name, const glm::mat4& value)
+void Material::setMat4Value(const std::string& paramName, const glm::mat4& value)
 {
-    mat4Values[name] = value;
+    mat4Values[paramName] = value;
 }
 
-void Material::setTextureValue(const std::string& name, const RESOURCE_ID value)
+void Material::setTextureValue(const std::string& paramName, const RESOURCE_ID value)
 {
-    textureValues[name] = value;
+    textureValues[paramName] = value;
 }
 
-void Material::setVector4Value(const std::string& name, const glm::vec4& value)
+void Material::setVector4Value(const std::string& paramName, const glm::vec4& value)
 {
-    vec4Values[name] = value;
+    vec4Values[paramName] = value;
 }
 
-void Material::SetGlobalIntValue(const std::string& name, const int value)
+void Material::SetGlobalIntValue(const std::string& paramName, const int value)
 {
-    s_globalIntValues[name] = value;
+    s_globalIntValues[paramName] = value;
 }
 
-void Material::SetGlobalBoolValue(const std::string& name, const bool value)
+void Material::SetGlobalBoolValue(const std::string& paramName, const bool value)
 {
-    s_globalBoolValues[name] = value;
+    s_globalBoolValues[paramName] = value;
 }
 
-void Material::SetGlobalFloatValue(const std::string& name, const float value)
+void Material::SetGlobalFloatValue(const std::string& paramName, const float value)
 {
-    s_globalFloatValues[name] = value;
+    s_globalFloatValues[paramName] = value;
 }
 
-void Material::SetGlobalMat4Value(const std::string& name, const glm::mat4& value)
+void Material::SetGlobalMat4Value(const std::string& paramName, const glm::mat4& value)
 {
-    s_globalMat4Values[name] = value;
+    s_globalMat4Values[paramName] = value;
 }
 
-void Material::SetGlobalTextureValue(const std::string& name, RESOURCE_ID value)
+void Material::SetGlobalTextureValue(const std::string& paramName, RESOURCE_ID value)
 {
-    s_globalTextureValues[name] = value;
+    s_globalTextureValues[paramName] = value;
 }
 
-void Material::SetGlobalVector4Value(const std::string& name, const glm::vec4& value)
+void Material::SetGlobalVector4Value(const std::string& paramName, const glm::vec4& value)
 {
-    s_globalVec4Values[name] = value;
+    s_globalVec4Values[paramName] = value;
 }
 
 void Material::fillParams(const Shader* shader) const
 {
-    FillGlobalParams(shader);
+    auto curTextureSlot = FillGlobalParams(shader);
     
     for (const auto& element : intValues)
     {
@@ -102,7 +103,7 @@ void Material::fillParams(const Shader* shader) const
         shader->setMatrix(element.first, element.second);
     }
 
-    int slot = 0;
+    int slot = curTextureSlot;
     for (auto& element : textureValues)
     {
         if(!shader->hasParam(element.first))
@@ -113,6 +114,18 @@ void Material::fillParams(const Shader* shader) const
         shader->setTexture(element.first, slot, element.second);
         slot++;
     }
+}
+
+void Material::use(const Mesh* mesh) const
+{
+    auto shader = ResourceMgr::GetPtr<Shader>(shaderId);
+    if(shader == nullptr)
+    {
+        throw std::runtime_error((std::stringstream() << "材质 " << name << " 未加载Shader").str());
+    }
+
+    shader->use(mesh);
+    fillParams(shader);
 }
 
 RESOURCE_ID Material::LoadFromFile(const std::string& path)
@@ -171,6 +184,7 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
         }
     }
 
+    result->name = path;
     ResourceMgr::RegisterResource(path, result->id);
     Utils::Log("成功载入Material " + path);
     return result->id;
@@ -189,7 +203,7 @@ RESOURCE_ID Material::CreateEmptyMaterial(const std::string& shaderPath)
     return result->id;
 }
 
-void Material::FillGlobalParams(const Shader* shader)
+int Material::FillGlobalParams(const Shader* shader)
 {
     for (const auto& element : s_globalIntValues)
     {
@@ -219,10 +233,13 @@ void Material::FillGlobalParams(const Shader* shader)
     int globalSlot = 0;
     for (const auto& element : s_globalTextureValues)
     {
-        if(shader->hasParam(element.first))
+        if(!shader->hasParam(element.first))
         {
-            shader->setTexture(element.first, globalSlot, element.second);
-            globalSlot++;
+            continue;
         }
+        
+        shader->setTexture(element.first, globalSlot, element.second);
+        globalSlot++;
     }
+    return globalSlot;
 }

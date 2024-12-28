@@ -18,6 +18,7 @@ void main()
 in vec2 texCoord;
 
 uniform sampler2D _ShadingBufferTex;
+uniform sampler2D _LutTex;
 
 uniform float _ExposureMultiplier;
 
@@ -54,11 +55,21 @@ vec3 applyToneMapping(vec3 inputColor)
     return color;
 }
 
+vec3 applyLut(vec3 col)
+{
+    int offsetCount = int(col.b * 32.0);
+    col.x = col.x / 32.0 + float(offsetCount) * (1.0 / 32.0);
+    col.y = 1 - col.y;
+    return texture(_LutTex, col.xy).rgb;
+}
+
 void main()
 {
     vec4 color = texture(_ShadingBufferTex, texCoord);
-
+    
     color.rgb = applyToneMapping(color.rgb);
+    
+    color.rgb = applyLut(color.rgb);
 
     FragColor = vec4(color.rgb, 1);
 };

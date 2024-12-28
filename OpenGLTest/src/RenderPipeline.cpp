@@ -21,16 +21,17 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     auto desc = ImageDescriptor::GetDefault();
     desc.needFlipVertical = false;
     m_skyboxCubeTexture = Image::LoadCubeFromFile("Textures/Skybox", "jpg", desc);
+    m_lutTexture = Image::LoadFromFile("Textures/testLut.png", ImageDescriptor::GetDefault());
     Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
 
     m_sphereMesh = Mesh::LoadFromFile("Meshes/sphere.obj");
 
     m_skyboxMat = Material::CreateEmptyMaterial("Shaders/SkyboxShader.glsl");
     m_drawShadowMat = Material::CreateEmptyMaterial("Shaders/DrawShadow.glsl");
+    m_finalBlitMat = Material::CreateEmptyMaterial("Shaders/FinalBlit.glsl");
 
     m_fullScreenQuad = Mesh::LoadFromFile("Meshes/fullScreenMesh.obj");
     m_deferredShadingShader = Shader::LoadFromFile("Shaders/DeferredShading.glsl");
-    m_finalBlitShader = Shader::LoadFromFile("Shaders/FinalBlit.glsl");
     
 
     m_gBuffer0Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex")))->id;
@@ -69,13 +70,14 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
 RenderPipeline::~RenderPipeline()
 {
     ResourceMgr::DeleteResource(m_skyboxCubeTexture);
+    ResourceMgr::DeleteResource(m_lutTexture);
     
     ResourceMgr::DeleteResource(m_sphereMesh);
     ResourceMgr::DeleteResource(m_skyboxMat);
     ResourceMgr::DeleteResource(m_drawShadowMat);
+    ResourceMgr::DeleteResource(m_finalBlitMat);
     ResourceMgr::DeleteResource(m_fullScreenQuad);
     ResourceMgr::DeleteResource(m_deferredShadingShader);
-    ResourceMgr::DeleteResource(m_finalBlitShader);
     
     ResourceMgr::DeleteResource(m_gBuffer0Tex);
     ResourceMgr::DeleteResource(m_gBuffer1Tex);
@@ -125,7 +127,7 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Final Blit");
-    _finalBlitPass();
+    _finalBlitPass(renderContext);
     Utils::EndDebugGroup();
 
     glfwSwapBuffers(m_window);
@@ -305,25 +307,21 @@ void RenderPipeline::_deferredShadingPass()
     glDrawElements(GL_TRIANGLES, fullScreenQuad->indicesCount, GL_UNSIGNED_INT, 0);
 }
 
-void RenderPipeline::_finalBlitPass()
+void RenderPipeline::_finalBlitPass(const RenderContext& renderContext)
 {
     RenderTarget::ClearFrameBuffer(0, glm::vec4(0), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderTarget::UseScreenTarget();
     
     auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_fullScreenQuad);
-    auto finalBlitShader = ResourceMgr::GetPtr<Shader>(m_finalBlitShader);
+    auto finalBlitMat = ResourceMgr::GetPtr<Material>(m_finalBlitMat);
 
-    if(fullScreenQuad == nullptr || finalBlitShader == nullptr)
+    if(fullScreenQuad == nullptr || finalBlitMat == nullptr)
     {
         return;
     }
 
-    fullScreenQuad->use();
-    finalBlitShader->use(fullScreenQuad);
-
-    Material::FillGlobalParams(finalBlitShader);
-
-    glDrawElements(GL_TRIANGLES, fullScreenQuad->indicesCount, GL_UNSIGNED_INT, 0);
+    finalBlitMat->setTextureValue("_LutTex", m_lutTexture);
+    _renderMesh(fullScreenQuad, finalBlitMat, glm::mat4(), renderContext); 
 }
 
 void RenderPipeline::_renderScene(const Scene* scene, const RenderContext& renderContext)
@@ -379,23 +377,15 @@ void RenderPipeline::_renderEntity(const Entity* entity, const RenderContext& re
     _renderMesh(mesh, material, entity->getLocalToWorld(), renderContext);
 }
 
-void RenderPipeline::_renderMesh(const Mesh* mesh, const Material* mat, const glm::mat4& m, const RenderContext& renderContext)
+void RenderPipeline::_renderMesh(const Mesh* mesh, Material* mat, const glm::mat4& m, const RenderContext& renderContext)
 {
-    auto shader = ResourceMgr::GetPtr<Shader>(mat->shaderId);
-    if(shader == nullptr)
-    {
-        return;
-    }
-    
     auto mvp = renderContext.vpMatrix * m;
 
     mesh->use();
-    shader->use(mesh);
-    mat->fillParams(shader);
-
-    shader->setMatrix("_MVP", mvp);
-    shader->setMatrix("_ITM", transpose(inverse(m)));
-    shader->setMatrix("_M", m);
+    mat->setMat4Value("_MVP", mvp);
+    mat->setMat4Value("_ITM", transpose(inverse(m)));
+    mat->setMat4Value("_M", m);
+    mat->use(mesh);
     
     glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);
 }
