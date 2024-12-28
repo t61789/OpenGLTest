@@ -392,6 +392,16 @@ void Utils::CheckGlError(const std::string& position)
     }
 }
 
+void Utils::BeginDebugGroup(const std::string& groupName)
+{
+    glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, groupName.c_str());
+}
+
+void Utils::EndDebugGroup()
+{
+    glPopDebugGroup();
+}
+
 bool Utils::EndsWith(const std::string& str, const std::string& suffix)
 {
     return str.size() >= suffix.size() && str.rfind(suffix) == str.size() - suffix.size();

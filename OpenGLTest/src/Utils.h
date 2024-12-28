@@ -92,6 +92,9 @@ public:
     static void ClearGlError();
     static void CheckGlError(const std::string& position);
 
+    static void BeginDebugGroup(const std::string& groupName);
+    static void EndDebugGroup();
+
     static bool EndsWith(const std::string& str, const std::string& suffix);
     static std::string JoinStrings(const std::vector<std::string>& strings, std::string delimiter);
 };

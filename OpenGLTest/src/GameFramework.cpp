@@ -17,6 +17,9 @@ bool initGl()
         return false;
     }
 
+    auto version = (const char *)glGetString(GL_VERSION);
+    printf("OpenGL Version: %s\n", version);
+
     int maxVertexAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttributes);
     std::cout << "Max vertex attributes: " << maxVertexAttributes << "\n";
@@ -142,9 +145,10 @@ bool GameFramework::_initFrame()
 bool GameFramework::_initGlfw()
 {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
     m_window = glfwCreateWindow(m_screenWidth, m_screenHeight, "YeahTitle", nullptr, nullptr);
     if(!m_window)

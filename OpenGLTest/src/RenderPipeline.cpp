@@ -102,12 +102,29 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
 
     RenderContext renderContext;
 
+    Utils::BeginDebugGroup("Preparing");
     _preparingPass(cameraId, renderContext);
+    Utils::EndDebugGroup();
+    
+    Utils::BeginDebugGroup("Draw Main Light Shadow");
     _renderMainLightShadowPass(cameraId, scene, renderContext);
+    Utils::EndDebugGroup();
+    
+    Utils::BeginDebugGroup("Draw Skybox");
     _renderSkyboxPass(cameraId, renderContext);
+    Utils::EndDebugGroup();
+    
+    Utils::BeginDebugGroup("Draw Scene");
     _renderScenePass(cameraId, scene, renderContext);
+    Utils::EndDebugGroup();
+    
+    Utils::BeginDebugGroup("Deferred Lighting");
     _deferredShadingPass();
+    Utils::EndDebugGroup();
+    
+    Utils::BeginDebugGroup("Final Blit");
     _finalBlitPass();
+    Utils::EndDebugGroup();
 
     glfwSwapBuffers(m_window);
     glfwPollEvents();
@@ -319,7 +336,9 @@ void RenderPipeline::_renderScene(const Scene* scene, const RenderContext& rende
         auto entity = ResourceMgr::GetPtr<Entity>(entityId);
         if(entity != nullptr)
         {
+            Utils::BeginDebugGroup("Draw Entity");
             _renderEntity(entity, renderContext);
+            Utils::EndDebugGroup();
         }
         auto object = ResourceMgr::GetPtr<Object>(entityId);
         if(object != nullptr)
