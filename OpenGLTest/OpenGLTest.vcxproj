@@ -234,6 +234,7 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\ConstVars.cpp" />
     <ClCompile Include="src\Entity.cpp" />
+    <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\OpenGLTest.cpp">
@@ -311,6 +312,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="src\RenderPipeline.cpp" />
+    <ClCompile Include="src\RenderTarget.cpp" />
     <ClCompile Include="src\RenderTexture.cpp" />
     <ClCompile Include="src\ResourceMgr.cpp" />
     <ClCompile Include="src\Scene.cpp" />
@@ -400,10 +402,12 @@
     <ClInclude Include="src\ConstVars.h" />
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\Event.h" />
+    <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\OpenGLTest.h" />
     <ClInclude Include="src\RenderPipeline.h" />
+    <ClInclude Include="src\RenderTarget.h" />
     <ClInclude Include="src\RenderTexture.h" />
     <ClInclude Include="src\ResourceMgr.h" />
     <ClInclude Include="src\Scene.h" />
@@ -418,11 +422,17 @@
     <Content Include="..\assets\Meshes\beetle.obj" />
     <Content Include="..\assets\Meshes\fullScreenMesh.obj" />
     <Content Include="..\assets\Meshes\ground.obj" />
+    <Content Include="..\assets\Meshes\sphere.obj" />
     <Content Include="..\assets\Meshes\stanford-bunny.obj" />
     <Content Include="..\assets\o2.png" />
     <Content Include="..\assets\Shaders\Blit.glsl" />
+    <Content Include="..\assets\Shaders\DeferredShading.glsl" />
+    <Content Include="..\assets\Shaders\DrawShadow.glsl" />
     <Content Include="..\assets\Shaders\FinalBlit.glsl" />
-    <Content Include="..\assets\Shaders\TestVertShader.glsl" />
+    <Content Include="..\assets\Shaders\Lit.glsl" />
+    <Content Include="..\assets\Shaders\SkyboxShader.glsl" />
+    <Content Include="..\assets\shadowMat.json" />
+    <Content Include="..\assets\skyboxMat.json" />
     <Content Include="..\assets\standardMat.json" />
     <Content Include="..\assets\TestScene.json" />
   </ItemGroup>

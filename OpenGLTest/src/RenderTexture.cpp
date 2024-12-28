@@ -2,12 +2,12 @@
 
 #include "Utils.h"
 
-extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLFormat =
+std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLFormat =
 {
     {RenderTextureFormat::RGBA, GL_RGBA},
     {RenderTextureFormat::RGB, GL_RGB},
     {RenderTextureFormat::RGBAHdr, GL_RGBA},
-    {RenderTextureFormat::DepthStencil, GL_DEPTH24_STENCIL8},
+    {RenderTextureFormat::DepthStencil, GL_DEPTH_STENCIL},
     {RenderTextureFormat::Depth, GL_DEPTH_COMPONENT},
     {RenderTextureFormat::DepthTex, GL_RED}
 };
@@ -17,7 +17,7 @@ std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLInternalF
     {RenderTextureFormat::RGBA, GL_RGBA},
     {RenderTextureFormat::RGB, GL_RGB},
     {RenderTextureFormat::RGBAHdr, GL_RGBA},
-    {RenderTextureFormat::DepthStencil, GL_DEPTH24_STENCIL8},
+    {RenderTextureFormat::DepthStencil, GL_DEPTH24_STENCIL8 },
     {RenderTextureFormat::Depth, GL_DEPTH_COMPONENT},
     {RenderTextureFormat::DepthTex, GL_R32F}
 };

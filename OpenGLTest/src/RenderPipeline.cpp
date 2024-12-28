@@ -30,7 +30,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_gBuffer0Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex")))->id;
     m_gBuffer1Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBA, Point, Clamp, "_GBuffer1Tex")))->id;
     m_gBuffer2Tex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex")))->id;
-    m_gBufferDepthTex = (new RenderTexture(RenderTextureDescriptor(width, height, Depth, Point, Clamp, "_GBufferDepthTex")))->id;
+    m_gBufferDepthTex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthStencil, Point, Clamp, "_GBufferDepthTex")))->id;
     m_shadingBufferTex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_ShadingBufferTex")))->id;
     m_mainLightShadowMapTex = (new RenderTexture(RenderTextureDescriptor(mainLightShadowTexSize, mainLightShadowTexSize, Depth, Point, Clamp, "_MainLightShadowMapTex")))->id;
     Material::SetGlobalTextureValue("_GBuffer0Tex", m_gBuffer0Tex);
@@ -44,7 +44,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.5), m_gBuffer0Tex);
     attachments.emplace_back(GL_COLOR_ATTACHMENT1, glm::vec4(0), m_gBuffer1Tex);
     attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(1), m_gBuffer2Tex);
-    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex);
+    attachments.emplace_back(GL_DEPTH_STENCIL_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex);
     auto gBufferRenderTarget = new RenderTarget(attachments, 3, "GBuffer");
     m_gBufferRenderTarget = gBufferRenderTarget->id;
 
@@ -146,7 +146,7 @@ void RenderPipeline::_preparingPass(const RESOURCE_ID cameraId, RenderContext& r
     renderContext.cameraPositionWS = camera->position;
     
     auto gBufferRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget);
-    gBufferRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gBufferRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void RenderPipeline::_renderMainLightShadowPass(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext)

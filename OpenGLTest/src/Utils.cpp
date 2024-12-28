@@ -385,7 +385,8 @@ void Utils::CheckGlError(const std::string& position)
             {
                 ss << ", ";
             }
-            ss << std::hex << error;
+            ss << std::hex << errors.back();
+            errors.pop_back();
         }
         throw std::runtime_error(ss.str());
     }
