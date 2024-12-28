@@ -370,6 +370,7 @@
     <Content Include="..\assets\Textures\Skybox\left.jpg" />
     <Content Include="..\assets\Textures\Skybox\right.jpg" />
     <Content Include="..\assets\Textures\Skybox\top.jpg" />
+    <Content Include="..\assets\Textures\testLut.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\Shaders\Common.glsl" />

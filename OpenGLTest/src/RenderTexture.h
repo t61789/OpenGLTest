@@ -5,29 +5,6 @@
 #include "ResourceMgr.h"
 #include "Texture.h"
 
-enum RenderTextureFormat
-{
-    RGBA,
-    RGB,
-    RGBAHdr,
-    DepthStencil,
-    Depth,
-    DepthTex
-};
-
-enum TextureFilterMode
-{
-    Point,
-    Bilinear,
-};
-
-enum TextureWrapMode
-{
-    Repeat,
-    Clamp,
-    MirroredRepeat,
-};
-
 class RenderTextureDescriptor
 {
 public:

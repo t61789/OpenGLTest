@@ -166,7 +166,7 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
         
         if (elemValue.is_string() && Utils::EndsWith(elemKey, "Tex"))
         {
-            result->setTextureValue(elemKey, Image::LoadFromFile(elemValue.get<std::string>()));
+            result->setTextureValue(elemKey, Image::LoadFromFile(elemValue.get<std::string>(), ImageDescriptor::GetDefault()));
             continue;
         }
     }

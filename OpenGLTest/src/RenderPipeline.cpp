@@ -18,7 +18,9 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_window = window;
     setScreenSize(width, height);
 
-    m_skyboxCubeTexture = Image::LoadCubeFromFile("Textures/Skybox", "jpg");
+    auto desc = ImageDescriptor::GetDefault();
+    desc.needFlipVertical = false;
+    m_skyboxCubeTexture = Image::LoadCubeFromFile("Textures/Skybox", "jpg", desc);
     Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
 
     m_sphereMesh = Mesh::LoadFromFile("Meshes/sphere.obj");
