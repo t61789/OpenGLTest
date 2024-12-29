@@ -80,11 +80,11 @@ vec3 Lit(vec3 albedo, vec3 normalWS, float roughness, float metallic)
     vec3 H = normalize(_MainLightDirection.xyz + viewDir);
     vec3 specular = GGXSpecular(roughness, normalWS, viewDir, F0) * mainLightColor;
     
-    vec3 environmentReflection = SampleSkybox(reflect(-v, n)) * Luminance(_MainLightColor.rgb);
+    vec3 environmentReflection = SampleSkybox(reflect(-v, n), mix(0, 12, roughness)) * Luminance(_MainLightColor.rgb);
     vec3 eF = F0 + (1.0 - F0) * pow(max(1.0 - ndv, 0), 5.0);
     environmentReflection *= eF; // TODO 预计算
     
-    return kD * diffuse + specular;
+    return kD * diffuse + specular + environmentReflection;
 }
 
 vec3 LitSimple(vec3 albedo, vec3 normalWS, float roughness, float metallic)
@@ -114,7 +114,7 @@ vec3 LitSimple(vec3 albedo, vec3 normalWS, float roughness, float metallic)
 void main()
 {
     vec3 albedo;
-    int pixelType;
+    float pixelType;
     vec3 normalWS;
     ReadGBuffer0(texCoord, albedo, pixelType);
     ReadGBuffer1(texCoord, normalWS);
@@ -122,7 +122,7 @@ void main()
     vec3 finalColor;
     if(pixelType == PIXEL_TYPE_LIT)
     {
-        finalColor = Lit(albedo, normalWS, 0.2, 0.0);
+        finalColor = Lit(albedo, normalWS, 0.5, 1.0);
     }
     else
     {

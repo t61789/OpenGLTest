@@ -1,5 +1,5 @@
-#define PIXEL_TYPE_SKYBOX 1
-#define PIXEL_TYPE_LIT 2
+#define PIXEL_TYPE_SKYBOX 1.0
+#define PIXEL_TYPE_LIT 2.0
 
 #define PI 3.141592657
 #define SMALL 0.001
@@ -27,9 +27,9 @@ vec4 WriteGBuffer0(vec3 albedo)
     return vec4(albedo, 1);
 }
 
-vec4 WriteGBuffer0(vec3 albedo, int pixelType)
+vec4 WriteGBuffer0(vec3 albedo, float pixelType)
 {
-    return vec4(albedo, (float(pixelType) / float(255)));
+    return vec4(albedo, pixelType);
 }
 
 vec4 WriteGBuffer1(vec3 normalWS)
@@ -48,11 +48,11 @@ void ReadGBuffer0(vec2 screenUV, out vec3 albedo)
     albedo = color.xyz;
 }
 
-void ReadGBuffer0(vec2 screenUV, out vec3 albedo, out int pixelType)
+void ReadGBuffer0(vec2 screenUV, out vec3 albedo, out float pixelType)
 {
     vec4 color = texture(_GBuffer0Tex, screenUV);
     albedo = color.xyz;
-    pixelType = int(color.w * float(255));
+    pixelType = color.w;
 }
 
 void ReadGBuffer1(vec2 screenUV, out vec3 normalWS)
@@ -118,6 +118,11 @@ vec3 GetCameraPositionWS()
 vec3 SampleSkybox(vec3 dir)
 {
     return texture(_SkyboxTex, dir).rgb;
+}
+
+vec3 SampleSkybox(vec3 dir, float level)
+{
+    return textureLod(_SkyboxTex, dir, level).rgb;
 }
 
 float square(float a)

@@ -34,6 +34,7 @@ extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLFo
 extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLInternalFormat;
 extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLType;
 extern std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLFilterMode;
+extern std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLMinFilterMode;
 extern std::unordered_map<TextureWrapMode, GLuint> textureWrapModeToGLWrapMode;
 
 class Texture : public ResourceBase

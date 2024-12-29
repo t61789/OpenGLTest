@@ -14,7 +14,7 @@ std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLInternalF
 {
     {RenderTextureFormat::RGBA, GL_RGBA},
     {RenderTextureFormat::RGB, GL_RGB},
-    {RenderTextureFormat::RGBAHdr, GL_RGBA},
+    {RenderTextureFormat::RGBAHdr, GL_RGBA16F},
     {RenderTextureFormat::DepthStencil, GL_DEPTH24_STENCIL8 },
     {RenderTextureFormat::Depth, GL_DEPTH_COMPONENT},
     {RenderTextureFormat::DepthTex, GL_R32F}
@@ -24,7 +24,7 @@ std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLType =
 {
     {RenderTextureFormat::RGBA, GL_UNSIGNED_BYTE},
     {RenderTextureFormat::RGB, GL_UNSIGNED_BYTE},
-    {RenderTextureFormat::RGBAHdr, GL_UNSIGNED_SHORT},
+    {RenderTextureFormat::RGBAHdr, GL_FLOAT},
     {RenderTextureFormat::DepthStencil, GL_UNSIGNED_INT_24_8},
     {RenderTextureFormat::Depth, GL_FLOAT},
     {RenderTextureFormat::DepthTex, GL_FLOAT}
@@ -34,6 +34,12 @@ std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLFilterMode =
 {
     {TextureFilterMode::Point, GL_NEAREST},
     {TextureFilterMode::Bilinear, GL_LINEAR}
+};
+
+std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLMinFilterMode =
+{
+    {TextureFilterMode::Point, GL_NEAREST},
+    {TextureFilterMode::Bilinear, GL_LINEAR_MIPMAP_LINEAR}
 };
 
 std::unordered_map<TextureWrapMode, GLuint> textureWrapModeToGLWrapMode =
