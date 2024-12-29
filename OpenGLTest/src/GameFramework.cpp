@@ -3,11 +3,18 @@
 #include <iostream>
 
 #include "Camera.h"
+#include "Gui.h"
+#include "imgui.h"
 #include "Windows.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 #include "glad/glad.h"
 
 GameFramework* GameFramework::s_instance = nullptr;
+float GameFramework::s_deltaTime = 0;
+float GameFramework::s_curFrameTime = 0;
+int GameFramework::s_frameCount = -1;
 
 bool initGl()
 {
@@ -72,30 +79,20 @@ bool GameFramework::init()
 void GameFramework::gameLoop()
 {
     // Render loop
-    double timeCount = 0;
-    double preFrameTime = 0;
-    int frameCount = 0;
-    m_frameCount = -1;
+    s_frameCount = -1;
     while (!glfwWindowShouldClose(m_window))
     {
-        m_frameCount++;
-        frameCount++;
-        m_curFrameTime = static_cast<float>(glfwGetTime());
-        m_deltaTime = static_cast<float>(m_curFrameTime - preFrameTime);
-        if (m_curFrameTime - timeCount > 1)
-        {
-            std::cout << "Frame Rate: " << frameCount / (m_curFrameTime - timeCount) << "\n";
-            frameCount = 0;
-            timeCount = m_curFrameTime;
-        }
+        _frameBegin();
 
         _processInput();
+
+        _beforeUpdate();
 
         _update();
 
         _render();
         
-        preFrameTime = m_curFrameTime;
+        _frameEnd();
     }
 
     if(m_window)
@@ -108,17 +105,17 @@ void GameFramework::gameLoop()
 
 float GameFramework::getDeltaTime() const
 {
-    return m_deltaTime;
+    return s_deltaTime;
 }
 
 float GameFramework::getCurFrameTime() const
 {
-    return m_curFrameTime;
+    return s_curFrameTime;
 }
 
 float GameFramework::getFrameCount() const
 {
-    return static_cast<float>(m_frameCount);
+    return static_cast<float>(s_frameCount);
 }
 
 bool GameFramework::keyPressed(const int glfwKey) const
@@ -134,6 +131,11 @@ bool GameFramework::_initFrame()
     }
 
     if(!initGl())
+    {
+        return false;
+    }
+
+    if(!_initImGui(m_window))
     {
         return false;
     }
@@ -169,12 +171,42 @@ bool GameFramework::_initGlfw()
     return true;
 }
 
+bool GameFramework::_initImGui(GLFWwindow* glfwWindow)
+{
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+    ImGui_ImplOpenGL3_Init("#version 460");
+
+    ImGuiIO& io = ImGui::GetIO();
+    // 加载中文字体（确保你的项目中有相应的字体文件）
+    io.Fonts->AddFontFromFileTTF(Utils::GetRealAssetPath("msyh.ttc").c_str(), 18.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+    // 重新创建字体纹理
+    ImGui_ImplOpenGL3_CreateFontsTexture();
+    
+    return true;
+}
+
 void GameFramework::_processInput() const
 {
     if(keyPressed(GLFW_KEY_ESCAPE))
     {
         glfwSetWindowShouldClose(m_window, true);
     }
+}
+
+void GameFramework::_frameBegin()
+{
+    Gui::BeginFrame();
+    
+    s_frameCount++;
+    auto curFrameTime = static_cast<float>(glfwGetTime());
+    s_deltaTime = curFrameTime - s_curFrameTime;
+    s_curFrameTime = curFrameTime;
+}
+
+void GameFramework::_frameEnd()
+{
+    
 }
 
 void UpdateObject(const OBJECT_ID objId)
@@ -188,6 +220,11 @@ void UpdateObject(const OBJECT_ID objId)
             UpdateObject(child);
         }
     }
+}
+
+void GameFramework::_beforeUpdate()
+{
+    Gui::BeforeUpdate();
 }
 
 void GameFramework::_update() const

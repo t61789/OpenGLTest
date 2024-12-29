@@ -61,6 +61,7 @@ private:
     void _renderScenePass(RESOURCE_ID cameraId, const Scene* scene, RenderContext& renderContext);
     void _deferredShadingPass();
     void _finalBlitPass(const RenderContext& renderContext);
+    void _renderUiPass();
 
     void _renderScene(const Scene* scene, const RenderContext& renderContext);
     void _renderEntity(const Entity* entity, const RenderContext& renderContext);

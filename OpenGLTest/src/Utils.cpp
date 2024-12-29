@@ -7,6 +7,7 @@
 #include "glm.hpp"
 
 Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
+std::vector<std::string> Utils::s_logs;
 
 Bounds::Bounds() = default;
 
@@ -140,7 +141,13 @@ std::string Utils::FormatLog(const std::string& msg, const LogType type)
 
 void Utils::Log(const std::string& msg, const LogType type)
 {
-    std::cout << FormatLog(msg, type) << '\n';
+    auto logStr = FormatLog(msg, type);
+    s_logs.push_back(logStr);
+    if (s_logs.size() > 50)
+    {
+        s_logs.erase(s_logs.begin());
+    }
+    std::cout << logStr << '\n';
 }
 
 void Utils::Log(const bool val, const LogType type)

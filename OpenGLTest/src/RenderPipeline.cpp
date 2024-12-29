@@ -9,9 +9,12 @@
 #include "Camera.h"
 #include "Entity.h"
 #include "GameFramework.h"
+#include "Gui.h"
 #include "Image.h"
+#include "imgui.h"
 #include "RenderTarget.h"
 #include "RenderTexture.h"
+#include "backends/imgui_impl_opengl3.h"
 
 RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
 {
@@ -128,6 +131,10 @@ void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
     
     Utils::BeginDebugGroup("Final Blit");
     _finalBlitPass(renderContext);
+    Utils::EndDebugGroup();
+    
+    Utils::BeginDebugGroup("Draw UI");
+    _renderUiPass();
     Utils::EndDebugGroup();
 
     glfwSwapBuffers(m_window);
@@ -322,6 +329,11 @@ void RenderPipeline::_finalBlitPass(const RenderContext& renderContext)
 
     finalBlitMat->setTextureValue("_LutTex", m_lutTexture);
     _renderMesh(fullScreenQuad, finalBlitMat, glm::mat4(), renderContext); 
+}
+
+void RenderPipeline::_renderUiPass()
+{
+    Gui::Render();
 }
 
 void RenderPipeline::_renderScene(const Scene* scene, const RenderContext& renderContext)

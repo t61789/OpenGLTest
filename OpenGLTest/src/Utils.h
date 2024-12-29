@@ -30,6 +30,7 @@ class Utils
 {
 public:
     static Event<GLFWwindow*, int, int> s_setFrameBufferSizeEvent;
+    static std::vector<std::string> s_logs;
     
     static glm::vec3 ToVec3(nlohmann::json arr);
     static glm::vec4 ToVec4(nlohmann::json arr);
