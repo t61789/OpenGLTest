@@ -67,7 +67,7 @@ void main()
 {
     vec4 color = texture(_ShadingBufferTex, texCoord);
     
-    color.rgb = applyToneMapping(color.rgb);
+//    color.rgb = applyToneMapping(color.rgb);
     
 //    color.rgb = applyLut(color.rgb);
 

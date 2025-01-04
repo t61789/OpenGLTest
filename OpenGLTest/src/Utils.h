@@ -8,6 +8,7 @@
 #include "Event.h"
 #include "../lib/json.hpp"
 #include "glfw3.h"
+#include "imgui.h"
 
 enum LogType
 {
@@ -46,9 +47,11 @@ public:
         return dynamic_cast<const Base*>(ptr) != nullptr;
     }
 
+    static std::string GetCurrentTimeFormatted(); 
+
     static std::string FormatLog(const std::string& msg, LogType type = Info);
     static void Log(const std::string& msg, LogType type = Info);
-    static void Log(bool val, LogType type = Info);
+    static void Log(const char* val, LogType type);
     static void Log(int val, LogType type = Info);
     static void Log(unsigned int val, LogType type = Info);
     static void Log(long val, LogType type = Info);
@@ -98,4 +101,9 @@ public:
 
     static bool EndsWith(const std::string& str, const std::string& suffix);
     static std::string JoinStrings(const std::vector<std::string>& strings, std::string delimiter);
+
+    static glm::vec3 WorldToScreen(const glm::vec3& worldPos, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize);
+    static void DebugDrawLine(const glm::vec3& worldStart, const glm::vec3& worldEnd, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
+    static int ComputeRegionCode(float x, float y, float xmin, float ymin, float xmax, float ymax);
+    static bool CohenSutherlandClip(float &x1, float &y1, float &x2, float &y2, float xmin, float ymin, float xmax, float ymax);
 };

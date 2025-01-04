@@ -1,10 +1,12 @@
 ﻿#include "Utils.h"
 
+#include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <vec4.hpp>
 #include "glm.hpp"
+#include "imgui.h"
 
 Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
 std::vector<std::string> Utils::s_logs;
@@ -119,9 +121,35 @@ std::string Utils::GetRealAssetPath(const std::string& relativePath, const std::
     return GetRealAssetPath(JoinStrings(curPathDirectories, "/"));
 }
 
+std::string Utils::GetCurrentTimeFormatted()
+{
+    // 获取当前时间点
+    auto now = std::chrono::system_clock::now();
+
+    // 转换为 time_t 格式
+    std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+
+    // 提取毫秒部分
+    auto now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+
+    // 使用 localtime_s 提供线程安全的本地时间
+    std::tm now_tm;
+    localtime_s(&now_tm, &now_time_t); // 安全的本地时间转换
+
+    // 使用字符串流格式化时间
+    std::ostringstream oss;
+    oss << std::put_time(&now_tm, "%H:%M:%S") // 格式化小时、分钟、秒
+        << "." << std::setfill('0') << std::setw(3) << now_ms.count(); // 添加毫秒部分
+
+    return oss.str();
+}
+
 std::string Utils::FormatLog(const std::string& msg, const LogType type)
 {
     std::stringstream ss;
+    ss << "[";
+    ss << GetCurrentTimeFormatted();
+    ss << "]";
     switch (type)
     {
         case Info:
@@ -150,9 +178,9 @@ void Utils::Log(const std::string& msg, const LogType type)
     std::cout << logStr << '\n';
 }
 
-void Utils::Log(const bool val, const LogType type)
+void Utils::Log(const char* val, const LogType type)
 {
-    Log(ToString(val), type);
+    Log(std::string(val), type);
 }
 
 void Utils::Log(const int val, const LogType type)
@@ -426,4 +454,148 @@ std::string Utils::JoinStrings(const std::vector<std::string>& strings, std::str
         }
     }
     return ss.str();
+}
+
+// 将世界坐标转换为屏幕坐标的工具函数
+glm::vec3 Utils::WorldToScreen(const glm::vec3& worldPos, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize) {
+    glm::vec4 clipSpacePos = projMatrix * viewMatrix * glm::vec4(worldPos, 1.0f);
+
+    // 透视除法，转到 NDC（Normalized Device Coordinates）空间
+    if (clipSpacePos.w != 0.0f) {
+        clipSpacePos.x /= clipSpacePos.w;
+        clipSpacePos.y /= clipSpacePos.w;
+    }
+
+    // 转换到屏幕坐标
+    glm::vec3 screenPos;
+    screenPos.x = (clipSpacePos.x * 0.5f + 0.5f) * screenSize.x; // NDC x [-1,1] -> screen x [0,width]
+    screenPos.y = (1.0f - (clipSpacePos.y * 0.5f + 0.5f)) * screenSize.y; // NDC y [-1,1] -> screen y [height,0]
+    screenPos.z = clipSpacePos.z;
+    return screenPos;
+}
+
+// 封装的绘制线条函数
+void Utils::DebugDrawLine(const glm::vec3& worldStart, const glm::vec3& worldEnd, 
+                   const glm::mat4& viewMatrix, const glm::mat4& projMatrix, 
+                   const glm::vec2& screenSize, 
+                   ImU32 color, float thickness) {
+    
+    auto drawList = ImGui::GetBackgroundDrawList();
+    
+    // 转换世界坐标到屏幕坐标
+    glm::vec3 screenStart = WorldToScreen(worldStart, viewMatrix, projMatrix, screenSize);
+    glm::vec3 screenEnd = WorldToScreen(worldEnd, viewMatrix, projMatrix, screenSize);
+
+    if(screenStart.z < 0 || screenEnd.z < 0)
+    {
+        return;
+    }
+
+    float x0 = screenStart.x, y0 = screenStart.y, x1 = screenEnd.x, y1 = screenEnd.y;
+
+    auto inScreen = CohenSutherlandClip(x0, y0, x1, y1, 0, 0, screenSize.x, screenSize.y);
+    if(!inScreen)
+    {
+        return;
+    }
+
+    // 使用 ImGui 的绘图 API 绘制线条
+    drawList->AddLine(ImVec2(x0, y0), ImVec2(x1, y1), color, thickness);
+}
+
+// 定义区域码（Cohen-Sutherland算法）
+constexpr int INSIDE = 0; // 0000
+constexpr int LEFT = 1;   // 0001
+constexpr int RIGHT = 2;  // 0010
+constexpr int BOTTOM = 4; // 0100
+constexpr int TOP = 8;    // 1000
+
+// 计算点的区域码
+int Utils::ComputeRegionCode(float x, float y, float xmin, float ymin, float xmax, float ymax)
+{
+    int code = INSIDE;
+
+    if (x < xmin) code |= LEFT;    // 左侧
+    else if (x > xmax) code |= RIGHT; // 右侧
+    if (y < ymin) code |= BOTTOM; // 下侧
+    else if (y > ymax) code |= TOP;    // 上侧
+
+    return code;
+}
+
+// Cohen-Sutherland线段裁剪算法
+bool Utils::CohenSutherlandClip(float &x1, float &y1, float &x2, float &y2, 
+                         float xmin, float ymin, float xmax, float ymax)
+{
+    int code1 = ComputeRegionCode(x1, y1, xmin, ymin, xmax, ymax);
+    int code2 = ComputeRegionCode(x2, y2, xmin, ymin, xmax, ymax);
+
+    bool accept = false;
+
+    while (true) {
+        if (code1 == 0 && code2 == 0)
+        {
+            // 两个点都在矩形内
+            accept = true;
+            break;
+        }
+        
+        if (code1 & code2)
+        {
+            // 两个点在矩形外同一侧
+            break;
+        }
+        
+        // 线段至少部分在矩形内
+        int codeOut;
+        float x = 0, y = 0;
+
+        // 选择一个在矩形外的点
+        if (code1 != 0)
+        {
+            codeOut = code1;
+        }
+        else
+        {
+            codeOut = code2;
+        }
+
+        // 找到交点
+        if (codeOut & TOP)
+        { // 上侧
+            x = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
+            y = ymax;
+        }
+        else if (codeOut & BOTTOM)
+        { // 下侧
+            x = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
+            y = ymin;
+        }
+        else if (codeOut & RIGHT)
+        { // 右侧
+            y = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
+            x = xmax;
+        }
+        else if (codeOut & LEFT)
+        { // 左侧
+            y = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
+            x = xmin;
+        }
+
+        // 更新点的位置，并重新计算区域码
+        if (codeOut == code1)
+        {
+            x1 = x;
+            y1 = y;
+            code1 = ComputeRegionCode(x1, y1, xmin, ymin, xmax, ymax);
+        }
+        else
+        {
+            x2 = x;
+            y2 = y;
+            code2 = ComputeRegionCode(x2, y2, xmin, ymin, xmax, ymax);
+        }
+    }
+
+    return accept;
 }

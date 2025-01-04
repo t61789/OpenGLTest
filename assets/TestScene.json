@@ -17,10 +17,11 @@
 			"farClip":500
 		},
 		{
-			"name":"Bunny",
+			"name":"Ball",
 			"type":"entity",
-			"scale":[0.01, 0.01, 0.01],
-			"mesh":"Meshes/beast.obj",
+			"scale":[1, 1, 1],
+			"position":[0, 3.192, 0],
+			"mesh":"Meshes/smoothCube.obj",
 			"material":"standardMat.json"
 		},
 		{

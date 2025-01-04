@@ -225,6 +225,8 @@ void UpdateObject(const OBJECT_ID objId)
 void GameFramework::_beforeUpdate()
 {
     Gui::BeforeUpdate();
+
+    Gui::OnGui();
 }
 
 void GameFramework::_update() const

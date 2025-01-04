@@ -439,6 +439,10 @@
     <ClInclude Include="src\Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\assets\application.json" />
+    <Content Include="..\assets\Meshes\smoothCube.obj" />
+    <Content Include="..\assets\Meshes\unityBall.fbx" />
+    <Content Include="..\assets\Meshes\unityBase.fbx" />
     <Content Include="..\assets\Meshes\beast.obj" />
     <Content Include="..\assets\Meshes\beetle.obj" />
     <Content Include="..\assets\Meshes\fullScreenMesh.obj" />
