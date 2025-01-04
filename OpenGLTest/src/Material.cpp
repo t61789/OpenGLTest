@@ -186,7 +186,7 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
 
     result->name = path;
     ResourceMgr::RegisterResource(path, result->id);
-    Utils::Log("成功载入Material " + path);
+    Utils::LogInfo("成功载入Material " + path);
     return result->id;
 }
 

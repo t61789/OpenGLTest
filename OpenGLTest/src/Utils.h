@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <iostream>
+
 #include "glm.hpp"
 #include <glad/glad.h>
 #include <vec3.hpp>
@@ -49,41 +51,45 @@ public:
 
     static std::string GetCurrentTimeFormatted(); 
 
-    static std::string FormatLog(const std::string& msg, LogType type = Info);
-    static void Log(const std::string& msg, LogType type = Info);
-    static void Log(const char* val, LogType type);
-    static void Log(int val, LogType type = Info);
-    static void Log(unsigned int val, LogType type = Info);
-    static void Log(long val, LogType type = Info);
-    static void Log(unsigned long val, LogType type = Info);
-    static void Log(long long val, LogType type = Info);
-    static void Log(unsigned long long val, LogType type = Info);
-    static void Log(float val, LogType type = Info);
-    static void Log(double val, LogType type = Info);
-    static void Log(long double val, LogType type = Info);
-    static void Log(char val, LogType type = Info);
-    static void Log(unsigned char val, LogType type = Info);
-    static void Log(wchar_t val, LogType type = Info);
-    static void Log(char16_t val, LogType type = Info);
-    static void Log(char32_t val, LogType type = Info);
-    static void Log(glm::vec3 val, LogType type = Info);
-    static void Log(glm::vec4 val, LogType type = Info);
-    static void Log(glm::mat4 val, LogType type = Info);
-    static std::string ToString(bool val);
-    static std::string ToString(int val);
-    static std::string ToString(unsigned int val);
-    static std::string ToString(long val);
-    static std::string ToString(unsigned long val);
-    static std::string ToString(long long val);
-    static std::string ToString(unsigned long long val);
-    static std::string ToString(float val);
-    static std::string ToString(double val);
-    static std::string ToString(long double val);
-    static std::string ToString(char val);
-    static std::string ToString(unsigned char val);
-    static std::string ToString(wchar_t val);
-    static std::string ToString(char16_t val);
-    static std::string ToString(char32_t val);
+    template <typename... Args>
+    static std::string FormatString(const std::string& format, Args... args)
+    {
+        int size = std::snprintf(nullptr, 0, format.c_str(), args...) + 1; // 计算最终格式化字符串所需空间
+        if (size <= 0) {
+            throw std::runtime_error("Error during formatting.");
+        }
+        std::unique_ptr<char[]> buf(new char[size]); // 分配临时缓冲区
+        std::snprintf(buf.get(), size, format.c_str(), args...); // 格式化字符串
+        return std::string(buf.get(), buf.get() + size - 1); // 返回 std::string（去掉末尾的 \0）
+    }
+    static std::string FormatLog(LogType type, const std::string& msg);
+    template <typename... Args>
+    static void Log(LogType logType, const std::string& msg, Args... args)
+    {
+        auto logStr = FormatLog(logType, FormatString(msg, args...));
+        s_logs.push_back(logStr);
+        if (s_logs.size() > 50)
+        {
+            s_logs.erase(s_logs.begin());
+        }
+        std::cout << logStr << '\n';
+    }
+    template <typename... Args>
+    static void LogInfo(const std::string& msg, Args... args)
+    {
+        return Log(Info, msg, args...);
+    }
+    template <typename... Args>
+    static void LogWarning(const std::string& msg, Args... args)
+    {
+        return Log(Warning, msg, args...);
+    }
+    template <typename... Args>
+    static void LogError(const std::string& msg, Args... args)
+    {
+        return Log(Error, msg, args...);
+    }
+    
     static std::string ToString(float val, int fixed);
     static std::string ToString(const glm::vec3& val);
     static std::string ToString(const glm::vec4& val);

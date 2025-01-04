@@ -208,7 +208,7 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
             indicesContainer.push_back(face.mIndices[j]);
             // a += " " + std::to_string(face.mIndices[j]);
         }
-        // Utils::Log(a);
+        // Utils::LogInfo(a);
     }
     auto indicesData = indicesContainer.data();
     auto indicesCount = indicesContainer.size();
@@ -230,7 +230,7 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
     msg += "\t顶点数量 " + std::to_string(vertexCount) + "\n";
     msg += "\t三角形数量 " + std::to_string(indicesCount / 3) + "\n";
     msg += "\t包围盒 c:" + Utils::ToString(bounds.center) + " e:" + Utils::ToString(bounds.extents);
-    Utils::Log(msg);
+    Utils::LogInfo(msg);
     return result;
 }
 

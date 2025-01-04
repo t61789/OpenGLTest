@@ -191,7 +191,7 @@ std::vector<std::string> loadFileToLines(const std::string& realAssetPath)
     catch(std::exception&)
     {
         fs.close();
-        Utils::Log("读取文件失败：" + realAssetPath, Error);
+        Utils::LogError("读取文件失败：" + realAssetPath);
         throw;
     }
     fs.close();
@@ -311,8 +311,8 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& glslPath)
     catch (std::exception &e)
     {
         std::stringstream ss;
-        ss << Utils::FormatLog(glslPath) << "\n";
-        ss << Utils::FormatLog("访问shader文件失败") << e.what();
+        ss << Utils::FormatLog(Error, glslPath) << "\n";
+        ss << Utils::FormatLog(Error, "访问shader文件失败") << e.what();
         throw std::runtime_error(ss.str());
     }
 
@@ -340,6 +340,6 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& glslPath)
     auto result = new Shader();
     result->glShaderId = glShaderId;
     ResourceMgr::RegisterResource(glslPath, result->id);
-    Utils::Log("成功载入Shader " + glslPath);
+    Utils::LogInfo("成功载入Shader " + glslPath);
     return result->id;
 }
