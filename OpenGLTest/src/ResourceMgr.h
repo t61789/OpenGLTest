@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 typedef unsigned long long RESOURCE_ID;
 #define UNDEFINED_RESOURCE ((RESOURCE_ID)(-1))

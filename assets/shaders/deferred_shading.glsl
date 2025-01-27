@@ -15,7 +15,7 @@ void main()
 
 #version 330 core
 
-#include "./Common.glsl"
+#include "./common.glsl"
 
 in vec2 texCoord;
 
@@ -122,7 +122,7 @@ void main()
     vec3 finalColor;
     if(pixelType == PIXEL_TYPE_LIT)
     {
-        finalColor = Lit(albedo, normalWS, 0.3, 1.0);
+        finalColor = Lit(albedo, normalWS, 1.0, 0.0);
     }
     else
     {

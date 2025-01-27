@@ -19,25 +19,26 @@ RenderPipeline* RenderPipeline::instance = nullptr;
 RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
 {
     instance = this;
+
+    m_cullModeMgr = new CullModeMgr();
     
     m_window = window;
     setScreenSize(width, height);
 
     auto desc = ImageDescriptor::GetDefault();
     desc.needFlipVertical = false;
-    m_skyboxCubeTexture = Image::LoadCubeFromFile("Textures/Skybox", "jpg", desc);
-    m_lutTexture = Image::LoadFromFile("Textures/testLut.png", ImageDescriptor::GetDefault());
+    m_skyboxCubeTexture = Image::LoadCubeFromFile("textures/skybox", "jpg", desc);
+    m_lutTexture = Image::LoadFromFile("textures/testLut.png", ImageDescriptor::GetDefault());
     Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
 
-    m_sphereMesh = Mesh::LoadFromFile("Meshes/sphere.obj");
-
-    m_skyboxMat = Material::CreateEmptyMaterial("Shaders/SkyboxShader.glsl");
-    m_drawShadowMat = Material::CreateEmptyMaterial("Shaders/DrawShadow.glsl");
-    m_finalBlitMat = Material::CreateEmptyMaterial("Shaders/FinalBlit.glsl");
-
-    m_fullScreenQuad = Mesh::LoadFromFile("Meshes/fullScreenMesh.obj");
-    m_deferredShadingShader = Shader::LoadFromFile("Shaders/DeferredShading.glsl");
+    m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
     
+    m_skyboxMat = Material::LoadFromFile("materials/skybox_mat.json");
+    m_drawShadowMat = Material::CreateEmptyMaterial("shaders/draw_shadow.glsl");
+    m_deferredShadingMat = Material::CreateEmptyMaterial("shaders/deferred_shading.glsl");
+    m_finalBlitMat = Material::CreateEmptyMaterial("shaders/final_blit.glsl");
+
+    m_quadMesh = Mesh::LoadFromFile("meshes/quad.obj");
 
     m_gBuffer0Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex")))->id;
     m_gBuffer1Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBA, Point, Clamp, "_GBuffer1Tex")))->id;
@@ -75,6 +76,8 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
 RenderPipeline::~RenderPipeline()
 {
     instance = nullptr;
+
+    delete m_cullModeMgr;
     
     ResourceMgr::DeleteResource(m_skyboxCubeTexture);
     ResourceMgr::DeleteResource(m_lutTexture);
@@ -82,9 +85,9 @@ RenderPipeline::~RenderPipeline()
     ResourceMgr::DeleteResource(m_sphereMesh);
     ResourceMgr::DeleteResource(m_skyboxMat);
     ResourceMgr::DeleteResource(m_drawShadowMat);
+    ResourceMgr::DeleteResource(m_deferredShadingMat);
     ResourceMgr::DeleteResource(m_finalBlitMat);
-    ResourceMgr::DeleteResource(m_fullScreenQuad);
-    ResourceMgr::DeleteResource(m_deferredShadingShader);
+    ResourceMgr::DeleteResource(m_quadMesh);
     
     ResourceMgr::DeleteResource(m_gBuffer0Tex);
     ResourceMgr::DeleteResource(m_gBuffer1Tex);
@@ -270,11 +273,7 @@ void RenderPipeline::_renderSkyboxPass(const RESOURCE_ID cameraId)
     m = translate(m, camera->position);
     m = scale(m, glm::vec3(1));
 
-    glDisable(GL_CULL_FACE);
-    
     _renderMesh(sphereMesh, skyboxMat, m);
-
-    // glEnable(GL_CULL_FACE);
 }
 
 void RenderPipeline::_renderScenePass(RESOURCE_ID cameraId, const Scene* scene)
@@ -312,20 +311,15 @@ void RenderPipeline::_deferredShadingPass()
     shadingRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shadingRenderTarget->use();
 
-    auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_fullScreenQuad);
-    auto deferredShadingShader = ResourceMgr::GetPtr<Shader>(m_deferredShadingShader);
+    auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_quadMesh);
+    auto deferredShadingMat = ResourceMgr::GetPtr<Material>(m_deferredShadingMat);
     
-    if(fullScreenQuad == nullptr || deferredShadingShader == nullptr)
+    if(fullScreenQuad == nullptr || deferredShadingMat == nullptr)
     {
         return;
     }
 
-    fullScreenQuad->use();
-    deferredShadingShader->use(fullScreenQuad);
-
-    Material::FillGlobalParams(deferredShadingShader);
-
-    glDrawElements(GL_TRIANGLES, fullScreenQuad->indicesCount, GL_UNSIGNED_INT, 0);
+    _renderMesh(fullScreenQuad, deferredShadingMat, glm::mat4(1));
 }
 
 void RenderPipeline::_finalBlitPass()
@@ -333,7 +327,7 @@ void RenderPipeline::_finalBlitPass()
     RenderTarget::ClearFrameBuffer(0, glm::vec4(0), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderTarget::UseScreenTarget();
     
-    auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_fullScreenQuad);
+    auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_quadMesh);
     auto finalBlitMat = ResourceMgr::GetPtr<Material>(m_finalBlitMat);
 
     if(fullScreenQuad == nullptr || finalBlitMat == nullptr)
@@ -412,6 +406,7 @@ void RenderPipeline::_renderMesh(const Mesh* mesh, Material* mat, const glm::mat
     mat->setMat4Value("_ITM", transpose(inverse(m)));
     mat->setMat4Value("_M", m);
     mat->use(mesh);
+    m_cullModeMgr->setCullMode(mat->cullMode);
     
     glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);
 }

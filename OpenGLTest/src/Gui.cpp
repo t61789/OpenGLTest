@@ -60,7 +60,7 @@ void Gui::DrawCoordinateDirLine()
 void Gui::DrawApplicationPanel()
 {
     ImGui::Begin("Application Info");
-    ImGui::Text(std::string("FPS: " + Utils::ToString(1 / GameFramework::s_deltaTime)).c_str());
+    ImGui::Text(std::string("FPS: " + Utils::ToString(1 / GameFramework::s_deltaTime, 2)).c_str());
     ImGui::End();
 }
 

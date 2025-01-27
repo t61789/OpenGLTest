@@ -1,6 +1,6 @@
 ﻿#version 330 core
 
-#include "./Common.glsl"
+#include "./common.glsl"
 
 layout (location = 0) in vec3 aPositionOS;
 layout (location = 1) in vec3 aNormalOS;
@@ -17,7 +17,7 @@ void main()
 
 #version 330 core
 
-#include "./Common.glsl"
+#include "./common.glsl"
 
 in vec4 positionCS;
 

@@ -45,7 +45,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -240,6 +240,7 @@
     <ClCompile Include="include\imgui\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\ConstVars.cpp" />
+    <ClCompile Include="src\CullMode.cpp" />
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Gui.cpp" />
     <ClCompile Include="src\Image.cpp" />
@@ -420,6 +421,7 @@
     <ClInclude Include="lib\stb_image.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\ConstVars.h" />
+    <ClInclude Include="src\CullMode.h" />
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\Event.h" />
     <ClInclude Include="src\Gui.h" />
@@ -440,37 +442,34 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\assets\application.json" />
-    <Content Include="..\assets\Meshes\smoothCube.obj" />
-    <Content Include="..\assets\Meshes\unityBall.fbx" />
-    <Content Include="..\assets\Meshes\unityBase.fbx" />
-    <Content Include="..\assets\Meshes\beast.obj" />
-    <Content Include="..\assets\Meshes\beetle.obj" />
-    <Content Include="..\assets\Meshes\fullScreenMesh.obj" />
-    <Content Include="..\assets\Meshes\ground.obj" />
-    <Content Include="..\assets\Meshes\sphere.obj" />
-    <Content Include="..\assets\Meshes\stanford-bunny.obj" />
-    <Content Include="..\assets\msyh.ttc" />
-    <Content Include="..\assets\Shaders\Blit.glsl" />
-    <Content Include="..\assets\Shaders\DeferredShading.glsl" />
-    <Content Include="..\assets\Shaders\DrawShadow.glsl" />
-    <Content Include="..\assets\Shaders\FinalBlit.glsl" />
-    <Content Include="..\assets\Shaders\Lit.glsl" />
-    <Content Include="..\assets\Shaders\SkyboxShader.glsl" />
-    <Content Include="..\assets\shadowMat.json" />
-    <Content Include="..\assets\skyboxMat.json" />
-    <Content Include="..\assets\standardMat.json" />
-    <Content Include="..\assets\TestScene.json" />
-    <Content Include="..\assets\Textures\o2.png" />
-    <Content Include="..\assets\Textures\Skybox\back.jpg" />
-    <Content Include="..\assets\Textures\Skybox\bottom.jpg" />
-    <Content Include="..\assets\Textures\Skybox\front.jpg" />
-    <Content Include="..\assets\Textures\Skybox\left.jpg" />
-    <Content Include="..\assets\Textures\Skybox\right.jpg" />
-    <Content Include="..\assets\Textures\Skybox\top.jpg" />
-    <Content Include="..\assets\Textures\testLut.png" />
+    <Content Include="..\assets\materials\skybox_mat.json" />
+    <Content Include="..\assets\materials\standard_mat.json" />
+    <Content Include="..\assets\meshes\smooth_cube.obj" />
+    <Content Include="..\assets\meshes\unity_ball.fbx" />
+    <Content Include="..\assets\meshes\unity_base.fbx" />
+    <Content Include="..\assets\meshes\beast.obj" />
+    <Content Include="..\assets\meshes\beetle.obj" />
+    <Content Include="..\assets\meshes\quad.obj" />
+    <Content Include="..\assets\meshes\sphere.obj" />
+    <Content Include="..\assets\meshes\stanford_bunny.obj" />
+    <Content Include="..\assets\others\msyh.ttc" />
+    <Content Include="..\assets\scenes\test_scene.json" />
+    <Content Include="..\assets\shaders\deferred_shading.glsl" />
+    <Content Include="..\assets\shaders\draw_shadow.glsl" />
+    <Content Include="..\assets\shaders\final_blit.glsl" />
+    <Content Include="..\assets\shaders\lit.glsl" />
+    <Content Include="..\assets\shaders\skybox_shader.glsl" />
+    <Content Include="..\assets\textures\o2.png" />
+    <Content Include="..\assets\textures\skybox\back.jpg" />
+    <Content Include="..\assets\textures\skybox\bottom.jpg" />
+    <Content Include="..\assets\textures\skybox\front.jpg" />
+    <Content Include="..\assets\textures\skybox\left.jpg" />
+    <Content Include="..\assets\textures\skybox\right.jpg" />
+    <Content Include="..\assets\textures\skybox\top.jpg" />
+    <Content Include="..\assets\textures\testLut.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\Shaders\Common.glsl" />
+    <None Include="..\assets\shaders\common.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

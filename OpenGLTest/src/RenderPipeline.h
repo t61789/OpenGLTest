@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "CullMode.h"
 #include "Entity.h"
 #include "Material.h"
 #include "Scene.h"
@@ -22,7 +23,7 @@ class RenderPipeline
 {
 public:
     static RenderPipeline* instance;
-    
+
     size_t mainLightShadowTexSize = 4096;
     
     RenderPipeline(int width, int height, GLFWwindow* window);
@@ -35,7 +36,8 @@ public:
 private:
     size_t m_screenWidth;
     size_t m_screenHeight;
-    GLFWwindow* m_window;
+    GLFWwindow* m_window = nullptr;
+    CullModeMgr* m_cullModeMgr = nullptr;
     RenderContext m_renderContext;
 
     RESOURCE_ID m_skyboxCubeTexture = UNDEFINED_RESOURCE;
@@ -45,14 +47,14 @@ private:
 
     RESOURCE_ID m_skyboxMat = UNDEFINED_RESOURCE;
     RESOURCE_ID m_drawShadowMat = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_deferredShadingMat = UNDEFINED_RESOURCE;
     RESOURCE_ID m_finalBlitMat = UNDEFINED_RESOURCE;
 
     RESOURCE_ID m_gBufferRenderTarget = UNDEFINED_RESOURCE;
     RESOURCE_ID m_shadingRenderTarget = UNDEFINED_RESOURCE;
     RESOURCE_ID m_mainLightShadowRenderTarget = UNDEFINED_RESOURCE;
 
-    RESOURCE_ID m_fullScreenQuad = UNDEFINED_RESOURCE;
-    RESOURCE_ID m_deferredShadingShader = UNDEFINED_RESOURCE;
+    RESOURCE_ID m_quadMesh = UNDEFINED_RESOURCE;
 
     RESOURCE_ID m_gBuffer0Tex = UNDEFINED_RESOURCE;
     RESOURCE_ID m_gBuffer1Tex = UNDEFINED_RESOURCE;

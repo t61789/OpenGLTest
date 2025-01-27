@@ -152,6 +152,12 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
             result->shaderId = Shader::LoadFromFile(elemValue.get<std::string>());
             continue;
         }
+
+        if (elemKey == "cullMode")
+        {
+            result->cullMode = CullModeMgr::FromStr(elemValue.get<std::string>());
+            continue;
+        }
         
         if (elemValue.is_number_integer())
         {

@@ -178,8 +178,9 @@ bool GameFramework::_initImGui(GLFWwindow* glfwWindow)
     ImGui_ImplOpenGL3_Init("#version 460");
 
     ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->Clear();
     // 加载中文字体（确保你的项目中有相应的字体文件）
-    io.Fonts->AddFontFromFileTTF(Utils::GetRealAssetPath("msyh.ttc").c_str(), 18.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+    io.Fonts->AddFontFromFileTTF(Utils::GetRealAssetPath("others/msyh.ttc").c_str(), 18.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
     // 重新创建字体纹理
     ImGui_ImplOpenGL3_CreateFontsTexture();
     
@@ -264,6 +265,6 @@ void GameFramework::_onSetFrameBufferSize(GLFWwindow* window, const int width, c
 void GameFramework::_initGame()
 {
     m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
-    m_scene = std::make_unique<Scene>("TestScene.json");
+    m_scene = std::make_unique<Scene>("scenes/test_scene.json");
 }
 

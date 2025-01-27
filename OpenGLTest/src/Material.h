@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <string>
 #include <unordered_map>
+
+#include "CullMode.h"
 #include "Shader.h"
 
 class Material : public ResourceBase
@@ -9,7 +11,9 @@ public:
     std::string name = "Unnamed Material";
     
     RESOURCE_ID shaderId = UNDEFINED_RESOURCE;
-    
+
+    CullMode cullMode = Back;
+
     std::unordered_map<std::string, int> intValues;
     std::unordered_map<std::string, bool> boolValues;
     std::unordered_map<std::string, float> floatValues;
