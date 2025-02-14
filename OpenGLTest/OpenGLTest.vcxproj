@@ -244,6 +244,7 @@
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Gui.cpp" />
     <ClCompile Include="src\Image.cpp" />
+    <ClCompile Include="src\IndirectLighting.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\OpenGLTest.cpp">
@@ -426,6 +427,7 @@
     <ClInclude Include="src\Event.h" />
     <ClInclude Include="src\Gui.h" />
     <ClInclude Include="src\Image.h" />
+    <ClInclude Include="src\IndirectLighting.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\OpenGLTest.h" />

@@ -2,6 +2,7 @@
 
 #include "CullMode.h"
 #include "Entity.h"
+#include "IndirectLighting.h"
 #include "Material.h"
 #include "Scene.h"
 
@@ -39,6 +40,8 @@ private:
     GLFWwindow* m_window = nullptr;
     CullModeMgr* m_cullModeMgr = nullptr;
     RenderContext m_renderContext;
+
+    Shc m_shc;
 
     RESOURCE_ID m_skyboxCubeTexture = UNDEFINED_RESOURCE;
     RESOURCE_ID m_lutTexture = UNDEFINED_RESOURCE;

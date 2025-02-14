@@ -46,7 +46,7 @@ Shader::~Shader()
     glDeleteProgram(glShaderId);
 }
 
-void Shader::use(const Mesh* mesh) const
+void Shader::Use(const Mesh* mesh) const
 {
     glUseProgram(glShaderId);
 
@@ -71,19 +71,19 @@ void Shader::use(const Mesh* mesh) const
     }
 }
 
-bool Shader::hasParam(const std::string &name) const
+bool Shader::HasParam(const std::string &name) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     return location != -1;
 }
 
-void Shader::setBool(const std::string& name, const bool value) const
+void Shader::SetBool(const std::string& name, const bool value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
-    setBool(location, value);
+    SetBool(location, value);
 }
 
-void Shader::setBool(const int& location, const bool value)
+void Shader::SetBool(const int& location, const bool value)
 {
     if(location == -1)
     {
@@ -92,13 +92,13 @@ void Shader::setBool(const int& location, const bool value)
     glUniform1i(location, value);
 }
 
-void Shader::setInt(const std::string& name, const int value) const
+void Shader::SetInt(const std::string& name, const int value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
-    setInt(location, value);
+    SetInt(location, value);
 }
 
-void Shader::setInt(const int& location, const int value)
+void Shader::SetInt(const int& location, const int value)
 {
     if(location == -1)
     {
@@ -108,13 +108,13 @@ void Shader::setInt(const int& location, const int value)
     glUniform1i(location, value);
 }
 
-void Shader::setFloat(const std::string& name, const float value) const
+void Shader::SetFloat(const std::string& name, const float value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
-    setFloat(location, value);
+    SetFloat(location, value);
 }
 
-void Shader::setFloat(const int& location, const float value)
+void Shader::SetFloat(const int& location, const float value)
 {
     if(location == -1)
     {
@@ -123,13 +123,13 @@ void Shader::setFloat(const int& location, const float value)
     glUniform1f(location, value);
 }
 
-void Shader::setVector(const std::string& name, const glm::vec4& value) const
+void Shader::SetVector(const std::string& name, const glm::vec4& value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
-    setVector(location, value);
+    SetVector(location, value);
 }
 
-void Shader::setVector(const int& location, const glm::vec4& value)
+void Shader::SetVector(const int& location, const glm::vec4& value)
 {
     if(location == -1)
     {
@@ -138,13 +138,13 @@ void Shader::setVector(const int& location, const glm::vec4& value)
     glUniform4f(location, value.x, value.y, value.z, value.w);
 }
 
-void Shader::setMatrix(const std::string& name, const glm::mat4& value) const
+void Shader::SetMatrix(const std::string& name, const glm::mat4& value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
-    setMatrix(location, value);
+    SetMatrix(location, value);
 }
 
-void Shader::setMatrix(const int& location, const glm::mat4& value)
+void Shader::SetMatrix(const int& location, const glm::mat4& value)
 {
     if(location == -1)
     {
@@ -153,20 +153,20 @@ void Shader::setMatrix(const int& location, const glm::mat4& value)
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Shader::setTexture(const std::string& name, const int slot, const RESOURCE_ID value) const
+void Shader::SetTexture(const std::string& name, const int slot, const RESOURCE_ID value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
-    setTexture(location, slot, value);
+    SetTexture(location, slot, value);
 }
 
-void Shader::setTexture(const int& location, const int slot, RESOURCE_ID value)
+void Shader::SetTexture(const int& location, const int slot, RESOURCE_ID value)
 {
     auto texturePtr = ResourceMgr::GetPtr<Texture>(value);
     if(location == -1 || texturePtr == nullptr || !texturePtr->isCreated)
     {
         return;
     }
-    setInt(location, slot);
+    SetInt(location, slot);
     glActiveTexture(GL_TEXTURE0 + slot);
     if(texturePtr->isCubeMap)
     {
@@ -176,6 +176,21 @@ void Shader::setTexture(const int& location, const int slot, RESOURCE_ID value)
     {
         glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
     }
+}
+
+void Shader::SetFloatArr(const std::string& name, int count, float* value) const
+{
+    int location = glGetUniformLocation(glShaderId, name.c_str());
+    SetFloatArr(location, count, value);
+}
+
+void Shader::SetFloatArr(const int& location, int count, float* value)
+{
+    if(location == -1)
+    {
+        return;
+    }
+    glUniform1fv(location, count, value);
 }
 
 std::vector<std::string> loadFileToLines(const std::string& realAssetPath)

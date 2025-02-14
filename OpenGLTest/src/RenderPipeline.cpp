@@ -71,6 +71,13 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(1), m_mainLightShadowMapTex);
     auto mainLightShadowRenderTarget = new RenderTarget(attachments, 1, "MainLightShadowMap");
     m_mainLightShadowRenderTarget = mainLightShadowRenderTarget->id;
+
+    m_shc = IndirectLighting::CalcShc(
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f));
+
+    Material::SetGlobalFloatArrValue("Shc", m_shc.GetData(), 27);
 }
 
 RenderPipeline::~RenderPipeline()
@@ -335,7 +342,7 @@ void RenderPipeline::_finalBlitPass()
         return;
     }
 
-    finalBlitMat->setTextureValue("_LutTex", m_lutTexture);
+    finalBlitMat->SetTextureValue("_LutTex", m_lutTexture);
     _renderMesh(fullScreenQuad, finalBlitMat, glm::mat4()); 
 }
 
@@ -402,10 +409,10 @@ void RenderPipeline::_renderMesh(const Mesh* mesh, Material* mat, const glm::mat
     auto mvp = m_renderContext.vpMatrix * m;
 
     mesh->use();
-    mat->setMat4Value("_MVP", mvp);
-    mat->setMat4Value("_ITM", transpose(inverse(m)));
-    mat->setMat4Value("_M", m);
-    mat->use(mesh);
+    mat->SetMat4Value("_MVP", mvp);
+    mat->SetMat4Value("_ITM", transpose(inverse(m)));
+    mat->SetMat4Value("_M", m);
+    mat->Use(mesh);
     m_cullModeMgr->setCullMode(mat->cullMode);
     
     glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);

@@ -7,116 +7,168 @@
 #include "Utils.h"
 #include "../lib/json.hpp"
 
-std::unordered_map<std::string, int> Material::s_globalIntValues;
-std::unordered_map<std::string, bool> Material::s_globalBoolValues;
-std::unordered_map<std::string, float> Material::s_globalFloatValues;
-std::unordered_map<std::string, glm::mat4> Material::s_globalMat4Values;
-std::unordered_map<std::string, RESOURCE_ID> Material::s_globalTextureValues;
-std::unordered_map<std::string, glm::vec4> Material::s_globalVec4Values;
+Material* Material::s_globalMaterial = new Material();
+Material* Material::s_tempMaterial = new Material();
 
-void Material::setIntValue(const std::string& paramName, const int value)
+Material::~Material()
+{
+    for (auto& element : floatArrValues)
+    {
+        delete element.second;
+    }
+}
+
+void Material::SetIntValue(const std::string& paramName, const int value)
 {
     intValues[paramName] = value;
 }
 
-void Material::setBoolValue(const std::string& paramName, const bool value)
+void Material::SetBoolValue(const std::string& paramName, const bool value)
 {
     boolValues[paramName] = value;
 }
 
-void Material::setFloatValue(const std::string& paramName, const float value)
+void Material::SetFloatValue(const std::string& paramName, const float value)
 {
     floatValues[paramName] = value;
 }
 
-void Material::setMat4Value(const std::string& paramName, const glm::mat4& value)
+void Material::SetMat4Value(const std::string& paramName, const glm::mat4& value)
 {
     mat4Values[paramName] = value;
 }
 
-void Material::setTextureValue(const std::string& paramName, const RESOURCE_ID value)
+void Material::SetTextureValue(const std::string& paramName, const RESOURCE_ID value)
 {
     textureValues[paramName] = value;
 }
 
-void Material::setVector4Value(const std::string& paramName, const glm::vec4& value)
+void Material::SetVector4Value(const std::string& paramName, const glm::vec4& value)
 {
     vec4Values[paramName] = value;
 }
 
+void Material::SetFloatArrValue(const std::string& paramName, const float *value, const int count)
+{
+    auto newValue = new std::vector<float>(value, value + count);
+    floatArrValues[paramName] = newValue;
+}
+
 void Material::SetGlobalIntValue(const std::string& paramName, const int value)
 {
-    s_globalIntValues[paramName] = value;
+    s_globalMaterial->SetIntValue(paramName, value);
 }
 
 void Material::SetGlobalBoolValue(const std::string& paramName, const bool value)
 {
-    s_globalBoolValues[paramName] = value;
+    s_globalMaterial->SetBoolValue(paramName, value);
 }
 
 void Material::SetGlobalFloatValue(const std::string& paramName, const float value)
 {
-    s_globalFloatValues[paramName] = value;
+    s_globalMaterial->SetFloatValue(paramName, value);
 }
 
 void Material::SetGlobalMat4Value(const std::string& paramName, const glm::mat4& value)
 {
-    s_globalMat4Values[paramName] = value;
+    s_globalMaterial->SetMat4Value(paramName, value);
 }
 
 void Material::SetGlobalTextureValue(const std::string& paramName, RESOURCE_ID value)
 {
-    s_globalTextureValues[paramName] = value;
+    s_globalMaterial->SetTextureValue(paramName, value);
 }
 
 void Material::SetGlobalVector4Value(const std::string& paramName, const glm::vec4& value)
 {
-    s_globalVec4Values[paramName] = value;
+    s_globalMaterial->SetVector4Value(paramName, value);
 }
 
-void Material::fillParams(const Shader* shader) const
+void Material::SetGlobalFloatArrValue(const std::string& paramName, const float* value, const int count)
 {
-    auto curTextureSlot = FillGlobalParams(shader);
+    s_globalMaterial->SetFloatArrValue(paramName, value, count);
+}
+
+void Material::FillParams(const Shader* shader) const
+{
+    // ---------------------将全局参数写入临时材质---------------------
+    s_tempMaterial->intValues = s_globalMaterial->intValues;
+    s_tempMaterial->boolValues = s_globalMaterial->boolValues;
+    s_tempMaterial->floatValues = s_globalMaterial->floatValues;
+    s_tempMaterial->mat4Values = s_globalMaterial->mat4Values;
+    s_tempMaterial->textureValues = s_globalMaterial->textureValues;
+    s_tempMaterial->vec4Values = s_globalMaterial->vec4Values;
+    s_tempMaterial->floatArrValues = s_globalMaterial->floatArrValues;
     
+    // ---------------------使用材质参数覆盖全局参数---------------------
     for (const auto& element : intValues)
     {
-        shader->setInt(element.first, element.second);
+        s_tempMaterial->intValues[element.first] = element.second;
     }
-    
     for (const auto& element : boolValues)
     {
-        shader->setBool(element.first, element.second);
+        s_tempMaterial->boolValues[element.first] = element.second;
     }
-    
     for (const auto& element : floatValues)
     {
-        shader->setFloat(element.first, element.second);
+        s_tempMaterial->floatValues[element.first] = element.second;
     }
-    
-    for (const auto& element : vec4Values)
-    {
-        shader->setVector(element.first, element.second);
-    }
-    
     for (const auto& element : mat4Values)
     {
-        shader->setMatrix(element.first, element.second);
+        s_tempMaterial->mat4Values[element.first] = element.second;
     }
-
-    int slot = curTextureSlot;
-    for (auto& element : textureValues)
+    for (const auto& element : textureValues)
     {
-        if(!shader->hasParam(element.first))
+        s_tempMaterial->textureValues[element.first] = element.second;
+    }
+    for (const auto& element : vec4Values)
+    {
+        s_tempMaterial->vec4Values[element.first] = element.second;
+    }
+    for (const auto& element : floatArrValues)
+    {
+        s_tempMaterial->floatArrValues[element.first] = element.second;
+    }
+    
+    // ---------------------实际写入数据---------------------
+    for (const auto& element : s_tempMaterial->intValues)
+    {
+        shader->SetInt(element.first, element.second);
+    }
+    for (const auto& element : s_tempMaterial->boolValues)
+    {
+        shader->SetBool(element.first, element.second);
+    }
+    for (const auto& element : s_tempMaterial->floatValues)
+    {
+        shader->SetFloat(element.first, element.second);
+    }
+    for (const auto& element : s_tempMaterial->vec4Values)
+    {
+        shader->SetVector(element.first, element.second);
+    }
+    for (const auto& element : s_tempMaterial->mat4Values)
+    {
+        shader->SetMatrix(element.first, element.second);
+    }
+    for (const auto& element : s_tempMaterial->floatArrValues)
+    {
+        shader->SetFloatArr(element.first, static_cast<int>(element.second->size()), element.second->data());
+    }
+    int slot = 0;
+    for (auto& element : s_tempMaterial->textureValues)
+    {
+        if(!shader->HasParam(element.first))
         {
-            return;
+            continue;
         }
         
-        shader->setTexture(element.first, slot, element.second);
+        shader->SetTexture(element.first, slot, element.second);
         slot++;
     }
 }
 
-void Material::use(const Mesh* mesh) const
+void Material::Use(const Mesh* mesh) const
 {
     auto shader = ResourceMgr::GetPtr<Shader>(shaderId);
     if(shader == nullptr)
@@ -124,8 +176,8 @@ void Material::use(const Mesh* mesh) const
         throw std::runtime_error((std::stringstream() << "材质 " << name << " 未加载Shader").str());
     }
 
-    shader->use(mesh);
-    fillParams(shader);
+    shader->Use(mesh);
+    FillParams(shader);
 }
 
 RESOURCE_ID Material::LoadFromFile(const std::string& path)
@@ -161,31 +213,31 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
         
         if (elemValue.is_number_integer())
         {
-            result->setIntValue(elemKey, elemValue.get<int>());
+            result->SetIntValue(elemKey, elemValue.get<int>());
             continue;
         }
         
         if (elemValue.is_number_float())
         {
-            result->setFloatValue(elemKey, elemValue.get<float>());
+            result->SetFloatValue(elemKey, elemValue.get<float>());
             continue;
         }
         
         if (elemValue.is_boolean())
         {
-            result->setBoolValue(elemKey, elemValue.get<bool>());
+            result->SetBoolValue(elemKey, elemValue.get<bool>());
             continue;
         }
         
         if (Utils::IsVec4(elemValue))
         {
-            result->setVector4Value(elemKey, Utils::ToVec4(elemValue));
+            result->SetVector4Value(elemKey, Utils::ToVec4(elemValue));
             continue;
         }
         
         if (elemValue.is_string() && Utils::EndsWith(elemKey, "Tex"))
         {
-            result->setTextureValue(elemKey, Image::LoadFromFile(elemValue.get<std::string>(), ImageDescriptor::GetDefault()));
+            result->SetTextureValue(elemKey, Image::LoadFromFile(elemValue.get<std::string>(), ImageDescriptor::GetDefault()));
             continue;
         }
     }
@@ -207,45 +259,4 @@ RESOURCE_ID Material::CreateEmptyMaterial(const std::string& shaderPath)
     auto result = new Material();
     result->shaderId = shader;
     return result->id;
-}
-
-int Material::FillGlobalParams(const Shader* shader)
-{
-    for (const auto& element : s_globalIntValues)
-    {
-        shader->setInt(element.first, element.second);
-    }
-
-    for (const auto& element : s_globalBoolValues)
-    {
-        shader->setBool(element.first, element.second);
-    }
-
-    for (const auto& element : s_globalFloatValues)
-    {
-        shader->setFloat(element.first, element.second);
-    }
-
-    for (const auto& element : s_globalVec4Values)
-    {
-        shader->setVector(element.first, element.second);
-    }
-
-    for (const auto& element : s_globalMat4Values)
-    {
-        shader->setMatrix(element.first, element.second);
-    }
-
-    int globalSlot = 0;
-    for (const auto& element : s_globalTextureValues)
-    {
-        if(!shader->hasParam(element.first))
-        {
-            continue;
-        }
-        
-        shader->setTexture(element.first, globalSlot, element.second);
-        globalSlot++;
-    }
-    return globalSlot;
 }
