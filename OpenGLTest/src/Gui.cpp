@@ -57,6 +57,15 @@ void Gui::DrawCoordinateDirLine()
     Utils::DebugDrawLine(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), view, proj, screenSize, IM_COL32(0, 0, 255, 255));
 }
 
+glm::vec3 Gui::SliderFloat3(const std::string& label, const glm::vec3 input, const float v_min, const float v_max, const std::string& format)
+{
+    auto arr = Utils::ToArr(input);
+    ImGui::SliderFloat3(label.c_str(), arr, v_min, v_max, format.c_str());
+    auto result = Utils::FromArr(arr);
+    delete[] arr;
+    return result;
+}
+
 void Gui::DrawApplicationPanel()
 {
     ImGui::Begin("Application Info");
@@ -83,6 +92,12 @@ void Gui::DrawLogInfoPanel()
 void Gui::DrawConsolePanel()
 {
     ImGui::Begin("Console");
+
+    auto sky = SliderFloat3("GradientSky", IndirectLighting::s_gradientAmbientColor.sky, 0.0f, 1.0f, "%.2f");
+    auto equator = SliderFloat3("GradientEquator", IndirectLighting::s_gradientAmbientColor.equator, 0.0f, 1.0f, "%.2f");
+    auto ground = SliderFloat3("GradientGround", IndirectLighting::s_gradientAmbientColor.ground, 0.0f, 1.0f, "%.2f");
+    IndirectLighting::SetGradientAmbientColor(sky, equator, ground);
+    
     
     ImGui::End();
 }

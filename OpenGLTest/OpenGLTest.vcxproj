@@ -459,6 +459,7 @@
     <Content Include="..\assets\shaders\deferred_shading.glsl" />
     <Content Include="..\assets\shaders\draw_shadow.glsl" />
     <Content Include="..\assets\shaders\final_blit.glsl" />
+    <Content Include="..\assets\shaders\indirectLighting.glsl" />
     <Content Include="..\assets\shaders\lit.glsl" />
     <Content Include="..\assets\shaders\skybox_shader.glsl" />
     <Content Include="..\assets\textures\o2.png" />

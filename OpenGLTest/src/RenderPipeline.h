@@ -30,7 +30,7 @@ public:
     RenderPipeline(int width, int height, GLFWwindow* window);
     ~RenderPipeline();
     void setScreenSize(int width, int height);
-    void render(RESOURCE_ID cameraId, const Scene* scene);
+    void render(RESOURCE_ID cameraId, Scene* scene);
     void getViewProjMatrix(glm::mat4& view, glm::mat4& proj);
     void getScreenSize(int& width, int& height);
 
@@ -41,7 +41,7 @@ private:
     CullModeMgr* m_cullModeMgr = nullptr;
     RenderContext m_renderContext;
 
-    Shc m_shc;
+    Scene* m_preDrawnScene = nullptr;
 
     RESOURCE_ID m_skyboxCubeTexture = UNDEFINED_RESOURCE;
     RESOURCE_ID m_lutTexture = UNDEFINED_RESOURCE;
@@ -66,18 +66,20 @@ private:
     RESOURCE_ID m_shadingBufferTex = UNDEFINED_RESOURCE;
     RESOURCE_ID m_mainLightShadowMapTex = UNDEFINED_RESOURCE;
 
-    bool _updateRenderTargetsPass();
-    void _preparingPass(RESOURCE_ID cameraId);
-    void _renderMainLightShadowPass(unsigned long long cameraId, const Scene* scene);
-    void _renderSkyboxPass(RESOURCE_ID cameraId);
-    void _renderScenePass(RESOURCE_ID cameraId, const Scene* scene);
-    void _deferredShadingPass();
-    void _finalBlitPass();
-    void _renderUiPass();
+    void FirstDrawScene(const Scene* scene);
 
-    void _renderScene(const Scene* scene);
-    void _renderEntity(const Entity* entity);
-    void _renderMesh(const ::Mesh* mesh, ::Material* mat, const glm::mat4& m);
-    void _setViewProjMatrix(RESOURCE_ID camera);
-    void _setViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
+    bool UpdateRenderTargetsPass();
+    void PreparingPass(RESOURCE_ID cameraId);
+    void RenderMainLightShadowPass(unsigned long long cameraId, const Scene* scene);
+    void RenderSkyboxPass(RESOURCE_ID cameraId);
+    void RenderScenePass(RESOURCE_ID cameraId, const Scene* scene);
+    void DeferredShadingPass();
+    void FinalBlitPass();
+    void RenderUiPass();
+
+    void RenderScene(const Scene* scene);
+    void RenderEntity(const Entity* entity);
+    void RenderMesh(const ::Mesh* mesh, ::Material* mat, const glm::mat4& m);
+    void SetViewProjMatrix(RESOURCE_ID camera);
+    void SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
 };

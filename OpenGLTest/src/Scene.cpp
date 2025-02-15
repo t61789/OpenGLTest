@@ -91,9 +91,19 @@ void Scene::_loadSceneConfig(const nlohmann::json& configJson)
         mainLightColor = Utils::ToVec3(configJson["mainLightColor"]);
     }
     
-    if(configJson.contains("ambientLightColor"))
+    if(configJson.contains("ambientLightColorSky"))
     {
-        ambientLightColor = Utils::ToVec3(configJson["ambientLightColor"]);
+        ambientLightColorSky = Utils::ToVec3(configJson["ambientLightColorSky"]);
+    }
+    
+    if(configJson.contains("ambientLightColorEquator"))
+    {
+        ambientLightColorEquator = Utils::ToVec3(configJson["ambientLightColorEquator"]);
+    }
+    
+    if(configJson.contains("ambientLightColorGround"))
+    {
+        ambientLightColorGround = Utils::ToVec3(configJson["ambientLightColorGround"]);
     }
 
     if(configJson.contains("tonemappingExposureMultiplier"))

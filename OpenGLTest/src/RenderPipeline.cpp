@@ -71,13 +71,6 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(1), m_mainLightShadowMapTex);
     auto mainLightShadowRenderTarget = new RenderTarget(attachments, 1, "MainLightShadowMap");
     m_mainLightShadowRenderTarget = mainLightShadowRenderTarget->id;
-
-    m_shc = IndirectLighting::CalcShc(
-        glm::vec3(0.0f, 1.0f, 0.0f),
-        glm::vec3(1.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f));
-
-    Material::SetGlobalFloatArrValue("Shc", m_shc.GetData(), 27);
 }
 
 RenderPipeline::~RenderPipeline()
@@ -114,39 +107,45 @@ void RenderPipeline::setScreenSize(const int width, const int height)
     m_screenHeight = height;
 }
 
-void RenderPipeline::render(const RESOURCE_ID cameraId, const Scene* scene)
+void RenderPipeline::render(const RESOURCE_ID cameraId, Scene* scene)
 {
-    if(!_updateRenderTargetsPass())
+    if(!UpdateRenderTargetsPass())
     {
         throw std::runtime_error("RenderTarget创建失败");
     }
 
+    if (m_preDrawnScene != scene)
+    {
+        m_preDrawnScene = scene;
+        FirstDrawScene(scene);
+    }
+
     Utils::BeginDebugGroup("Preparing");
-    _preparingPass(cameraId);
+    PreparingPass(cameraId);
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Draw Main Light Shadow");
-    _renderMainLightShadowPass(cameraId, scene);
+    RenderMainLightShadowPass(cameraId, scene);
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Draw Skybox");
-    _renderSkyboxPass(cameraId);
+    RenderSkyboxPass(cameraId);
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Draw Scene");
-    _renderScenePass(cameraId, scene);
+    RenderScenePass(cameraId, scene);
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Deferred Lighting");
-    _deferredShadingPass();
+    DeferredShadingPass();
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Final Blit");
-    _finalBlitPass();
+    FinalBlitPass();
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Draw UI");
-    _renderUiPass();
+    RenderUiPass();
     Utils::EndDebugGroup();
 
     glfwSwapBuffers(m_window);
@@ -167,7 +166,12 @@ void RenderPipeline::getScreenSize(int& width, int& height)
     height = this->m_screenHeight;
 }
 
-bool RenderPipeline::_updateRenderTargetsPass()
+void RenderPipeline::FirstDrawScene(const Scene* scene)
+{
+    IndirectLighting::SetGradientAmbientColor(scene->ambientLightColorSky, scene->ambientLightColorEquator, scene->ambientLightColorGround);
+}
+
+bool RenderPipeline::UpdateRenderTargetsPass()
 {
     auto gBuffer0Tex = ResourceMgr::GetPtr<RenderTexture>(m_gBuffer0Tex);
     if(gBuffer0Tex->width != m_screenWidth || gBuffer0Tex->height != m_screenHeight)
@@ -192,7 +196,7 @@ bool RenderPipeline::_updateRenderTargetsPass()
     return true;
 }
 
-void RenderPipeline::_preparingPass(const RESOURCE_ID cameraId)
+void RenderPipeline::PreparingPass(const RESOURCE_ID cameraId)
 {
     auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
     if(camera == nullptr)
@@ -208,7 +212,7 @@ void RenderPipeline::_preparingPass(const RESOURCE_ID cameraId)
     gBufferRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void RenderPipeline::_renderMainLightShadowPass(RESOURCE_ID cameraId, const Scene* scene)
+void RenderPipeline::RenderMainLightShadowPass(RESOURCE_ID cameraId, const Scene* scene)
 {
     if(scene == nullptr)
     {
@@ -248,7 +252,7 @@ void RenderPipeline::_renderMainLightShadowPass(RESOURCE_ID cameraId, const Scen
     worldToShadowCamera = inverse(shadowCameraToWorld);
     
     auto projMatrix = glm::ortho(-range, range, -range, range, 0.05f, 2 * range2);
-    _setViewProjMatrix(worldToShadowCamera, projMatrix);
+    SetViewProjMatrix(worldToShadowCamera, projMatrix);
 
     Material::SetGlobalMat4Value("_MainLightShadowVP", projMatrix * worldToShadowCamera);
 
@@ -257,14 +261,14 @@ void RenderPipeline::_renderMainLightShadowPass(RESOURCE_ID cameraId, const Scen
     mainLightShadowRenderTarget->use();
 
     m_renderContext.replaceMaterial = m_drawShadowMat;
-    _renderScene(scene);
+    RenderScene(scene);
     m_renderContext.replaceMaterial = UNDEFINED_RESOURCE;
 
     // 准备绘制参数
-    _setViewProjMatrix(cameraId);
+    SetViewProjMatrix(cameraId);
 }
 
-void RenderPipeline::_renderSkyboxPass(const RESOURCE_ID cameraId)
+void RenderPipeline::RenderSkyboxPass(const RESOURCE_ID cameraId)
 {
     auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
     auto sphereMesh = ResourceMgr::GetPtr<Mesh>(m_sphereMesh);
@@ -280,10 +284,10 @@ void RenderPipeline::_renderSkyboxPass(const RESOURCE_ID cameraId)
     m = translate(m, camera->position);
     m = scale(m, glm::vec3(1));
 
-    _renderMesh(sphereMesh, skyboxMat, m);
+    RenderMesh(sphereMesh, skyboxMat, m);
 }
 
-void RenderPipeline::_renderScenePass(RESOURCE_ID cameraId, const Scene* scene)
+void RenderPipeline::RenderScenePass(RESOURCE_ID cameraId, const Scene* scene)
 {
     if(scene == nullptr)
     {
@@ -301,18 +305,16 @@ void RenderPipeline::_renderScenePass(RESOURCE_ID cameraId, const Scene* scene)
 
     Material::SetGlobalVector4Value("_MainLightDirection", glm::vec4(normalize(scene->mainLightDirection), 0));
     Material::SetGlobalVector4Value("_MainLightColor", glm::vec4(scene->mainLightColor, 0));
-    Material::SetGlobalVector4Value("_AmbientLightColor", glm::vec4(scene->ambientLightColor, 0));
     Material::SetGlobalFloatValue("_ExposureMultiplier", scene->tonemappingExposureMultiplier);
     
     m_renderContext.mainLightDirection = normalize(scene->mainLightDirection);
     m_renderContext.mainLightColor = scene->mainLightColor;
-    m_renderContext.ambientLightColor = scene->ambientLightColor;
     m_renderContext.tonemappingExposureMultiplier = scene->tonemappingExposureMultiplier;
     
-    _renderScene(scene);
+    RenderScene(scene);
 }
 
-void RenderPipeline::_deferredShadingPass()
+void RenderPipeline::DeferredShadingPass()
 {
     auto shadingRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_shadingRenderTarget);
     shadingRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -326,10 +328,10 @@ void RenderPipeline::_deferredShadingPass()
         return;
     }
 
-    _renderMesh(fullScreenQuad, deferredShadingMat, glm::mat4(1));
+    RenderMesh(fullScreenQuad, deferredShadingMat, glm::mat4(1));
 }
 
-void RenderPipeline::_finalBlitPass()
+void RenderPipeline::FinalBlitPass()
 {
     RenderTarget::ClearFrameBuffer(0, glm::vec4(0), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderTarget::UseScreenTarget();
@@ -343,15 +345,15 @@ void RenderPipeline::_finalBlitPass()
     }
 
     finalBlitMat->SetTextureValue("_LutTex", m_lutTexture);
-    _renderMesh(fullScreenQuad, finalBlitMat, glm::mat4()); 
+    RenderMesh(fullScreenQuad, finalBlitMat, glm::mat4()); 
 }
 
-void RenderPipeline::_renderUiPass()
+void RenderPipeline::RenderUiPass()
 {
     Gui::Render();
 }
 
-void RenderPipeline::_renderScene(const Scene* scene)
+void RenderPipeline::RenderScene(const Scene* scene)
 {
     // DFS地绘制场景
     std::stack<RESOURCE_ID> drawingStack;
@@ -364,7 +366,7 @@ void RenderPipeline::_renderScene(const Scene* scene)
         if(entity != nullptr)
         {
             Utils::BeginDebugGroup("Draw Entity");
-            _renderEntity(entity);
+            RenderEntity(entity);
             Utils::EndDebugGroup();
         }
         auto object = ResourceMgr::GetPtr<Object>(entityId);
@@ -378,7 +380,7 @@ void RenderPipeline::_renderScene(const Scene* scene)
     }
 }
 
-void RenderPipeline::_renderEntity(const Entity* entity)
+void RenderPipeline::RenderEntity(const Entity* entity)
 {
     if(entity == nullptr)
     {
@@ -401,10 +403,10 @@ void RenderPipeline::_renderEntity(const Entity* entity)
         return;
     }
 
-    _renderMesh(mesh, material, entity->getLocalToWorld());
+    RenderMesh(mesh, material, entity->getLocalToWorld());
 }
 
-void RenderPipeline::_renderMesh(const Mesh* mesh, Material* mat, const glm::mat4& m)
+void RenderPipeline::RenderMesh(const Mesh* mesh, Material* mat, const glm::mat4& m)
 {
     auto mvp = m_renderContext.vpMatrix * m;
 
@@ -418,7 +420,7 @@ void RenderPipeline::_renderMesh(const Mesh* mesh, Material* mat, const glm::mat
     glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);
 }
 
-void RenderPipeline::_setViewProjMatrix(RESOURCE_ID camera)
+void RenderPipeline::SetViewProjMatrix(RESOURCE_ID camera)
 {
     auto cameraPtr = ResourceMgr::GetPtr<Camera>(camera);
     if(cameraPtr == nullptr)
@@ -433,10 +435,10 @@ void RenderPipeline::_setViewProjMatrix(RESOURCE_ID camera)
         static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight),
         cameraPtr->nearClip,
         cameraPtr->farClip);
-    _setViewProjMatrix(viewMatrix, projectionMatrix);
+    SetViewProjMatrix(viewMatrix, projectionMatrix);
 }
 
-void RenderPipeline::_setViewProjMatrix(const glm::mat4& view, const glm::mat4& proj)
+void RenderPipeline::SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj)
 {
     m_renderContext.vMatrix = view;
     m_renderContext.pMatrix = proj;

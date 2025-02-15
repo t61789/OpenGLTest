@@ -16,6 +16,7 @@ void main()
 #version 330 core
 
 #include "./common.glsl"
+#include "./indirectLighting.glsl"
 
 in vec2 texCoord;
 
@@ -83,7 +84,7 @@ vec3 Lit(vec3 albedo, vec3 normalWS, float roughness, float metallic)
     vec3 environmentReflection = SampleSkybox(reflect(-v, n), mix(0, 12, roughness)) * Luminance(_MainLightColor.rgb);
     vec3 eF = F0 + (1.0 - F0) * pow(max(1.0 - ndv, 0), 5.0);
     environmentReflection *= eF; // TODO 预计算
-//    environmentReflection = roughness > 0.95 ? vec3(0) : environmentReflection;
+    environmentReflection = roughness > 0.95 ? CalcIndirectLighting(normalWS) : environmentReflection;
 
     return kD * diffuse + specular + environmentReflection;
 }

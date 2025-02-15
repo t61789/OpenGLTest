@@ -192,6 +192,21 @@ std::string Utils::ToString(const glm::mat4& val)
            "\t|" + ToString(val[0][3], 2) + ", " + ToString(val[1][3], 2) + ", " + ToString(val[2][3], 2) + ", " + ToString(val[3][3], 2) + "|";
 }
 
+float* Utils::ToArr(const glm::vec3& val)
+{
+    auto arr = new float[3];
+    arr[0] = val.x;
+    arr[1] = val.y;
+    arr[2] = val.z;
+
+    return arr;
+}
+
+glm::vec3 Utils::FromArr(float* arr)
+{
+    return {arr[0], arr[1], arr[2]};
+}
+
 bool Utils::IsVec(const nlohmann::json& jsonValue, const size_t components)
 {
     if (jsonValue.is_array() && jsonValue.size() == components)

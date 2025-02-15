@@ -1,7 +1,9 @@
 {
 	"config":
 	{
-		"ambientLightColor":[0.1, 0.1, 0.1],
+		"ambientLightColorSky":[0.44, 0.44, 0.54],
+		"ambientLightColorEquator":[0.32, 0.32, 0.39],
+		"ambientLightColorGround":[0.32, 0.32, 0.39],
 		"mainLightColor":[0.7, 0.7, 0.7],
 		"mainLightDirection":[-1, 1, -1],
 		"tonemappingExposureMultiplier":1
@@ -21,7 +23,7 @@
 			"type":"entity",
 			"scale":[1, 1, 1],
 			"position":[0, 3.192, 0],
-			"mesh":"meshes/smooth_cube.obj",
+			"mesh":"meshes/sphere.obj",
 			"material":"materials/standard_mat.json"
 		},
 		{

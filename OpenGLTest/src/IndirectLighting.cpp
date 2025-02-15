@@ -1,8 +1,18 @@
 ﻿#include "IndirectLighting.h"
 
+#include "Material.h"
+#include "Utils.h"
+
+GradientAmbientColor IndirectLighting::s_gradientAmbientColor;
+
 void Shc::SetShc(int channel, int term, float val)
 {
     m_data[term * 3 + channel] = val;
+}
+
+void Shc::AddShc(int channel, int term, float val)
+{
+    m_data[term * 3 + channel] += val;
 }
 
 float Shc::GetShc(int channel, int term)
@@ -13,6 +23,19 @@ float Shc::GetShc(int channel, int term)
 float* Shc::GetData()
 {
     return m_data.data();
+}
+
+void IndirectLighting::SetGradientAmbientColor(const glm::vec3& sky, const glm::vec3& equator, const glm::vec3& ground)
+{
+    auto cur = GradientAmbientColor{ sky, equator, ground };
+    if (s_gradientAmbientColor.Equals(cur))
+    {
+        return;
+    }
+
+    s_gradientAmbientColor = cur;
+    auto shc = CalcShc(sky, equator, ground);
+    Material::SetGlobalFloatArrValue("_Shc", shc.GetData(), 27);
 }
 
 Shc IndirectLighting::CalcShc(const glm::vec3& sky, const glm::vec3& equator, const glm::vec3& ground)
@@ -37,7 +60,7 @@ Shc IndirectLighting::CalcShc(const glm::vec3& sky, const glm::vec3& equator, co
         {
             for (int channel = 0; channel < 3; ++channel)
             {
-                result.SetShc(channel, term, baseShc[term] * color[channel]);
+                result.AddShc(channel, term, baseShc[term] * color[channel]);
             }
         }
     }
@@ -85,7 +108,7 @@ glm::vec3 IndirectLighting::SampleColor(const glm::vec3& direction, const glm::v
         return sky;
     }
     
-    if (direction.y < 0.5f)
+    if (direction.y < -0.5f)
     {
         return ground;
     }
