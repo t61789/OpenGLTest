@@ -5,6 +5,7 @@
 #include <ext/matrix_clip_space.hpp>
 #include <ext/matrix_transform.hpp>
 #include <ext/quaternion_common.hpp>
+#include <glm.hpp>
 
 #include "Camera.h"
 #include "Entity.h"
@@ -28,7 +29,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     auto desc = ImageDescriptor::GetDefault();
     desc.needFlipVertical = false;
     m_skyboxCubeTexture = Image::LoadCubeFromFile("textures/skybox", "jpg", desc);
-    m_lutTexture = Image::LoadFromFile("textures/testLut.png", ImageDescriptor::GetDefault());
+    m_lutTexture = Image::LoadFromFile("textures/testLut.png", desc);
     Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
 
     m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
@@ -40,12 +41,12 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
 
     m_quadMesh = Mesh::LoadFromFile("meshes/quad.obj");
 
-    m_gBuffer0Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex")))->id;
-    m_gBuffer1Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBA, Point, Clamp, "_GBuffer1Tex")))->id;
-    m_gBuffer2Tex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex")))->id;
-    m_gBufferDepthTex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthStencil, Point, Clamp, "_GBufferDepthTex")))->id;
-    m_shadingBufferTex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_ShadingBufferTex")))->id;
-    m_mainLightShadowMapTex = (new RenderTexture(RenderTextureDescriptor(mainLightShadowTexSize, mainLightShadowTexSize, Depth, Point, Clamp, "_MainLightShadowMapTex")))->id;
+    m_gBuffer0Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex")));
+    m_gBuffer1Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBA, Point, Clamp, "_GBuffer1Tex")));
+    m_gBuffer2Tex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex")));
+    m_gBufferDepthTex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthStencil, Point, Clamp, "_GBufferDepthTex")));
+    m_shadingBufferTex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_ShadingBufferTex")));
+    m_mainLightShadowMapTex = (new RenderTexture(RenderTextureDescriptor(mainLightShadowTexSize, mainLightShadowTexSize, Depth, Point, Clamp, "_MainLightShadowMapTex")));
     Material::SetGlobalTextureValue("_GBuffer0Tex", m_gBuffer0Tex);
     Material::SetGlobalTextureValue("_GBuffer1Tex", m_gBuffer1Tex);
     Material::SetGlobalTextureValue("_GBuffer2Tex", m_gBuffer2Tex);
@@ -53,24 +54,21 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     Material::SetGlobalTextureValue("_MainLightShadowMapTex", m_mainLightShadowMapTex);
     
 
-    std::vector<RenderTargetAttachment> attachments;
-    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.5), m_gBuffer0Tex);
-    attachments.emplace_back(GL_COLOR_ATTACHMENT1, glm::vec4(0), m_gBuffer1Tex);
-    attachments.emplace_back(GL_COLOR_ATTACHMENT2, glm::vec4(1), m_gBuffer2Tex);
-    attachments.emplace_back(GL_DEPTH_STENCIL_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex);
-    auto gBufferRenderTarget = new RenderTarget(attachments, 3, "GBuffer");
-    m_gBufferRenderTarget = gBufferRenderTarget->id;
+    std::vector<RenderTargetAttachment*> attachments;
+    attachments.push_back(new RenderTargetAttachment(GL_COLOR_ATTACHMENT0, glm::vec4(0.5), m_gBuffer0Tex));
+    attachments.push_back(new RenderTargetAttachment(GL_COLOR_ATTACHMENT1, glm::vec4(0), m_gBuffer1Tex));
+    attachments.push_back(new RenderTargetAttachment(GL_COLOR_ATTACHMENT2, glm::vec4(1), m_gBuffer2Tex));
+    attachments.push_back(new RenderTargetAttachment(GL_DEPTH_STENCIL_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex));
+    m_gBufferRenderTarget = new RenderTarget(attachments, 3, "GBuffer");
 
     attachments.clear();
-    attachments.emplace_back(GL_COLOR_ATTACHMENT0, glm::vec4(0.77f, 0.77f, 0.83f, 1), m_shadingBufferTex);
-    attachments.emplace_back(GL_DEPTH_STENCIL_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex);
-    auto shadingRenderTarget = new RenderTarget(attachments, 1, "ShadingBuffer");
-    m_shadingRenderTarget = shadingRenderTarget->id;
+    attachments.push_back(new RenderTargetAttachment(GL_COLOR_ATTACHMENT0, glm::vec4(0.77f, 0.77f, 0.83f, 1), m_shadingBufferTex));
+    attachments.push_back(new RenderTargetAttachment(GL_DEPTH_STENCIL_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex));
+    m_shadingRenderTarget = new RenderTarget(attachments, 1, "ShadingBuffer");
 
     attachments.clear();
-    attachments.emplace_back(GL_DEPTH_ATTACHMENT, glm::vec4(1), m_mainLightShadowMapTex);
-    auto mainLightShadowRenderTarget = new RenderTarget(attachments, 1, "MainLightShadowMap");
-    m_mainLightShadowRenderTarget = mainLightShadowRenderTarget->id;
+    attachments.push_back(new RenderTargetAttachment(GL_DEPTH_ATTACHMENT, glm::vec4(1), m_mainLightShadowMapTex));
+    m_mainLightShadowRenderTarget = new RenderTarget(attachments, 1, "MainLightShadowMap");
 }
 
 RenderPipeline::~RenderPipeline()
@@ -79,26 +77,26 @@ RenderPipeline::~RenderPipeline()
 
     delete m_cullModeMgr;
     
-    ResourceMgr::DeleteResource(m_skyboxCubeTexture);
-    ResourceMgr::DeleteResource(m_lutTexture);
-    
-    ResourceMgr::DeleteResource(m_sphereMesh);
-    ResourceMgr::DeleteResource(m_skyboxMat);
-    ResourceMgr::DeleteResource(m_drawShadowMat);
-    ResourceMgr::DeleteResource(m_deferredShadingMat);
-    ResourceMgr::DeleteResource(m_finalBlitMat);
-    ResourceMgr::DeleteResource(m_quadMesh);
-    
-    ResourceMgr::DeleteResource(m_gBuffer0Tex);
-    ResourceMgr::DeleteResource(m_gBuffer1Tex);
-    ResourceMgr::DeleteResource(m_gBuffer2Tex);
-    ResourceMgr::DeleteResource(m_gBufferDepthTex);
-    ResourceMgr::DeleteResource(m_shadingBufferTex);
-    ResourceMgr::DeleteResource(m_mainLightShadowMapTex);
-    
-    ResourceMgr::DeleteResource(m_gBufferRenderTarget);
-    ResourceMgr::DeleteResource(m_shadingRenderTarget);
-    ResourceMgr::DeleteResource(m_mainLightShadowRenderTarget);
+    delete m_skyboxCubeTexture;
+    delete m_lutTexture;
+        
+    delete m_sphereMesh;
+    delete m_skyboxMat;
+    delete m_drawShadowMat;
+    delete m_deferredShadingMat;
+    delete m_finalBlitMat;
+    delete m_quadMesh;
+        
+    delete m_gBuffer0Tex;
+    delete m_gBuffer1Tex;
+    delete m_gBuffer2Tex;
+    delete m_gBufferDepthTex;
+    delete m_shadingBufferTex;
+    delete m_mainLightShadowMapTex;
+        
+    delete m_gBufferRenderTarget;
+    delete m_shadingRenderTarget;
+    delete m_mainLightShadowRenderTarget;
 }
 
 void RenderPipeline::setScreenSize(const int width, const int height)
@@ -107,7 +105,7 @@ void RenderPipeline::setScreenSize(const int width, const int height)
     m_screenHeight = height;
 }
 
-void RenderPipeline::render(const RESOURCE_ID cameraId, Scene* scene)
+void RenderPipeline::render(Camera* cameraId, Scene* scene)
 {
     if(!UpdateRenderTargetsPass())
     {
@@ -173,32 +171,29 @@ void RenderPipeline::FirstDrawScene(const Scene* scene)
 
 bool RenderPipeline::UpdateRenderTargetsPass()
 {
-    auto gBuffer0Tex = ResourceMgr::GetPtr<RenderTexture>(m_gBuffer0Tex);
-    if(gBuffer0Tex->width != m_screenWidth || gBuffer0Tex->height != m_screenHeight)
+    if(m_gBuffer0Tex->width != m_screenWidth || m_gBuffer0Tex->height != m_screenHeight)
     {
-        gBuffer0Tex->resize(m_screenWidth, m_screenHeight);
-        ResourceMgr::GetPtr<RenderTexture>(m_gBuffer1Tex)->resize(m_screenWidth, m_screenHeight);
-        ResourceMgr::GetPtr<RenderTexture>(m_gBuffer2Tex)->resize(m_screenWidth, m_screenHeight);
-        ResourceMgr::GetPtr<RenderTexture>(m_gBufferDepthTex)->resize(m_screenWidth, m_screenHeight);
-        ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget)->rebindAttachments();
+        m_gBuffer0Tex->resize(m_screenWidth, m_screenHeight);
+        m_gBuffer1Tex->resize(m_screenWidth, m_screenHeight);
+        m_gBuffer2Tex->resize(m_screenWidth, m_screenHeight);
+        m_gBufferDepthTex->resize(m_screenWidth, m_screenHeight);
+        m_gBufferRenderTarget->RebindAttachments();
         
-        ResourceMgr::GetPtr<RenderTexture>(m_shadingBufferTex)->resize(m_screenWidth, m_screenHeight);
-        ResourceMgr::GetPtr<RenderTarget>(m_shadingRenderTarget)->rebindAttachments();
+        m_shadingBufferTex->resize(m_screenWidth, m_screenHeight);
+        m_shadingRenderTarget->RebindAttachments();
     }
 
-    auto mainLightShadowMapTex = ResourceMgr::GetPtr<RenderTexture>(m_mainLightShadowMapTex);
-    if(mainLightShadowMapTex->width != mainLightShadowTexSize)
+    if(m_mainLightShadowMapTex->width != mainLightShadowTexSize)
     {
-        mainLightShadowMapTex->resize(mainLightShadowTexSize, mainLightShadowTexSize);
-        ResourceMgr::GetPtr<RenderTarget>(m_mainLightShadowRenderTarget)->rebindAttachments();
+        m_mainLightShadowMapTex->resize(mainLightShadowTexSize, mainLightShadowTexSize);
+        m_mainLightShadowRenderTarget->RebindAttachments();
     }
 
     return true;
 }
 
-void RenderPipeline::PreparingPass(const RESOURCE_ID cameraId)
+void RenderPipeline::PreparingPass(Camera* camera)
 {
-    auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
     if(camera == nullptr)
     {
         return;
@@ -208,19 +203,12 @@ void RenderPipeline::PreparingPass(const RESOURCE_ID cameraId)
     
     m_renderContext.cameraPositionWS = camera->position;
     
-    auto gBufferRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget);
-    gBufferRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    m_gBufferRenderTarget->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void RenderPipeline::RenderMainLightShadowPass(RESOURCE_ID cameraId, const Scene* scene)
+void RenderPipeline::RenderMainLightShadowPass(Camera* camera, const Scene* scene)
 {
-    if(scene == nullptr)
-    {
-        return;
-    }
-
-    auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
-    if(camera == nullptr)
+    if(camera == nullptr || scene == nullptr)
     {
         return;
     }
@@ -256,52 +244,41 @@ void RenderPipeline::RenderMainLightShadowPass(RESOURCE_ID cameraId, const Scene
 
     Material::SetGlobalMat4Value("_MainLightShadowVP", projMatrix * worldToShadowCamera);
 
-    auto mainLightShadowRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_mainLightShadowRenderTarget);
-    mainLightShadowRenderTarget->clear(GL_DEPTH_BUFFER_BIT);
-    mainLightShadowRenderTarget->use();
+    m_mainLightShadowRenderTarget->Clear(GL_DEPTH_BUFFER_BIT);
+    m_mainLightShadowRenderTarget->Use();
 
     m_renderContext.replaceMaterial = m_drawShadowMat;
     RenderScene(scene);
-    m_renderContext.replaceMaterial = UNDEFINED_RESOURCE;
+    m_renderContext.replaceMaterial = nullptr;
 
     // 准备绘制参数
-    SetViewProjMatrix(cameraId);
+    SetViewProjMatrix(camera);
 }
 
-void RenderPipeline::RenderSkyboxPass(const RESOURCE_ID cameraId)
+void RenderPipeline::RenderSkyboxPass(Camera* camera)
 {
-    auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
-    auto sphereMesh = ResourceMgr::GetPtr<Mesh>(m_sphereMesh);
-    auto skyboxMat = ResourceMgr::GetPtr<Material>(m_skyboxMat);
-    if(camera == nullptr || sphereMesh == nullptr || skyboxMat == nullptr)
+    if(camera == nullptr || m_sphereMesh == nullptr || m_skyboxMat == nullptr)
     {
         return;
     }
 
-    ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget)->use();
+    m_gBufferRenderTarget->Use();
     
     auto m = glm::mat4(1);
     m = translate(m, camera->position);
     m = scale(m, glm::vec3(1));
 
-    RenderMesh(sphereMesh, skyboxMat, m);
+    RenderMesh(m_sphereMesh, m_skyboxMat, m);
 }
 
-void RenderPipeline::RenderScenePass(RESOURCE_ID cameraId, const Scene* scene)
+void RenderPipeline::RenderScenePass(Camera* camera, const Scene* scene)
 {
-    if(scene == nullptr)
-    {
-        return;
-    }
-    
-    auto camera = ResourceMgr::GetPtr<Camera>(cameraId);
-    auto sceneRootObj = ResourceMgr::GetPtr<Object>(scene->sceneRoot);
-    if(camera == nullptr || sceneRootObj == nullptr)
+    if(camera == nullptr || scene == nullptr || scene->sceneRoot == nullptr)
     {
         return;
     }
 
-    ResourceMgr::GetPtr<RenderTarget>(m_gBufferRenderTarget)->use();
+    m_gBufferRenderTarget->Use();
 
     Material::SetGlobalVector4Value("_MainLightDirection", glm::vec4(normalize(scene->mainLightDirection), 0));
     Material::SetGlobalVector4Value("_MainLightColor", glm::vec4(scene->mainLightColor, 0));
@@ -316,19 +293,15 @@ void RenderPipeline::RenderScenePass(RESOURCE_ID cameraId, const Scene* scene)
 
 void RenderPipeline::DeferredShadingPass()
 {
-    auto shadingRenderTarget = ResourceMgr::GetPtr<RenderTarget>(m_shadingRenderTarget);
-    shadingRenderTarget->clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    shadingRenderTarget->use();
-
-    auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_quadMesh);
-    auto deferredShadingMat = ResourceMgr::GetPtr<Material>(m_deferredShadingMat);
+    m_shadingRenderTarget->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_shadingRenderTarget->Use();
     
-    if(fullScreenQuad == nullptr || deferredShadingMat == nullptr)
+    if(m_quadMesh == nullptr || m_deferredShadingMat == nullptr)
     {
         return;
     }
 
-    RenderMesh(fullScreenQuad, deferredShadingMat, glm::mat4(1));
+    RenderMesh(m_quadMesh, m_deferredShadingMat, glm::mat4(1));
 }
 
 void RenderPipeline::FinalBlitPass()
@@ -336,16 +309,13 @@ void RenderPipeline::FinalBlitPass()
     RenderTarget::ClearFrameBuffer(0, glm::vec4(0), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderTarget::UseScreenTarget();
     
-    auto fullScreenQuad = ResourceMgr::GetPtr<Mesh>(m_quadMesh);
-    auto finalBlitMat = ResourceMgr::GetPtr<Material>(m_finalBlitMat);
-
-    if(fullScreenQuad == nullptr || finalBlitMat == nullptr)
+    if(m_quadMesh == nullptr || m_finalBlitMat == nullptr)
     {
         return;
     }
 
-    finalBlitMat->SetTextureValue("_LutTex", m_lutTexture);
-    RenderMesh(fullScreenQuad, finalBlitMat, glm::mat4()); 
+    m_finalBlitMat->SetTextureValue("_LutTex", m_lutTexture);
+    RenderMesh(m_quadMesh, m_finalBlitMat, glm::mat4()); 
 }
 
 void RenderPipeline::RenderUiPass()
@@ -356,23 +326,22 @@ void RenderPipeline::RenderUiPass()
 void RenderPipeline::RenderScene(const Scene* scene)
 {
     // DFS地绘制场景
-    std::stack<RESOURCE_ID> drawingStack;
+    std::stack<Object*> drawingStack;
     drawingStack.push(scene->sceneRoot);
     while(!drawingStack.empty())
     {
-        auto entityId = drawingStack.top();
+        auto obj = drawingStack.top();
         drawingStack.pop();
-        auto entity = ResourceMgr::GetPtr<Entity>(entityId);
+        auto entity = dynamic_cast<Entity*>(obj);
         if(entity != nullptr)
         {
             Utils::BeginDebugGroup("Draw Entity");
             RenderEntity(entity);
             Utils::EndDebugGroup();
         }
-        auto object = ResourceMgr::GetPtr<Object>(entityId);
-        if(object != nullptr)
+        if(obj != nullptr)
         {
-            for (auto& child : object->children)
+            for (auto& child : obj->children)
             {
                 drawingStack.push(child);
             }
@@ -386,16 +355,16 @@ void RenderPipeline::RenderEntity(const Entity* entity)
     {
         return;
     }
-    auto mesh = ResourceMgr::GetPtr<Mesh>(entity->mesh);
-    
+
+    Mesh* mesh = entity->mesh;
     Material* material;
-    if(m_renderContext.replaceMaterial != UNDEFINED_RESOURCE)
+    if(m_renderContext.replaceMaterial != nullptr)
     {
-        material = ResourceMgr::GetPtr<Material>(m_renderContext.replaceMaterial);
+        material = m_renderContext.replaceMaterial;
     }
     else
     {
-        material = ResourceMgr::GetPtr<Material>(entity->material);
+        material = entity->material;
     }
     
     if(mesh == nullptr || material == nullptr)
@@ -403,7 +372,7 @@ void RenderPipeline::RenderEntity(const Entity* entity)
         return;
     }
 
-    RenderMesh(mesh, material, entity->getLocalToWorld());
+    RenderMesh(mesh, material, entity->GetLocalToWorld());
 }
 
 void RenderPipeline::RenderMesh(const Mesh* mesh, Material* mat, const glm::mat4& m)
@@ -420,21 +389,15 @@ void RenderPipeline::RenderMesh(const Mesh* mesh, Material* mat, const glm::mat4
     glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);
 }
 
-void RenderPipeline::SetViewProjMatrix(RESOURCE_ID camera)
+void RenderPipeline::SetViewProjMatrix(Camera* camera)
 {
-    auto cameraPtr = ResourceMgr::GetPtr<Camera>(camera);
-    if(cameraPtr == nullptr)
-    {
-        return;
-    }
-
-    auto cameraLocalToWorld = cameraPtr->getLocalToWorld();
-    auto viewMatrix = inverse(cameraLocalToWorld);
+    auto cameraLocalToWorld = camera->GetLocalToWorld();
+    auto viewMatrix = glm::inverse(cameraLocalToWorld);
     auto projectionMatrix = glm::perspective(
-        glm::radians(cameraPtr->fov * 0.5f),
+        glm::radians(camera->fov * 0.5f),
         static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight),
-        cameraPtr->nearClip,
-        cameraPtr->farClip);
+        camera->nearClip,
+        camera->farClip);
     SetViewProjMatrix(viewMatrix, projectionMatrix);
 }
 

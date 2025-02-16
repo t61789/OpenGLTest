@@ -5,31 +5,21 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <gtx/euler_angles.hpp>
 
-std::vector<OBJECT_ID> Camera::s_cameras;
+std::vector<Camera*> Camera::s_cameras;
 
 Camera::Camera()
 {
-    s_cameras.push_back(id);
+    s_cameras.push_back(this);
 }
 
 Camera::~Camera()
 {
-    for(size_t i = 0; i < s_cameras.size(); i++)
-    {
-        if(s_cameras[i] != id)
-        {
-            continue;
-        }
-        
-        s_cameras[i] = s_cameras[s_cameras.size() - 1];
-        s_cameras.pop_back();
-        return;
-    }
+    s_cameras.erase(std::remove(s_cameras.begin(), s_cameras.end(), this), s_cameras.end());
 }
 
-void Camera::update()
+void Camera::Update()
 {
-    auto localToWorld = getLocalToWorld();
+    auto localToWorld = GetLocalToWorld();
     glm::vec3 forward = localToWorld * glm::vec4(0, 0, -1.0f, 0.0f);
     glm::vec3 right = localToWorld * glm::vec4(1.0f, 0, 0, 0.0f);
 
@@ -94,9 +84,9 @@ void Camera::update()
     rotation = lerp(rotation, m_targetRotation, damp);
 }
 
-void Camera::loadFromJson(const nlohmann::json& objJson)
+void Camera::LoadFromJson(const nlohmann::json& objJson)
 {
-    Object::loadFromJson(objJson);
+    Object::LoadFromJson(objJson);
 
     if(objJson.contains("fov"))
     {
@@ -117,23 +107,14 @@ void Camera::loadFromJson(const nlohmann::json& objJson)
     m_targetRotation = this->rotation;
 }
 
-RESOURCE_ID Camera::GetMainCamera()
+Camera* Camera::GetMainCamera()
 {
     if(s_cameras.empty())
     {
-        return UNDEFINED_RESOURCE;
+        return nullptr;
     }
 
-    for (size_t i = 0; i < s_cameras.size(); ++i)
-    {
-        auto result = ResourceMgr::GetPtr<Camera>(s_cameras[i]);
-        if(result != nullptr)
-        {
-            return s_cameras[i];
-        }
-    }
-
-    return UNDEFINED_RESOURCE;
+    return s_cameras[0];
 }
 
 

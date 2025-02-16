@@ -1,9 +1,6 @@
 ﻿#include "Mesh.h"
 
-
-#include <iostream>
-
-#include "ResourceMgr.h"
+#include "SharedObject.h"
 #include "Utils.h"
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
@@ -32,7 +29,7 @@ void copyDataTo(
     }
 }
 
-RESOURCE_ID Mesh::CreateMesh(
+Mesh* Mesh::CreateMesh(
     const Bounds& bounds,
     const float* position,
     const float* normal,
@@ -114,7 +111,7 @@ RESOURCE_ID Mesh::CreateMesh(
     result->name = name;
     std::memcpy(&result->vertexAttribEnabled, &vertexAttribEnabled, sizeof(vertexAttribEnabled));
     std::memcpy(&result->vertexAttribOffset, &vertexAttribOffset, sizeof(vertexAttribOffset));
-    return result->id;
+    return result;
 }
 
 Mesh::~Mesh()
@@ -124,11 +121,14 @@ Mesh::~Mesh()
     glDeleteBuffers(1, &ebo);
 }
 
-RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
+Mesh* Mesh::LoadFromFile(const std::string& modelPath)
 {
-    if(ResourceMgr::IsResourceRegistered(modelPath))
     {
-        return ResourceMgr::GetRegisteredResource(modelPath);
+        SharedObject* result;
+        if(TryGetResource(modelPath, result))
+        {
+            return dynamic_cast<Mesh*>(result);
+        }
     }
     
     Assimp::Importer importer;
@@ -225,7 +225,7 @@ RESOURCE_ID Mesh::LoadFromFile(const std::string& modelPath)
         vertexCount,
         indicesCount,
         modelPath);
-    ResourceMgr::RegisterResource(modelPath, result);
+    RegisterResource(modelPath, result);
     auto msg = "成功载入Mesh " + modelPath + "\n";
     msg += "\t顶点数量 " + std::to_string(vertexCount) + "\n";
     msg += "\t三角形数量 " + std::to_string(indicesCount / 3) + "\n";

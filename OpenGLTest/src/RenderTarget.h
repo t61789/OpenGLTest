@@ -3,19 +3,20 @@
 #include <vec4.hpp>
 
 #include "RenderTexture.h"
-#include "ResourceMgr.h"
+#include "SharedObject.h"
 
 class RenderTargetAttachment
 {
 public:
     GLuint attachmentType;
     glm::vec4 clearColor;
-    RESOURCE_ID renderTexture;
+    RenderTexture* renderTexture;
 
-    RenderTargetAttachment(GLuint attachmentType, glm::vec4 clearColor, RESOURCE_ID renderTexture);
+    RenderTargetAttachment(GLuint attachmentType, glm::vec4 clearColor, RenderTexture* renderTexture);
+    ~RenderTargetAttachment();
 };
 
-class RenderTarget : public ResourceBase
+class RenderTarget : public SharedObject
 {
 public:
     GLuint frameBufferId;
@@ -27,18 +28,18 @@ public:
 
     int colorAttachmentsNum;
     
-    RenderTarget(const std::vector<RenderTargetAttachment>& attachments, int colorAttachmentsNum, const std::string& name = "Unnamed RenderTarget");
+    RenderTarget(const std::vector<RenderTargetAttachment*>& attachments, int colorAttachmentsNum, const std::string& name = "Unnamed RenderTarget");
     ~RenderTarget();
 
-    void use();
-    void clear(GLuint clearBits);
-    void rebindAttachments();
+    void Use();
+    void Clear(GLuint clearBits);
+    void RebindAttachments();
 
     static void UseScreenTarget();
     static void ClearFrameBuffer(GLuint frameBuffer, glm::vec4 clearColor, GLuint clearBits);
 
 private:
-    std::vector<RenderTargetAttachment> renderTargetAttachments;
+    std::vector<RenderTargetAttachment*> renderTargetAttachments;
 
-    void _checkRenderTargetComplete();
+    void CheckRenderTargetComplete();
 };

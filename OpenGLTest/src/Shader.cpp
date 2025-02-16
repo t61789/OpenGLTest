@@ -153,28 +153,28 @@ void Shader::SetMatrix(const int& location, const glm::mat4& value)
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Shader::SetTexture(const std::string& name, const int slot, const RESOURCE_ID value) const
+void Shader::SetTexture(const std::string& name, const int slot, const Texture* value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetTexture(location, slot, value);
 }
 
-void Shader::SetTexture(const int& location, const int slot, RESOURCE_ID value)
+void Shader::SetTexture(const int& location, const int slot, const Texture* value)
 {
-    auto texturePtr = ResourceMgr::GetPtr<Texture>(value);
-    if(location == -1 || texturePtr == nullptr || !texturePtr->isCreated)
+    if(location == -1 || value == nullptr || !value->isCreated)
     {
         return;
     }
+    
     SetInt(location, slot);
     glActiveTexture(GL_TEXTURE0 + slot);
-    if(texturePtr->isCubeMap)
+    if(value->isCubeMap)
     {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, texturePtr->glTextureId);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, value->glTextureId);
     }
     else
     {
-        glBindTexture(GL_TEXTURE_2D, texturePtr->glTextureId);
+        glBindTexture(GL_TEXTURE_2D, value->glTextureId);
     }
 }
 
@@ -301,11 +301,14 @@ void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& l
     }
 }
 
-RESOURCE_ID Shader::LoadFromFile(const std::string& glslPath)
+Shader* Shader::LoadFromFile(const std::string& glslPath)
 {
-    if(ResourceMgr::IsResourceRegistered(glslPath))
     {
-        return ResourceMgr::GetRegisteredResource(glslPath);
+        SharedObject* result;
+        if(TryGetResource(glslPath, result))
+        {
+            return dynamic_cast<Shader*>(result);
+        }
     }
 
     std::string vSource, fSource;
@@ -354,7 +357,7 @@ RESOURCE_ID Shader::LoadFromFile(const std::string& glslPath)
 
     auto result = new Shader();
     result->glShaderId = glShaderId;
-    ResourceMgr::RegisterResource(glslPath, result->id);
+    RegisterResource(glslPath, result);
     Utils::LogInfo("成功载入Shader " + glslPath);
-    return result->id;
+    return result;
 }

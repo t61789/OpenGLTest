@@ -15,9 +15,9 @@ public:
 class Image : public Texture
 {
 public:
-
+    Image(GLuint glTextureId);
     ~Image() override;
     
-    static RESOURCE_ID LoadFromFile(const std::string& path, const ImageDescriptor& desc);
-    static RESOURCE_ID LoadCubeFromFile(const std::string& dirPath, const std::string& expansionName, const ImageDescriptor& desc);
+    static Image* LoadFromFile(const std::string& path, const ImageDescriptor& desc);
+    static Image* LoadCubeFromFile(const std::string& dirPath, const std::string& expansionName, const ImageDescriptor& desc);
 };

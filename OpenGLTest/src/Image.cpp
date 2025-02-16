@@ -14,6 +14,11 @@ ImageDescriptor ImageDescriptor::GetDefault()
     return result;
 }
 
+Image::Image(const GLuint glTextureId) : Texture(glTextureId)
+{
+    
+}
+
 Image::~Image()
 {
     if(isCreated)
@@ -22,11 +27,14 @@ Image::~Image()
     }
 }
 
-RESOURCE_ID Image::LoadFromFile(const std::string& path, const ImageDescriptor& desc)
+Image* Image::LoadFromFile(const std::string& path, const ImageDescriptor& desc)
 {
-    if(ResourceMgr::IsResourceRegistered(path))
     {
-        return ResourceMgr::GetRegisteredResource(path);
+        SharedObject* result;
+        if(TryGetResource(path, result))
+        {
+            return dynamic_cast<Image*>(result);
+        }
     }
 
     stbi_set_flip_vertically_on_load(desc.needFlipVertical);
@@ -64,19 +72,22 @@ RESOURCE_ID Image::LoadFromFile(const std::string& path, const ImageDescriptor& 
 
     stbi_image_free(data);
 
-    auto texture = new Texture(glTextureId);
-    texture->width = width;
-    texture->height = height;
-    texture->isCreated = true;
-    ResourceMgr::RegisterResource(path, texture->id);
-    return texture->id;
+    auto result = new Image(glTextureId);
+    result->width = width;
+    result->height = height;
+    result->isCreated = true;
+    RegisterResource(path, result);
+    return result;
 }
 
-RESOURCE_ID Image::LoadCubeFromFile(const std::string& dirPath, const std::string& expansionName, const ImageDescriptor& desc)
+Image* Image::LoadCubeFromFile(const std::string& dirPath, const std::string& expansionName, const ImageDescriptor& desc)
 {
-    if(ResourceMgr::IsResourceRegistered(dirPath))
     {
-        return ResourceMgr::GetRegisteredResource(dirPath);
+        SharedObject* result;
+        if(TryGetResource(dirPath, result))
+        {
+            return dynamic_cast<Image*>(result);
+        }
     }
 
     stbi_set_flip_vertically_on_load(desc.needFlipVertical);
@@ -120,11 +131,11 @@ RESOURCE_ID Image::LoadCubeFromFile(const std::string& dirPath, const std::strin
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
     }
     
-    auto texture = new Texture(glTextureId);
-    texture->width = width;
-    texture->height = height;
-    texture->isCreated = true;
-    texture->isCubeMap = true;
-    ResourceMgr::RegisterResource(dirPath, texture->id);
-    return texture->id;
+    auto result = new Image(glTextureId);
+    result->width = width;
+    result->height = height;
+    result->isCreated = true;
+    result->isCubeMap = true;
+    RegisterResource(dirPath, result);
+    return result;
 }

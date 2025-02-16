@@ -15,7 +15,7 @@ glm::vec3 ToVec3(nlohmann::json arr)
     };
 }
 
-glm::mat4 Object::getLocalToWorld() const
+glm::mat4 Object::GetLocalToWorld() const
 {
     auto objectMatrix = glm::mat4(1);
     objectMatrix = translate(objectMatrix, position);
@@ -27,12 +27,12 @@ glm::mat4 Object::getLocalToWorld() const
     return objectMatrix;
 }
 
-void Object::update()
+void Object::Update()
 {
     // pass
 }
 
-void Object::loadFromJson(const nlohmann::json& objJson)
+void Object::LoadFromJson(const nlohmann::json& objJson)
 {
     if(objJson.contains("name"))
     {
@@ -52,7 +52,7 @@ void Object::loadFromJson(const nlohmann::json& objJson)
     }
 }
 
-void Object::addChild(const OBJECT_ID child)
+void Object::AddChild(Object* child)
 {
     if(std::find(children.begin(), children.end(), child) != children.end())
     {
@@ -60,4 +60,17 @@ void Object::addChild(const OBJECT_ID child)
     }
 
     children.push_back(child);
+    child->IncRef();
+}
+
+void Object::RemoveChild(Object* child)
+{
+    auto it = std::find(children.begin(), children.end(), child);
+    if(it == children.end())
+    {
+        return;
+    }
+
+    children.erase(it);
+    child->DecRef();
 }

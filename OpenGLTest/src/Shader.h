@@ -6,7 +6,7 @@
 #include "Texture.h"
 #include "glm.hpp"
 
-class Shader : public ResourceBase
+class Shader : public SharedObject
 {
 public:
     GLuint glShaderId;
@@ -23,12 +23,12 @@ public:
     static void SetVector(const int &location, const glm::vec4& value);
     void SetMatrix(const std::string& name, const glm::mat4& value) const;
     static void SetMatrix(const int& location, const glm::mat4& value);
-    void SetTexture(const std::string& name, const int slot, const RESOURCE_ID value) const;
-    static void SetTexture(const int& location, const int slot, const RESOURCE_ID value);
+    void SetTexture(const std::string& name, const int slot, const Texture* value) const;
+    static void SetTexture(const int& location, const int slot, const Texture* value);
     void SetFloatArr(const std::string& name, int count, float *value) const;
     static void SetFloatArr(const int& location, int count, float *value);
 
-    static RESOURCE_ID LoadFromFile(const std::string &glslPath);
+    static Shader* LoadFromFile(const std::string &glslPath);
 
 private:
     ~Shader() override;

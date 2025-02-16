@@ -1,17 +1,17 @@
 ﻿#pragma once
+#include "Material.h"
+#include "Mesh.h"
 #include "Object.h"
-
-class Material;
 
 class Entity : public Object
 {
 public:
     ~Entity() override;
     
-    RESOURCE_ID mesh = UNDEFINED_RESOURCE;
-    RESOURCE_ID material = UNDEFINED_RESOURCE;
+    Mesh* mesh = nullptr;
+    Material* material = nullptr;
 
 private:
 
-    void loadFromJson(const nlohmann::json& objJson) override;
+    void LoadFromJson(const nlohmann::json& objJson) override;
 };

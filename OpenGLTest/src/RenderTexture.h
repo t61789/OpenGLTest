@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <glad/glad.h>
 
-#include "ResourceMgr.h"
+#include "SharedObject.h"
 #include "Texture.h"
 
 class RenderTextureDescriptor

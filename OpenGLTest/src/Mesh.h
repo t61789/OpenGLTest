@@ -3,10 +3,10 @@
 #include <glad/glad.h>
 
 #include "ConstVars.h"
-#include "ResourceMgr.h"
+#include "SharedObject.h"
 #include "Utils.h"
 
-class Mesh : public ResourceBase
+class Mesh : public SharedObject
 {
 public:
     std::string name = "Unnamed Mesh";
@@ -19,11 +19,13 @@ public:
     int vertexDataFloatNum;
     bool vertexAttribEnabled[VERTEX_ATTRIB_NUM];
     int vertexAttribOffset[VERTEX_ATTRIB_NUM];
+
+    ~Mesh() override;
     
     void use() const;
     
-    static RESOURCE_ID LoadFromFile(const std::string& modelPath);
-    static RESOURCE_ID CreateMesh(
+    static Mesh* LoadFromFile(const std::string& modelPath);
+    static Mesh* CreateMesh(
         const Bounds& bounds,
         const float* position,
         const float* normal,
@@ -34,8 +36,4 @@ public:
         size_t indicesCount,
         const std::string& name = "Unnamed Mesh"
     );
-
-private:
-
-    ~Mesh() override;
 };

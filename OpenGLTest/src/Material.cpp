@@ -16,6 +16,16 @@ Material::~Material()
     {
         delete element.second;
     }
+
+    for (auto& element : textureValues)
+    {
+        element.second->DecRef();
+    }
+
+    if (shader != nullptr)
+    {
+        shader->DecRef();
+    }
 }
 
 void Material::SetIntValue(const std::string& paramName, const int value)
@@ -38,9 +48,21 @@ void Material::SetMat4Value(const std::string& paramName, const glm::mat4& value
     mat4Values[paramName] = value;
 }
 
-void Material::SetTextureValue(const std::string& paramName, const RESOURCE_ID value)
+void Material::SetTextureValue(const std::string& paramName, Texture* value)
 {
+    auto it = textureValues.find(paramName);
+    if (it != textureValues.end())
+    {
+        if (it->second == value)
+        {
+            return;
+        }
+        
+        it->second->DecRef();
+    }
+    
     textureValues[paramName] = value;
+    value->IncRef();
 }
 
 void Material::SetVector4Value(const std::string& paramName, const glm::vec4& value)
@@ -74,7 +96,7 @@ void Material::SetGlobalMat4Value(const std::string& paramName, const glm::mat4&
     s_globalMaterial->SetMat4Value(paramName, value);
 }
 
-void Material::SetGlobalTextureValue(const std::string& paramName, RESOURCE_ID value)
+void Material::SetGlobalTextureValue(const std::string& paramName, Texture* value)
 {
     s_globalMaterial->SetTextureValue(paramName, value);
 }
@@ -89,7 +111,7 @@ void Material::SetGlobalFloatArrValue(const std::string& paramName, const float*
     s_globalMaterial->SetFloatArrValue(paramName, value, count);
 }
 
-void Material::FillParams(const Shader* shader) const
+void Material::FillParams(const Shader* targetShader) const
 {
     // ---------------------将全局参数写入临时材质---------------------
     s_tempMaterial->intValues = s_globalMaterial->intValues;
@@ -133,44 +155,43 @@ void Material::FillParams(const Shader* shader) const
     // ---------------------实际写入数据---------------------
     for (const auto& element : s_tempMaterial->intValues)
     {
-        shader->SetInt(element.first, element.second);
+        targetShader->SetInt(element.first, element.second);
     }
     for (const auto& element : s_tempMaterial->boolValues)
     {
-        shader->SetBool(element.first, element.second);
+        targetShader->SetBool(element.first, element.second);
     }
     for (const auto& element : s_tempMaterial->floatValues)
     {
-        shader->SetFloat(element.first, element.second);
+        targetShader->SetFloat(element.first, element.second);
     }
     for (const auto& element : s_tempMaterial->vec4Values)
     {
-        shader->SetVector(element.first, element.second);
+        targetShader->SetVector(element.first, element.second);
     }
     for (const auto& element : s_tempMaterial->mat4Values)
     {
-        shader->SetMatrix(element.first, element.second);
+        targetShader->SetMatrix(element.first, element.second);
     }
     for (const auto& element : s_tempMaterial->floatArrValues)
     {
-        shader->SetFloatArr(element.first, static_cast<int>(element.second->size()), element.second->data());
+        targetShader->SetFloatArr(element.first, static_cast<int>(element.second->size()), element.second->data());
     }
     int slot = 0;
     for (auto& element : s_tempMaterial->textureValues)
     {
-        if(!shader->HasParam(element.first))
+        if(!targetShader->HasParam(element.first))
         {
             continue;
         }
         
-        shader->SetTexture(element.first, slot, element.second);
+        targetShader->SetTexture(element.first, slot, element.second);
         slot++;
     }
 }
 
 void Material::Use(const Mesh* mesh) const
 {
-    auto shader = ResourceMgr::GetPtr<Shader>(shaderId);
     if(shader == nullptr)
     {
         throw std::runtime_error((std::stringstream() << "材质 " << name << " 未加载Shader").str());
@@ -180,11 +201,14 @@ void Material::Use(const Mesh* mesh) const
     FillParams(shader);
 }
 
-RESOURCE_ID Material::LoadFromFile(const std::string& path)
+Material* Material::LoadFromFile(const std::string& path)
 {
-    if(ResourceMgr::IsResourceRegistered(path))
     {
-        return ResourceMgr::GetRegisteredResource(path);
+        SharedObject* result;
+        if(TryGetResource(path, result))
+        {
+            return dynamic_cast<Material*>(result);
+        }
     }
     
     auto s = std::ifstream(Utils::GetRealAssetPath(path));
@@ -201,7 +225,8 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
         
         if (elemKey == "shader")
         {
-            result->shaderId = Shader::LoadFromFile(elemValue.get<std::string>());
+            result->shader = Shader::LoadFromFile(elemValue.get<std::string>());
+            result->shader->IncRef();
             continue;
         }
 
@@ -243,20 +268,21 @@ RESOURCE_ID Material::LoadFromFile(const std::string& path)
     }
 
     result->name = path;
-    ResourceMgr::RegisterResource(path, result->id);
+    RegisterResource(path, result);
     Utils::LogInfo("成功载入Material " + path);
-    return result->id;
+    return result;
 }
 
-RESOURCE_ID Material::CreateEmptyMaterial(const std::string& shaderPath)
+Material* Material::CreateEmptyMaterial(const std::string& shaderPath)
 {
     auto shader = Shader::LoadFromFile(shaderPath);
-    if(shader == UNDEFINED_RESOURCE)
+    if(shader == nullptr)
     {
-        return UNDEFINED_RESOURCE;
+        return nullptr;
     }
     
     auto result = new Material();
-    result->shaderId = shader;
-    return result->id;
+    result->shader = shader;
+    result->shader->IncRef();
+    return result;
 }

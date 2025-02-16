@@ -210,12 +210,11 @@ void GameFramework::_frameEnd()
     
 }
 
-void UpdateObject(const OBJECT_ID objId)
+void UpdateObject(Object* obj)
 {
-    auto obj = ResourceMgr::GetPtr<Object>(objId);
     if(obj != nullptr)
     {
-        obj->update();
+        obj->Update();
         for (auto child : obj->children)
         {
             UpdateObject(child);
@@ -243,7 +242,7 @@ void GameFramework::_update() const
 void GameFramework::_render() const
 {
     auto mainCamera = Camera::GetMainCamera();
-    if(mainCamera != UNDEFINED_RESOURCE)
+    if(mainCamera != nullptr)
     {
         m_renderPipeline->render(mainCamera, m_scene.get());
     }
@@ -265,6 +264,6 @@ void GameFramework::_onSetFrameBufferSize(GLFWwindow* window, const int width, c
 void GameFramework::_initGame()
 {
     m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
-    m_scene = std::make_unique<Scene>("scenes/test_scene.json");
+    m_scene = std::unique_ptr<Scene>(Scene::LoadScene("scenes/test_scene.json"));
 }
 

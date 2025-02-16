@@ -8,7 +8,17 @@
 #include "Utils.h"
 #include "../lib/json.hpp"
 
-Object* LoadObject(const nlohmann::json& objJson)
+Scene::Scene() = default;
+
+Scene::~Scene()
+{
+    if (sceneRoot)
+    {
+        sceneRoot->DecRef();
+    }
+}
+
+static Object* LoadObject(const nlohmann::json& objJson)
 {
     Object* result;
     if(objJson.contains("type"))
@@ -32,11 +42,11 @@ Object* LoadObject(const nlohmann::json& objJson)
         result = new Object();
     }
     
-    result->loadFromJson(objJson);
+    result->LoadFromJson(objJson);
     return result;
 }
 
-void AddTo(Object* parent, const nlohmann::json& children)
+static void AddChildren(Object* parent, const nlohmann::json& children)
 {
     for(auto elem : children)
     {
@@ -44,20 +54,24 @@ void AddTo(Object* parent, const nlohmann::json& children)
         
         if(elem.contains("children"))
         {
-            AddTo(obj, elem["children"]);
+            AddChildren(obj, elem["children"]);
         }
         
-        parent->addChild(obj->id);
+        parent->AddChild(obj);
     }
 }
 
-Scene::Scene(const std::string& sceneJsonPath)
+Scene* Scene::LoadScene(const std::string& sceneJsonPath)
 {
-    _loadScene(sceneJsonPath);
-}
+    {
+        SharedObject* result;
+        if(TryGetResource(sceneJsonPath, result))
+        {
+            return dynamic_cast<Scene*>(result);
+        }
+    }
 
-void Scene::_loadScene(const std::string& sceneJsonPath)
-{
+    Scene* result = new Scene();
     auto s = std::ifstream(Utils::GetRealAssetPath(sceneJsonPath));
     nlohmann::json json;
     s >> json;
@@ -65,7 +79,7 @@ void Scene::_loadScene(const std::string& sceneJsonPath)
 
     if(json.contains("config"))
     {
-        _loadSceneConfig(json["config"]);
+        result->LoadSceneConfig(json["config"]);
     }
 
     if(json.contains("root"))
@@ -73,13 +87,17 @@ void Scene::_loadScene(const std::string& sceneJsonPath)
         auto rootObj = new Object();
         rootObj->name = "Scene Root";
         
-        AddTo(rootObj, json["root"]);
+        AddChildren(rootObj, json["root"]);
 
-        sceneRoot = rootObj->id;
+        result->sceneRoot = rootObj;
+        rootObj->IncRef();
     }
+
+    RegisterResource(sceneJsonPath, result);
+    return result;
 }
 
-void Scene::_loadSceneConfig(const nlohmann::json& configJson)
+void Scene::LoadSceneConfig(const nlohmann::json& configJson)
 {
     if(configJson.contains("mainLightDirection"))
     {

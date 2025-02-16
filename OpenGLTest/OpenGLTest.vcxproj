@@ -324,7 +324,7 @@
     <ClCompile Include="src\RenderPipeline.cpp" />
     <ClCompile Include="src\RenderTarget.cpp" />
     <ClCompile Include="src\RenderTexture.cpp" />
-    <ClCompile Include="src\ResourceMgr.cpp" />
+    <ClCompile Include="src\SharedObject.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
@@ -434,7 +434,7 @@
     <ClInclude Include="src\RenderPipeline.h" />
     <ClInclude Include="src\RenderTarget.h" />
     <ClInclude Include="src\RenderTexture.h" />
-    <ClInclude Include="src\ResourceMgr.h" />
+    <ClInclude Include="src\SharedObject.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Material.h" />

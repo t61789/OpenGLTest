@@ -4,13 +4,11 @@
 #include <vector>
 
 #include "glm.hpp"
-#include "ResourceMgr.h"
+#include "SharedObject.h"
 
 #include "../lib/json.hpp"
 
-typedef RESOURCE_ID OBJECT_ID;
-
-class Object : public ResourceBase
+class Object : public SharedObject
 {
 public:
     bool enabled = true;
@@ -20,11 +18,12 @@ public:
     glm::vec3 scale = glm::vec3(1, 1, 1);
     glm::vec3 rotation = glm::vec3(0, 0, 0);
 
-    std::vector<OBJECT_ID> children;
+    std::vector<Object*> children;
 
-    glm::mat4 getLocalToWorld() const;
-    virtual void update();
-    virtual void loadFromJson(const nlohmann::json& objJson);
+    glm::mat4 GetLocalToWorld() const;
+    virtual void Update();
+    virtual void LoadFromJson(const nlohmann::json& objJson);
 
-    void addChild(OBJECT_ID child);
+    void AddChild(Object* child);
+    void RemoveChild(Object* child);
 };
