@@ -29,24 +29,38 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     auto desc = ImageDescriptor::GetDefault();
     desc.needFlipVertical = false;
     m_skyboxCubeTexture = Image::LoadCubeFromFile("textures/skybox", "jpg", desc);
+    m_skyboxCubeTexture->IncRef();
     m_lutTexture = Image::LoadFromFile("textures/testLut.png", desc);
+    m_lutTexture->IncRef();
     Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
 
     m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
+    m_sphereMesh->IncRef();
     
     m_skyboxMat = Material::LoadFromFile("materials/skybox_mat.json");
+    m_skyboxMat->IncRef();
     m_drawShadowMat = Material::CreateEmptyMaterial("shaders/draw_shadow.glsl");
+    m_drawShadowMat->IncRef();
     m_deferredShadingMat = Material::CreateEmptyMaterial("shaders/deferred_shading.glsl");
+    m_deferredShadingMat->IncRef();
     m_finalBlitMat = Material::CreateEmptyMaterial("shaders/final_blit.glsl");
+    m_finalBlitMat->IncRef();
 
     m_quadMesh = Mesh::LoadFromFile("meshes/quad.obj");
+    m_quadMesh->IncRef();
 
     m_gBuffer0Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex")));
+    m_gBuffer0Tex->IncRef();
     m_gBuffer1Tex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBA, Point, Clamp, "_GBuffer1Tex")));
+    m_gBuffer1Tex->IncRef();
     m_gBuffer2Tex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex")));
+    m_gBuffer2Tex->IncRef();
     m_gBufferDepthTex = (new RenderTexture(RenderTextureDescriptor(width, height, DepthStencil, Point, Clamp, "_GBufferDepthTex")));
+    m_gBufferDepthTex->IncRef();
     m_shadingBufferTex = (new RenderTexture(RenderTextureDescriptor(width, height, RGBAHdr, Point, Clamp, "_ShadingBufferTex")));
+    m_shadingBufferTex->IncRef();
     m_mainLightShadowMapTex = (new RenderTexture(RenderTextureDescriptor(mainLightShadowTexSize, mainLightShadowTexSize, Depth, Point, Clamp, "_MainLightShadowMapTex")));
+    m_mainLightShadowMapTex->IncRef();
     Material::SetGlobalTextureValue("_GBuffer0Tex", m_gBuffer0Tex);
     Material::SetGlobalTextureValue("_GBuffer1Tex", m_gBuffer1Tex);
     Material::SetGlobalTextureValue("_GBuffer2Tex", m_gBuffer2Tex);
@@ -60,15 +74,18 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     attachments.push_back(new RenderTargetAttachment(GL_COLOR_ATTACHMENT2, glm::vec4(1), m_gBuffer2Tex));
     attachments.push_back(new RenderTargetAttachment(GL_DEPTH_STENCIL_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex));
     m_gBufferRenderTarget = new RenderTarget(attachments, 3, "GBuffer");
+    m_gBufferRenderTarget->IncRef();
 
     attachments.clear();
     attachments.push_back(new RenderTargetAttachment(GL_COLOR_ATTACHMENT0, glm::vec4(0.77f, 0.77f, 0.83f, 1), m_shadingBufferTex));
     attachments.push_back(new RenderTargetAttachment(GL_DEPTH_STENCIL_ATTACHMENT, glm::vec4(0), m_gBufferDepthTex));
     m_shadingRenderTarget = new RenderTarget(attachments, 1, "ShadingBuffer");
+    m_shadingRenderTarget->IncRef();
 
     attachments.clear();
     attachments.push_back(new RenderTargetAttachment(GL_DEPTH_ATTACHMENT, glm::vec4(1), m_mainLightShadowMapTex));
     m_mainLightShadowRenderTarget = new RenderTarget(attachments, 1, "MainLightShadowMap");
+    m_mainLightShadowRenderTarget->IncRef();
 }
 
 RenderPipeline::~RenderPipeline()
@@ -77,26 +94,26 @@ RenderPipeline::~RenderPipeline()
 
     delete m_cullModeMgr;
     
-    delete m_skyboxCubeTexture;
-    delete m_lutTexture;
+    m_skyboxCubeTexture->DecRef();
+    m_lutTexture->DecRef();
         
-    delete m_sphereMesh;
-    delete m_skyboxMat;
-    delete m_drawShadowMat;
-    delete m_deferredShadingMat;
-    delete m_finalBlitMat;
-    delete m_quadMesh;
+    m_sphereMesh->DecRef();
+    m_skyboxMat->DecRef();
+    m_drawShadowMat->DecRef();
+    m_deferredShadingMat->DecRef();
+    m_finalBlitMat->DecRef();
+    m_quadMesh->DecRef();
         
-    delete m_gBuffer0Tex;
-    delete m_gBuffer1Tex;
-    delete m_gBuffer2Tex;
-    delete m_gBufferDepthTex;
-    delete m_shadingBufferTex;
-    delete m_mainLightShadowMapTex;
+    m_gBuffer0Tex->DecRef();
+    m_gBuffer1Tex->DecRef();
+    m_gBuffer2Tex->DecRef();
+    m_gBufferDepthTex->DecRef();
+    m_shadingBufferTex->DecRef();
+    m_mainLightShadowMapTex->DecRef();
         
-    delete m_gBufferRenderTarget;
-    delete m_shadingRenderTarget;
-    delete m_mainLightShadowRenderTarget;
+    m_gBufferRenderTarget->DecRef();
+    m_shadingRenderTarget->DecRef();
+    m_mainLightShadowRenderTarget->DecRef();
 }
 
 void RenderPipeline::SetScreenSize(const int width, const int height)
@@ -219,7 +236,7 @@ void RenderPipeline::RenderMainLightShadowPass(const Camera* camera, const Scene
     // 计算阴影矩阵
     auto forward = normalize(scene->mainLightDirection);
     auto right = normalize(cross(glm::vec3(0, 1, 0), forward));
-    auto up = normalize(cross(right, forward)); // 右手从x绕到y
+    auto up = normalize(cross(forward, right)); // 右手从x绕到y
     auto shadowCameraToWorld = glm::mat4(
         right.x, right.y, right.z, 0, // 第一列
         up.z, up.y, up.z, 0,
@@ -384,7 +401,7 @@ void RenderPipeline::RenderMesh(const Mesh* mesh, Material* mat, const glm::mat4
     mat->SetMat4Value("_ITM", transpose(inverse(m)));
     mat->SetMat4Value("_M", m);
     mat->Use(mesh);
-    m_cullModeMgr->setCullMode(mat->cullMode);
+    m_cullModeMgr->SetCullMode(mat->cullMode);
     
     glDrawElements(GL_TRIANGLES, static_cast<GLint>(mesh->indicesCount), GL_UNSIGNED_INT, nullptr);
 }

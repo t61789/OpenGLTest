@@ -22,7 +22,7 @@ CullModeMgr::~CullModeMgr()
     glDisable(GL_CULL_FACE);
 }
 
-void CullModeMgr::setCullMode(const CullMode cullMode)
+void CullModeMgr::SetCullMode(const CullMode cullMode)
 {
     if (curMode == cullMode)
     {

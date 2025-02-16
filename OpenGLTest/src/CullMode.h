@@ -17,7 +17,7 @@ public:
     CullModeMgr();
     ~CullModeMgr();
     
-    void setCullMode(CullMode cullMode);
+    void SetCullMode(CullMode cullMode);
     
     static CullMode FromStr(const std::string& str);
 };

@@ -3,9 +3,9 @@
 	{
 		"ambientLightColorSky":[0.44, 0.44, 0.54],
 		"ambientLightColorEquator":[0.32, 0.32, 0.39],
-		"ambientLightColorGround":[0.32, 0.32, 0.39],
+		"ambientLightColorGround":[0.39, 0.39, 0.45],
 		"mainLightColor":[0.7, 0.7, 0.7],
-		"mainLightDirection":[-1, 1, -1],
+		"mainLightDirection":[-1, 1, 1],
 		"tonemappingExposureMultiplier":1
 	},
 	"root": [
@@ -21,9 +21,9 @@
 		{
 			"name":"Ball",
 			"type":"entity",
-			"scale":[1, 1, 1],
-			"position":[0, 3.192, 0],
-			"mesh":"meshes/sphere.obj",
+			"scale":[0.01, 0.01, 0.01],
+			"position":[0, 0, 0],
+			"mesh":"meshes/beast.obj",
 			"material":"materials/standard_mat.json"
 		},
 		{
