@@ -9,12 +9,12 @@ int main(int argc, char* argv[])
     auto gf = std::make_unique<GameFramework>();
     try
     {
-        if(!gf->init())
+        if(!gf->Init())
         {
             return -1;
         }
         
-        gf->gameLoop();
+        gf->GameLoop();
     }
     catch (std::exception& e)
     {

@@ -28,18 +28,18 @@ class RenderPipeline
 public:
     static RenderPipeline* instance;
 
-    size_t mainLightShadowTexSize = 4096;
+    int mainLightShadowTexSize = 4096;
     
     RenderPipeline(int width, int height, GLFWwindow* window);
     ~RenderPipeline();
-    void setScreenSize(int width, int height);
-    void render(Camera* cameraId, Scene* scene);
-    void getViewProjMatrix(glm::mat4& view, glm::mat4& proj);
-    void getScreenSize(int& width, int& height);
+    void SetScreenSize(int width, int height);
+    void Render(const Camera* camera, Scene* scene);
+    void GetViewProjMatrix(glm::mat4& view, glm::mat4& proj);
+    void GetScreenSize(int& width, int& height);
 
 private:
-    size_t m_screenWidth;
-    size_t m_screenHeight;
+    int m_screenWidth;
+    int m_screenHeight;
     GLFWwindow* m_window = nullptr;
     CullModeMgr* m_cullModeMgr = nullptr;
     RenderContext m_renderContext;
@@ -71,10 +71,10 @@ private:
     void FirstDrawScene(const Scene* scene);
 
     bool UpdateRenderTargetsPass();
-    void PreparingPass(Camera* cameraId);
-    void RenderMainLightShadowPass(Camera* camera, const Scene* scene);
-    void RenderSkyboxPass(Camera* cameraId);
-    void RenderScenePass(Camera* cameraId, const Scene* scene);
+    void PreparingPass(const Camera* camera);
+    void RenderMainLightShadowPass(const Camera* camera, const Scene* scene);
+    void RenderSkyboxPass(const Camera* camera);
+    void RenderScenePass(const Camera* camera, const Scene* scene);
     void DeferredShadingPass();
     void FinalBlitPass();
     void RenderUiPass();
@@ -82,6 +82,6 @@ private:
     void RenderScene(const Scene* scene);
     void RenderEntity(const Entity* entity);
     void RenderMesh(const ::Mesh* mesh, ::Material* mat, const glm::mat4& m);
-    void SetViewProjMatrix(Camera* camera);
+    void SetViewProjMatrix(const Camera* camera);
     void SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
 };

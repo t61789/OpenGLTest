@@ -36,7 +36,7 @@ bool initGl()
     return true;
 }
 
-GameFramework* GameFramework::getInstance()
+GameFramework* GameFramework::GetInstance()
 {
     return s_instance;
 }
@@ -53,7 +53,7 @@ GameFramework::GameFramework()
     m_setFrameBufferSizeEventHandler = Utils::s_setFrameBufferSizeEvent.addListener(
         [this](GLFWwindow* window, const int width, const int height)
         {
-            this->_onSetFrameBufferSize(window, width, height);
+            this->OnSetFrameBufferSize(window, width, height);
         });
 }
 
@@ -64,35 +64,35 @@ GameFramework::~GameFramework()
     s_instance = nullptr;
 }
 
-bool GameFramework::init()
+bool GameFramework::Init()
 {
-    if (!_initFrame())
+    if (!InitFrame())
     {
         return false;
     }
 
-    _initGame();
+    InitGame();
 
     return true;
 }
 
-void GameFramework::gameLoop()
+void GameFramework::GameLoop()
 {
     // Render loop
     s_frameCount = -1;
     while (!glfwWindowShouldClose(m_window))
     {
-        _frameBegin();
+        FrameBegin();
 
-        _processInput();
+        ProcessInput();
 
-        _beforeUpdate();
+        BeforeUpdate();
 
-        _update();
+        Update();
 
-        _render();
+        Render();
         
-        _frameEnd();
+        FrameEnd();
     }
 
     if(m_window)
@@ -103,29 +103,29 @@ void GameFramework::gameLoop()
     glfwTerminate();
 }
 
-float GameFramework::getDeltaTime() const
+float GameFramework::GetDeltaTime() const
 {
     return s_deltaTime;
 }
 
-float GameFramework::getCurFrameTime() const
+float GameFramework::GetCurFrameTime() const
 {
     return s_curFrameTime;
 }
 
-float GameFramework::getFrameCount() const
+float GameFramework::GetFrameCount() const
 {
     return static_cast<float>(s_frameCount);
 }
 
-bool GameFramework::keyPressed(const int glfwKey) const
+bool GameFramework::KeyPressed(const int glfwKey) const
 {
     return glfwGetKey(m_window, glfwKey) == GLFW_PRESS;
 }
 
-bool GameFramework::_initFrame()
+bool GameFramework::InitFrame()
 {
-    if(!_initGlfw())
+    if(!InitGlfw())
     {
         return false;
     }
@@ -135,7 +135,7 @@ bool GameFramework::_initFrame()
         return false;
     }
 
-    if(!_initImGui(m_window))
+    if(!InitImGui(m_window))
     {
         return false;
     }
@@ -144,7 +144,7 @@ bool GameFramework::_initFrame()
 }
 
 
-bool GameFramework::_initGlfw()
+bool GameFramework::InitGlfw()
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -171,7 +171,7 @@ bool GameFramework::_initGlfw()
     return true;
 }
 
-bool GameFramework::_initImGui(GLFWwindow* glfwWindow)
+bool GameFramework::InitImGui(GLFWwindow* glfwWindow)
 {
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
@@ -187,15 +187,15 @@ bool GameFramework::_initImGui(GLFWwindow* glfwWindow)
     return true;
 }
 
-void GameFramework::_processInput() const
+void GameFramework::ProcessInput() const
 {
-    if(keyPressed(GLFW_KEY_ESCAPE))
+    if(KeyPressed(GLFW_KEY_ESCAPE))
     {
         glfwSetWindowShouldClose(m_window, true);
     }
 }
 
-void GameFramework::_frameBegin()
+void GameFramework::FrameBegin()
 {
     Gui::BeginFrame();
     
@@ -205,7 +205,7 @@ void GameFramework::_frameBegin()
     s_curFrameTime = curFrameTime;
 }
 
-void GameFramework::_frameEnd()
+void GameFramework::FrameEnd()
 {
     
 }
@@ -222,14 +222,14 @@ void UpdateObject(Object* obj)
     }
 }
 
-void GameFramework::_beforeUpdate()
+void GameFramework::BeforeUpdate()
 {
     Gui::BeforeUpdate();
 
     Gui::OnGui();
 }
 
-void GameFramework::_update() const
+void GameFramework::Update() const
 {
     if(m_scene != nullptr)
     {
@@ -239,12 +239,12 @@ void GameFramework::_update() const
     // _entity->rotation.y += GetDeltaTime() * 60.0f;
 }
 
-void GameFramework::_render() const
+void GameFramework::Render() const
 {
     auto mainCamera = Camera::GetMainCamera();
     if(mainCamera != nullptr)
     {
-        m_renderPipeline->render(mainCamera, m_scene.get());
+        m_renderPipeline->Render(mainCamera, m_scene.get());
     }
     else
     {
@@ -253,15 +253,15 @@ void GameFramework::_render() const
     }
 }
 
-void GameFramework::_onSetFrameBufferSize(GLFWwindow* window, const int width, const int height)
+void GameFramework::OnSetFrameBufferSize(GLFWwindow* window, const int width, const int height)
 {
     m_screenWidth = width;
     m_screenHeight = height;
     glViewport(0, 0, width, height);
-    m_renderPipeline->setScreenSize(width, height);
+    m_renderPipeline->SetScreenSize(width, height);
 }
 
-void GameFramework::_initGame()
+void GameFramework::InitGame()
 {
     m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
     m_scene = std::unique_ptr<Scene>(Scene::LoadScene("scenes/test_scene.json"));

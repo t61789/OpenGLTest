@@ -22,4 +22,6 @@ public:
 
 private:
     void LoadSceneConfig(const nlohmann::json& configJson);
+    
+    static void LoadChildren(Object* parent, const nlohmann::json& children);
 };

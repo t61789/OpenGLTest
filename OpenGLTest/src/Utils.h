@@ -98,7 +98,7 @@ public:
     static float* ToArr(const glm::vec3& val);
     static glm::vec3 FromArr(float* arr);
 
-    static bool IsVec(const nlohmann::json& jsonValue, size_t components);
+    static bool IsVec(const nlohmann::json& jsonValue, int components);
     static bool IsVec3(const nlohmann::json& jsonValue);
     static bool IsVec4(const nlohmann::json& jsonValue);
 

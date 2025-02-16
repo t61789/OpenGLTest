@@ -27,58 +27,58 @@ void Camera::Update()
     float rotateSpeed = 80;
     float damp = 0.07f;
 
-    GameFramework* gameFramework = GameFramework::getInstance();
+    GameFramework* gameFramework = GameFramework::GetInstance();
 
-    if(gameFramework->keyPressed(GLFW_KEY_W))
+    if(gameFramework->KeyPressed(GLFW_KEY_W))
     {
-        m_targetPosition += forward * gameFramework->getDeltaTime() * moveSpeed;
+        m_targetPosition += forward * gameFramework->GetDeltaTime() * moveSpeed;
     }
     
-    if(gameFramework->keyPressed(GLFW_KEY_S))
+    if(gameFramework->KeyPressed(GLFW_KEY_S))
     {
-        m_targetPosition += -forward * gameFramework->getDeltaTime() * moveSpeed;
+        m_targetPosition += -forward * gameFramework->GetDeltaTime() * moveSpeed;
     }
     
-    if(gameFramework->keyPressed(GLFW_KEY_A))
+    if(gameFramework->KeyPressed(GLFW_KEY_A))
     {
-        m_targetPosition += -right * gameFramework->getDeltaTime() * moveSpeed;
+        m_targetPosition += -right * gameFramework->GetDeltaTime() * moveSpeed;
     }
     
-    if(gameFramework->keyPressed(GLFW_KEY_D))
+    if(gameFramework->KeyPressed(GLFW_KEY_D))
     {
-        m_targetPosition += right * gameFramework->getDeltaTime() * moveSpeed;
+        m_targetPosition += right * gameFramework->GetDeltaTime() * moveSpeed;
     }
     
-    if(gameFramework->keyPressed(GLFW_KEY_E))
+    if(gameFramework->KeyPressed(GLFW_KEY_E))
     {
-        m_targetPosition += glm::vec3(0, 1.0f, 0) * gameFramework->getDeltaTime() * moveSpeed;
+        m_targetPosition += glm::vec3(0, 1.0f, 0) * gameFramework->GetDeltaTime() * moveSpeed;
     }
 
-    if(gameFramework->keyPressed(GLFW_KEY_Q))
+    if(gameFramework->KeyPressed(GLFW_KEY_Q))
     {
-        m_targetPosition += glm::vec3(0, -1.0f, 0) * gameFramework->getDeltaTime() * moveSpeed;
+        m_targetPosition += glm::vec3(0, -1.0f, 0) * gameFramework->GetDeltaTime() * moveSpeed;
     }
 
     position = lerp(position, m_targetPosition, damp);
     
-    if(gameFramework->keyPressed(GLFW_KEY_UP))
+    if(gameFramework->KeyPressed(GLFW_KEY_UP))
     {
-        m_targetRotation.x += gameFramework->getDeltaTime() * rotateSpeed;
+        m_targetRotation.x += gameFramework->GetDeltaTime() * rotateSpeed;
     }
     
-    if(gameFramework->keyPressed(GLFW_KEY_DOWN))
+    if(gameFramework->KeyPressed(GLFW_KEY_DOWN))
     {
-        m_targetRotation.x += -gameFramework->getDeltaTime() * rotateSpeed;
+        m_targetRotation.x += -gameFramework->GetDeltaTime() * rotateSpeed;
     }
     
-    if(gameFramework->keyPressed(GLFW_KEY_LEFT))
+    if(gameFramework->KeyPressed(GLFW_KEY_LEFT))
     {
-        m_targetRotation.y += gameFramework->getDeltaTime() * rotateSpeed;
+        m_targetRotation.y += gameFramework->GetDeltaTime() * rotateSpeed;
     }
     
-    if(gameFramework->keyPressed(GLFW_KEY_RIGHT))
+    if(gameFramework->KeyPressed(GLFW_KEY_RIGHT))
     {
-        m_targetRotation.y += -gameFramework->getDeltaTime() * rotateSpeed;
+        m_targetRotation.y += -gameFramework->GetDeltaTime() * rotateSpeed;
     }
 
     rotation = lerp(rotation, m_targetRotation, damp);

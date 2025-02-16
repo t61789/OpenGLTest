@@ -207,7 +207,7 @@ glm::vec3 Utils::FromArr(float* arr)
     return {arr[0], arr[1], arr[2]};
 }
 
-bool Utils::IsVec(const nlohmann::json& jsonValue, const size_t components)
+bool Utils::IsVec(const nlohmann::json& jsonValue, const int components)
 {
     if (jsonValue.is_array() && jsonValue.size() == components)
     {

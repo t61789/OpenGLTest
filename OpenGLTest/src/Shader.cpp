@@ -50,7 +50,7 @@ void Shader::Use(const Mesh* mesh) const
 {
     glUseProgram(glShaderId);
 
-    for (size_t i = 0; i < VERTEX_ATTRIB_NUM; ++i)
+    for (int i = 0; i < VERTEX_ATTRIB_NUM; ++i)
     {
         int curLayout = glGetAttribLocation(glShaderId, VERTEX_ATTRIB_NAMES[i]);
         bool existInShader = curLayout != -1;
@@ -178,7 +178,7 @@ void Shader::SetTexture(const int& location, const int slot, const Texture* valu
     }
 }
 
-void Shader::SetFloatArr(const std::string& name, int count, float* value) const
+void Shader::SetFloatArr(const std::string& name, uint32_t count, float* value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetFloatArr(location, count, value);
@@ -193,7 +193,7 @@ void Shader::SetFloatArr(const int& location, int count, float* value)
     glUniform1fv(location, count, value);
 }
 
-std::vector<std::string> loadFileToLines(const std::string& realAssetPath)
+std::vector<std::string> Shader::LoadFileToLines(const std::string& realAssetPath)
 {
     std::ifstream fs;
     fs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -221,11 +221,11 @@ std::vector<std::string> loadFileToLines(const std::string& realAssetPath)
     return lines;
 }
 
-void divideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines)
+void Shader::DivideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines)
 {
     int divideIndex[2];
     int curIndex = 0;
-    for (size_t i = 0; i < lines.size(); ++i)
+    for (int i = 0; i < lines.size(); ++i)
     {
         if(lines[i].find("#version") != std::string::npos)
         {
@@ -240,7 +240,7 @@ void divideGlsl(const std::vector<std::string>& lines, std::vector<std::string>&
 
     if(curIndex != 2)
     {
-        throw std::runtime_error("GLSL文件需求两个#version，但只找到" + Utils::ToString(curIndex) + "个");
+        throw std::runtime_error("GLSL文件需求两个#version，但只找到" + std::to_string(curIndex) + "个");
     }
 
     for(int i = divideIndex[0]; i < divideIndex[1]; ++i)
@@ -254,15 +254,15 @@ void divideGlsl(const std::vector<std::string>& lines, std::vector<std::string>&
     }
 }
 
-void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines)
+void Shader::ReplaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines)
 {
-    std::vector<int> loadStack;
+    std::vector<size_t> loadStack;
     std::vector<std::string> currentFilePath;
     std::unordered_set<std::string> hasInclude;
     hasInclude.insert(curFilePath);
     loadStack.push_back(lines.size());
     currentFilePath.push_back(curFilePath);
-    for (size_t i = 0; i < lines.size(); ++i)
+    for (int i = 0; i < lines.size(); ++i)
     {
         loadStack[loadStack.size() - 1] -= 1;
         if(loadStack[loadStack.size() - 1] == 0)
@@ -293,7 +293,7 @@ void replaceIncludes(const std::string& curFilePath, std::vector<std::string>& l
         }
         hasInclude.insert(includePath);
         currentFilePath.push_back(includePath);
-        auto includeLines = loadFileToLines(Utils::GetRealAssetPath(includePath, currentFilePath[currentFilePath.size() - 2]));
+        auto includeLines = LoadFileToLines(Utils::GetRealAssetPath(includePath, currentFilePath[currentFilePath.size() - 2]));
         loadStack.push_back(includeLines.size());
         
         lines.insert(lines.begin() + i, includeLines.begin(), includeLines.end());
@@ -312,16 +312,16 @@ Shader* Shader::LoadFromFile(const std::string& glslPath)
     }
 
     std::string vSource, fSource;
-    std::vector<std::string> glslLines = loadFileToLines(Utils::GetRealAssetPath(glslPath));
+    std::vector<std::string> glslLines = LoadFileToLines(Utils::GetRealAssetPath(glslPath));
     std::vector<std::string> vertLines;
     std::vector<std::string> fragLines;
 
-    divideGlsl(glslLines, vertLines, fragLines);
+    DivideGlsl(glslLines, vertLines, fragLines);
     
     try
     {
-        replaceIncludes(glslPath, vertLines);
-        replaceIncludes(glslPath, fragLines);
+        ReplaceIncludes(glslPath, vertLines);
+        ReplaceIncludes(glslPath, fragLines);
 
         vSource = Utils::JoinStrings(vertLines, "\n");
         fSource = Utils::JoinStrings(fragLines, "\n");

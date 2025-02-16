@@ -44,8 +44,8 @@ public:
     
     GLuint glTextureId;
 
-    size_t width;
-    size_t height;
+    int width;
+    int height;
 
     bool isCubeMap = false;
 

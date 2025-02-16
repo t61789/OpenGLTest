@@ -48,8 +48,8 @@ void Gui::DrawCoordinateDirLine()
     
     glm::mat4 view, proj;
     int width, height;
-    RenderPipeline::instance->getViewProjMatrix(view, proj);
-    RenderPipeline::instance->getScreenSize(width, height);
+    RenderPipeline::instance->GetViewProjMatrix(view, proj);
+    RenderPipeline::instance->GetScreenSize(width, height);
     auto screenSize = glm::vec2(static_cast<float>(width), static_cast<float>(height));
     
     Utils::DebugDrawLine(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), view, proj, screenSize, IM_COL32(255, 0, 0, 255));

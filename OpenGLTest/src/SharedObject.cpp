@@ -6,7 +6,7 @@ std::unordered_map<std::string, SharedObject*> SharedObject::m_resource;
 
 SharedObject::SharedObject()
 {
-    filePath = std::make_unique<std::string>("Dynamic created");
+    filePath = std::make_unique<std::string>("Default");
     m_reference = std::make_unique<std::unordered_map<std::string, int>>();
 }
 

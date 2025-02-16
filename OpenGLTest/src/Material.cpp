@@ -175,7 +175,7 @@ void Material::FillParams(const Shader* targetShader) const
     }
     for (const auto& element : s_tempMaterial->floatArrValues)
     {
-        targetShader->SetFloatArr(element.first, static_cast<int>(element.second->size()), element.second->data());
+        targetShader->SetFloatArr(element.first, static_cast<uint32_t>(element.second->size()), element.second->data());
     }
     int slot = 0;
     for (auto& element : s_tempMaterial->textureValues)

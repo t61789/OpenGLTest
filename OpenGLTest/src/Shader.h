@@ -25,11 +25,15 @@ public:
     static void SetMatrix(const int& location, const glm::mat4& value);
     void SetTexture(const std::string& name, const int slot, const Texture* value) const;
     static void SetTexture(const int& location, const int slot, const Texture* value);
-    void SetFloatArr(const std::string& name, int count, float *value) const;
+    void SetFloatArr(const std::string& name, uint32_t count, float* value) const;
     static void SetFloatArr(const int& location, int count, float *value);
 
     static Shader* LoadFromFile(const std::string &glslPath);
 
 private:
     ~Shader() override;
+
+    static std::vector<std::string> LoadFileToLines(const std::string& realAssetPath);
+    static void DivideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines);
+    static void ReplaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines);
 };

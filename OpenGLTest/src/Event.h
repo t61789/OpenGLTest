@@ -7,14 +7,14 @@ template<typename... Args>
 class Event
 {
 public:
-    size_t addListener(std::function<void(Args...)> callback)
+    int addListener(std::function<void(Args...)> callback)
     {
         auto id = m_eventHandlerId ++;
         m_callbacks[id] = callback;
         return id;
     }
 
-    void removeListener(size_t id)
+    void removeListener(int id)
     {
         m_callbacks.erase(id);
     }
@@ -28,6 +28,6 @@ public:
     }
 
 private:
-    size_t m_eventHandlerId = 0;
-    std::unordered_map<size_t, std::function<void(Args...)>> m_callbacks;
+    int m_eventHandlerId = 0;
+    std::unordered_map<int, std::function<void(Args...)>> m_callbacks;
 };

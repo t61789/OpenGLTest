@@ -14,8 +14,8 @@ public:
     GLuint vao, vbo, ebo;
 
     Bounds bounds;
-    size_t vertexCount;
-    size_t indicesCount;
+    int vertexCount;
+    int indicesCount;
     int vertexDataFloatNum;
     bool vertexAttribEnabled[VERTEX_ATTRIB_NUM];
     int vertexAttribOffset[VERTEX_ATTRIB_NUM];
@@ -32,8 +32,8 @@ public:
         const float* uv0,
         const float* color,
         const unsigned int* indices,
-        size_t vertexCount,
-        size_t indicesCount,
+        uint32_t verticesCount,
+        uint32_t indicesCount,
         const std::string& name = "Unnamed Mesh"
     );
 };

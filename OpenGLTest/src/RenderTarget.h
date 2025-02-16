@@ -23,8 +23,8 @@ public:
 
     std::string name = "Unnamed RenderTarget";
 
-    size_t width;
-    size_t height;
+    int width;
+    int height;
 
     int colorAttachmentsNum;
     

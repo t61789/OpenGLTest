@@ -12,8 +12,8 @@ void copyDataTo(
     float* dest,
     const unsigned int offset,
     const unsigned int attribFloatNum,
-    const size_t vertexCount,
-    const size_t vertexDataFloatNum)
+    const int vertexCount,
+    const int vertexDataFloatNum)
 {
     if(src == nullptr)
     {
@@ -36,8 +36,8 @@ Mesh* Mesh::CreateMesh(
     const float* uv0,
     const float* color,
     const unsigned int* indices,
-    const size_t vertexCount,
-    const size_t indicesCount,
+    const uint32_t verticesCount,
+    const uint32_t indicesCount,
     const std::string& name)
 {
     const float* vertexAttribSource[] = {
@@ -53,7 +53,7 @@ Mesh* Mesh::CreateMesh(
     auto vertexDataFloatNum = 0;
     bool vertexAttribEnabled[vertexAttribNum];
     int vertexAttribOffset[vertexAttribNum] = {};
-    for (size_t i = 0; i < vertexAttribNum; ++i)
+    for (int i = 0; i < vertexAttribNum; ++i)
     {
         vertexAttribEnabled[i] = vertexAttribSource[i] != nullptr;
         if(vertexAttribEnabled[i])
@@ -62,11 +62,11 @@ Mesh* Mesh::CreateMesh(
             vertexDataFloatNum += VERTEX_ATTRIB_FLOAT_COUNT[i];
         }
     }
-    size_t vertexDataSumSize = vertexDataFloatNum * vertexCount;
+    int vertexDataSumSize = vertexDataFloatNum * verticesCount;
 
     // 将多个独立存储属性的数组合并成一个属性交叉的顶点数据数组
     auto data = new float[vertexDataSumSize];
-    for (size_t i = 0; i < vertexAttribNum; ++i)
+    for (int i = 0; i < vertexAttribNum; ++i)
     {
         if(vertexAttribEnabled[i])
         {
@@ -75,7 +75,7 @@ Mesh* Mesh::CreateMesh(
                 data,
                 vertexAttribOffset[i],
                 VERTEX_ATTRIB_FLOAT_COUNT[i],
-                vertexCount,
+                verticesCount,
                 vertexDataFloatNum);
         }
     }
@@ -106,7 +106,7 @@ Mesh* Mesh::CreateMesh(
     result->vbo = VBO;
     result->ebo = EBO;
     result->vertexDataFloatNum = vertexDataFloatNum;
-    result->vertexCount = vertexCount;
+    result->vertexCount = verticesCount;
     result->indicesCount = indicesCount;
     result->name = name;
     std::memcpy(&result->vertexAttribEnabled, &vertexAttribEnabled, sizeof(vertexAttribEnabled));
@@ -139,6 +139,7 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
     }
 
     auto mesh = scene->mMeshes[0];
+    auto verticesCount = mesh->mNumVertices;
 
     // Load positionOS
     auto boundsMin = glm::vec3(
@@ -150,7 +151,7 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
         std::numeric_limits<float>::min(),
         std::numeric_limits<float>::min());
     std::vector<float> positionOSContainer;
-    for (size_t i = 0; i < mesh->mNumVertices; ++i)
+    for (uint32_t i = 0; i < verticesCount; ++i)
     {
         auto x = mesh->mVertices[i].x;
         auto y = mesh->mVertices[i].y;
@@ -168,14 +169,13 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
         positionOSContainer.push_back(z);
     }
     auto positionOSData = positionOSContainer.data();
-    auto vertexCount = positionOSContainer.size() / 3;
 
     // Load normalOS
     float* normalOSData = nullptr;
     std::vector<float> normalsContainer;
     if(mesh->mNormals)
     {
-        for (size_t i = 0; i < mesh->mNumVertices; ++i)
+        for (uint32_t i = 0; i < verticesCount; ++i)
         {
             normalsContainer.push_back(mesh->mNormals[i].x);
             normalsContainer.push_back(mesh->mNormals[i].y);
@@ -189,7 +189,7 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
     std::vector<float> uv0Container;
     if(mesh->HasTextureCoords(0))
     {
-        for (size_t i = 0; i < mesh->mNumVertices; ++i)
+        for (uint32_t i = 0; i < verticesCount; ++i)
         {
             uv0Container.push_back(mesh->mTextureCoords[0][i].x);
             uv0Container.push_back(mesh->mTextureCoords[0][i].y);
@@ -199,11 +199,11 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
 
     // Load indices
     std::vector<unsigned int> indicesContainer;
-    for (size_t i = 0; i < mesh->mNumFaces; ++i)
+    for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
     {
         auto face = mesh->mFaces[i];
         // std::string a;
-        for (size_t j = 0; j < face.mNumIndices; ++j)
+        for (uint32_t j = 0; j < face.mNumIndices; ++j)
         {
             indicesContainer.push_back(face.mIndices[j]);
             // a += " " + std::to_string(face.mIndices[j]);
@@ -211,7 +211,7 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
         // Utils::LogInfo(a);
     }
     auto indicesData = indicesContainer.data();
-    auto indicesCount = indicesContainer.size();
+    auto indicesCount = static_cast<uint32_t>(indicesContainer.size());
 
     auto bounds = Bounds((boundsMax + boundsMin) * 0.5f, (boundsMax - boundsMin) * 0.5f);
 
@@ -222,12 +222,12 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
         uv0Data,
         nullptr,
         indicesData,
-        vertexCount,
+        verticesCount,
         indicesCount,
         modelPath);
     RegisterResource(modelPath, result);
     auto msg = "成功载入Mesh " + modelPath + "\n";
-    msg += "\t顶点数量 " + std::to_string(vertexCount) + "\n";
+    msg += "\t顶点数量 " + std::to_string(verticesCount) + "\n";
     msg += "\t三角形数量 " + std::to_string(indicesCount / 3) + "\n";
     msg += "\t包围盒 c:" + Utils::ToString(bounds.center) + " e:" + Utils::ToString(bounds.extents);
     Utils::LogInfo(msg);

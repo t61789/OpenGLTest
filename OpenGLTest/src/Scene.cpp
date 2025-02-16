@@ -46,7 +46,7 @@ static Object* LoadObject(const nlohmann::json& objJson)
     return result;
 }
 
-static void AddChildren(Object* parent, const nlohmann::json& children)
+void Scene::LoadChildren(Object* parent, const nlohmann::json& children)
 {
     for(auto elem : children)
     {
@@ -54,7 +54,7 @@ static void AddChildren(Object* parent, const nlohmann::json& children)
         
         if(elem.contains("children"))
         {
-            AddChildren(obj, elem["children"]);
+            LoadChildren(obj, elem["children"]);
         }
         
         parent->AddChild(obj);
@@ -71,7 +71,7 @@ Scene* Scene::LoadScene(const std::string& sceneJsonPath)
         }
     }
 
-    Scene* result = new Scene();
+    auto result = new Scene();
     auto s = std::ifstream(Utils::GetRealAssetPath(sceneJsonPath));
     nlohmann::json json;
     s >> json;
@@ -87,7 +87,7 @@ Scene* Scene::LoadScene(const std::string& sceneJsonPath)
         auto rootObj = new Object();
         rootObj->name = "Scene Root";
         
-        AddChildren(rootObj, json["root"]);
+        LoadChildren(rootObj, json["root"]);
 
         result->sceneRoot = rootObj;
         rootObj->IncRef();

@@ -11,8 +11,8 @@ void checkGlFormatSupported(GLuint glFormat, RenderTextureFormat format)
 RenderTextureDescriptor::RenderTextureDescriptor() = default;
 
 RenderTextureDescriptor::RenderTextureDescriptor(
-    const size_t width,
-    const size_t height,
+    const int width,
+    const int height,
     const RenderTextureFormat format,
     const TextureFilterMode filterMode,
     const TextureWrapMode wrapMode,
@@ -27,7 +27,7 @@ RenderTextureDescriptor::RenderTextureDescriptor(
     
 }
 
-void RenderTextureDescriptor::replaceSize(size_t width, size_t height)
+void RenderTextureDescriptor::replaceSize(int width, int height)
 {
     this->width = width;
     this->height = height;
@@ -35,15 +35,15 @@ void RenderTextureDescriptor::replaceSize(size_t width, size_t height)
 
 RenderTexture::RenderTexture(const RenderTextureDescriptor& desc): Texture(0)
 {
-    recreate(desc);
+    Recreate(desc);
 }
 
 RenderTexture::~RenderTexture()
 {
-    release();
+    Release();
 }
 
-void RenderTexture::recreate(const RenderTextureDescriptor& desc)
+void RenderTexture::Recreate(const RenderTextureDescriptor& desc)
 {
     if(isCreated)
     {
@@ -82,7 +82,7 @@ void RenderTexture::recreate(const RenderTextureDescriptor& desc)
     isCreated = true;
 }
 
-void RenderTexture::release()
+void RenderTexture::Release()
 {
     if(!isCreated)
     {
@@ -94,13 +94,13 @@ void RenderTexture::release()
     isCreated = false;
 }
 
-void RenderTexture::resize(size_t width, size_t height)
+void RenderTexture::Resize(int width, int height)
 {
     desc.width = width;
     desc.height = height;
 
-    release();
-    recreate(desc);
+    Release();
+    Recreate(desc);
 }
 
 

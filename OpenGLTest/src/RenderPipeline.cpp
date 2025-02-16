@@ -24,7 +24,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_cullModeMgr = new CullModeMgr();
     
     m_window = window;
-    setScreenSize(width, height);
+    SetScreenSize(width, height);
 
     auto desc = ImageDescriptor::GetDefault();
     desc.needFlipVertical = false;
@@ -99,13 +99,13 @@ RenderPipeline::~RenderPipeline()
     delete m_mainLightShadowRenderTarget;
 }
 
-void RenderPipeline::setScreenSize(const int width, const int height)
+void RenderPipeline::SetScreenSize(const int width, const int height)
 {
     m_screenWidth = width;
     m_screenHeight = height;
 }
 
-void RenderPipeline::render(Camera* cameraId, Scene* scene)
+void RenderPipeline::Render(const Camera* camera, Scene* scene)
 {
     if(!UpdateRenderTargetsPass())
     {
@@ -119,19 +119,19 @@ void RenderPipeline::render(Camera* cameraId, Scene* scene)
     }
 
     Utils::BeginDebugGroup("Preparing");
-    PreparingPass(cameraId);
+    PreparingPass(camera);
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Draw Main Light Shadow");
-    RenderMainLightShadowPass(cameraId, scene);
+    RenderMainLightShadowPass(camera, scene);
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Draw Skybox");
-    RenderSkyboxPass(cameraId);
+    RenderSkyboxPass(camera);
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Draw Scene");
-    RenderScenePass(cameraId, scene);
+    RenderScenePass(camera, scene);
     Utils::EndDebugGroup();
     
     Utils::BeginDebugGroup("Deferred Lighting");
@@ -152,13 +152,13 @@ void RenderPipeline::render(Camera* cameraId, Scene* scene)
     Utils::ClearGlError();
 }
 
-void RenderPipeline::getViewProjMatrix(glm::mat4& view, glm::mat4& proj)
+void RenderPipeline::GetViewProjMatrix(glm::mat4& view, glm::mat4& proj)
 {
     view = m_renderContext.vMatrix;
     proj = m_renderContext.pMatrix;
 }
 
-void RenderPipeline::getScreenSize(int& width, int& height)
+void RenderPipeline::GetScreenSize(int& width, int& height)
 {
     width = this->m_screenWidth;
     height = this->m_screenHeight;
@@ -173,26 +173,26 @@ bool RenderPipeline::UpdateRenderTargetsPass()
 {
     if(m_gBuffer0Tex->width != m_screenWidth || m_gBuffer0Tex->height != m_screenHeight)
     {
-        m_gBuffer0Tex->resize(m_screenWidth, m_screenHeight);
-        m_gBuffer1Tex->resize(m_screenWidth, m_screenHeight);
-        m_gBuffer2Tex->resize(m_screenWidth, m_screenHeight);
-        m_gBufferDepthTex->resize(m_screenWidth, m_screenHeight);
+        m_gBuffer0Tex->Resize(m_screenWidth, m_screenHeight);
+        m_gBuffer1Tex->Resize(m_screenWidth, m_screenHeight);
+        m_gBuffer2Tex->Resize(m_screenWidth, m_screenHeight);
+        m_gBufferDepthTex->Resize(m_screenWidth, m_screenHeight);
         m_gBufferRenderTarget->RebindAttachments();
         
-        m_shadingBufferTex->resize(m_screenWidth, m_screenHeight);
+        m_shadingBufferTex->Resize(m_screenWidth, m_screenHeight);
         m_shadingRenderTarget->RebindAttachments();
     }
 
     if(m_mainLightShadowMapTex->width != mainLightShadowTexSize)
     {
-        m_mainLightShadowMapTex->resize(mainLightShadowTexSize, mainLightShadowTexSize);
+        m_mainLightShadowMapTex->Resize(mainLightShadowTexSize, mainLightShadowTexSize);
         m_mainLightShadowRenderTarget->RebindAttachments();
     }
 
     return true;
 }
 
-void RenderPipeline::PreparingPass(Camera* camera)
+void RenderPipeline::PreparingPass(const Camera* camera)
 {
     if(camera == nullptr)
     {
@@ -206,7 +206,7 @@ void RenderPipeline::PreparingPass(Camera* camera)
     m_gBufferRenderTarget->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void RenderPipeline::RenderMainLightShadowPass(Camera* camera, const Scene* scene)
+void RenderPipeline::RenderMainLightShadowPass(const Camera* camera, const Scene* scene)
 {
     if(camera == nullptr || scene == nullptr)
     {
@@ -255,7 +255,7 @@ void RenderPipeline::RenderMainLightShadowPass(Camera* camera, const Scene* scen
     SetViewProjMatrix(camera);
 }
 
-void RenderPipeline::RenderSkyboxPass(Camera* camera)
+void RenderPipeline::RenderSkyboxPass(const Camera* camera)
 {
     if(camera == nullptr || m_sphereMesh == nullptr || m_skyboxMat == nullptr)
     {
@@ -271,7 +271,7 @@ void RenderPipeline::RenderSkyboxPass(Camera* camera)
     RenderMesh(m_sphereMesh, m_skyboxMat, m);
 }
 
-void RenderPipeline::RenderScenePass(Camera* camera, const Scene* scene)
+void RenderPipeline::RenderScenePass(const Camera* camera, const Scene* scene)
 {
     if(camera == nullptr || scene == nullptr || scene->sceneRoot == nullptr)
     {
@@ -386,10 +386,10 @@ void RenderPipeline::RenderMesh(const Mesh* mesh, Material* mat, const glm::mat4
     mat->Use(mesh);
     m_cullModeMgr->setCullMode(mat->cullMode);
     
-    glDrawElements(GL_TRIANGLES, mesh->indicesCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<GLint>(mesh->indicesCount), GL_UNSIGNED_INT, nullptr);
 }
 
-void RenderPipeline::SetViewProjMatrix(Camera* camera)
+void RenderPipeline::SetViewProjMatrix(const Camera* camera)
 {
     auto cameraLocalToWorld = camera->GetLocalToWorld();
     auto viewMatrix = glm::inverse(cameraLocalToWorld);

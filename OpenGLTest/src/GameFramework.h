@@ -7,7 +7,7 @@
 class GameFramework
 {
 public:
-    static GameFramework* getInstance();
+    static GameFramework* GetInstance();
     
     static float s_deltaTime;
     static float s_curFrameTime;
@@ -16,13 +16,13 @@ public:
     GameFramework();
     ~GameFramework();
 
-    bool init();
-    void gameLoop();
+    bool Init();
+    void GameLoop();
 
-    float getDeltaTime() const;
-    float getCurFrameTime() const;
-    float getFrameCount() const;
-    bool keyPressed(int glfwKey) const;
+    float GetDeltaTime() const;
+    float GetCurFrameTime() const;
+    float GetFrameCount() const;
+    bool KeyPressed(int glfwKey) const;
     
 private:
     static GameFramework* s_instance;
@@ -34,17 +34,17 @@ private:
     int m_screenWidth = 1270;
     int m_screenHeight = 800;
 
-    size_t m_setFrameBufferSizeEventHandler;
+    int m_setFrameBufferSizeEventHandler;
 
-    void _initGame();
-    bool _initFrame();
-    bool _initGlfw();
-    bool _initImGui(GLFWwindow* glfwWindow);
-    void _processInput() const;
-    void _frameBegin();
-    void _frameEnd();
-    void _beforeUpdate();
-    void _update() const;
-    void _render() const;
-    void _onSetFrameBufferSize(GLFWwindow* window, int width, int height);
+    void InitGame();
+    bool InitFrame();
+    bool InitGlfw();
+    bool InitImGui(GLFWwindow* glfwWindow);
+    void ProcessInput() const;
+    void FrameBegin();
+    void FrameEnd();
+    void BeforeUpdate();
+    void Update() const;
+    void Render() const;
+    void OnSetFrameBufferSize(GLFWwindow* window, int width, int height);
 };
