@@ -28,8 +28,8 @@ private:
     static GameFramework* s_instance;
     
     GLFWwindow* m_window = nullptr;
-    std::unique_ptr<Scene> m_scene = nullptr;
-    std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
+    Scene* m_scene = nullptr;
+    RenderPipeline* m_renderPipeline = nullptr;
 
     int m_screenWidth = 1270;
     int m_screenHeight = 800;
@@ -37,6 +37,7 @@ private:
     std::function<void(GLFWwindow*, int, int)>* m_setFrameBufferSizeCallBack = nullptr;
 
     void InitGame();
+    void ReleaseGame();
     bool InitFrame();
     bool InitGlfw();
     bool InitImGui(GLFWwindow* glfwWindow);
@@ -44,7 +45,7 @@ private:
     void FrameBegin();
     void FrameEnd();
     void BeforeUpdate();
-    void Update() const;
+    void Update();
     void Render() const;
     void OnSetFrameBufferSize(GLFWwindow* window, int width, int height);
 };

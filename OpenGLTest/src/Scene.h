@@ -3,7 +3,7 @@
 
 #include "Object.h"
 
-class Scene : SharedObject
+class Scene : public SharedObject
 {
 public:
     Object* sceneRoot = nullptr;

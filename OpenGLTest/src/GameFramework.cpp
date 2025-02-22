@@ -63,6 +63,8 @@ GameFramework::~GameFramework()
     Utils::s_setFrameBufferSizeEvent.RemoveCallBack(m_setFrameBufferSizeCallBack);
     delete m_setFrameBufferSizeCallBack;
 
+    ReleaseGame();
+
     s_instance = nullptr;
 }
 
@@ -231,25 +233,47 @@ void GameFramework::BeforeUpdate()
     Gui::OnGui();
 }
 
-void GameFramework::Update() const
+void GameFramework::Update()
 {
-    if(m_scene != nullptr)
+    if(m_scene)
     {
         UpdateObject(m_scene->sceneRoot);
     }
-    
-    // _entity->rotation.y += GetDeltaTime() * 60.0f;
+
+    // if (m_scene)
+    // {
+    //     m_scene->DecRef();
+    //     m_scene = nullptr;
+    // }
+    // else
+    // {
+    //     m_scene = Scene::LoadScene("scenes/test_scene.json");
+    //     m_scene->IncRef();
+    // }
+    //
+    // if (m_renderPipeline)
+    // {
+    //     delete m_renderPipeline;
+    //     m_renderPipeline = nullptr;
+    // }
+    // else
+    // {
+    //     m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
+    // }
+
+    // Utils::LogInfo("Count %d", SharedObject::m_count);
 }
 
 void GameFramework::Render() const
 {
     auto mainCamera = Camera::GetMainCamera();
-    if(mainCamera != nullptr)
+    if(mainCamera && m_scene && m_renderPipeline)
     {
-        m_renderPipeline->Render(mainCamera, m_scene.get());
+        m_renderPipeline->Render(mainCamera, m_scene);
     }
     else
     {
+        Gui::Render();
         std::cout << "未找到可用摄像机\n";
         Sleep(16);
     }
@@ -265,7 +289,14 @@ void GameFramework::OnSetFrameBufferSize(GLFWwindow* window, const int width, co
 
 void GameFramework::InitGame()
 {
-    m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
-    m_scene = std::unique_ptr<Scene>(Scene::LoadScene("scenes/test_scene.json"));
+    m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
+    m_scene = Scene::LoadScene("scenes/test_scene.json");
+    m_scene->IncRef();
+}
+
+void GameFramework::ReleaseGame()
+{
+    m_scene->DecRef();
+    delete m_renderPipeline;
 }
 

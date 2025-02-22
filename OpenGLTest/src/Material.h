@@ -8,7 +8,9 @@
 class Material : public SharedObject
 {
 public:
-    ~Material();
+    Material() = default;
+    Material(const std::string& name);
+    ~Material() override;
     
     std::string name = "Unnamed Material";
 
@@ -34,9 +36,10 @@ public:
 
     void FillParams(const Shader* targetShader) const;
     void Use(const Mesh* mesh) const;
+    void Clear();
 
     static Material* LoadFromFile(const std::string& path);
-    static Material* CreateEmptyMaterial(const std::string& shaderPath);
+    static Material* CreateEmptyMaterial(const std::string& shaderPath, const std::string& name = "Unnamed Material");
 
     static void SetGlobalIntValue(const std::string& paramName, int value);
     static void SetGlobalBoolValue(const std::string& paramName, bool value);
@@ -45,6 +48,7 @@ public:
     static void SetGlobalTextureValue(const std::string& paramName, Texture* value);
     static void SetGlobalVector4Value(const std::string& paramName, const glm::vec4& value);
     static void SetGlobalFloatArrValue(const std::string& paramName, const float *value, int count);
+    static void ClearAllGlobalValues();
 
 private:
     static Material* s_globalMaterial;

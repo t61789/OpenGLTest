@@ -3,11 +3,18 @@
 #include <cassert>
 
 std::unordered_map<std::string, SharedObject*> SharedObject::m_resource;
+std::vector<SharedObject*> SharedObject::m_count;
 
 SharedObject::SharedObject()
 {
     filePath = std::make_unique<std::string>("Default");
     m_reference = std::make_unique<std::unordered_map<std::string, int>>();
+    // m_count.push_back(this);
+}
+
+SharedObject::~SharedObject()
+{
+    // m_count.erase(std::remove(m_count.begin(), m_count.end(), this), m_count.end());
 }
 
 void SharedObject::IncRef()

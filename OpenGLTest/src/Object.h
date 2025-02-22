@@ -11,6 +11,8 @@
 class Object : public SharedObject
 {
 public:
+    ~Object() override;
+    
     bool enabled = true;
     
     std::string name = "Unnamed object";

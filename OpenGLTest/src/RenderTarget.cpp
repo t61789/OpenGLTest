@@ -173,7 +173,7 @@ void RenderTarget::LoadAttachments(const RenderTargetDesc& desc)
     rta = nullptr;
     if (desc.depthAttachment)
     {
-        rta = new RenderTargetAttachment(m_depthAttachment->attachmentType, m_depthAttachment->renderTexture);
+        rta = new RenderTargetAttachment(desc.depthAttachment->attachmentType, desc.depthAttachment->renderTexture);
         rta->renderTexture->onResize->AddCallBack(m_resizeCallback.get());
         rta->renderTexture->IncRef();
     }
@@ -184,15 +184,15 @@ void RenderTarget::ReleaseAttachments()
 {
     for (auto colorAttachment : m_colorAttachments)
     {
-        colorAttachment->renderTexture->DecRef();
         colorAttachment->renderTexture->onResize->RemoveCallBack(m_resizeCallback.get());
+        colorAttachment->renderTexture->DecRef();
         delete colorAttachment;
     }
 
     if (m_depthAttachment)
     {
-        m_depthAttachment->renderTexture->DecRef();
         m_depthAttachment->renderTexture->onResize->RemoveCallBack(m_resizeCallback.get());
+        m_depthAttachment->renderTexture->DecRef();
         delete m_depthAttachment;
     }
 }
@@ -334,9 +334,18 @@ void RenderTarget::ClearFrameBuffer(const GLuint frameBuffer, const glm::vec4 cl
     glClear(clearBits);
 }
 
+void RenderTarget::ClearAllCache()
+{
+    for (auto& renderTarget : m_renderTargetsPool)
+    {
+        delete renderTarget;
+    }
+    m_renderTargetsPool.clear();
+}
+
 void RenderTarget::ClearUnusedRenderTargets()
 {
-    uint32_t curFrame = GameFramework::GetInstance()->GetFrameCount();
+    int curFrame = GameFramework::GetInstance()->GetFrameCount();
     if (curFrame - m_lastClearFrame < m_renderTargetTimeout)
     {
         return;

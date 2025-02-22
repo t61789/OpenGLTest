@@ -15,6 +15,14 @@ glm::vec3 ToVec3(nlohmann::json arr)
     };
 }
 
+Object::~Object()
+{
+    for (auto child : children)
+    {
+        child->DecRef();
+    }
+}
+
 glm::mat4 Object::GetLocalToWorld() const
 {
     auto objectMatrix = glm::mat4(1);

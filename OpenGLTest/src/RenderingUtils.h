@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "RenderPipeline.h"
+#include "Entity.h"
+#include "RenderContext.h"
 
 class RenderingUtils
 {

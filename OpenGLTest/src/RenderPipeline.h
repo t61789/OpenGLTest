@@ -2,11 +2,8 @@
 
 #include "Camera.h"
 #include "CullMode.h"
-#include "Entity.h"
-#include "IndirectLighting.h"
 #include "RenderContext.h"
 #include "RenderTarget.h"
-#include "RenderTexture.h"
 #include "Scene.h"
 #include "RenderPass/RenderPass.h"
 

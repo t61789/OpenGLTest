@@ -3,6 +3,7 @@
 #include <string>
 
 #include "GameFramework.h"
+#include "IndirectLighting.h"
 #include "Utils.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"

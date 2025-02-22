@@ -9,7 +9,7 @@ public:
     std::unique_ptr<std::string> filePath;
     
     SharedObject();
-    virtual ~SharedObject() = default;
+    virtual ~SharedObject();
 
     void IncRef();
     void IncRef(const std::string& key);
@@ -19,6 +19,8 @@ public:
     static void RegisterResource(const std::string& path, SharedObject* obj);
     static void UnRegisterResource(const std::string& path);
     static bool TryGetResource(const std::string& path, SharedObject*& obj);
+    
+    static std::vector<SharedObject*> m_count;
 
 private:
     std::unique_ptr<std::unordered_map<std::string, int>> m_reference;

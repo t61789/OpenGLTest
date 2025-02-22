@@ -7,8 +7,13 @@
 #include "Utils.h"
 #include "../lib/json.hpp"
 
-Material* Material::s_globalMaterial = new Material();
-Material* Material::s_tempMaterial = new Material();
+Material* Material::s_globalMaterial = new Material("Global Material");
+Material* Material::s_tempMaterial = new Material("Temp Material");
+
+Material::Material(const std::string& name)
+{
+    this->name = name;
+}
 
 Material::~Material()
 {
@@ -22,7 +27,7 @@ Material::~Material()
         element.second->DecRef();
     }
 
-    if (shader != nullptr)
+    if (shader)
     {
         shader->DecRef();
     }
@@ -109,6 +114,11 @@ void Material::SetGlobalVector4Value(const std::string& paramName, const glm::ve
 void Material::SetGlobalFloatArrValue(const std::string& paramName, const float* value, const int count)
 {
     s_globalMaterial->SetFloatArrValue(paramName, value, count);
+}
+
+void Material::ClearAllGlobalValues()
+{
+    s_globalMaterial->Clear();
 }
 
 void Material::FillParams(const Shader* targetShader) const
@@ -201,6 +211,25 @@ void Material::Use(const Mesh* mesh) const
     FillParams(shader);
 }
 
+void Material::Clear()
+{
+    intValues.clear();
+    boolValues.clear();
+    floatValues.clear();
+    vec4Values.clear();
+    mat4Values.clear();
+    for (const auto& pair : floatArrValues)
+    {
+        delete pair.second;
+    }
+    floatArrValues.clear();
+    for (auto pair : textureValues)
+    {
+        pair.second->DecRef();
+    }
+    textureValues.clear();
+}
+
 Material* Material::LoadFromFile(const std::string& path)
 {
     {
@@ -267,13 +296,15 @@ Material* Material::LoadFromFile(const std::string& path)
         }
     }
 
-    result->name = path;
+    auto pos = path.find_last_of("/\\");
+    auto filename = pos != std::string::npos ? path.substr(pos + 1) : path;
+    result->name = filename;
     RegisterResource(path, result);
     Utils::LogInfo("成功载入Material " + path);
     return result;
 }
 
-Material* Material::CreateEmptyMaterial(const std::string& shaderPath)
+Material* Material::CreateEmptyMaterial(const std::string& shaderPath, const std::string& name)
 {
     auto shader = Shader::LoadFromFile(shaderPath);
     if(shader == nullptr)
@@ -284,5 +315,6 @@ Material* Material::CreateEmptyMaterial(const std::string& shaderPath)
     auto result = new Material();
     result->shader = shader;
     result->shader->IncRef();
+    result->name = name;
     return result;
 }

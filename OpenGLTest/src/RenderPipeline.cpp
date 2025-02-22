@@ -1,20 +1,12 @@
 ﻿#include "RenderPipeline.h"
 
-#include <queue>
-#include <stack>
-#include <glm.hpp>
-
-#include "Camera.h"
-#include "Entity.h"
-#include "GameFramework.h"
 #include "Gui.h"
-#include "Image.h"
-#include "RenderTarget.h"
-#include "RenderTexture.h"
+#include "IndirectLighting.h"
 #include "RenderPass/DeferredShadingPass.h"
 #include "RenderPass/FinalBlitPass.h"
 #include "RenderPass/MainLightShadowPass.h"
 #include "RenderPass/PreparingPass.h"
+#include "RenderPass/RenderScenePass.h"
 #include "RenderPass/RenderSkyboxPass.h"
 
 RenderPipeline* RenderPipeline::instance = nullptr;
@@ -29,6 +21,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_passes.push_back(new PreparingPass());
     m_passes.push_back(new MainLightShadowPass());
     m_passes.push_back(new RenderSkyboxPass());
+    m_passes.push_back(new RenderScenePass());
     m_passes.push_back(new DeferredShadingPass());
     m_passes.push_back(new FinalBlitPass());
 
@@ -76,6 +69,9 @@ RenderPipeline::~RenderPipeline()
     m_gBuffer1Tex->DecRef();
     m_gBuffer2Tex->DecRef();
     m_gBufferDepthTex->DecRef();
+
+    RenderTarget::ClearAllCache();
+    Material::ClearAllGlobalValues();
 }
 
 void RenderPipeline::SetScreenSize(const int width, const int height)

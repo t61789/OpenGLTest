@@ -56,6 +56,7 @@ public:
     static RenderTarget* Get(const RenderTargetDesc& desc);
     static void UseScreenTarget();
     static void ClearFrameBuffer(GLuint frameBuffer, glm::vec4 clearColor, GLuint clearBits);
+    static void ClearAllCache();
 
 private:
     int m_lastUseFrame = 0;
