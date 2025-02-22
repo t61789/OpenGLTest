@@ -35,7 +35,24 @@ void RenderTextureDescriptor::replaceSize(int width, int height)
 
 RenderTexture::RenderTexture(const RenderTextureDescriptor& desc): Texture(0)
 {
-    Recreate(desc);
+    Init(desc);
+}
+
+RenderTexture::RenderTexture(
+    const int width,
+    const int height,
+    const RenderTextureFormat format,
+    const TextureFilterMode filterMode,
+    const TextureWrapMode wrapMode,
+    const std::string& name) : Texture(0)
+{
+    Init(RenderTextureDescriptor(
+        width,
+        height,
+        format,
+        filterMode,
+        wrapMode,
+        name));
 }
 
 RenderTexture::~RenderTexture()
@@ -47,7 +64,7 @@ void RenderTexture::Recreate(const RenderTextureDescriptor& desc)
 {
     if(isCreated)
     {
-        glDeleteTextures(1, &glTextureId);
+        Release();
     }
     
     this->desc = desc;
@@ -99,8 +116,19 @@ void RenderTexture::Resize(int width, int height)
     desc.width = width;
     desc.height = height;
 
-    Release();
+    if (this->width == width && this->height == height)
+    {
+        return;
+    }
+
     Recreate(desc);
+
+    onResize->Invoke();
 }
 
-
+void RenderTexture::Init(const RenderTextureDescriptor& desc)
+{
+    onResize = std::make_unique<Event<>>();
+    
+    Recreate(desc);
+}

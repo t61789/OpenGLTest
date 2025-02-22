@@ -21,7 +21,7 @@ public:
 
     float GetDeltaTime() const;
     float GetCurFrameTime() const;
-    float GetFrameCount() const;
+    int GetFrameCount() const;
     bool KeyPressed(int glfwKey) const;
     
 private:
@@ -34,7 +34,7 @@ private:
     int m_screenWidth = 1270;
     int m_screenHeight = 800;
 
-    int m_setFrameBufferSizeEventHandler;
+    std::function<void(GLFWwindow*, int, int)>* m_setFrameBufferSizeCallBack = nullptr;
 
     void InitGame();
     bool InitFrame();

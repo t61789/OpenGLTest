@@ -1,33 +1,30 @@
 ﻿#pragma once
-
+#include <memory>
 #include <functional>
-#include <unordered_map>
+#include <vector>
 
 template<typename... Args>
 class Event
 {
 public:
-    int addListener(std::function<void(Args...)> callback)
+    void AddCallBack(std::function<void(Args...)>* callback)
     {
-        auto id = m_eventHandlerId ++;
-        m_callbacks[id] = callback;
-        return id;
+        m_callbacks.push_back(callback);
     }
 
-    void removeListener(int id)
+    void RemoveCallBack(std::function<void(Args...)>* callback)
     {
-        m_callbacks.erase(id);
+        m_callbacks.erase(std::remove(m_callbacks.begin(), m_callbacks.end(), callback), m_callbacks.end());
     }
 
-    void invoke(Args... args)
+    void Invoke(Args... args)
     {
         for (auto& callback : m_callbacks)
         {
-            callback.second(args...);
+            (*callback)(args...);
         }
     }
 
 private:
-    int m_eventHandlerId = 0;
-    std::unordered_map<int, std::function<void(Args...)>> m_callbacks;
+    std::vector<std::function<void(Args ...)>*> m_callbacks;
 };

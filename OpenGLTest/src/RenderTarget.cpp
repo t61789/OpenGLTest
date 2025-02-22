@@ -1,49 +1,93 @@
 ﻿#include "RenderTarget.h"
 
-#include "Camera.h"
+#include "GameFramework.h"
 #include "Utils.h"
 
 
-RenderTargetAttachment::RenderTargetAttachment(const GLuint attachmentType, const glm::vec4 clearColor, RenderTexture* renderTexture):
+bool RenderTargetAttachment::Equals(const RenderTargetAttachment* other)
+{
+    return attachmentType == other->attachmentType &&
+        renderTexture == other->renderTexture;
+}
+
+RenderTargetAttachment::RenderTargetAttachment(GLuint attachmentType, RenderTexture* renderTexture):
     attachmentType(attachmentType),
-    clearColor(clearColor),
     renderTexture(renderTexture)
 {
-    renderTexture->IncRef();
 }
 
-RenderTargetAttachment::~RenderTargetAttachment()
+RenderTargetDesc::~RenderTargetDesc()
 {
-    renderTexture->DecRef();
-}
-
-RenderTarget::RenderTarget(const std::vector<RenderTargetAttachment*>& attachments, const int colorAttachmentsNum, const std::string& name)
-{
-    if(attachments.empty())
+    for (auto renderTargetAttachment : colorAttachments)
     {
-        throw std::runtime_error("创建了一个空的RenderTarget");
+        delete renderTargetAttachment;
     }
 
-    this->name = name;
+    delete depthAttachment;
+}
+
+void RenderTargetDesc::SetColorAttachment(RenderTexture* rt)
+{
+    SetColorAttachment(0, rt);
+}
+
+void RenderTargetDesc::SetColorAttachment(const int index, RenderTexture* rt)
+{
+    if (colorAttachments.size() <= index)
+    {
+        colorAttachments.resize(index + 1, nullptr);
+    }
+
+    delete colorAttachments[index];
+
+    colorAttachments[index] = new RenderTargetAttachment(GL_COLOR_ATTACHMENT0 + index, rt);
+}
+
+void RenderTargetDesc::SetDepthAttachment(RenderTexture* rt, const bool hasStencil)
+{
+    delete depthAttachment;
+
+    GLuint attachmentType = GL_DEPTH_ATTACHMENT;
+    if (hasStencil)
+    {
+        attachmentType = GL_DEPTH_STENCIL_ATTACHMENT;
+    }
+    
+    depthAttachment = new RenderTargetAttachment(attachmentType, rt);
+}
+
+std::vector<RenderTarget*> RenderTarget::m_renderTargetsPool;
+int RenderTarget::m_lastClearFrame = 0;
+int RenderTarget::m_renderTargetTimeout = 10;
+
+RenderTarget::RenderTarget(const RenderTargetDesc& desc)
+{
+    name = desc.name;
     width = height = 0;
+    m_resizeCallback = std::make_unique<std::function<void()>>([this]{RebindAttachments();});
+    
+    LoadAttachments(desc);
+    
+    // 创建framebuffer
     glGenFramebuffers(1, &frameBufferId);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
-    
-    this->renderTargetAttachments = std::vector<RenderTargetAttachment*>(attachments);
-    this->colorAttachmentsNum = colorAttachmentsNum;
 
-    if(colorAttachmentsNum == 0)
+    // 配置glDrawBuffer
+    if(m_colorAttachments.empty())
     {
         glDrawBuffer(GL_NONE);
     }
     else
     {
+        auto colorAttachmentsNum = static_cast<int>(m_colorAttachments.size());
         auto buffers = new GLuint[colorAttachmentsNum];
+        
         for (int i = 0; i < colorAttachmentsNum; ++i)
         {
             buffers[i] = GL_COLOR_ATTACHMENT0 + i;
         }
         glDrawBuffers(colorAttachmentsNum, buffers);
+
         delete[] buffers;
     }
 
@@ -52,12 +96,9 @@ RenderTarget::RenderTarget(const std::vector<RenderTargetAttachment*>& attachmen
 
 RenderTarget::~RenderTarget()
 {
+    ReleaseAttachments();
+    
     glDeleteFramebuffers(1, &frameBufferId);
-
-    for (auto renderTargetAttachment : renderTargetAttachments)
-    {
-        delete renderTargetAttachment;
-    }
 }
 
 void RenderTarget::Use()
@@ -66,70 +107,215 @@ void RenderTarget::Use()
     glViewport(0, 0, width, height);
 }
 
-void RenderTarget::Clear(const GLuint clearBits)
+void RenderTarget::Clear(const float depth)
+{
+    Clear(std::vector<glm::vec4>(), depth, 0b10);
+}
+
+void RenderTarget::Clear(const glm::vec4 color)
+{
+    Clear(std::vector<glm::vec4>{color}, 1.0f, 0b01);
+}
+
+void RenderTarget::Clear(const glm::vec4 color, const float depth)
+{
+    Clear(std::vector<glm::vec4>{color}, depth, 0b11);
+}
+
+void RenderTarget::Clear(const std::vector<glm::vec4>& colors)
+{
+    Clear(colors, 1.0f, 0b01);
+}
+
+void RenderTarget::Clear(const std::vector<glm::vec4>& colors, const float depth)
+{
+    Clear(colors, depth, 0b11);
+}
+
+void RenderTarget::Clear(const std::vector<glm::vec4>& colors, const float depth, const int clearType)
 {
     Use();
-
-    if((clearBits & GL_COLOR_BUFFER_BIT) != 0)
+    
+    GLuint clearBits = 0;
+    
+    if (clearType & 0b01 && !colors.empty())
     {
-        for (int i = 0; i < colorAttachmentsNum; ++i)
+        clearBits |= GL_COLOR_BUFFER_BIT;
+        for (int i = 0; i < colors.size(); ++i)
         {
-            glm::vec4 clearColor = renderTargetAttachments[i]->clearColor;
+            glm::vec4 clearColor = colors[i];
             GLfloat glClearColor[] = {clearColor.r, clearColor.g, clearColor.b, clearColor.a};
             glClearBufferfv(GL_COLOR, i, glClearColor);
         }
     }
 
-    if((clearBits & GL_DEPTH_BUFFER_BIT) != 0)
+    if (clearType & 0b10)
     {
-        glClearDepth(1.0f);
+        clearBits |= GL_DEPTH_BUFFER_BIT;
+        glClearDepth(depth);
     }
     
     glClear(clearBits);
 }
 
-void RenderTarget::RebindAttachments()
+void RenderTarget::LoadAttachments(const RenderTargetDesc& desc)
 {
-    if(renderTargetAttachments.empty())
+    RenderTargetAttachment* rta = nullptr;
+    
+    for (auto colorAttachment : desc.colorAttachments)
     {
-        return;
+        rta = new RenderTargetAttachment(colorAttachment->attachmentType, colorAttachment->renderTexture);
+        rta->renderTexture->IncRef();
+        rta->renderTexture->onResize->AddCallBack(m_resizeCallback.get());
+        m_colorAttachments.push_back(rta);
     }
 
-    width = height = 0;
-    for (int i = 0; i < renderTargetAttachments.size(); ++i)
+    rta = nullptr;
+    if (desc.depthAttachment)
     {
-        auto renderTexture = renderTargetAttachments[i]->renderTexture;
-        if(renderTexture == nullptr)
-        {
-            throw std::runtime_error("绑定Attachments时出错，RenderTexture不存在");
-        }
+        rta = new RenderTargetAttachment(m_depthAttachment->attachmentType, m_depthAttachment->renderTexture);
+        rta->renderTexture->onResize->AddCallBack(m_resizeCallback.get());
+        rta->renderTexture->IncRef();
+    }
+    m_depthAttachment = rta;
+}
 
+void RenderTarget::ReleaseAttachments()
+{
+    for (auto colorAttachment : m_colorAttachments)
+    {
+        colorAttachment->renderTexture->DecRef();
+        colorAttachment->renderTexture->onResize->RemoveCallBack(m_resizeCallback.get());
+        delete colorAttachment;
+    }
+
+    if (m_depthAttachment)
+    {
+        m_depthAttachment->renderTexture->DecRef();
+        m_depthAttachment->renderTexture->onResize->RemoveCallBack(m_resizeCallback.get());
+        delete m_depthAttachment;
+    }
+}
+
+bool RenderTarget::AttachmentsMatched(const RenderTargetDesc& desc)
+{
+    if (m_colorAttachments.size() != desc.colorAttachments.size())
+    {
+        return false;
+    }
+
+    for (int i = 0; i < m_colorAttachments.size(); ++i)
+    {
+        if (!m_colorAttachments[i]->Equals(desc.colorAttachments[i]))
+        {
+            return false;
+        }
+    }
+    
+    if (m_depthAttachment == desc.depthAttachment)
+    {
+        return true;
+    }
+
+    if (m_depthAttachment == nullptr || desc.depthAttachment == nullptr)
+    {
+        return false;
+    }
+
+    return m_depthAttachment->Equals(desc.depthAttachment); 
+}
+
+void RenderTarget::RebindAttachments()
+{
+    // 检查color attachment的尺寸是否一致
+    width = height = 0;
+    for (int i = 0; i < m_colorAttachments.size(); ++i)
+    {
+        auto colorAttachment = m_colorAttachments[i];
+        auto rt = colorAttachment->renderTexture;
         if(i == 0)
         {
-            width = renderTexture->width;
-            height = renderTexture->height;
+            width = rt->width;
+            height = rt->height;
         }
-        else if(width != renderTexture->width || height != renderTexture->height)
+        else if(width != rt->width || height != rt->height)
         {
-            throw std::runtime_error("绑定Attachments时出错，RenderTexture[" + renderTexture->desc.name + "]的尺寸不一致");
+            throw std::runtime_error("绑定Attachments时出错，RenderTexture[" + rt->desc.name + "]的尺寸不一致");
         }
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
     Utils::CheckGlError("绑定FrameBuffer");
-    
-    for (auto& renderTargetAttachment : renderTargetAttachments)
+
+    // 绑定color attachment
+    for (auto colorAttachment : m_colorAttachments)
     {
         glFramebufferTexture2D(
             GL_FRAMEBUFFER,
-            renderTargetAttachment->attachmentType,
+            colorAttachment->attachmentType,
             GL_TEXTURE_2D,
-            renderTargetAttachment->renderTexture->glTextureId,
+            colorAttachment->renderTexture->glTextureId,
             0);
         Utils::CheckGlError("指定FrameBuffer附件");
     }
 
+    // 绑定depth attachment
+    if (m_depthAttachment)
+    {
+        glFramebufferTexture2D(
+            GL_FRAMEBUFFER,
+            m_depthAttachment->attachmentType,
+            GL_TEXTURE_2D,
+            m_depthAttachment->renderTexture->glTextureId,
+            0);
+    }
+
     CheckRenderTargetComplete();
+}
+
+RenderTarget* RenderTarget::Get(RenderTexture* colorAttachment, RenderTexture* depthAttachment, const bool hasStencil)
+{
+    RenderTargetDesc desc;
+    if (colorAttachment != nullptr)
+    {
+        desc.SetColorAttachment(colorAttachment);
+    }
+    if (depthAttachment != nullptr)
+    {
+        desc.SetDepthAttachment(depthAttachment, hasStencil);
+    }
+    return Get(desc);
+}
+
+RenderTarget* RenderTarget::Get(const RenderTargetDesc& desc)
+{
+    RenderTarget* result = nullptr;
+    for (auto renderTarget : m_renderTargetsPool)
+    {
+        if (!renderTarget->AttachmentsMatched(desc))
+        {
+            continue;
+        }
+
+        result = renderTarget;
+        break;
+    }
+
+    if (!result)
+    {
+        result = new RenderTarget(desc);
+        m_renderTargetsPool.push_back(result);
+    }
+
+    result->name = desc.name;
+    result->m_lastUseFrame = GameFramework::GetInstance()->GetFrameCount();
+    ClearUnusedRenderTargets();
+    return result;
+}
+
+void RenderTarget::UseScreenTarget()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void RenderTarget::CheckRenderTargetComplete()
@@ -141,14 +327,30 @@ void RenderTarget::CheckRenderTargetComplete()
     }
 }
 
-void RenderTarget::UseScreenTarget()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 void RenderTarget::ClearFrameBuffer(const GLuint frameBuffer, const glm::vec4 clearColor, const GLuint clearBits)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(clearBits);
+}
+
+void RenderTarget::ClearUnusedRenderTargets()
+{
+    uint32_t curFrame = GameFramework::GetInstance()->GetFrameCount();
+    if (curFrame - m_lastClearFrame < m_renderTargetTimeout)
+    {
+        return;
+    }
+    m_lastClearFrame = curFrame;
+    
+    for (int i = 0; i < m_renderTargetsPool.size(); ++i)
+    {
+        auto renderTarget = m_renderTargetsPool[i];
+        if (curFrame - renderTarget->m_lastUseFrame >= m_renderTargetTimeout)
+        {
+            delete renderTarget;
+            m_renderTargetsPool.erase(m_renderTargetsPool.begin() + i);
+            i--;
+        }
+    }
 }

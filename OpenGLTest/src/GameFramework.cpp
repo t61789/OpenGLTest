@@ -50,16 +50,18 @@ GameFramework::GameFramework()
     
     s_instance = this;
     
-    m_setFrameBufferSizeEventHandler = Utils::s_setFrameBufferSizeEvent.addListener(
-        [this](GLFWwindow* window, const int width, const int height)
+    m_setFrameBufferSizeCallBack = new std::function<void(GLFWwindow*, int, int)>
+        ([this](GLFWwindow* window, const int width, const int height)
         {
             this->OnSetFrameBufferSize(window, width, height);
         });
+    Utils::s_setFrameBufferSizeEvent.AddCallBack(m_setFrameBufferSizeCallBack);
 }
 
 GameFramework::~GameFramework()
 {
-    Utils::s_setFrameBufferSizeEvent.removeListener(m_setFrameBufferSizeEventHandler);
+    Utils::s_setFrameBufferSizeEvent.RemoveCallBack(m_setFrameBufferSizeCallBack);
+    delete m_setFrameBufferSizeCallBack;
 
     s_instance = nullptr;
 }
@@ -113,9 +115,9 @@ float GameFramework::GetCurFrameTime() const
     return s_curFrameTime;
 }
 
-float GameFramework::GetFrameCount() const
+int GameFramework::GetFrameCount() const
 {
-    return static_cast<float>(s_frameCount);
+    return s_frameCount;
 }
 
 bool GameFramework::KeyPressed(const int glfwKey) const
@@ -165,7 +167,7 @@ bool GameFramework::InitGlfw()
         m_window,
         [](GLFWwindow* window, const int width, const int height)
         {
-            Utils::s_setFrameBufferSizeEvent.invoke(window, width, height);
+            Utils::s_setFrameBufferSizeEvent.Invoke(window, width, height);
         });
 
     return true;

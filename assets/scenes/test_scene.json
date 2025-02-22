@@ -2,8 +2,8 @@
 	"config":
 	{
 		"ambientLightColorSky":[0.44, 0.44, 0.54],
-		"ambientLightColorEquator":[0.32, 0.32, 0.39],
-		"ambientLightColorGround":[0.39, 0.39, 0.45],
+		"ambientLightColorEquator":[0.36, 0.36, 0.43],
+		"ambientLightColorGround":[0.40, 0.40, 0.46],
 		"mainLightColor":[0.7, 0.7, 0.7],
 		"mainLightDirection":[-1, 1, 1],
 		"tonemappingExposureMultiplier":1
