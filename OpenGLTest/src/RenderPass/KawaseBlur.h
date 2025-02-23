@@ -4,14 +4,18 @@
 class KawaseBlur : public RenderPass
 {
 public:
+    RenderTexture* rt = nullptr;
+    
     KawaseBlur();
     ~KawaseBlur() override;
     
     std::string GetName() override;
     void Execute(RenderContext& renderContext) override;
-
-    RenderTexture* rt = nullptr;
+    void OnGuiConsole();
 
 private:
-    Material* kawaseBlitMat = nullptr;
+    int m_iteration = 2;
+    
+    std::function<void()>* m_guiConsoleCallBack;
+    Material* m_kawaseBlitMat = nullptr;
 };

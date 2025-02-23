@@ -38,11 +38,13 @@ private:
     RenderTexture* m_gBuffer2Tex = nullptr;
     RenderTexture* m_gBufferDepthTex = nullptr;
 
+    std::function<void()>* m_guiCallBack = nullptr;
+
     std::vector<RenderPass*> m_passes;
-
+    
     void FirstDrawScene(const Scene* scene);
-
     RenderContext PrepareRenderContext(Scene* scene);
     bool UpdateRenderTargetsPass();
     void RenderUiPass();
+    void OnGuiConsole();
 };

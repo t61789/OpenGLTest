@@ -1,6 +1,9 @@
 ﻿#pragma once
+#include <functional>
 #include <string>
+#include <vector>
 
+#include "Event.h"
 #include "glm.hpp"
 
 #include "imgui.h"
@@ -13,6 +16,8 @@ public:
     static void OnGui();
     static void AfterUpdate();
     static void Render();
+
+    static Event<> drawConsoleEvent;
 
 private:
     static void DrawApplicationPanel();

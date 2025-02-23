@@ -24,14 +24,14 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_passes.push_back(new RenderSkyboxPass());
     m_passes.push_back(new RenderScenePass());
     m_passes.push_back(new DeferredShadingPass());
-    m_passes.push_back(new KawaseBlur());
+    // m_passes.push_back(new KawaseBlur());
     m_passes.push_back(new FinalBlitPass());
 
     m_cullModeMgr = std::make_unique<CullModeMgr>();
 
     m_gBuffer0Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex");
     m_gBuffer0Tex->IncRef();
-    m_gBuffer1Tex = new RenderTexture(width, height, RGBA, Point, Clamp, "_GBuffer1Tex");
+    m_gBuffer1Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer1Tex");
     m_gBuffer1Tex->IncRef();
     m_gBuffer2Tex = new RenderTexture(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex");
     m_gBuffer2Tex->IncRef();
@@ -46,6 +46,9 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_gBufferDesc->SetColorAttachment(1, m_gBuffer1Tex);
     m_gBufferDesc->SetColorAttachment(2, m_gBuffer2Tex);
     m_gBufferDesc->SetDepthAttachment(m_gBufferDepthTex, true);
+
+    m_guiCallBack = new std::function<void()>([this]{this->OnGuiConsole();});
+    Gui::drawConsoleEvent.AddCallBack(m_guiCallBack);
 }
 
 RenderPipeline::~RenderPipeline()
@@ -62,6 +65,9 @@ RenderPipeline::~RenderPipeline()
     m_gBuffer1Tex->DecRef();
     m_gBuffer2Tex->DecRef();
     m_gBufferDepthTex->DecRef();
+
+    Gui::drawConsoleEvent.RemoveCallBack(m_guiCallBack);
+    delete m_guiCallBack;
 
     RenderTarget::ClearAllCache();
     Material::ClearAllGlobalValues();
@@ -147,4 +153,9 @@ bool RenderPipeline::UpdateRenderTargetsPass()
 void RenderPipeline::RenderUiPass()
 {
     Gui::Render();
+}
+
+void RenderPipeline::OnGuiConsole()
+{
+       
 }

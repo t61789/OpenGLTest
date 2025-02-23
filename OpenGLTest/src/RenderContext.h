@@ -30,8 +30,6 @@ public:
     RenderTexture* shadingRt = nullptr;
     RenderTexture* tempPpRt0 = nullptr;
 
-    int kawaseBlurIterations = 8;
-    
     void SetViewProjMatrix(const Camera* cam);
     void SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
 };

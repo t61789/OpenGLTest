@@ -134,3 +134,12 @@ float Luminance(vec3 col)
 {
     return 0.2126 * col.r + 0.7152 * col.g + 0.0722 * col.b;
 }
+
+vec3 Pow(vec3 col, float exp)
+{
+    vec3 result;   
+    result.x = pow(col.x, exp);
+    result.y = pow(col.y, exp);
+    result.z = pow(col.z, exp);
+    return result;
+}

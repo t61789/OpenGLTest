@@ -1,5 +1,6 @@
 ﻿#include "KawaseBlur.h"
 
+#include "Gui.h"
 #include "RenderingUtils.h"
 
 KawaseBlur::KawaseBlur()
@@ -12,14 +13,20 @@ KawaseBlur::KawaseBlur()
         Clamp));
     rt->IncRef();
 
-    kawaseBlitMat = Material::CreateEmptyMaterial("shaders/kawase_blit.glsl");
-    kawaseBlitMat->IncRef();
+    m_kawaseBlitMat = Material::CreateEmptyMaterial("shaders/kawase_blit.glsl");
+    m_kawaseBlitMat->IncRef();
+
+    m_guiConsoleCallBack = new std::function<void()>([this]{this->OnGuiConsole();});
+    Gui::drawConsoleEvent.AddCallBack(m_guiConsoleCallBack);
 }
 
 KawaseBlur::~KawaseBlur()
 {
     rt->DecRef();
-    kawaseBlitMat->DecRef();
+    m_kawaseBlitMat->DecRef();
+
+    Gui::drawConsoleEvent.RemoveCallBack(m_guiConsoleCallBack);
+    delete m_guiConsoleCallBack;
 }
 
 std::string KawaseBlur::GetName()
@@ -37,20 +44,25 @@ void KawaseBlur::Execute(RenderContext& renderContext)
         return;
     }
 
-    for (int i = 0; i < renderContext.kawaseBlurIterations; ++i)
+    for (int i = 0; i < m_iteration; ++i)
     {
-        kawaseBlitMat->SetTextureValue("_MainTex", rt0);
-        kawaseBlitMat->SetFloatValue("_Iterations", static_cast<float>(i));
+        m_kawaseBlitMat->SetTextureValue("_MainTex", rt0);
+        m_kawaseBlitMat->SetFloatValue("_Iterations", static_cast<float>(i));
 
-        RenderingUtils::Blit(rt0, rt1, kawaseBlitMat);
+        RenderingUtils::Blit(rt0, rt1, m_kawaseBlitMat);
 
         auto temp = rt0;
         rt0 = rt1;
         rt1 = temp;
     }
 
-    if (renderContext.kawaseBlurIterations % 2)
+    if (m_iteration % 2)
     {
         RenderingUtils::Blit(rt0, renderContext.shadingRt, nullptr);
     }
+}
+
+void KawaseBlur::OnGuiConsole()
+{
+    ImGui::SliderInt("Kawase Blur Iterations", &m_iteration, 0, 16);
 }

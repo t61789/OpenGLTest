@@ -8,6 +8,8 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
+Event<> Gui::drawConsoleEvent;
+
 void Gui::BeginFrame()
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -93,6 +95,8 @@ void Gui::DrawLogInfoPanel()
 void Gui::DrawConsolePanel()
 {
     ImGui::Begin("Console");
+
+    drawConsoleEvent.Invoke();
 
     auto sky = SliderFloat3("GradientSky", IndirectLighting::s_gradientAmbientColor.sky, 0.0f, 1.0f, "%.2f");
     auto equator = SliderFloat3("GradientEquator", IndirectLighting::s_gradientAmbientColor.equator, 0.0f, 1.0f, "%.2f");

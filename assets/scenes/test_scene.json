@@ -19,11 +19,19 @@
 			"farClip":500
 		},
 		{
-			"name":"Ball",
+			"name":"Beast",
 			"type":"entity",
 			"scale":[0.01, 0.01, 0.01],
 			"position":[0, 0, 0],
 			"mesh":"meshes/beast.obj",
+			"material":"materials/standard_mat.json"
+		},
+		{
+			"name":"Sphere",
+			"type":"entity",
+			"scale":[2, 2, 2],
+			"position":[0, 5, 0],
+			"mesh":"meshes/smooth_cube.obj",
 			"material":"materials/standard_mat.json"
 		},
 		{
