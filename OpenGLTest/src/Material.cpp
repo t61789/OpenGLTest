@@ -66,8 +66,11 @@ void Material::SetTextureValue(const std::string& paramName, Texture* value)
         it->second->DecRef();
     }
     
-    textureValues[paramName] = value;
-    value->IncRef();
+    if (value)
+    {
+        textureValues[paramName] = value;
+        value->IncRef();
+    }
 }
 
 void Material::SetVector4Value(const std::string& paramName, const glm::vec4& value)
@@ -196,6 +199,12 @@ void Material::FillParams(const Shader* targetShader) const
         }
         
         targetShader->SetTexture(element.first, slot, element.second);
+        auto texelSize = glm::vec4(
+            1.0f / static_cast<float>(element.second->width),
+            1.0f / static_cast<float>(element.second->height),
+            static_cast<float>(element.second->width),
+            static_cast<float>(element.second->height));
+        targetShader->SetVector(element.first + std::string("_TexelSize"), texelSize);
         slot++;
     }
 }

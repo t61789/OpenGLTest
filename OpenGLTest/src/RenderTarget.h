@@ -60,6 +60,7 @@ public:
 
 private:
     int m_lastUseFrame = 0;
+    bool m_dirty = true;
 
     std::unique_ptr<std::function<void()>> m_resizeCallback = nullptr;
 

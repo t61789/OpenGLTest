@@ -22,4 +22,7 @@ void PreparingPass::Execute(RenderContext& renderContext)
         glm::vec4(1.0f),
     };
     RenderTarget::Get(*renderContext.gBufferDesc)->Clear(clearColors, 1.0f);
+
+    auto viewportSize = glm::vec4(renderContext.screenWidth, renderContext.screenHeight, 0, 0);
+    Material::SetGlobalVector4Value("_ViewportSize", viewportSize);
 }

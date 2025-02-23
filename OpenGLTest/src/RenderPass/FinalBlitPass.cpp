@@ -1,5 +1,6 @@
 ﻿#include "FinalBlitPass.h"
 
+#include "BuiltInRes.h"
 #include "RenderingUtils.h"
 
 FinalBlitPass::FinalBlitPass()
@@ -27,12 +28,13 @@ void FinalBlitPass::Execute(RenderContext& renderContext)
 {
     RenderTarget::ClearFrameBuffer(0, glm::vec4(0), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderTarget::UseScreenTarget();
-    
-    if(renderContext.quadMesh == nullptr || finalBlitMat == nullptr)
+
+    auto quad = BuiltInRes::GetInstance()->quadMesh;
+    if(finalBlitMat == nullptr)
     {
         return;
     }
 
     finalBlitMat->SetTextureValue("_LutTex", lutTexture);
-    RenderingUtils::RenderMesh(renderContext, renderContext.quadMesh, finalBlitMat, glm::mat4()); 
+    RenderingUtils::RenderMesh(renderContext, quad, finalBlitMat, glm::mat4());
 }

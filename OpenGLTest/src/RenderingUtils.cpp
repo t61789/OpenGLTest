@@ -2,6 +2,7 @@
 
 #include <stack>
 
+#include "BuiltInRes.h"
 #include "RenderPipeline.h"
 
 void RenderingUtils::RenderScene(const RenderContext& renderContext)
@@ -68,4 +69,29 @@ void RenderingUtils::RenderMesh(const RenderContext& renderContext, const Mesh* 
     renderContext.cullModeMgr->SetCullMode(mat->cullMode);
     
     glDrawElements(GL_TRIANGLES, static_cast<GLint>(mesh->indicesCount), GL_UNSIGNED_INT, nullptr);
+}
+
+void RenderingUtils::Blit(RenderTexture* src, RenderTexture* dst, Material* material)
+{
+    auto quad = BuiltInRes::GetInstance()->quadMesh;
+    
+    Material* blitMat;
+    if (material)
+    {
+        blitMat = material;
+    }
+    else
+    {
+        blitMat = BuiltInRes::GetInstance()->blitMat;
+    }
+    
+    if (src)
+    {
+        blitMat->SetTextureValue("_MainTex", src);
+    }
+
+    RenderTarget::Get(dst, nullptr)->Use();
+    quad->use();
+    blitMat->Use(quad);
+    glDrawElements(GL_TRIANGLES, static_cast<GLint>(quad->indicesCount), GL_UNSIGNED_INT, nullptr);
 }

@@ -98,7 +98,8 @@ void Gui::DrawConsolePanel()
     auto equator = SliderFloat3("GradientEquator", IndirectLighting::s_gradientAmbientColor.equator, 0.0f, 1.0f, "%.2f");
     auto ground = SliderFloat3("GradientGround", IndirectLighting::s_gradientAmbientColor.ground, 0.0f, 1.0f, "%.2f");
     IndirectLighting::SetGradientAmbientColor(sky, equator, ground);
-    
+
+    // auto kawaseBlurIterations = ImGui::SliderInt("KawaseBlurIterations", &RenderPipeline::instance->kawaseBlurIterations, 1, 10);
     
     ImGui::End();
 }

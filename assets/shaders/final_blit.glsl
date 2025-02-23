@@ -10,7 +10,7 @@ out vec2 texCoord;
 void main()
 {
     gl_Position = vec4(aPositionOS.xy, 0, 1);
-    texCoord = aTexcoord;
+    texCoord = aPositionOS.xy * 0.5 + 0.5;
 };
 
 #version 330 core

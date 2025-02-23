@@ -33,9 +33,6 @@ private:
 
     Scene* m_preDrawnScene = nullptr;
 
-    Mesh* m_sphereMesh = nullptr;
-    Mesh* m_quadMesh = nullptr;
-
     RenderTexture* m_gBuffer0Tex = nullptr;
     RenderTexture* m_gBuffer1Tex = nullptr;
     RenderTexture* m_gBuffer2Tex = nullptr;

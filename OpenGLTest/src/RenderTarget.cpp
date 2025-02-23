@@ -64,7 +64,7 @@ RenderTarget::RenderTarget(const RenderTargetDesc& desc)
 {
     name = desc.name;
     width = height = 0;
-    m_resizeCallback = std::make_unique<std::function<void()>>([this]{RebindAttachments();});
+    m_resizeCallback = std::make_unique<std::function<void()>>([this]{m_dirty = true;});
     
     LoadAttachments(desc);
     
@@ -90,8 +90,6 @@ RenderTarget::RenderTarget(const RenderTargetDesc& desc)
 
         delete[] buffers;
     }
-
-    RebindAttachments();
 }
 
 RenderTarget::~RenderTarget()
@@ -229,10 +227,23 @@ void RenderTarget::RebindAttachments()
 {
     // 检查color attachment的尺寸是否一致
     width = height = 0;
-    for (int i = 0; i < m_colorAttachments.size(); ++i)
+    for (int i = 0; i <= m_colorAttachments.size(); ++i)
     {
-        auto colorAttachment = m_colorAttachments[i];
-        auto rt = colorAttachment->renderTexture;
+        RenderTargetAttachment* attachment;
+        if (i == m_colorAttachments.size())
+        {
+            attachment = m_depthAttachment;
+            if (!attachment)
+            {
+                break;
+            }
+        }
+        else
+        {
+            attachment = m_colorAttachments[i];
+        }
+        
+        auto rt = attachment->renderTexture;
         if(i == 0)
         {
             width = rt->width;
@@ -309,6 +320,11 @@ RenderTarget* RenderTarget::Get(const RenderTargetDesc& desc)
 
     result->name = desc.name;
     result->m_lastUseFrame = GameFramework::GetInstance()->GetFrameCount();
+    if (result->m_dirty)
+    {
+        result->RebindAttachments();
+        result->m_dirty = false;
+    }
     ClearUnusedRenderTargets();
     return result;
 }

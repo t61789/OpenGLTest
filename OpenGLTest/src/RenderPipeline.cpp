@@ -4,6 +4,7 @@
 #include "IndirectLighting.h"
 #include "RenderPass/DeferredShadingPass.h"
 #include "RenderPass/FinalBlitPass.h"
+#include "RenderPass/KawaseBlur.h"
 #include "RenderPass/MainLightShadowPass.h"
 #include "RenderPass/PreparingPass.h"
 #include "RenderPass/RenderScenePass.h"
@@ -23,15 +24,10 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_passes.push_back(new RenderSkyboxPass());
     m_passes.push_back(new RenderScenePass());
     m_passes.push_back(new DeferredShadingPass());
+    m_passes.push_back(new KawaseBlur());
     m_passes.push_back(new FinalBlitPass());
 
     m_cullModeMgr = std::make_unique<CullModeMgr>();
-
-    m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
-    m_sphereMesh->IncRef();
-
-    m_quadMesh = Mesh::LoadFromFile("meshes/quad.obj");
-    m_quadMesh->IncRef();
 
     m_gBuffer0Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex");
     m_gBuffer0Tex->IncRef();
@@ -62,9 +58,6 @@ RenderPipeline::~RenderPipeline()
     }
     m_passes.clear();
 
-    m_sphereMesh->DecRef();
-    m_quadMesh->DecRef();
-        
     m_gBuffer0Tex->DecRef();
     m_gBuffer1Tex->DecRef();
     m_gBuffer2Tex->DecRef();
@@ -138,7 +131,6 @@ RenderContext RenderPipeline::PrepareRenderContext(Scene* scene)
     renderContext.screenWidth = m_screenWidth;
     renderContext.screenHeight = m_screenHeight;
     renderContext.gBufferDesc = m_gBufferDesc.get();
-    renderContext.quadMesh = m_quadMesh;
     return renderContext;
 }
 

@@ -18,6 +18,7 @@ DeferredShadingPass::~DeferredShadingPass()
     if (m_shadingRt)
     {
         m_shadingRt->DecRef();
+        m_tempPpRt0->DecRef();
     }
 }
 
@@ -40,21 +41,26 @@ void DeferredShadingPass::Execute(RenderContext& renderContext)
     RenderingUtils::RenderMesh(renderContext, m_quadMesh, m_deferredShadingMat, glm::mat4(1));
 }
 
-void DeferredShadingPass::UpdateRt(const RenderContext& renderContext)
+void DeferredShadingPass::UpdateRt(RenderContext& renderContext)
 {
     if (m_shadingRt == nullptr)
     {
-        m_shadingRt = new RenderTexture(
-            RenderTextureDescriptor(
-                renderContext.screenWidth,
-                renderContext.screenHeight,
-                RGBAHdr,
-                Point,
-                Clamp,
-                "_ShadingBufferTex"));
+        auto desc = RenderTextureDescriptor(
+            renderContext.screenWidth,
+            renderContext.screenHeight,
+            RGBAHdr,
+            Point,
+            Clamp,
+            "_ShadingBufferTex");
+        m_shadingRt = new RenderTexture(desc);
         m_shadingRt->IncRef();
         Material::SetGlobalTextureValue("_ShadingBufferTex", m_shadingRt);
+
+        m_tempPpRt0 = new RenderTexture(desc);
+        m_tempPpRt0->IncRef();
     }
+    renderContext.shadingRt = m_shadingRt;
+    renderContext.tempPpRt0 = m_tempPpRt0;
     m_shadingRt->Resize(renderContext.screenWidth, renderContext.screenHeight);
 }
 

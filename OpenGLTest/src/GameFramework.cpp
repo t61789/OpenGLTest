@@ -296,7 +296,10 @@ void GameFramework::InitGame()
 
 void GameFramework::ReleaseGame()
 {
-    m_scene->DecRef();
+    if (m_scene)
+    {
+        m_scene->DecRef();
+    }
     delete m_renderPipeline;
 }
 

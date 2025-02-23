@@ -9,7 +9,7 @@ public:
     Image* lutTexture = nullptr; 
     
     FinalBlitPass();
-    ~FinalBlitPass();
+    ~FinalBlitPass() override;
     
     std::string GetName() override;
     void Execute(RenderContext& renderContext) override;
