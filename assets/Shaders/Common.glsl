@@ -135,6 +135,11 @@ float Luminance(vec3 col)
     return 0.2126 * col.r + 0.7152 * col.g + 0.0722 * col.b;
 }
 
+float unlerp(float a, float b, float t)
+{
+    return (t - a) / (b - a);
+}
+
 vec3 Pow(vec3 col, float exp)
 {
     vec3 result;   

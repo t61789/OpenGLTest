@@ -15,12 +15,16 @@ void main()
 
 #version 330 core
 
+#include "./common.glsl"
+
 in vec2 texCoord;
 
 uniform sampler2D _ShadingBufferTex;
 uniform sampler2D _LutTex;
 
 uniform float _ExposureMultiplier;
+uniform float _MinLuminance;
+uniform float _MaxLuminance;
 
 out vec4 FragColor;
 
@@ -63,9 +67,28 @@ vec3 applyLut(vec3 col)
     return texture(_LutTex, col.xy).rgb;
 }
 
+vec3 AdjustLuminance(vec3 color)
+{
+    // 计算当前颜色的亮度
+    float currentLuminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+
+    if(currentLuminance < _MinLuminance)
+    {
+        return vec3(0);
+    }
+    else if (currentLuminance > _MaxLuminance)
+    {
+        return vec3(1);
+    }
+
+    return color;
+}
+
 void main()
 {
     vec4 color = texture(_ShadingBufferTex, texCoord);
+    
+    color.rgb = AdjustLuminance(color.rgb);
     
 //    color.rgb = applyToneMapping(color.rgb);
     

@@ -19,36 +19,41 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_window = window;
     SetScreenSize(width, height);
 
-    m_passes.push_back(new PreparingPass());
-    m_passes.push_back(new MainLightShadowPass());
-    m_passes.push_back(new RenderSkyboxPass());
-    m_passes.push_back(new RenderScenePass());
-    m_passes.push_back(new DeferredShadingPass());
-    // m_passes.push_back(new KawaseBlur());
-    m_passes.push_back(new FinalBlitPass());
-
+    m_renderContext = std::make_unique<RenderContext>();
     m_cullModeMgr = std::make_unique<CullModeMgr>();
+
+    m_guiCallBack = new std::function<void()>([this]{this->OnGuiConsole();});
+    Gui::drawConsoleEvent.AddCallBack(m_guiCallBack);
 
     m_gBuffer0Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex");
     m_gBuffer0Tex->IncRef();
+    m_renderContext->RegisterRt(m_gBuffer0Tex);
     m_gBuffer1Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer1Tex");
     m_gBuffer1Tex->IncRef();
+    m_renderContext->RegisterRt(m_gBuffer1Tex);
     m_gBuffer2Tex = new RenderTexture(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex");
     m_gBuffer2Tex->IncRef();
+    m_renderContext->RegisterRt(m_gBuffer2Tex);
     m_gBufferDepthTex = new RenderTexture(width, height, DepthStencil, Point, Clamp, "_GBufferDepthTex");
     m_gBufferDepthTex->IncRef();
+    m_renderContext->RegisterRt(m_gBufferDepthTex);
     Material::SetGlobalTextureValue("_GBuffer0Tex", m_gBuffer0Tex);
     Material::SetGlobalTextureValue("_GBuffer1Tex", m_gBuffer1Tex);
     Material::SetGlobalTextureValue("_GBuffer2Tex", m_gBuffer2Tex);
-
+    
     m_gBufferDesc = std::make_unique<RenderTargetDesc>();
     m_gBufferDesc->SetColorAttachment(0, m_gBuffer0Tex);
     m_gBufferDesc->SetColorAttachment(1, m_gBuffer1Tex);
     m_gBufferDesc->SetColorAttachment(2, m_gBuffer2Tex);
     m_gBufferDesc->SetDepthAttachment(m_gBufferDepthTex, true);
 
-    m_guiCallBack = new std::function<void()>([this]{this->OnGuiConsole();});
-    Gui::drawConsoleEvent.AddCallBack(m_guiCallBack);
+    m_passes.push_back(new PreparingPass(m_renderContext.get()));
+    m_passes.push_back(new MainLightShadowPass(m_renderContext.get()));
+    m_passes.push_back(new RenderSkyboxPass(m_renderContext.get()));
+    m_passes.push_back(new RenderScenePass(m_renderContext.get()));
+    m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
+    // m_passes.push_back(new KawaseBlur());
+    m_passes.push_back(new FinalBlitPass(m_renderContext.get()));
 }
 
 RenderPipeline::~RenderPipeline()
@@ -92,11 +97,11 @@ void RenderPipeline::Render(const Camera* camera, Scene* scene)
         FirstDrawScene(scene);
     }
 
-    auto renderContext = PrepareRenderContext(scene);
+    PrepareRenderContext(scene);
     for (auto pass : m_passes)
     {
         Utils::BeginDebugGroup(pass->GetName());
-        pass->Execute(renderContext);
+        pass->Execute();
         Utils::EndDebugGroup();
     }
     
@@ -112,8 +117,8 @@ void RenderPipeline::Render(const Camera* camera, Scene* scene)
 
 void RenderPipeline::GetViewProjMatrix(glm::mat4& view, glm::mat4& proj)
 {
-    view = m_renderContext.vMatrix;
-    proj = m_renderContext.pMatrix;
+    view = m_renderContext->vMatrix;
+    proj = m_renderContext->pMatrix;
 }
 
 void RenderPipeline::GetScreenSize(int& width, int& height)
@@ -127,17 +132,15 @@ void RenderPipeline::FirstDrawScene(const Scene* scene)
     IndirectLighting::SetGradientAmbientColor(scene->ambientLightColorSky, scene->ambientLightColorEquator, scene->ambientLightColorGround);
 }
 
-RenderContext RenderPipeline::PrepareRenderContext(Scene* scene)
+void RenderPipeline::PrepareRenderContext(Scene* scene)
 {
-    auto renderContext = RenderContext();
-    renderContext.camera = Camera::GetMainCamera(); // TODO 依赖于scene
-    renderContext.scene = scene;
-    renderContext.cullModeMgr = m_cullModeMgr.get();
-    renderContext.mainLightShadowSize = mainLightShadowTexSize;
-    renderContext.screenWidth = m_screenWidth;
-    renderContext.screenHeight = m_screenHeight;
-    renderContext.gBufferDesc = m_gBufferDesc.get();
-    return renderContext;
+    m_renderContext->camera = Camera::GetMainCamera(); // TODO 依赖于scene
+    m_renderContext->scene = scene;
+    m_renderContext->cullModeMgr = m_cullModeMgr.get();
+    m_renderContext->mainLightShadowSize = mainLightShadowTexSize;
+    m_renderContext->screenWidth = m_screenWidth;
+    m_renderContext->screenHeight = m_screenHeight;
+    m_renderContext->gBufferDesc = m_gBufferDesc.get();
 }
 
 bool RenderPipeline::UpdateRenderTargetsPass()

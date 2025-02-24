@@ -1,28 +1,32 @@
 ﻿#include "PreparingPass.h"
 
+PreparingPass::PreparingPass(RenderContext* renderContext) : RenderPass(renderContext)
+{
+}
+
 std::string PreparingPass::GetName()
 {
     return "Preparing Pass";
 }
 
-void PreparingPass::Execute(RenderContext& renderContext)
+void PreparingPass::Execute()
 {
-    if(renderContext.camera == nullptr)
+    if(m_renderContext->camera == nullptr)
     {
         return;
     }
 
-    Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(renderContext.camera->position, 0));
+    Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(m_renderContext->camera->position, 0));
     
-    renderContext.cameraPositionWS = renderContext.camera->position;
+    m_renderContext->cameraPositionWS = m_renderContext->camera->position;
 
     std::vector<glm::vec4> clearColors = {
         glm::vec4(0.5f),
         glm::vec4(0.0f),
         glm::vec4(1.0f),
     };
-    RenderTarget::Get(*renderContext.gBufferDesc)->Clear(clearColors, 1.0f);
+    RenderTarget::Get(*m_renderContext->gBufferDesc)->Clear(clearColors, 1.0f);
 
-    auto viewportSize = glm::vec4(renderContext.screenWidth, renderContext.screenHeight, 0, 0);
+    auto viewportSize = glm::vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
     Material::SetGlobalVector4Value("_ViewportSize", viewportSize);
 }

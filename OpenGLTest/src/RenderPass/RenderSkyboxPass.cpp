@@ -4,7 +4,7 @@
 
 #include "RenderingUtils.h"
 
-RenderSkyboxPass::RenderSkyboxPass()
+RenderSkyboxPass::RenderSkyboxPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
     auto desc = ImageDescriptor::GetDefault();
     desc.needFlipVertical = false;
@@ -29,19 +29,19 @@ std::string RenderSkyboxPass::GetName()
     return "Render Skybox Pass";
 }
 
-void RenderSkyboxPass::Execute(RenderContext& renderContext)
+void RenderSkyboxPass::Execute()
 {
-    auto camera = renderContext.camera;
+    auto camera = m_renderContext->camera;
     if(camera == nullptr || m_sphereMesh == nullptr || m_skyboxMat == nullptr)
     {
         return;
     }
 
-    RenderTarget::Get(*renderContext.gBufferDesc)->Use();
+    RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
     
     auto m = glm::mat4(1);
     m = translate(m, camera->position);
     m = scale(m, glm::vec3(1));
 
-    RenderingUtils::RenderMesh(renderContext, m_sphereMesh, m_skyboxMat, m);
+    RenderingUtils::RenderMesh(*m_renderContext, m_sphereMesh, m_skyboxMat, m);
 }

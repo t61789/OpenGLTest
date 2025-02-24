@@ -27,10 +27,16 @@ public:
     Scene* scene = nullptr;
     CullModeMgr* cullModeMgr = nullptr;
 
-    RenderTexture* shadingRt = nullptr;
-    RenderTexture* tempPpRt0 = nullptr;
+    ~RenderContext();
 
     void SetViewProjMatrix(const Camera* cam);
     void SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
+
+    void RegisterRt(RenderTexture* rt);
+    void UnRegisterRt(const RenderTexture* rt);
+    RenderTexture* GetRt(const std::string& name);
+
+private:
+    std::unordered_map<std::string, RenderTexture*> m_rts;
 };
 

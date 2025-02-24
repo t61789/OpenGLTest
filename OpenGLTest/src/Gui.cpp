@@ -10,6 +10,18 @@
 
 Event<> Gui::drawConsoleEvent;
 
+IGui::IGui()
+{
+    m_drawConsoleGuiCallBack = new std::function<void()>([this]{this->OnDrawConsoleGui();});
+    Gui::drawConsoleEvent.AddCallBack(m_drawConsoleGuiCallBack);
+}
+
+IGui::~IGui()
+{
+    Gui::drawConsoleEvent.RemoveCallBack(m_drawConsoleGuiCallBack);
+    delete m_drawConsoleGuiCallBack;
+}
+
 void Gui::BeginFrame()
 {
     ImGui_ImplOpenGL3_NewFrame();

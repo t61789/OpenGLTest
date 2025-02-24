@@ -4,7 +4,7 @@
 #include "glm.hpp"
 #include "RenderingUtils.h"
 
-MainLightShadowPass::MainLightShadowPass()
+MainLightShadowPass::MainLightShadowPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
     m_drawShadowMat = Material::CreateEmptyMaterial("shaders/draw_shadow.glsl");
     m_drawShadowMat->IncRef();
@@ -12,7 +12,11 @@ MainLightShadowPass::MainLightShadowPass()
 
 MainLightShadowPass::~MainLightShadowPass()
 {
-    m_mainLightShadowRt->DecRef();
+    if (m_mainLightShadowRt)
+    {
+        m_renderContext->UnRegisterRt(m_mainLightShadowRt);
+        m_mainLightShadowRt->DecRef();
+    }
     m_drawShadowMat->DecRef();
 }
 
@@ -21,12 +25,12 @@ std::string MainLightShadowPass::GetName()
     return "Main Light Shadow Pass";
 }
 
-void MainLightShadowPass::Execute(RenderContext& renderContext)
+void MainLightShadowPass::Execute()
 {
-    UpdateRt(renderContext);
+    UpdateRt();
 
-    auto camera = renderContext.camera;
-    auto scene = renderContext.scene;
+    auto camera = m_renderContext->camera;
+    auto scene = m_renderContext->scene;
     if(camera == nullptr || scene == nullptr)
     {
         return;
@@ -34,11 +38,11 @@ void MainLightShadowPass::Execute(RenderContext& renderContext)
 
     constexpr float range = 10;
     float range2 = 50;
-    auto distancePerTexel = range * 2 / static_cast<float>(renderContext.mainLightShadowSize);
+    auto distancePerTexel = range * 2 / static_cast<float>(m_renderContext->mainLightShadowSize);
     // 计算阴影矩阵
     auto forward = glm::normalize(scene->mainLightDirection);
     auto right = normalize(cross(glm::vec3(0, 1, 0), forward));
-    auto up = glm::normalize(cross(forward, right)); // 右手从x绕到y
+    auto up = glm::normalize(glm::cross(forward, right)); // 右手从x绕到y
     auto shadowCameraToWorld = glm::mat4(
         right.x, right.y, right.z, 0, // 第一列
         up.z, up.y, up.z, 0,
@@ -59,7 +63,7 @@ void MainLightShadowPass::Execute(RenderContext& renderContext)
     worldToShadowCamera = inverse(shadowCameraToWorld);
     
     auto projMatrix = glm::ortho(-range, range, -range, range, 0.05f, 2 * range2);
-    renderContext.SetViewProjMatrix(worldToShadowCamera, projMatrix);
+    m_renderContext->SetViewProjMatrix(worldToShadowCamera, projMatrix);
 
     Material::SetGlobalMat4Value("_MainLightShadowVP", projMatrix * worldToShadowCamera);
 
@@ -67,29 +71,30 @@ void MainLightShadowPass::Execute(RenderContext& renderContext)
     renderTarget->Clear(1.0f);
     renderTarget->Use();
 
-    renderContext.replaceMaterial = m_drawShadowMat;
-    RenderingUtils::RenderScene(renderContext);
-    renderContext.replaceMaterial = nullptr;
+    m_renderContext->replaceMaterial = m_drawShadowMat;
+    RenderingUtils::RenderScene(*m_renderContext);
+    m_renderContext->replaceMaterial = nullptr;
 
     // 准备绘制参数
-    renderContext.SetViewProjMatrix(camera);
+    m_renderContext->SetViewProjMatrix(camera);
 }
 
-void MainLightShadowPass::UpdateRt(const RenderContext& renderContext)
+void MainLightShadowPass::UpdateRt()
 {
     if (m_mainLightShadowRt == nullptr)
     {
         m_mainLightShadowRt = new RenderTexture(
             RenderTextureDescriptor(
-                renderContext.mainLightShadowSize,
-                renderContext.mainLightShadowSize,
+                m_renderContext->mainLightShadowSize,
+                m_renderContext->mainLightShadowSize,
                 Depth,
                 Point,
                 Clamp,
                 "_MainLightShadowMapTex"));
         m_mainLightShadowRt->IncRef();
+        m_renderContext->RegisterRt(m_mainLightShadowRt);
         Material::SetGlobalTextureValue("_MainLightShadowMapTex", m_mainLightShadowRt);
     }
-    m_mainLightShadowRt->Resize(renderContext.mainLightShadowSize, renderContext.mainLightShadowSize);
+    m_mainLightShadowRt->Resize(m_renderContext->mainLightShadowSize, m_renderContext->mainLightShadowSize);
 }
 

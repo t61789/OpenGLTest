@@ -5,14 +5,14 @@ class MainLightShadowPass : public RenderPass
 {
 public:
     Material* m_drawShadowMat = nullptr;
-    
-    MainLightShadowPass();
+
+    explicit MainLightShadowPass(RenderContext* renderContext);
     ~MainLightShadowPass() override;
     std::string GetName() override;
-    void Execute(RenderContext& renderContext) override;
+    void Execute() override;
 
 private:
-    void UpdateRt(const RenderContext& renderContext);
+    void UpdateRt();
     
     RenderTexture* m_mainLightShadowRt = nullptr;
 };

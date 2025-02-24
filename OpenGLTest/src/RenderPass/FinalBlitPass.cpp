@@ -3,7 +3,7 @@
 #include "BuiltInRes.h"
 #include "RenderingUtils.h"
 
-FinalBlitPass::FinalBlitPass()
+FinalBlitPass::FinalBlitPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
     finalBlitMat = Material::CreateEmptyMaterial("shaders/final_blit.glsl");
     finalBlitMat->IncRef();
@@ -24,17 +24,26 @@ std::string FinalBlitPass::GetName()
     return "Final Blit Pass";
 }
 
-void FinalBlitPass::Execute(RenderContext& renderContext)
+void FinalBlitPass::Execute()
 {
-    RenderTarget::ClearFrameBuffer(0, glm::vec4(0), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    RenderTarget::UseScreenTarget();
-
     auto quad = BuiltInRes::GetInstance()->quadMesh;
     if(finalBlitMat == nullptr)
     {
         return;
     }
+    
+    RenderTarget::ClearFrameBuffer(0, glm::vec4(0), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    RenderTarget::UseScreenTarget();
+
+    finalBlitMat->SetFloatValue("_MinLuminance", m_minLuminance);
+    finalBlitMat->SetFloatValue("_MaxLuminance", m_maxLuminance);
 
     finalBlitMat->SetTextureValue("_LutTex", lutTexture);
-    RenderingUtils::RenderMesh(renderContext, quad, finalBlitMat, glm::mat4());
+    RenderingUtils::RenderMesh(*m_renderContext, quad, finalBlitMat, glm::mat4());
+}
+
+void FinalBlitPass::OnDrawConsoleGui()
+{
+    ImGui::SliderFloat("Min Lum Intensity", &m_minLuminance, 0.0f, 10.0f);
+    ImGui::SliderFloat("Max Lum Intensity", &m_maxLuminance, 0.0f, 10.0f);
 }

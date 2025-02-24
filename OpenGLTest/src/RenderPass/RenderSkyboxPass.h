@@ -5,10 +5,10 @@
 class RenderSkyboxPass : public RenderPass
 {
 public:
-    RenderSkyboxPass();
+    RenderSkyboxPass(RenderContext* renderContext);
     ~RenderSkyboxPass() override;
     std::string GetName() override;
-    void Execute(RenderContext& renderContext) override;
+    void Execute() override;
 
 private:
     Image* m_skyboxCubeTexture = nullptr;

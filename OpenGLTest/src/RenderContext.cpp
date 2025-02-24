@@ -2,6 +2,14 @@
 
 #include <ext/matrix_clip_space.hpp>
 
+RenderContext::~RenderContext()
+{
+    for (auto it : m_rts)
+    {
+        it.second->DecRef();
+    }
+}
+
 void RenderContext::SetViewProjMatrix(const Camera* cam)
 {
     auto cameraLocalToWorld = cam->GetLocalToWorld();
@@ -23,3 +31,33 @@ void RenderContext::SetViewProjMatrix(const glm::mat4& view, const glm::mat4& pr
     Material::SetGlobalMat4Value("_IVP", inverse(vpMatrix));
 }
 
+void RenderContext::RegisterRt(RenderTexture* rt)
+{
+    auto it = m_rts.find(rt->desc.name);
+    if (it != m_rts.end())
+    {
+        it->second->DecRef();
+    }
+    m_rts[rt->desc.name] = rt;
+    rt->IncRef();
+}
+
+void RenderContext::UnRegisterRt(const RenderTexture* rt)
+{
+    auto it = m_rts.find(rt->desc.name);
+    if (it != m_rts.end())
+    {
+        it->second->DecRef();
+        m_rts.erase(it);
+    }
+}
+
+RenderTexture* RenderContext::GetRt(const std::string& name)
+{
+    auto it = m_rts.find(name);
+    if (it != m_rts.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}

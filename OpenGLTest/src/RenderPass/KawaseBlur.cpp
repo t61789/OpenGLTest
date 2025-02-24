@@ -3,7 +3,7 @@
 #include "Gui.h"
 #include "RenderingUtils.h"
 
-KawaseBlur::KawaseBlur()
+KawaseBlur::KawaseBlur(RenderContext* renderContext) : RenderPass(renderContext)
 {
     rt = new RenderTexture(RenderTextureDescriptor(
         2,
@@ -34,10 +34,11 @@ std::string KawaseBlur::GetName()
     return "Kawase Blur";
 }
 
-void KawaseBlur::Execute(RenderContext& renderContext)
+void KawaseBlur::Execute()
 {
-    auto rt0 = renderContext.shadingRt;
-    auto rt1 = renderContext.tempPpRt0;
+    auto shadingRt = m_renderContext->GetRt("_ShadingBufferTex");
+    auto rt0 = shadingRt;
+    auto rt1 = m_renderContext->GetRt("_TempPpRt0");
 
     if (!rt0 || !rt1)
     {
@@ -58,7 +59,7 @@ void KawaseBlur::Execute(RenderContext& renderContext)
 
     if (m_iteration % 2)
     {
-        RenderingUtils::Blit(rt0, renderContext.shadingRt, nullptr);
+        RenderingUtils::Blit(rt0, shadingRt, nullptr);
     }
 }
 

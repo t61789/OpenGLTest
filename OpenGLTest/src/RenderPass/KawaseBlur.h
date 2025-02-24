@@ -6,11 +6,11 @@ class KawaseBlur : public RenderPass
 public:
     RenderTexture* rt = nullptr;
     
-    KawaseBlur();
+    KawaseBlur(RenderContext* renderContext);
     ~KawaseBlur() override;
     
     std::string GetName() override;
-    void Execute(RenderContext& renderContext) override;
+    void Execute() override;
     void OnGuiConsole();
 
 private:

@@ -25,11 +25,10 @@ private:
     int m_screenWidth;
     int m_screenHeight;
 
-    std::unique_ptr<RenderTargetDesc> m_gBufferDesc = nullptr;
-    
     GLFWwindow* m_window = nullptr;
     std::unique_ptr<CullModeMgr> m_cullModeMgr = nullptr;
-    RenderContext m_renderContext;
+    std::unique_ptr<RenderTargetDesc> m_gBufferDesc = nullptr;
+    std::unique_ptr<RenderContext> m_renderContext = nullptr;
 
     Scene* m_preDrawnScene = nullptr;
 
@@ -43,7 +42,7 @@ private:
     std::vector<RenderPass*> m_passes;
     
     void FirstDrawScene(const Scene* scene);
-    RenderContext PrepareRenderContext(Scene* scene);
+    void PrepareRenderContext(Scene* scene);
     bool UpdateRenderTargetsPass();
     void RenderUiPass();
     void OnGuiConsole();

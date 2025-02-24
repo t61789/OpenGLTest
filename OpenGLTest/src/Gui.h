@@ -1,12 +1,20 @@
 ﻿#pragma once
 #include <functional>
 #include <string>
-#include <vector>
 
 #include "Event.h"
 #include "glm.hpp"
 
-#include "imgui.h"
+class IGui
+{
+public:
+    IGui();
+    virtual ~IGui();
+    virtual void OnDrawConsoleGui(){}
+
+private:
+    std::function<void()>* m_drawConsoleGuiCallBack = nullptr;   
+};
 
 class Gui
 {
