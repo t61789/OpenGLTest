@@ -9,19 +9,19 @@ RenderSkyboxPass::RenderSkyboxPass(RenderContext* renderContext) : RenderPass(re
     auto desc = ImageDescriptor::GetDefault();
     desc.needFlipVertical = false;
     m_skyboxCubeTexture = Image::LoadCubeFromFile("textures/skybox", "jpg", desc);
-    m_skyboxCubeTexture->IncRef();
+    INCREF(m_skyboxCubeTexture);
     Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
     m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
-    m_sphereMesh->IncRef();
+    INCREF(m_sphereMesh);
     m_skyboxMat = Material::LoadFromFile("materials/skybox_mat.json");
-    m_skyboxMat->IncRef();
+    INCREF(m_skyboxMat);
 }
 
 RenderSkyboxPass::~RenderSkyboxPass()
 {
-    m_skyboxCubeTexture->DecRef();
-    m_sphereMesh->DecRef();
-    m_skyboxMat->DecRef();
+    DECREF(m_skyboxCubeTexture);
+    DECREF(m_sphereMesh);
+    DECREF(m_skyboxMat);
 }
 
 std::string RenderSkyboxPass::GetName()

@@ -6,17 +6,17 @@
 FinalBlitPass::FinalBlitPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
     finalBlitMat = Material::CreateEmptyMaterial("shaders/final_blit.glsl");
-    finalBlitMat->IncRef();
+    INCREF(finalBlitMat);
     auto desc = ImageDescriptor::GetDefault();
     desc.needFlipVertical = false;
     lutTexture = Image::LoadFromFile("textures/testLut.png", desc);
-    lutTexture->IncRef();
+    INCREF(lutTexture);
 }
 
 FinalBlitPass::~FinalBlitPass()
 {
-    finalBlitMat->DecRef();
-    lutTexture->DecRef();
+    DECREF(finalBlitMat);
+    DECREF(lutTexture);
 }
 
 std::string FinalBlitPass::GetName()

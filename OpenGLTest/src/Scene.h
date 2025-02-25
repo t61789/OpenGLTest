@@ -15,12 +15,12 @@ public:
     glm::vec3 ambientLightColorGround = glm::vec3(0, 0, 0);
     float tonemappingExposureMultiplier = 1.0f;
     
-    Scene();
-    ~Scene() override;
-    
     static Scene* LoadScene(const std::string& sceneJsonPath);
 
 private:
+    Scene();
+    ~Scene() override;
+
     void LoadSceneConfig(const nlohmann::json& configJson);
     
     static void LoadChildren(Object* parent, const nlohmann::json& children);

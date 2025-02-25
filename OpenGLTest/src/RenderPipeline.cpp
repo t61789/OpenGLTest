@@ -26,16 +26,16 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     Gui::drawConsoleEvent.AddCallBack(m_guiCallBack);
 
     m_gBuffer0Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex");
-    m_gBuffer0Tex->IncRef();
+    INCREF(m_gBuffer0Tex);
     m_renderContext->RegisterRt(m_gBuffer0Tex);
     m_gBuffer1Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer1Tex");
-    m_gBuffer1Tex->IncRef();
+    INCREF(m_gBuffer1Tex);
     m_renderContext->RegisterRt(m_gBuffer1Tex);
     m_gBuffer2Tex = new RenderTexture(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex");
-    m_gBuffer2Tex->IncRef();
+    INCREF(m_gBuffer2Tex);
     m_renderContext->RegisterRt(m_gBuffer2Tex);
     m_gBufferDepthTex = new RenderTexture(width, height, DepthStencil, Point, Clamp, "_GBufferDepthTex");
-    m_gBufferDepthTex->IncRef();
+    INCREF(m_gBufferDepthTex);
     m_renderContext->RegisterRt(m_gBufferDepthTex);
     Material::SetGlobalTextureValue("_GBuffer0Tex", m_gBuffer0Tex);
     Material::SetGlobalTextureValue("_GBuffer1Tex", m_gBuffer1Tex);
@@ -66,10 +66,10 @@ RenderPipeline::~RenderPipeline()
     }
     m_passes.clear();
 
-    m_gBuffer0Tex->DecRef();
-    m_gBuffer1Tex->DecRef();
-    m_gBuffer2Tex->DecRef();
-    m_gBufferDepthTex->DecRef();
+    DECREF(m_gBuffer0Tex);
+    DECREF(m_gBuffer1Tex);
+    DECREF(m_gBuffer2Tex);
+    DECREF(m_gBufferDepthTex);
 
     Gui::drawConsoleEvent.RemoveCallBack(m_guiCallBack);
     delete m_guiCallBack;

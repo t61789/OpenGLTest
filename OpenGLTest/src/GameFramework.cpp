@@ -242,13 +242,13 @@ void GameFramework::Update()
 
     // if (m_scene)
     // {
-    //     m_scene->DecRef();
+    //     DECREF(m_scene);
     //     m_scene = nullptr;
     // }
     // else
     // {
     //     m_scene = Scene::LoadScene("scenes/test_scene.json");
-    //     m_scene->IncRef();
+    //     INCREF(m_scene);
     // }
     //
     // if (m_renderPipeline)
@@ -291,14 +291,14 @@ void GameFramework::InitGame()
 {
     m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
     m_scene = Scene::LoadScene("scenes/test_scene.json");
-    m_scene->IncRef();
+    INCREF(m_scene);
 }
 
 void GameFramework::ReleaseGame()
 {
     if (m_scene)
     {
-        m_scene->DecRef();
+        DECREF(m_scene);
     }
     delete m_renderPipeline;
 }

@@ -5,24 +5,24 @@
 DeferredShadingPass::DeferredShadingPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
     m_quadMesh = Mesh::LoadFromFile("meshes/quad.obj");
-    m_quadMesh->IncRef();
+    INCREF(m_quadMesh);
     m_deferredShadingMat = Material::CreateEmptyMaterial("shaders/deferred_shading.glsl");
-    m_deferredShadingMat->IncRef();
+    INCREF(m_deferredShadingMat);
 }
 
 DeferredShadingPass::~DeferredShadingPass()
 {
-    m_quadMesh->DecRef();
-    m_deferredShadingMat->DecRef();
+    DECREF(m_quadMesh);
+    DECREF(m_deferredShadingMat);
     
     if (m_shadingRt)
     {
         m_renderContext->UnRegisterRt(m_shadingRt);
-        m_shadingRt->DecRef();
+        DECREF(m_shadingRt);
         m_renderContext->UnRegisterRt(m_tempPpRt0);
-        m_tempPpRt0->DecRef();
+        DECREF(m_tempPpRt0);
         m_renderContext->UnRegisterRt(m_tempPpRt1);
-        m_tempPpRt1->DecRef();
+        DECREF(m_tempPpRt1);
     }
 }
 
@@ -57,18 +57,18 @@ void DeferredShadingPass::UpdateRt()
             Clamp,
             "_ShadingBufferTex");
         m_shadingRt = new RenderTexture(desc);
-        m_shadingRt->IncRef();
+        INCREF(m_shadingRt);
         m_renderContext->RegisterRt(m_shadingRt);
         Material::SetGlobalTextureValue("_ShadingBufferTex", m_shadingRt);
 
         desc.name = "_TempPpRt0";
         m_tempPpRt0 = new RenderTexture(desc);
-        m_tempPpRt0->IncRef();
+        INCREF(m_tempPpRt0);
         m_renderContext->RegisterRt(m_tempPpRt0);
         desc.name = "_TempPpRt1";
         
         m_tempPpRt1 = new RenderTexture(desc);
-        m_tempPpRt1->IncRef();
+        INCREF(m_tempPpRt1);
         m_renderContext->RegisterRt(m_tempPpRt1);
     }
     m_shadingRt->Resize(m_renderContext->screenWidth, m_renderContext->screenHeight);

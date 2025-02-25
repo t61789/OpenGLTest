@@ -6,7 +6,7 @@ RenderContext::~RenderContext()
 {
     for (auto it : m_rts)
     {
-        it.second->DecRef();
+        DECREF(it.second);
     }
 }
 
@@ -36,10 +36,10 @@ void RenderContext::RegisterRt(RenderTexture* rt)
     auto it = m_rts.find(rt->desc.name);
     if (it != m_rts.end())
     {
-        it->second->DecRef();
+        DECREF(it->second);
     }
     m_rts[rt->desc.name] = rt;
-    rt->IncRef();
+    INCREF(rt);
 }
 
 void RenderContext::UnRegisterRt(const RenderTexture* rt)
@@ -47,7 +47,7 @@ void RenderContext::UnRegisterRt(const RenderTexture* rt)
     auto it = m_rts.find(rt->desc.name);
     if (it != m_rts.end())
     {
-        it->second->DecRef();
+        DECREF(it->second);
         m_rts.erase(it);
     }
 }

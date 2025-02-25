@@ -7,14 +7,13 @@ std::vector<SharedObject*> SharedObject::m_count;
 
 SharedObject::SharedObject()
 {
-    filePath = std::make_unique<std::string>("Default");
-    m_reference = std::make_unique<std::unordered_map<std::string, int>>();
-    // m_count.push_back(this);
+    filePath = "NotAFile";
+    m_count.push_back(this);
 }
 
 SharedObject::~SharedObject()
 {
-    // m_count.erase(std::remove(m_count.begin(), m_count.end(), this), m_count.end());
+    m_count.erase(std::remove(m_count.begin(), m_count.end(), this), m_count.end());
 }
 
 void SharedObject::IncRef()
@@ -25,13 +24,13 @@ void SharedObject::IncRef()
 
 void SharedObject::IncRef(const std::string& key)
 {
-    if (m_reference->find(key) == m_reference->end())
+    if (m_reference.find(key) == m_reference.end())
     {
-        (*m_reference)[key] = 1;
+        m_reference[key] = 1;
     }
     else
     {
-        (*m_reference)[key]++;
+        m_reference[key]++;
     }
 }
 
@@ -43,22 +42,22 @@ void SharedObject::DecRef()
 
 void SharedObject::DecRef(const std::string& key)
 {
-    auto it = m_reference->find(key);
-    assert(it != m_reference->end());
+    auto it = m_reference.find(key);
+    assert(it != m_reference.end());
     
     auto val = it->second - 1;
     if (val <= 0)
     {
-        m_reference->erase(key);
-        if (m_reference->empty())
+        m_reference.erase(key);
+        if (m_reference.empty())
         {
-            UnRegisterResource(*filePath);
+            UnRegisterResource(filePath);
             delete this;
         }
     }
     else
     {
-        (*m_reference)[key] = val;
+        m_reference[key] = val;
     }
 }
 
@@ -69,7 +68,7 @@ void SharedObject::RegisterResource(const std::string& path, SharedObject* obj)
     {
         m_resource[path] = obj;
     }
-    obj->filePath.reset(new std::string(path));
+    obj->filePath = path;
 }
 
 void SharedObject::UnRegisterResource(const std::string& path)

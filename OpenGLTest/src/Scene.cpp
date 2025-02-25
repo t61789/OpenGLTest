@@ -14,7 +14,7 @@ Scene::~Scene()
 {
     if (sceneRoot)
     {
-        sceneRoot->DecRef();
+        DECREF(sceneRoot);
     }
 }
 
@@ -90,7 +90,7 @@ Scene* Scene::LoadScene(const std::string& sceneJsonPath)
         LoadChildren(rootObj, json["root"]);
 
         result->sceneRoot = rootObj;
-        rootObj->IncRef();
+        INCREF_BY(rootObj, result);
     }
 
     RegisterResource(sceneJsonPath, result);

@@ -8,10 +8,6 @@
 class Material : public SharedObject
 {
 public:
-    Material() = default;
-    Material(const std::string& name);
-    ~Material() override;
-    
     std::string name = "Unnamed Material";
 
     Shader* shader = nullptr;
@@ -25,6 +21,12 @@ public:
     std::unordered_map<std::string, Texture*> textureValues;
     std::unordered_map<std::string, glm::vec4> vec4Values;
     std::unordered_map<std::string, std::vector<float>*> floatArrValues;
+    
+    Material() = default;
+    Material(const std::string& name);
+    ~Material() override;
+
+    static void StaticInitialize();
 
     void SetIntValue(const std::string& paramName, int value);
     void SetBoolValue(const std::string& paramName, bool value);
@@ -49,6 +51,7 @@ public:
     static void SetGlobalVector4Value(const std::string& paramName, const glm::vec4& value);
     static void SetGlobalFloatArrValue(const std::string& paramName, const float *value, int count);
     static void ClearAllGlobalValues();
+    static void ReleaseStaticRes();
 
 private:
     static Material* s_globalMaterial;

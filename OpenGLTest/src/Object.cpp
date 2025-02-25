@@ -19,7 +19,7 @@ Object::~Object()
 {
     for (auto child : children)
     {
-        child->DecRef();
+        DECREF(child);
     }
 }
 
@@ -68,7 +68,7 @@ void Object::AddChild(Object* child)
     }
 
     children.push_back(child);
-    child->IncRef();
+    INCREF(child);
 }
 
 void Object::RemoveChild(Object* child)
@@ -80,5 +80,5 @@ void Object::RemoveChild(Object* child)
     }
 
     children.erase(it);
-    child->DecRef();
+    DECREF(child);
 }

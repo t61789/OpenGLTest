@@ -493,6 +493,7 @@
     <Content Include="..\assets\textures\skybox\right.jpg" />
     <Content Include="..\assets\textures\skybox\top.jpg" />
     <Content Include="..\assets\textures\testLut.png" />
+    <Content Include="..\assets\TODO.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\shaders\common.glsl" />

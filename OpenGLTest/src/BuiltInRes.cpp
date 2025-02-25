@@ -1,24 +1,43 @@
 ﻿#include "BuiltInRes.h"
 
+BuiltInRes* BuiltInRes::m_instance = nullptr;
+
 BuiltInRes* BuiltInRes::GetInstance()
 {
-    static BuiltInRes* instance = nullptr;
-    if (instance == nullptr)
+    if (m_instance == nullptr)
     {
-        instance = new BuiltInRes();
+        m_instance = new BuiltInRes();
     }
-    return instance;
+    return m_instance;
+}
+
+void BuiltInRes::ReleaseInstance()
+{
+    if (!m_instance)
+    {
+        return;
+    }
+
+    delete m_instance;
+    m_instance = nullptr;
 }
 
 BuiltInRes::BuiltInRes()
 {
     quadMesh = Mesh::LoadFromFile("meshes/quad.obj");
-    quadMesh->IncRef();
+    INCREF(quadMesh);
     sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
-    sphereMesh->IncRef();
+    INCREF(sphereMesh);
 
     blitMat = Material::CreateEmptyMaterial("shaders/blit.glsl");
-    blitMat->IncRef();
+    INCREF(blitMat);
+}
+
+BuiltInRes::~BuiltInRes()
+{
+    DECREF(quadMesh);
+    DECREF(sphereMesh);
+    DECREF(blitMat);
 }
 
 

@@ -163,7 +163,7 @@ void RenderTarget::LoadAttachments(const RenderTargetDesc& desc)
     for (auto colorAttachment : desc.colorAttachments)
     {
         rta = new RenderTargetAttachment(colorAttachment->attachmentType, colorAttachment->renderTexture);
-        rta->renderTexture->IncRef();
+        INCREF(rta->renderTexture);
         rta->renderTexture->onResize->AddCallBack(m_resizeCallback.get());
         m_colorAttachments.push_back(rta);
     }
@@ -173,7 +173,7 @@ void RenderTarget::LoadAttachments(const RenderTargetDesc& desc)
     {
         rta = new RenderTargetAttachment(desc.depthAttachment->attachmentType, desc.depthAttachment->renderTexture);
         rta->renderTexture->onResize->AddCallBack(m_resizeCallback.get());
-        rta->renderTexture->IncRef();
+        INCREF(rta->renderTexture);
     }
     m_depthAttachment = rta;
 }
@@ -183,14 +183,14 @@ void RenderTarget::ReleaseAttachments()
     for (auto colorAttachment : m_colorAttachments)
     {
         colorAttachment->renderTexture->onResize->RemoveCallBack(m_resizeCallback.get());
-        colorAttachment->renderTexture->DecRef();
+        DECREF(colorAttachment->renderTexture);
         delete colorAttachment;
     }
 
     if (m_depthAttachment)
     {
         m_depthAttachment->renderTexture->onResize->RemoveCallBack(m_resizeCallback.get());
-        m_depthAttachment->renderTexture->DecRef();
+        DECREF(m_depthAttachment->renderTexture);
         delete m_depthAttachment;
     }
 }

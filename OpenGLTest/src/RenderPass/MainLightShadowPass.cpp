@@ -7,7 +7,7 @@
 MainLightShadowPass::MainLightShadowPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
     m_drawShadowMat = Material::CreateEmptyMaterial("shaders/draw_shadow.glsl");
-    m_drawShadowMat->IncRef();
+    INCREF(m_drawShadowMat);
 }
 
 MainLightShadowPass::~MainLightShadowPass()
@@ -15,9 +15,9 @@ MainLightShadowPass::~MainLightShadowPass()
     if (m_mainLightShadowRt)
     {
         m_renderContext->UnRegisterRt(m_mainLightShadowRt);
-        m_mainLightShadowRt->DecRef();
+        DECREF(m_mainLightShadowRt);
     }
-    m_drawShadowMat->DecRef();
+    DECREF(m_drawShadowMat);
 }
 
 std::string MainLightShadowPass::GetName()
@@ -91,7 +91,7 @@ void MainLightShadowPass::UpdateRt()
                 Point,
                 Clamp,
                 "_MainLightShadowMapTex"));
-        m_mainLightShadowRt->IncRef();
+        INCREF(m_mainLightShadowRt);
         m_renderContext->RegisterRt(m_mainLightShadowRt);
         Material::SetGlobalTextureValue("_MainLightShadowMapTex", m_mainLightShadowRt);
     }

@@ -17,6 +17,11 @@ Material::Material(const std::string& name)
 
 Material::~Material()
 {
+    if (this == s_tempMaterial)
+    {
+        return;
+    }
+    
     for (auto& element : floatArrValues)
     {
         delete element.second;
@@ -24,12 +29,12 @@ Material::~Material()
 
     for (auto& element : textureValues)
     {
-        element.second->DecRef();
+        DECREF(element.second);
     }
 
     if (shader)
     {
-        shader->DecRef();
+        DECREF(shader);
     }
 }
 
@@ -63,13 +68,13 @@ void Material::SetTextureValue(const std::string& paramName, Texture* value)
             return;
         }
         
-        it->second->DecRef();
+        DECREF(it->second);
     }
     
     if (value)
     {
         textureValues[paramName] = value;
-        value->IncRef();
+        INCREF(value);
     }
 }
 
@@ -122,6 +127,14 @@ void Material::SetGlobalFloatArrValue(const std::string& paramName, const float*
 void Material::ClearAllGlobalValues()
 {
     s_globalMaterial->Clear();
+}
+
+void Material::ReleaseStaticRes()
+{
+    delete s_globalMaterial;
+    s_globalMaterial = nullptr;
+    delete s_tempMaterial;
+    s_tempMaterial = nullptr;
 }
 
 void Material::FillParams(const Shader* targetShader) const
@@ -234,7 +247,7 @@ void Material::Clear()
     floatArrValues.clear();
     for (auto pair : textureValues)
     {
-        pair.second->DecRef();
+        DECREF(pair.second);
     }
     textureValues.clear();
 }
@@ -264,7 +277,7 @@ Material* Material::LoadFromFile(const std::string& path)
         if (elemKey == "shader")
         {
             result->shader = Shader::LoadFromFile(elemValue.get<std::string>());
-            result->shader->IncRef();
+            INCREF_BY(result->shader, result);
             continue;
         }
 
@@ -323,7 +336,7 @@ Material* Material::CreateEmptyMaterial(const std::string& shaderPath, const std
     
     auto result = new Material();
     result->shader = shader;
-    result->shader->IncRef();
+    INCREF_BY(result->shader, result);
     result->name = name;
     return result;
 }

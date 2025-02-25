@@ -11,7 +11,10 @@ public:
     Material* blitMat = nullptr;
 
     static BuiltInRes* GetInstance();
+    static void ReleaseInstance();
 
 private:
+    static BuiltInRes* m_instance;
     BuiltInRes();
+    ~BuiltInRes();
 };

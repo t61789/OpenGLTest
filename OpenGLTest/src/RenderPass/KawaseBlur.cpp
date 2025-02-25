@@ -11,10 +11,10 @@ KawaseBlur::KawaseBlur(RenderContext* renderContext) : RenderPass(renderContext)
         RenderTextureFormat::RGBA,
         Bilinear,
         Clamp));
-    rt->IncRef();
+    INCREF(rt);
 
     m_kawaseBlitMat = Material::CreateEmptyMaterial("shaders/kawase_blit.glsl");
-    m_kawaseBlitMat->IncRef();
+    INCREF(m_kawaseBlitMat);
 
     m_guiConsoleCallBack = new std::function<void()>([this]{this->OnGuiConsole();});
     Gui::drawConsoleEvent.AddCallBack(m_guiConsoleCallBack);
@@ -22,8 +22,8 @@ KawaseBlur::KawaseBlur(RenderContext* renderContext) : RenderPass(renderContext)
 
 KawaseBlur::~KawaseBlur()
 {
-    rt->DecRef();
-    m_kawaseBlitMat->DecRef();
+    DECREF(rt);
+    DECREF(m_kawaseBlitMat);
 
     Gui::drawConsoleEvent.RemoveCallBack(m_guiConsoleCallBack);
     delete m_guiConsoleCallBack;

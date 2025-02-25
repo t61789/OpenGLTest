@@ -3,10 +3,15 @@
 #include <unordered_map>
 #include <string>
 
+#define INCREF(obj) obj->IncRef(std::string(typeid(this).name()))
+#define INCREF_BY(obj, refObj) obj->IncRef(std::string(typeid(refObj).name()))
+#define DECREF(obj) obj->DecRef(std::string(typeid(this).name()))
+#define DECREF_BY(obj, refObj) obj->DecRef(std::string(typeid(refObj).name()))
+
 class SharedObject
 {
 public:
-    std::unique_ptr<std::string> filePath;
+    std::string filePath;
     
     SharedObject();
     virtual ~SharedObject();
@@ -23,6 +28,6 @@ public:
     static std::vector<SharedObject*> m_count;
 
 private:
-    std::unique_ptr<std::unordered_map<std::string, int>> m_reference;
+    std::unordered_map<std::string, int> m_reference;
     static std::unordered_map<std::string, SharedObject*> m_resource;
 };

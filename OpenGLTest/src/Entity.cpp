@@ -6,12 +6,12 @@ Entity::~Entity()
 {
     if (mesh)
     {
-        mesh->DecRef();
+        DECREF(mesh);
     }
 
     if (material)
     {
-        material->DecRef();
+        DECREF(material);
     }
 }
 
@@ -24,7 +24,7 @@ void Entity::LoadFromJson(const nlohmann::json& objJson)
         mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
         if (mesh)
         {
-            mesh->IncRef();
+            INCREF(mesh);
         }
     }
 
@@ -33,7 +33,7 @@ void Entity::LoadFromJson(const nlohmann::json& objJson)
         material = Material::LoadFromFile(objJson["material"].get<std::string>());
         if (material)
         {
-            material->IncRef();
+            INCREF(material);
         }
     }
 }
