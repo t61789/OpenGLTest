@@ -142,14 +142,8 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
     auto verticesCount = mesh->mNumVertices;
 
     // Load positionOS
-    auto boundsMin = glm::vec3(
-        std::numeric_limits<float>::max(),
-        std::numeric_limits<float>::max(),
-        std::numeric_limits<float>::max());
-    auto boundsMax = glm::vec3(
-        std::numeric_limits<float>::min(),
-        std::numeric_limits<float>::min(),
-        std::numeric_limits<float>::min());
+    auto boundsMin = glm::vec3(std::numeric_limits<float>::max());
+    auto boundsMax = glm::vec3(std::numeric_limits<float>::min());
     std::vector<float> positionOSContainer;
     for (uint32_t i = 0; i < verticesCount; ++i)
     {
@@ -234,10 +228,8 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
     return result;
 }
 
-void Mesh::use() const
+void Mesh::Use() const
 {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
-
-

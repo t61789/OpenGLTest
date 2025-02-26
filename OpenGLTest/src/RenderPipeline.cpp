@@ -21,9 +21,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
 
     m_renderContext = std::make_unique<RenderContext>();
     m_cullModeMgr = std::make_unique<CullModeMgr>();
-
-    m_guiCallBack = new std::function<void()>([this]{this->OnGuiConsole();});
-    Gui::drawConsoleEvent.AddCallBack(m_guiCallBack);
+    m_cullingSystem = std::make_unique<CullingSystem>(m_renderContext.get());
 
     m_gBuffer0Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex");
     INCREF(m_gBuffer0Tex);
@@ -71,9 +69,6 @@ RenderPipeline::~RenderPipeline()
     DECREF(m_gBuffer2Tex);
     DECREF(m_gBufferDepthTex);
 
-    Gui::drawConsoleEvent.RemoveCallBack(m_guiCallBack);
-    delete m_guiCallBack;
-
     RenderTarget::ClearAllCache();
     Material::ClearAllGlobalValues();
 }
@@ -98,6 +93,7 @@ void RenderPipeline::Render(const Camera* camera, Scene* scene)
     }
 
     PrepareRenderContext(scene);
+    
     for (auto pass : m_passes)
     {
         Utils::BeginDebugGroup(pass->GetName());
@@ -130,6 +126,7 @@ void RenderPipeline::GetScreenSize(int& width, int& height)
 void RenderPipeline::FirstDrawScene(const Scene* scene)
 {
     IndirectLighting::SetGradientAmbientColor(scene->ambientLightColorSky, scene->ambientLightColorEquator, scene->ambientLightColorGround);
+    
 }
 
 void RenderPipeline::PrepareRenderContext(Scene* scene)
@@ -141,6 +138,13 @@ void RenderPipeline::PrepareRenderContext(Scene* scene)
     m_renderContext->screenWidth = m_screenWidth;
     m_renderContext->screenHeight = m_screenHeight;
     m_renderContext->gBufferDesc = m_gBufferDesc.get();
+
+    delete m_renderContext->allSceneObjs;
+    m_renderContext->allSceneObjs = scene->GetAllObjects();
+    delete m_renderContext->allRenderObjs;
+    m_renderContext->allRenderObjs = ExtractRenderObjsFromScene(scene);
+    
+    m_cullingSystem->Cull();
 }
 
 bool RenderPipeline::UpdateRenderTargetsPass()
@@ -158,7 +162,19 @@ void RenderPipeline::RenderUiPass()
     Gui::Render();
 }
 
-void RenderPipeline::OnGuiConsole()
+std::vector<Entity*>* RenderPipeline::ExtractRenderObjsFromScene(Scene* scene)
 {
-       
+    // TODO 每一帧都遍历整个场景开销不菲，可以在物体退出和进入场景的时候进行更新
+    auto result = new std::vector<Entity*>();
+    auto allObjs = scene->GetAllObjects();
+    for (auto obj : *allObjs)
+    {
+        auto entity = dynamic_cast<Entity*>(obj);
+        if (entity)
+        {
+            result->push_back(entity);
+        }
+    }
+
+    return result;
 }

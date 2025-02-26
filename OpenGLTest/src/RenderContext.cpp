@@ -8,6 +8,10 @@ RenderContext::~RenderContext()
     {
         DECREF(it.second);
     }
+
+    delete allSceneObjs;
+    delete allRenderObjs;
+    delete visibleRenderObjs;
 }
 
 void RenderContext::SetViewProjMatrix(const Camera* cam)

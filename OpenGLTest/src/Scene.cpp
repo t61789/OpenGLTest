@@ -8,6 +8,8 @@
 #include "Utils.h"
 #include "../lib/json.hpp"
 
+using namespace std;
+
 Scene::Scene() = default;
 
 Scene::~Scene()
@@ -23,7 +25,7 @@ static Object* LoadObject(const nlohmann::json& objJson)
     Object* result;
     if(objJson.contains("type"))
     {
-        auto type = objJson["type"].get<std::string>();
+        auto type = objJson["type"].get<string>();
         if(type == "camera")
         {
             result = new Camera();
@@ -61,7 +63,31 @@ void Scene::LoadChildren(Object* parent, const nlohmann::json& children)
     }
 }
 
-Scene* Scene::LoadScene(const std::string& sceneJsonPath)
+vector<Object*>* Scene::GetAllObjects()
+{
+    auto result = new vector<Object*>();
+
+    function<void(Object*)> fuc = [&](Object* obj)
+    {
+        if (!obj)
+        {
+            return;
+        }
+
+        result->push_back(obj);
+
+        for(auto child : obj->children)
+        {
+            fuc(child);
+        }
+    };
+
+    fuc(sceneRoot);
+
+    return result;
+}
+
+Scene* Scene::LoadScene(const string& sceneJsonPath)
 {
     {
         SharedObject* result;
@@ -72,7 +98,7 @@ Scene* Scene::LoadScene(const std::string& sceneJsonPath)
     }
 
     auto result = new Scene();
-    auto s = std::ifstream(Utils::GetRealAssetPath(sceneJsonPath));
+    auto s = ifstream(Utils::GetRealAssetPath(sceneJsonPath));
     nlohmann::json json;
     s >> json;
     s.close();

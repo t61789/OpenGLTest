@@ -26,5 +26,5 @@ void RenderScenePass::Execute()
     Material::SetGlobalVector4Value("_MainLightColor", glm::vec4(scene->mainLightColor, 0));
     Material::SetGlobalFloatValue("_ExposureMultiplier", scene->tonemappingExposureMultiplier);
     
-    RenderingUtils::RenderScene(*m_renderContext);
+    RenderingUtils::RenderScene(*m_renderContext, *m_renderContext->visibleRenderObjs);
 }

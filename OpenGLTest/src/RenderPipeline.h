@@ -1,7 +1,9 @@
 ﻿#pragma once
 
 #include "Camera.h"
+#include "CullingSystem.h"
 #include "CullMode.h"
+#include "Entity.h"
 #include "RenderContext.h"
 #include "RenderTarget.h"
 #include "Scene.h"
@@ -29,15 +31,15 @@ private:
     std::unique_ptr<CullModeMgr> m_cullModeMgr = nullptr;
     std::unique_ptr<RenderTargetDesc> m_gBufferDesc = nullptr;
     std::unique_ptr<RenderContext> m_renderContext = nullptr;
+    std::unique_ptr<CullingSystem> m_cullingSystem = nullptr;
 
     Scene* m_preDrawnScene = nullptr;
+    std::unique_ptr<std::vector<Entity*>> m_renderObjs = nullptr;
 
     RenderTexture* m_gBuffer0Tex = nullptr;
     RenderTexture* m_gBuffer1Tex = nullptr;
     RenderTexture* m_gBuffer2Tex = nullptr;
     RenderTexture* m_gBufferDepthTex = nullptr;
-
-    std::function<void()>* m_guiCallBack = nullptr;
 
     std::vector<RenderPass*> m_passes;
     
@@ -45,5 +47,6 @@ private:
     void PrepareRenderContext(Scene* scene);
     bool UpdateRenderTargetsPass();
     void RenderUiPass();
-    void OnGuiConsole();
+    
+    static std::vector<Entity*>* ExtractRenderObjsFromScene(Scene* scene);
 };

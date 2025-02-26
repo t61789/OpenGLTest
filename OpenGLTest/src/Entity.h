@@ -11,7 +11,8 @@ public:
     Mesh* mesh = nullptr;
     Material* material = nullptr;
 
-private:
+    Bounds bounds;
 
+private:
     void LoadFromJson(const nlohmann::json& objJson) override;
 };

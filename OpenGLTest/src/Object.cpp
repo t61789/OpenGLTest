@@ -25,6 +25,7 @@ Object::~Object()
 
 glm::mat4 Object::GetLocalToWorld() const
 {
+    // TODO 进行缓存
     auto objectMatrix = glm::mat4(1);
     objectMatrix = translate(objectMatrix, position);
     objectMatrix = objectMatrix * glm::eulerAngleYXZ(

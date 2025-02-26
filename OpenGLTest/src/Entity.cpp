@@ -24,6 +24,7 @@ void Entity::LoadFromJson(const nlohmann::json& objJson)
         mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
         if (mesh)
         {
+            bounds = mesh->bounds;
             INCREF(mesh);
         }
     }

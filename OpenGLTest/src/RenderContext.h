@@ -3,6 +3,7 @@
 #include <glm.hpp>
 
 #include "Camera.h"
+#include "Entity.h"
 #include "Material.h"
 #include "RenderTarget.h"
 #include "Scene.h"
@@ -26,6 +27,10 @@ public:
     Camera* camera = nullptr;
     Scene* scene = nullptr;
     CullModeMgr* cullModeMgr = nullptr;
+
+    std::vector<Object*>* allSceneObjs = nullptr;
+    std::vector<Entity*>* allRenderObjs = nullptr;
+    std::vector<Entity*>* visibleRenderObjs = nullptr;
 
     ~RenderContext();
 

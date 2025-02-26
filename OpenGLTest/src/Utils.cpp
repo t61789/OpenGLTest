@@ -2,22 +2,14 @@
 
 #include <chrono>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 #include <vec4.hpp>
+
 #include "glm.hpp"
 #include "imgui.h"
 
 Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
 std::vector<std::string> Utils::s_logs;
-
-Bounds::Bounds() = default;
-
-Bounds::Bounds(const glm::vec3 center, const glm::vec3 extents)
-{
-    this->center = center;
-    this->extents = extents;
-}
 
 glm::vec3 Utils::ToVec3(nlohmann::json arr)
 {
@@ -202,7 +194,7 @@ float* Utils::ToArr(const glm::vec3& val)
     return arr;
 }
 
-glm::vec3 Utils::FromArr(float* arr)
+glm::vec3 Utils::FromArr(const float* arr)
 {
     return {arr[0], arr[1], arr[2]};
 }
@@ -340,6 +332,49 @@ void Utils::DebugDrawLine(const glm::vec3& worldStart, const glm::vec3& worldEnd
 
     // 使用 ImGui 的绘图 API 绘制线条
     drawList->AddLine(ImVec2(x0, y0), ImVec2(x1, y1), color, thickness);
+}
+
+void Utils::DebugDrawCube(
+    const Bounds& bounds,
+    const glm::mat4& viewMatrix,
+    const glm::mat4& projMatrix,
+    const glm::vec2& screenSize,
+    ImU32 color,
+    float thickness)
+{
+    // 计算八个顶点
+    std::array<glm::vec3, 8> vertices =
+    {
+        bounds.center + glm::vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
+        bounds.center + glm::vec3( bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
+        bounds.center + glm::vec3( bounds.extents.x,  bounds.extents.y, -bounds.extents.z),
+        bounds.center + glm::vec3(-bounds.extents.x,  bounds.extents.y, -bounds.extents.z),
+        bounds.center + glm::vec3(-bounds.extents.x, -bounds.extents.y,  bounds.extents.z),
+        bounds.center + glm::vec3( bounds.extents.x, -bounds.extents.y,  bounds.extents.z),
+        bounds.center + glm::vec3( bounds.extents.x,  bounds.extents.y,  bounds.extents.z),
+        bounds.center + glm::vec3(-bounds.extents.x,  bounds.extents.y,  bounds.extents.z)
+    };
+
+    // 定义12条边 [11]()
+    const std::array<std::pair<int, int>, 12> edges =
+    {{
+        {0,1}, {1,2}, {2,3}, {3,0}, // 底面 
+        {4,5}, {5,6}, {6,7}, {7,4}, // 顶面
+        {0,4}, {1,5}, {2,6}, {3,7}  // 侧面连接 
+    }};
+
+    // 绘制所有边
+    for (const auto& edge : edges)
+    {
+        DebugDrawLine(
+            vertices[edge.first],
+            vertices[edge.second],
+            viewMatrix,
+            projMatrix,
+            screenSize,
+            color,
+            thickness);
+    }
 }
 
 // 定义区域码（Cohen-Sutherland算法）

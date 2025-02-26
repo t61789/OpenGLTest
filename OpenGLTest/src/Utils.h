@@ -2,11 +2,12 @@
 
 #include <iostream>
 
+#include "glad/glad.h"
 #include "glm.hpp"
-#include <glad/glad.h>
 #include <vec3.hpp>
 #include <vec4.hpp>
 
+#include "Bounds.h"
 #include "Event.h"
 #include "../lib/json.hpp"
 #include "glfw3.h"
@@ -17,16 +18,6 @@ enum LogType
     Info,
     Warning,
     Error,
-};
-
-class Bounds
-{
-public:
-    glm::vec3 center;
-    glm::vec3 extents;
-
-    Bounds();
-    Bounds(glm::vec3 center, glm::vec3 extents);
 };
 
 class Utils
@@ -96,7 +87,7 @@ public:
     static std::string ToString(const glm::mat4& val);
 
     static float* ToArr(const glm::vec3& val);
-    static glm::vec3 FromArr(float* arr);
+    static glm::vec3 FromArr(const float* arr);
 
     static bool IsVec(const nlohmann::json& jsonValue, int components);
     static bool IsVec3(const nlohmann::json& jsonValue);
@@ -113,6 +104,7 @@ public:
 
     static glm::vec3 WorldToScreen(const glm::vec3& worldPos, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize);
     static void DebugDrawLine(const glm::vec3& worldStart, const glm::vec3& worldEnd, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
+    static void DebugDrawCube(const Bounds& bounds, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
     static int ComputeRegionCode(float x, float y, float xmin, float ymin, float xmax, float ymax);
     static bool CohenSutherlandClip(float &x1, float &y1, float &x2, float &y2, float xmin, float ymin, float xmax, float ymax);
 };

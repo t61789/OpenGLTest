@@ -14,6 +14,8 @@ public:
     glm::vec3 ambientLightColorEquator = glm::vec3(0, 0, 0);
     glm::vec3 ambientLightColorGround = glm::vec3(0, 0, 0);
     float tonemappingExposureMultiplier = 1.0f;
+
+    std::vector<Object*>* GetAllObjects();
     
     static Scene* LoadScene(const std::string& sceneJsonPath);
 

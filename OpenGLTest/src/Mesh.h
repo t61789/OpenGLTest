@@ -2,6 +2,7 @@
 #include <string>
 #include <glad/glad.h>
 
+#include "Bounds.h"
 #include "ConstVars.h"
 #include "SharedObject.h"
 #include "Utils.h"
@@ -22,7 +23,7 @@ public:
 
     ~Mesh() override;
     
-    void use() const;
+    void Use() const;
     
     static Mesh* LoadFromFile(const std::string& modelPath);
     static Mesh* CreateMesh(

@@ -5,29 +5,16 @@
 #include "BuiltInRes.h"
 #include "RenderPipeline.h"
 
-void RenderingUtils::RenderScene(const RenderContext& renderContext)
+using namespace std;
+
+void RenderingUtils::RenderScene(const RenderContext& renderContext, const vector<Entity*>& renderObjs)
 {
     // DFS地绘制场景
-    std::stack<Object*> drawingStack;
-    drawingStack.push(renderContext.scene->sceneRoot);
-    while(!drawingStack.empty())
+    for (auto& renderObj : renderObjs)
     {
-        auto obj = drawingStack.top();
-        drawingStack.pop();
-        auto entity = dynamic_cast<Entity*>(obj);
-        if(entity != nullptr)
-        {
-            Utils::BeginDebugGroup("Draw Entity");
-            RenderEntity(renderContext, entity);
-            Utils::EndDebugGroup();
-        }
-        if(obj != nullptr)
-        {
-            for (auto& child : obj->children)
-            {
-                drawingStack.push(child);
-            }
-        }
+        Utils::BeginDebugGroup(string("Draw Entity ") + renderObj->name);
+        RenderEntity(renderContext, renderObj);
+        Utils::EndDebugGroup();
     }
 }
 
@@ -61,7 +48,7 @@ void RenderingUtils::RenderMesh(const RenderContext& renderContext, const Mesh* 
 {
     auto mvp = renderContext.vpMatrix * m;
 
-    mesh->use();
+    mesh->Use();
     mat->SetMat4Value("_MVP", mvp);
     mat->SetMat4Value("_ITM", transpose(inverse(m)));
     mat->SetMat4Value("_M", m);
@@ -91,7 +78,7 @@ void RenderingUtils::Blit(RenderTexture* src, RenderTexture* dst, Material* mate
     }
 
     RenderTarget::Get(dst, nullptr)->Use();
-    quad->use();
+    quad->Use();
     blitMat->Use(quad);
     glDrawElements(GL_TRIANGLES, static_cast<GLint>(quad->indicesCount), GL_UNSIGNED_INT, nullptr);
 }
