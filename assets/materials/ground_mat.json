@@ -1,0 +1,9 @@
+{
+    "shader": "shaders/ground.glsl",
+    "_GroundColor": [0.5, 0.5, 0.5, 1.0],
+    "_EdgeColor": [0.7, 0.7, 0.9, 1.0],
+    "_GridSize": 1.0,
+    "_GridEdgeWidth": 0.035,
+    "_GridEdgeCrossWidth": 0.01,
+    "_GridEdgeCrossSize": 0.2
+}

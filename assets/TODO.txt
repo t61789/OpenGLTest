@@ -1,4 +1,5 @@
-﻿视锥体剔除
+﻿选择一个物体或材质调整参数
+点光源
 DualKawaseBloom
 SSAO
 GTAO
@@ -10,3 +11,6 @@ CascadeShadowMap
 合批绘制
 Instancing粒子流
 阴影剔除
+
+- 视锥体剔除
+- 地面grid标记

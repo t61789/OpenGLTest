@@ -469,6 +469,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\assets\application.json" />
+    <Content Include="..\assets\materials\ground_mat.json" />
     <Content Include="..\assets\materials\skybox_mat.json" />
     <Content Include="..\assets\materials\standard_mat.json" />
     <Content Include="..\assets\meshes\smooth_cube.obj" />
@@ -485,6 +486,7 @@
     <Content Include="..\assets\shaders\deferred_shading.glsl" />
     <Content Include="..\assets\shaders\draw_shadow.glsl" />
     <Content Include="..\assets\shaders\final_blit.glsl" />
+    <Content Include="..\assets\shaders\ground.glsl" />
     <Content Include="..\assets\shaders\indirectLighting.glsl" />
     <Content Include="..\assets\shaders\kawase_blit.glsl" />
     <Content Include="..\assets\shaders\lit.glsl" />

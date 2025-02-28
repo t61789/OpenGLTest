@@ -205,7 +205,6 @@ std::vector<std::string> Shader::LoadFileToLines(const std::string& realAssetPat
     }
     catch(std::exception&)
     {
-        fs.close();
         Utils::LogError("读取文件失败：" + realAssetPath);
         throw;
     }
