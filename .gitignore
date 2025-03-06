@@ -41,3 +41,5 @@ OpenGLTest/x64/*
 !/assets/**
 
 imgui.ini
+
+build/*

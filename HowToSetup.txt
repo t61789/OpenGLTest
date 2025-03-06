@@ -1,3 +1,0 @@
-1. 编译glfw
-2. 在C/C++目录里将glad的include和glfw的include以及lib添加进去
-3. 在连接器/附加依赖项里添加glfw的lib
