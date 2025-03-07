@@ -4,8 +4,6 @@ project(OpenGLTest LANGUAGES C CXX)
 
 file(GLOB_RECURSE SOURCES 
 	src/*
-	lib/glad/*
-	lib/imgui/*
 )
 
 add_executable(OpenGLTest ${SOURCES})
@@ -32,7 +30,6 @@ configure_file(
 )
 
 
-target_link_libraries(OpenGLTest PRIVATE OpenGL::GL glfw3 glfw3_mt glfw3dll assimp-vc143-mtd.lib)
 
 # glm
 include_directories(lib/glm)
@@ -47,9 +44,23 @@ include_directories(lib/stbi_image)
 include_directories(lib/khr)
 
 # imgui
-include_directories(lib/imgui)
+include_directories(lib/imgui/include)
+target_link_directories(OpenGLTest PRIVATE "lib/imgui/lib")
 
 # glad
-include_directories(lib/glad)
+include_directories(lib/glad/include)
+target_link_directories(OpenGLTest PRIVATE "lib/glad/lib")
+
+
+target_link_libraries(
+	OpenGLTest PRIVATE 
+	OpenGL::GL 
+	glfw3 
+	glfw3_mt 
+	glfw3dll 
+	assimp-vc143-mtd.lib
+	glad
+	imgui
+)
 
 
