@@ -1,7 +1,16 @@
 ﻿#pragma once
-#include <memory>
 #include <functional>
 #include <vector>
+
+template<typename Return, typename Pt0, typename Pt1>
+using EventCallback = std::function<Return(Pt0, Pt1)>*;
+
+template<typename Return, typename Pt0, typename Pt1, typename T>
+std::function<Return(Pt0, Pt1)>* CreateCallback(T* obj, Return (T::*func)(Pt0, Pt1)) {
+    return new std::function<Return(Pt0, Pt1)>([obj, func](Pt0 p0, Pt1 p1) {
+        return (obj->*func)(p0, p1);
+    });
+}
 
 template<typename... Args>
 class Event

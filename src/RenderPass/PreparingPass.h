@@ -7,4 +7,7 @@ public:
     PreparingPass(RenderContext* renderContext);
     std::string GetName() override;
     void Execute() override;
+
+private:
+    void PrepareLightInfos();
 };

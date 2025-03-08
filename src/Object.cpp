@@ -2,9 +2,9 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/euler_angles.hpp"
 
 #include "Utils.h"
+#include "glm/gtx/euler_angles.hpp"
 
 glm::vec3 ToVec3(nlohmann::json arr)
 {
@@ -68,6 +68,7 @@ void Object::AddChild(Object* child)
         return;
     }
 
+    child->parent = this;
     children.push_back(child);
     INCREF(child);
 }
@@ -80,6 +81,22 @@ void Object::RemoveChild(Object* child)
         return;
     }
 
+    child->parent = nullptr;
     children.erase(it);
     DECREF(child);
 }
+
+std::string Object::GetPathInScene() const
+{
+    auto path = std::vector<std::string>();
+    auto curObj = this;
+
+    while (curObj)
+    {
+        path.push_back(curObj->name);
+        curObj = curObj->parent;
+    }
+
+    return Utils::JoinStrings(std::vector<std::string>(path.rbegin(), path.rend()), "/");
+}
+    

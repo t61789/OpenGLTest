@@ -1,6 +1,10 @@
 ﻿#include "KawaseBlur.h"
 
+#include "imgui.h"
+
 #include "Gui.h"
+#include "RenderTexture.h"
+#include "Material.h"
 #include "RenderingUtils.h"
 
 KawaseBlur::KawaseBlur(RenderContext* renderContext) : RenderPass(renderContext)

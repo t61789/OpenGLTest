@@ -1,7 +1,10 @@
 ﻿#pragma once
-#include "Material.h"
-#include "Mesh.h"
+
 #include "Object.h"
+#include "Bounds.h"
+
+class Mesh;
+class Material;
 
 class Entity : public Object
 {

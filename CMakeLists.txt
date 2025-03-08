@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+set(CMAKE_SUPPRESS_REGENERATION TRUE)
+
 project(OpenGLTest LANGUAGES C CXX)
 
 file(GLOB_RECURSE SOURCES 

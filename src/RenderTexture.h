@@ -1,9 +1,8 @@
 ﻿#pragma once
-#include <unordered_map>
-#include "glad.h"
+
+#include <memory>
 
 #include "Event.h"
-#include "SharedObject.h"
 #include "Texture.h"
 
 class RenderTextureDescriptor

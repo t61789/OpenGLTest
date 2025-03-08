@@ -1,3 +1,5 @@
+@echo off
+
 set cmake_path=%~dp0
 set build_path=%cmake_path%build
 set ninja_path=%build_path%\ninja

@@ -2,9 +2,6 @@
 
 #include "glad.h"
 
-#include <string>
-#include <stdexcept>
-
 #include "SharedObject.h"
 
 enum RenderTextureFormat

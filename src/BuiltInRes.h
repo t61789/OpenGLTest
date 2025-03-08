@@ -1,6 +1,8 @@
 ﻿#pragma once
-#include "Material.h"
-#include "Mesh.h"
+
+class Material;
+class Mesh;
+class Image;
 
 class BuiltInRes
 {
@@ -9,6 +11,8 @@ public:
     Mesh* sphereMesh = nullptr;
 
     Material* blitMat = nullptr;
+
+    Image* errorTex = nullptr;
 
     static BuiltInRes* GetInstance();
     static void ReleaseInstance();

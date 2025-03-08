@@ -1,9 +1,11 @@
 ﻿#pragma once
 #include <vector>
 
-#include "Entity.h"
 #include "Gui.h"
-#include "RenderContext.h"
+
+class RenderContext;
+class Bounds;
+class Entity;
 
 class CullingSystem : public IGui
 {

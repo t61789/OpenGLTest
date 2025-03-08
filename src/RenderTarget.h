@@ -1,9 +1,14 @@
 ﻿#pragma once
 
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "glad.h"
 #include "glm/glm.hpp"
 
-#include "RenderTexture.h"
-#include "SharedObject.h"
+class RenderTexture;
 
 class RenderTargetAttachment
 {

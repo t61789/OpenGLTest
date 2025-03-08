@@ -1,5 +1,9 @@
 ﻿#include "PreparingPass.h"
 
+#include "RenderTarget.h"
+#include "Camera.h"
+#include "Material.h"
+
 PreparingPass::PreparingPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
 }
@@ -29,4 +33,8 @@ void PreparingPass::Execute()
 
     auto viewportSize = glm::vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
     Material::SetGlobalVector4Value("_ViewportSize", viewportSize);
+}
+
+void PreparingPass::PrepareLightInfos()
+{
 }

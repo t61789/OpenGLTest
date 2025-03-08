@@ -16,7 +16,7 @@ void main()
 #version 330 core
 
 #include "./common.glsl"
-#include "./indirectLighting.glsl"
+#include "./lib/indirect_lighting.glsl"
 
 in vec2 texCoord;
 

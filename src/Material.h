@@ -3,7 +3,12 @@
 #include <unordered_map>
 
 #include "CullMode.h"
-#include "Shader.h"
+#include "SharedObject.h"
+#include "glm/glm.hpp"
+
+class Shader;
+class Texture;
+class Mesh;
 
 class Material : public SharedObject
 {
@@ -25,8 +30,6 @@ public:
     Material() = default;
     Material(const std::string& name);
     ~Material() override;
-
-    static void StaticInitialize();
 
     void SetIntValue(const std::string& paramName, int value);
     void SetBoolValue(const std::string& paramName, bool value);
@@ -54,6 +57,29 @@ public:
     static void ReleaseStaticRes();
 
 private:
+    template<typename T>
+    static bool FindParam(
+        const std::string& paramName,
+        const std::unordered_map<std::string, T> localParam,
+        const std::unordered_map<std::string, T> globalParam,
+        T& result)
+    {
+        auto it = localParam.find(paramName);
+        if (it != localParam.end())
+        {
+            result = it->second;
+            return true;
+        }
+
+        it = globalParam.find(paramName);
+        if (it != globalParam.end())
+        {
+            result = it->second;
+            return true;
+        }
+
+        return false;
+    }
+    
     static Material* s_globalMaterial;
-    static Material* s_tempMaterial;
 };

@@ -6,6 +6,9 @@
 
 #include "glm/glm.hpp"
 #include "imgui.h"
+#include "glad.h"
+
+#include "Bounds.h"
 
 Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
 std::vector<std::string> Utils::s_logs;

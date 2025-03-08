@@ -2,24 +2,29 @@
 
 #include <string>
 
-#include "GameFramework.h"
-#include "IndirectLighting.h"
 #include "Utils.h"
+#include "RenderPipeline.h"
+#include "IndirectLighting.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
+Event<> Gui::drawGuiEvent;
 Event<> Gui::drawConsoleEvent;
 
 IGui::IGui()
 {
     m_drawConsoleGuiCallBack = new std::function<void()>([this]{this->OnDrawConsoleGui();});
     Gui::drawConsoleEvent.AddCallBack(m_drawConsoleGuiCallBack);
+    m_drawGuiCallBack = new std::function<void()>([this]{this->OnDrawGui();});
+    Gui::drawGuiEvent.AddCallBack(m_drawGuiCallBack);
 }
 
 IGui::~IGui()
 {
     Gui::drawConsoleEvent.RemoveCallBack(m_drawConsoleGuiCallBack);
     delete m_drawConsoleGuiCallBack;
+    Gui::drawGuiEvent.RemoveCallBack(m_drawGuiCallBack);
+    delete m_drawGuiCallBack;
 }
 
 void Gui::BeginFrame()
@@ -39,6 +44,8 @@ void Gui::OnGui()
     DrawCoordinateDirLine();
 
     DrawConsolePanel();
+    
+    drawGuiEvent.Invoke();
 }
 
 void Gui::AfterUpdate()
@@ -84,7 +91,8 @@ glm::vec3 Gui::SliderFloat3(const std::string& label, const glm::vec3 input, con
 void Gui::DrawApplicationPanel()
 {
     ImGui::Begin("Application Info");
-    ImGui::Text(std::string("FPS: " + Utils::ToString(1 / GameFramework::s_deltaTime, 2)).c_str());
+    auto deltaTime = Time::GetInstance()->deltaTime;
+    ImGui::Text(std::string("FPS: " + Utils::ToString(1 / deltaTime, 2)).c_str());
     ImGui::End();
 }
 

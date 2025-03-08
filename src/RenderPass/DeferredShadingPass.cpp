@@ -1,6 +1,10 @@
 ﻿#include "DeferredShadingPass.h"
 
+#include "Mesh.h"
 #include "RenderingUtils.h"
+#include "Material.h"
+#include "RenderTexture.h"
+#include "RenderTarget.h"
 
 DeferredShadingPass::DeferredShadingPass(RenderContext* renderContext) : RenderPass(renderContext)
 {

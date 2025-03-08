@@ -1,5 +1,7 @@
 ﻿#include "RenderTarget.h"
 
+#include "RenderTexture.h"
+#include "SharedObject.h"
 #include "GameFramework.h"
 #include "Utils.h"
 
@@ -319,7 +321,7 @@ RenderTarget* RenderTarget::Get(const RenderTargetDesc& desc)
     }
 
     result->name = desc.name;
-    result->m_lastUseFrame = GameFramework::GetInstance()->GetFrameCount();
+    result->m_lastUseFrame = Time::GetInstance()->frame;
     if (result->m_dirty)
     {
         result->RebindAttachments();
@@ -361,7 +363,7 @@ void RenderTarget::ClearAllCache()
 
 void RenderTarget::ClearUnusedRenderTargets()
 {
-    int curFrame = GameFramework::GetInstance()->GetFrameCount();
+    int curFrame = Time::GetInstance()->frame;
     if (curFrame - m_lastClearFrame < m_renderTargetTimeout)
     {
         return;

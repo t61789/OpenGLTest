@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+#include "Utils.h"
+#include "SharedObject.h"
+#include "Material.h"
 #include "BuiltInRes.h"
 #include "GameFramework.h"
 

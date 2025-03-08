@@ -1,5 +1,6 @@
 ﻿#include "Entity.h"
 
+#include "Mesh.h"
 #include "Material.h"
 
 Entity::~Entity()

@@ -2,14 +2,32 @@
 
 #include <string>
 
+#include "glm/glm.hpp"
+
+#include "SharedObject.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "glm/glm.hpp"
 
 class Shader : public SharedObject
 {
 public:
+    class UniformInfo
+    {
+    public:
+        int index;
+        int elemNum;
+        int type;
+        std::string name;
+
+        bool operator==(const UniformInfo& other) const
+        {
+            return index == other.index && elemNum == other.elemNum && type == other.type && name == other.name;
+        }
+    };
+    
     GLuint glShaderId;
+
+    std::vector<UniformInfo> uniforms;
 
     void Use(const Mesh* mesh) const;
     bool HasParam(const std::string &name) const;
@@ -33,6 +51,7 @@ public:
 private:
     ~Shader() override;
 
+    static std::vector<UniformInfo> LoadUniforms(GLuint program);
     static std::vector<std::string> LoadFileToLines(const std::string& realAssetPath);
     static void DivideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines);
     static void ReplaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines);

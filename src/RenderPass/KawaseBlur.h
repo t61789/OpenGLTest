@@ -1,4 +1,7 @@
 ﻿#pragma once
+
+#include <functional>
+
 #include "RenderPass.h"
 
 class KawaseBlur : public RenderPass

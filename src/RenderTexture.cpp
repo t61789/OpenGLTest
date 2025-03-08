@@ -1,5 +1,6 @@
 ﻿#include "RenderTexture.h"
 
+#include "Texture.h"
 #include "Utils.h"
 
 void checkGlFormatSupported(GLuint glFormat, RenderTextureFormat format)

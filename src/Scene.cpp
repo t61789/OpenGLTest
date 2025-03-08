@@ -10,7 +10,10 @@
 
 using namespace std;
 
-Scene::Scene() = default;
+Scene::Scene()
+{
+    m_objectChildAddedCallback = CreateCallback(this, &Scene::OnObjectChildAdded);
+}
 
 Scene::~Scene()
 {
@@ -18,6 +21,8 @@ Scene::~Scene()
     {
         DECREF(sceneRoot);
     }
+
+    delete m_objectChildAddedCallback;
 }
 
 static Object* LoadObject(const nlohmann::json& objJson)
@@ -121,6 +126,11 @@ Scene* Scene::LoadScene(const string& sceneJsonPath)
 
     RegisterResource(sceneJsonPath, result);
     return result;
+}
+
+void Scene::OnObjectChildAdded(Object* parent, Object* child)
+{
+    
 }
 
 void Scene::LoadSceneConfig(const nlohmann::json& configJson)

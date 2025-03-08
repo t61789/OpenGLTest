@@ -2,6 +2,13 @@
 
 #include "glm/glm.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
+
+#include "Camera.h"
+#include "Scene.h"
+#include "RenderTarget.h"
+#include "Material.h"
+#include "RenderTexture.h"
+#include "SharedObject.h"
 #include "RenderingUtils.h"
 
 MainLightShadowPass::MainLightShadowPass(RenderContext* renderContext) : RenderPass(renderContext)

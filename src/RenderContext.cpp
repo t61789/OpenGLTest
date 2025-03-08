@@ -2,6 +2,11 @@
 
 #include "glm/ext/matrix_clip_space.hpp"
 
+#include "Camera.h"
+#include "Material.h"
+#include "RenderTexture.h"
+#include "SharedObject.h"
+
 RenderContext::~RenderContext()
 {
     for (auto it : m_rts)

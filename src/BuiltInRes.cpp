@@ -1,5 +1,9 @@
 ﻿#include "BuiltInRes.h"
 
+#include "Mesh.h"
+#include "Material.h"
+#include "Image.h"
+
 BuiltInRes* BuiltInRes::m_instance = nullptr;
 
 BuiltInRes* BuiltInRes::GetInstance()
@@ -31,6 +35,10 @@ BuiltInRes::BuiltInRes()
 
     blitMat = Material::CreateEmptyMaterial("shaders/blit.glsl");
     INCREF(blitMat);
+
+    auto desc = ImageDescriptor::GetDefault();
+    errorTex = Image::LoadFromFile("built_in/texture/error.png", desc);
+    INCREF(errorTex);
 }
 
 BuiltInRes::~BuiltInRes()
@@ -38,6 +46,7 @@ BuiltInRes::~BuiltInRes()
     DECREF(quadMesh);
     DECREF(sphereMesh);
     DECREF(blitMat);
+    DECREF(errorTex);
 }
 
 

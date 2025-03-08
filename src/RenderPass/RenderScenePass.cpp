@@ -1,5 +1,8 @@
 ﻿#include "RenderScenePass.h"
 
+#include "Scene.h"
+#include "Material.h"
+#include "RenderTarget.h"
 #include "RenderingUtils.h"
 
 RenderScenePass::RenderScenePass(RenderContext* renderContext) : RenderPass(renderContext)

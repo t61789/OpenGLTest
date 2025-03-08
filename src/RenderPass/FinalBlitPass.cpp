@@ -1,5 +1,9 @@
 ﻿#include "FinalBlitPass.h"
 
+#include "imgui.h"
+
+#include "RenderTarget.h"
+#include "Material.h"
 #include "BuiltInRes.h"
 #include "RenderingUtils.h"
 

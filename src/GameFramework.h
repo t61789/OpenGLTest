@@ -1,17 +1,19 @@
 ﻿#pragma once
 
+#include "functional"
+
 #include "RenderPipeline.h"
-#include "Scene.h"
-#include "glfw3.h"
+
+class ControlPanelUi;
+
+class Scene;
 
 class GameFramework
 {
 public:
     static GameFramework* GetInstance();
-    
-    static float s_deltaTime;
-    static float s_curFrameTime;
-    static int s_frameCount;
+
+    Scene* scene = nullptr;
     
     GameFramework();
     ~GameFramework();
@@ -19,17 +21,15 @@ public:
     bool Init();
     void GameLoop();
 
-    float GetDeltaTime() const;
-    float GetCurFrameTime() const;
-    int GetFrameCount() const;
     bool KeyPressed(int glfwKey) const;
     
 private:
     static GameFramework* s_instance;
     
     GLFWwindow* m_window = nullptr;
-    Scene* m_scene = nullptr;
-    RenderPipeline* m_renderPipeline = nullptr;
+    
+    std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
+    std::unique_ptr<ControlPanelUi> m_controlPanelUi = nullptr;
 
     int m_screenWidth = 1270;
     int m_screenHeight = 800;

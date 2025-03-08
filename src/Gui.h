@@ -10,9 +10,11 @@ class IGui
 public:
     IGui();
     virtual ~IGui();
+    virtual void OnDrawGui(){}
     virtual void OnDrawConsoleGui(){}
 
 private:
+    std::function<void()>* m_drawGuiCallBack = nullptr;
     std::function<void()>* m_drawConsoleGuiCallBack = nullptr;   
 };
 
@@ -25,6 +27,7 @@ public:
     static void AfterUpdate();
     static void Render();
 
+    static Event<> drawGuiEvent;
     static Event<> drawConsoleEvent;
 
 private:

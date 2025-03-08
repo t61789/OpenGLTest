@@ -3,12 +3,14 @@
 #include <fstream>
 #include <sstream>
 
-#include "Image.h"
-#include "Utils.h"
 #include "json.hpp"
 
+#include "Shader.h"
+#include "BuiltInRes.h"
+#include "Image.h"
+#include "Utils.h"
+
 Material* Material::s_globalMaterial = new Material("Global Material");
-Material* Material::s_tempMaterial = new Material("Temp Material");
 
 Material::Material(const std::string& name)
 {
@@ -17,11 +19,6 @@ Material::Material(const std::string& name)
 
 Material::~Material()
 {
-    if (this == s_tempMaterial)
-    {
-        return;
-    }
-    
     for (auto& element : floatArrValues)
     {
         delete element.second;
@@ -75,6 +72,18 @@ void Material::SetTextureValue(const std::string& paramName, Texture* value)
     {
         textureValues[paramName] = value;
         INCREF(value);
+        
+        auto texelSize = glm::vec4(
+            1.0f / static_cast<float>(value->width),
+            1.0f / static_cast<float>(value->height),
+            static_cast<float>(value->width),
+            static_cast<float>(value->height));
+        vec4Values[paramName + "_TexelSize"] = texelSize;
+    }
+    else if (it != textureValues.end())
+    {
+        textureValues.erase(paramName);
+        vec4Values.erase(paramName + "_TexelSize");
     }
 }
 
@@ -133,92 +142,84 @@ void Material::ReleaseStaticRes()
 {
     delete s_globalMaterial;
     s_globalMaterial = nullptr;
-    delete s_tempMaterial;
-    s_tempMaterial = nullptr;
 }
 
 void Material::FillParams(const Shader* targetShader) const
 {
-    // ---------------------将全局参数写入临时材质---------------------
-    s_tempMaterial->intValues = s_globalMaterial->intValues;
-    s_tempMaterial->boolValues = s_globalMaterial->boolValues;
-    s_tempMaterial->floatValues = s_globalMaterial->floatValues;
-    s_tempMaterial->mat4Values = s_globalMaterial->mat4Values;
-    s_tempMaterial->textureValues = s_globalMaterial->textureValues;
-    s_tempMaterial->vec4Values = s_globalMaterial->vec4Values;
-    s_tempMaterial->floatArrValues = s_globalMaterial->floatArrValues;
-    
-    // ---------------------使用材质参数覆盖全局参数---------------------
-    for (const auto& element : intValues)
+    auto slot = 0;
+    for (const auto& uniformInfo : targetShader->uniforms)
     {
-        s_tempMaterial->intValues[element.first] = element.second;
-    }
-    for (const auto& element : boolValues)
-    {
-        s_tempMaterial->boolValues[element.first] = element.second;
-    }
-    for (const auto& element : floatValues)
-    {
-        s_tempMaterial->floatValues[element.first] = element.second;
-    }
-    for (const auto& element : mat4Values)
-    {
-        s_tempMaterial->mat4Values[element.first] = element.second;
-    }
-    for (const auto& element : textureValues)
-    {
-        s_tempMaterial->textureValues[element.first] = element.second;
-    }
-    for (const auto& element : vec4Values)
-    {
-        s_tempMaterial->vec4Values[element.first] = element.second;
-    }
-    for (const auto& element : floatArrValues)
-    {
-        s_tempMaterial->floatArrValues[element.first] = element.second;
-    }
-    
-    // ---------------------实际写入数据---------------------
-    for (const auto& element : s_tempMaterial->intValues)
-    {
-        targetShader->SetInt(element.first, element.second);
-    }
-    for (const auto& element : s_tempMaterial->boolValues)
-    {
-        targetShader->SetBool(element.first, element.second);
-    }
-    for (const auto& element : s_tempMaterial->floatValues)
-    {
-        targetShader->SetFloat(element.first, element.second);
-    }
-    for (const auto& element : s_tempMaterial->vec4Values)
-    {
-        targetShader->SetVector(element.first, element.second);
-    }
-    for (const auto& element : s_tempMaterial->mat4Values)
-    {
-        targetShader->SetMatrix(element.first, element.second);
-    }
-    for (const auto& element : s_tempMaterial->floatArrValues)
-    {
-        targetShader->SetFloatArr(element.first, static_cast<uint32_t>(element.second->size()), element.second->data());
-    }
-    int slot = 0;
-    for (auto& element : s_tempMaterial->textureValues)
-    {
-        if(!targetShader->HasParam(element.first))
+        switch (uniformInfo.type)
         {
-            continue;
+        case GL_FLOAT:
+            {
+                if (uniformInfo.elemNum > 1)
+                {
+                    std::vector<float>* fa = nullptr;
+                    auto n = uniformInfo.name.substr(0, uniformInfo.name.length() - 3);
+                    if (FindParam(n, floatArrValues, s_globalMaterial->floatArrValues, fa))
+                    {
+                        targetShader->SetFloatArr(n, uniformInfo.elemNum, fa->data());
+                    }
+                }
+                else
+                {
+                    float f = 0;
+                    FindParam(uniformInfo.name, floatValues, s_globalMaterial->floatValues, f);
+                    targetShader->SetFloat(uniformInfo.name, f);
+                }
+                break;
+            }
+            
+        case GL_INT:
+            {
+                auto i = 0;
+                FindParam(uniformInfo.name, intValues, s_globalMaterial->intValues, i);
+                targetShader->SetInt(uniformInfo.name, i);
+                break;
+            }
+            
+        case GL_BOOL:
+            {
+                auto b = false;
+                FindParam(uniformInfo.name, boolValues, s_globalMaterial->boolValues, b);
+                targetShader->SetBool(uniformInfo.name, b);
+                break;
+            }
+            
+        case GL_FLOAT_MAT4:
+            {
+                auto m = glm::mat4(0);
+                FindParam(uniformInfo.name, mat4Values, s_globalMaterial->mat4Values, m);
+                targetShader->SetMatrix(uniformInfo.name, m);
+                break;
+            }
+
+        case GL_SAMPLER_CUBE:
+        case GL_SAMPLER_2D:
+            {
+                Texture* t = nullptr;
+                if (!FindParam(uniformInfo.name, textureValues, s_globalMaterial->textureValues, t))
+                {
+                    t = BuiltInRes::GetInstance()->errorTex;
+                }
+                targetShader->SetTexture(uniformInfo.name, slot++, t);
+                break;
+            }
+            
+        case GL_FLOAT_VEC4:
+            {
+                glm::vec4 v;
+                FindParam(uniformInfo.name, vec4Values, s_globalMaterial->vec4Values, v);
+                targetShader->SetVector(uniformInfo.name, v);
+                break;
+            }
+
+        default:
+            {
+                throw std::runtime_error("不支持的Uniform类型：" + std::to_string(uniformInfo.type));
+            }
         }
-        
-        targetShader->SetTexture(element.first, slot, element.second);
-        auto texelSize = glm::vec4(
-            1.0f / static_cast<float>(element.second->width),
-            1.0f / static_cast<float>(element.second->height),
-            static_cast<float>(element.second->width),
-            static_cast<float>(element.second->height));
-        targetShader->SetVector(element.first + std::string("_TexelSize"), texelSize);
-        slot++;
     }
 }
 

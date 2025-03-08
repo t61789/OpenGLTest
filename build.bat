@@ -1,3 +1,5 @@
+@echo off
+
 set cur_path=%~dp0
 set build_path=%cur_path%build
 set ninja_path=%build_path%\ninja

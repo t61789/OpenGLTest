@@ -1,6 +1,14 @@
 ﻿#pragma once
-#include "Entity.h"
-#include "RenderContext.h"
+
+#include <vector>
+
+#include "glm/glm.hpp"
+
+class RenderContext;
+class RenderTexture;
+class Entity;
+class Mesh;
+class Material;
 
 class RenderingUtils
 {

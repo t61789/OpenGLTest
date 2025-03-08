@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include "RenderContext.h"
+#include "Entity.h"
 #include "Bounds.h"
 
 // bool FrustumCulling(const float3 center, const float3 extents)

@@ -2,20 +2,43 @@
 
 #include <iostream>
 
-#include "glad.h"
 #include "glm/glm.hpp"
-
-#include "Bounds.h"
-#include "Event.h"
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
 #include "json.hpp"
-#include "glfw3.h"
 #include "imgui.h"
+
+#include "Event.h"
+
+class Bounds;
+struct GLFWwindow;
 
 enum LogType
 {
     Info,
     Warning,
     Error,
+};
+
+class Time
+{
+public:
+    int frame = -1;
+    float time = 0;
+    float deltaTime = 999;
+
+    static Time* GetInstance()
+    {
+        static Time* instance = nullptr;
+        if (!instance)
+        {
+            instance = new Time();
+        }
+        return instance;
+    }
+    
+private:
+    Time() = default;
 };
 
 class Utils

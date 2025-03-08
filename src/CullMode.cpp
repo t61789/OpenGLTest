@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 
+#include "glad.h"
 #include "Utils.h"
 
 std::unordered_map<std::string, CullMode> cullModeTable =

@@ -1,7 +1,14 @@
 ﻿#pragma once
+
 #include <string>
 
-#include "Object.h"
+#include "glm/glm.hpp"
+#include "json.hpp"
+
+#include "Event.h"
+#include "SharedObject.h"
+
+class Object;
 
 class Scene : public SharedObject
 {
@@ -22,6 +29,9 @@ public:
 private:
     Scene();
     ~Scene() override;
+
+    EventCallback<void, Object*, Object*> m_objectChildAddedCallback = nullptr;
+    void OnObjectChildAdded(Object* parent, Object* child);
 
     void LoadSceneConfig(const nlohmann::json& configJson);
     

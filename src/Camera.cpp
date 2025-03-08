@@ -1,5 +1,8 @@
 ﻿#include "Camera.h"
 
+#include "glfw3.h"
+
+#include "Utils.h"
 #include "GameFramework.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -28,57 +31,58 @@ void Camera::Update()
     float damp = 0.07f;
 
     GameFramework* gameFramework = GameFramework::GetInstance();
+    auto deltaTime = Time::GetInstance()->deltaTime;
 
     if(gameFramework->KeyPressed(GLFW_KEY_W))
     {
-        m_targetPosition += forward * gameFramework->GetDeltaTime() * moveSpeed;
+        m_targetPosition += forward * deltaTime * moveSpeed;
     }
     
     if(gameFramework->KeyPressed(GLFW_KEY_S))
     {
-        m_targetPosition += -forward * gameFramework->GetDeltaTime() * moveSpeed;
+        m_targetPosition += -forward * deltaTime * moveSpeed;
     }
     
     if(gameFramework->KeyPressed(GLFW_KEY_A))
     {
-        m_targetPosition += -right * gameFramework->GetDeltaTime() * moveSpeed;
+        m_targetPosition += -right * deltaTime * moveSpeed;
     }
     
     if(gameFramework->KeyPressed(GLFW_KEY_D))
     {
-        m_targetPosition += right * gameFramework->GetDeltaTime() * moveSpeed;
+        m_targetPosition += right * deltaTime * moveSpeed;
     }
     
     if(gameFramework->KeyPressed(GLFW_KEY_E))
     {
-        m_targetPosition += glm::vec3(0, 1.0f, 0) * gameFramework->GetDeltaTime() * moveSpeed;
+        m_targetPosition += glm::vec3(0, 1.0f, 0) * deltaTime * moveSpeed;
     }
 
     if(gameFramework->KeyPressed(GLFW_KEY_Q))
     {
-        m_targetPosition += glm::vec3(0, -1.0f, 0) * gameFramework->GetDeltaTime() * moveSpeed;
+        m_targetPosition += glm::vec3(0, -1.0f, 0) * deltaTime * moveSpeed;
     }
 
     position = lerp(position, m_targetPosition, damp);
     
     if(gameFramework->KeyPressed(GLFW_KEY_UP))
     {
-        m_targetRotation.x += gameFramework->GetDeltaTime() * rotateSpeed;
+        m_targetRotation.x += deltaTime * rotateSpeed;
     }
     
     if(gameFramework->KeyPressed(GLFW_KEY_DOWN))
     {
-        m_targetRotation.x += -gameFramework->GetDeltaTime() * rotateSpeed;
+        m_targetRotation.x += -deltaTime * rotateSpeed;
     }
     
     if(gameFramework->KeyPressed(GLFW_KEY_LEFT))
     {
-        m_targetRotation.y += gameFramework->GetDeltaTime() * rotateSpeed;
+        m_targetRotation.y += deltaTime * rotateSpeed;
     }
     
     if(gameFramework->KeyPressed(GLFW_KEY_RIGHT))
     {
-        m_targetRotation.y += -gameFramework->GetDeltaTime() * rotateSpeed;
+        m_targetRotation.y += -deltaTime * rotateSpeed;
     }
 
     rotation = lerp(rotation, m_targetRotation, damp);

@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "RenderPass/RenderPass.h"
+#include "RenderPass.h"
+
+class Mesh;
 
 class DeferredShadingPass : public RenderPass
 {

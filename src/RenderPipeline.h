@@ -1,13 +1,20 @@
 ﻿#pragma once
 
-#include "Camera.h"
-#include "CullingSystem.h"
-#include "CullMode.h"
-#include "Entity.h"
-#include "RenderContext.h"
-#include "RenderTarget.h"
-#include "Scene.h"
-#include "RenderPass/RenderPass.h"
+#include <memory>
+#include <vector>
+
+#include "glm/glm.hpp"
+
+class Camera;
+class Scene;
+class CullModeMgr;
+class RenderTargetDesc;
+class RenderContext;
+class CullingSystem;
+class Entity;
+class RenderTexture;
+class RenderPass;
+struct GLFWwindow;
 
 class RenderPipeline
 {

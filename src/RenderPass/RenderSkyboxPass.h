@@ -1,6 +1,8 @@
 ﻿#pragma once
-#include "Image.h"
 #include "RenderPass.h"
+
+class Mesh;
+class Image;
 
 class RenderSkyboxPass : public RenderPass
 {

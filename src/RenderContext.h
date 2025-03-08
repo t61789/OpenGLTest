@@ -1,12 +1,19 @@
 ﻿#pragma once
 
-#include <glm/glm.hpp>
+#include <vector>
+#include <unordered_map>
 
-#include "Camera.h"
-#include "Entity.h"
-#include "Material.h"
-#include "RenderTarget.h"
-#include "Scene.h"
+#include "glm/glm.hpp"
+
+#include "CullMode.h"
+
+class Camera;
+class Entity;
+class Material;
+class RenderTargetDesc;
+class RenderTexture;
+class Scene;
+class Object;
 
 class RenderContext
 {

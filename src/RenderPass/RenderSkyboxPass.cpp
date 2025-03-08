@@ -2,6 +2,12 @@
 
 #include "glm/ext/matrix_transform.hpp"
 
+#include "SharedObject.h"
+#include "Image.h"
+#include "Material.h"
+#include "Mesh.h"
+#include "RenderTarget.h"
+#include "Camera.h"
 #include "RenderingUtils.h"
 
 RenderSkyboxPass::RenderSkyboxPass(RenderContext* renderContext) : RenderPass(renderContext)

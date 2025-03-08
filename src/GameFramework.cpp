@@ -2,19 +2,20 @@
 
 #include <iostream>
 
+#include "glad.h"
+#include "glfw3.h"
+#include "imgui.h"
+
+#include "Utils.h"
+#include "Scene.h"
 #include "Camera.h"
 #include "Gui.h"
-#include "imgui.h"
 #include "Windows.h"
+#include "Ui/ControlPanelUi.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
-#include "glad.h"
-
 GameFramework* GameFramework::s_instance = nullptr;
-float GameFramework::s_deltaTime = 0;
-float GameFramework::s_curFrameTime = 0;
-int GameFramework::s_frameCount = -1;
 
 bool initGl()
 {
@@ -83,7 +84,6 @@ bool GameFramework::Init()
 void GameFramework::GameLoop()
 {
     // Render loop
-    s_frameCount = -1;
     while (!glfwWindowShouldClose(m_window))
     {
         FrameBegin();
@@ -105,21 +105,6 @@ void GameFramework::GameLoop()
         m_window = nullptr;
     }
     glfwTerminate();
-}
-
-float GameFramework::GetDeltaTime() const
-{
-    return s_deltaTime;
-}
-
-float GameFramework::GetCurFrameTime() const
-{
-    return s_curFrameTime;
-}
-
-int GameFramework::GetFrameCount() const
-{
-    return s_frameCount;
 }
 
 bool GameFramework::KeyPressed(const int glfwKey) const
@@ -202,11 +187,12 @@ void GameFramework::ProcessInput() const
 void GameFramework::FrameBegin()
 {
     Gui::BeginFrame();
-    
-    s_frameCount++;
+
+    auto time = Time::GetInstance();
+    time->frame += 1;
     auto curFrameTime = static_cast<float>(glfwGetTime());
-    s_deltaTime = curFrameTime - s_curFrameTime;
-    s_curFrameTime = curFrameTime;
+    time->deltaTime = max(curFrameTime - time->time, 0.000001f);
+    time->time = curFrameTime;
 }
 
 void GameFramework::FrameEnd()
@@ -235,20 +221,20 @@ void GameFramework::BeforeUpdate()
 
 void GameFramework::Update()
 {
-    if(m_scene)
+    if(scene)
     {
-        UpdateObject(m_scene->sceneRoot);
+        UpdateObject(scene->sceneRoot);
     }
 
-    // if (m_scene)
+    // if (scene)
     // {
-    //     DECREF(m_scene);
-    //     m_scene = nullptr;
+    //     DECREF(scene);
+    //     scene = nullptr;
     // }
     // else
     // {
-    //     m_scene = Scene::LoadScene("scenes/test_scene.json");
-    //     INCREF(m_scene);
+    //     scene = Scene::LoadScene("scenes/test_scene.json");
+    //     INCREF(scene);
     // }
     //
     // if (m_renderPipeline)
@@ -267,9 +253,9 @@ void GameFramework::Update()
 void GameFramework::Render() const
 {
     auto mainCamera = Camera::GetMainCamera();
-    if(mainCamera && m_scene && m_renderPipeline)
+    if(mainCamera && scene && m_renderPipeline)
     {
-        m_renderPipeline->Render(mainCamera, m_scene);
+        m_renderPipeline->Render(mainCamera, scene);
     }
     else
     {
@@ -289,17 +275,18 @@ void GameFramework::OnSetFrameBufferSize(GLFWwindow* window, const int width, co
 
 void GameFramework::InitGame()
 {
-    m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
-    m_scene = Scene::LoadScene("scenes/test_scene.json");
-    INCREF(m_scene);
+    m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
+    scene = Scene::LoadScene("scenes/test_scene.json");
+    INCREF(scene);
+
+    m_controlPanelUi = std::make_unique<ControlPanelUi>();
 }
 
 void GameFramework::ReleaseGame()
 {
-    if (m_scene)
+    if (scene)
     {
-        DECREF(m_scene);
+        DECREF(scene);
     }
-    delete m_renderPipeline;
 }
 

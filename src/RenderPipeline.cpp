@@ -1,6 +1,15 @@
 ﻿#include "RenderPipeline.h"
 
 #include "Gui.h"
+#include "CullingSystem.h"
+#include "CullMode.h"
+#include "RenderTexture.h"
+#include "RenderTarget.h"
+#include "Material.h"
+#include "Utils.h"
+#include "Camera.h"
+#include "Entity.h"
+#include "Scene.h"
 #include "IndirectLighting.h"
 #include "RenderPass/DeferredShadingPass.h"
 #include "RenderPass/FinalBlitPass.h"
@@ -9,6 +18,8 @@
 #include "RenderPass/PreparingPass.h"
 #include "RenderPass/RenderScenePass.h"
 #include "RenderPass/RenderSkyboxPass.h"
+
+#include "glfw3.h"
 
 RenderPipeline* RenderPipeline::instance = nullptr;
 

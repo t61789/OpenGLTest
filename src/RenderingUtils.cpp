@@ -1,9 +1,15 @@
 ﻿#include "RenderingUtils.h"
 
-#include <stack>
+#include "glad.h"
 
+#include "RenderTarget.h"
+#include "RenderTexture.h"
+#include "Mesh.h"
+#include "Material.h"
+#include "Utils.h"
+#include "Entity.h"
+#include "RenderContext.h"
 #include "BuiltInRes.h"
-#include "RenderPipeline.h"
 
 using namespace std;
 

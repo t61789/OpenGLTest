@@ -1,7 +1,6 @@
 ﻿#include "Shader.h"
 
 #include <fstream>
-#include <iostream>
 #include <regex>
 #include <sstream>
 #include <unordered_set>
@@ -11,19 +10,21 @@
 #include "Utils.h"
 #include "glm/gtc/type_ptr.hpp"
 
-std::string getShaderStr(const std::vector<std::string>& lines)
+using namespace std;
+
+string getShaderStr(const vector<string>& lines)
 {
-    std::stringstream ss;
+    stringstream ss;
     for (int i = 0; i < lines.size(); ++i)
     {
-        ss << std::to_string(i + 1) << ":  ";
+        ss << to_string(i + 1) << ":  ";
         ss << lines[i];
         ss << "\n";
     }
     return ss.str();
 }
 
-void checkShaderCompilation(const GLuint vertexShader, const std::string &shaderPath, const std::vector<std::string>& lines)
+void checkShaderCompilation(const GLuint vertexShader, const string &shaderPath, const vector<string>& lines)
 {
     int success;
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -31,13 +32,13 @@ void checkShaderCompilation(const GLuint vertexShader, const std::string &shader
     {
         char info[512];
         glGetShaderInfoLog(vertexShader, 512, nullptr, info);
-        std::stringstream ss;
+        stringstream ss;
         ss << "ERROR>> Shader compilation failed:\n";
         ss << shaderPath;
         ss << "\n";
         ss << info;
         ss << getShaderStr(lines);
-        throw std::runtime_error(ss.str());
+        throw runtime_error(ss.str());
     }
 }
 // TODO 判断参数的类型，类型不对不设置或者报错
@@ -71,13 +72,13 @@ void Shader::Use(const Mesh* mesh) const
     }
 }
 
-bool Shader::HasParam(const std::string &name) const
+bool Shader::HasParam(const string &name) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     return location != -1;
 }
 
-void Shader::SetBool(const std::string& name, const bool value) const
+void Shader::SetBool(const string& name, const bool value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetBool(location, value);
@@ -92,7 +93,7 @@ void Shader::SetBool(const int& location, const bool value)
     glUniform1i(location, value);
 }
 
-void Shader::SetInt(const std::string& name, const int value) const
+void Shader::SetInt(const string& name, const int value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetInt(location, value);
@@ -108,7 +109,7 @@ void Shader::SetInt(const int& location, const int value)
     glUniform1i(location, value);
 }
 
-void Shader::SetFloat(const std::string& name, const float value) const
+void Shader::SetFloat(const string& name, const float value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetFloat(location, value);
@@ -123,7 +124,7 @@ void Shader::SetFloat(const int& location, const float value)
     glUniform1f(location, value);
 }
 
-void Shader::SetVector(const std::string& name, const glm::vec4& value) const
+void Shader::SetVector(const string& name, const glm::vec4& value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetVector(location, value);
@@ -138,7 +139,7 @@ void Shader::SetVector(const int& location, const glm::vec4& value)
     glUniform4f(location, value.x, value.y, value.z, value.w);
 }
 
-void Shader::SetMatrix(const std::string& name, const glm::mat4& value) const
+void Shader::SetMatrix(const string& name, const glm::mat4& value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetMatrix(location, value);
@@ -153,7 +154,7 @@ void Shader::SetMatrix(const int& location, const glm::mat4& value)
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Shader::SetTexture(const std::string& name, const int slot, const Texture* value) const
+void Shader::SetTexture(const string& name, const int slot, const Texture* value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetTexture(location, slot, value);
@@ -178,7 +179,7 @@ void Shader::SetTexture(const int& location, const int slot, const Texture* valu
     }
 }
 
-void Shader::SetFloatArr(const std::string& name, uint32_t count, float* value) const
+void Shader::SetFloatArr(const string& name, uint32_t count, float* value) const
 {
     int location = glGetUniformLocation(glShaderId, name.c_str());
     SetFloatArr(location, count, value);
@@ -193,26 +194,26 @@ void Shader::SetFloatArr(const int& location, int count, float* value)
     glUniform1fv(location, count, value);
 }
 
-std::vector<std::string> Shader::LoadFileToLines(const std::string& realAssetPath)
+vector<string> Shader::LoadFileToLines(const string& realAssetPath)
 {
-    std::ifstream fs;
-    fs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    std::stringstream ss;
+    ifstream fs;
+    fs.exceptions(ifstream::failbit | ifstream::badbit);
+    stringstream ss;
     try
     {
         fs.open(realAssetPath);
         ss << fs.rdbuf();
     }
-    catch(std::exception&)
+    catch(exception&)
     {
         Utils::LogError("读取文件失败：" + realAssetPath);
         throw;
     }
     fs.close();
     
-    std::vector<std::string> lines;
-    std::string line;
-    while(std::getline(ss, line, '\n'))
+    vector<string> lines;
+    string line;
+    while(getline(ss, line, '\n'))
     {
         lines.push_back(line);
     }
@@ -220,13 +221,13 @@ std::vector<std::string> Shader::LoadFileToLines(const std::string& realAssetPat
     return lines;
 }
 
-void Shader::DivideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines)
+void Shader::DivideGlsl(const vector<string>& lines, vector<string>& vertLines, vector<string>& fragLines)
 {
     int divideIndex[2];
     int curIndex = 0;
     for (int i = 0; i < lines.size(); ++i)
     {
-        if(lines[i].find("#version") != std::string::npos)
+        if(lines[i].find("#version") != string::npos)
         {
             divideIndex[curIndex] = i;
             curIndex ++;
@@ -239,7 +240,7 @@ void Shader::DivideGlsl(const std::vector<std::string>& lines, std::vector<std::
 
     if(curIndex != 2)
     {
-        throw std::runtime_error("GLSL文件需求两个#version，但只找到" + std::to_string(curIndex) + "个");
+        throw runtime_error("GLSL文件需求两个#version，但只找到" + to_string(curIndex) + "个");
     }
 
     for(int i = divideIndex[0]; i < divideIndex[1]; ++i)
@@ -253,11 +254,11 @@ void Shader::DivideGlsl(const std::vector<std::string>& lines, std::vector<std::
     }
 }
 
-void Shader::ReplaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines)
+void Shader::ReplaceIncludes(const string& curFilePath, vector<string>& lines)
 {
-    std::vector<size_t> loadStack;
-    std::vector<std::string> currentFilePath;
-    std::unordered_set<std::string> hasInclude;
+    vector<size_t> loadStack;
+    vector<string> currentFilePath;
+    unordered_set<string> hasInclude;
     hasInclude.insert(curFilePath);
     loadStack.push_back(lines.size());
     currentFilePath.push_back(curFilePath);
@@ -272,14 +273,14 @@ void Shader::ReplaceIncludes(const std::string& curFilePath, std::vector<std::st
         
         auto line = lines[i];
         auto includeCmdIndex = line.find("#include");
-        if(includeCmdIndex == std::string::npos)
+        if(includeCmdIndex == string::npos)
         {
             continue;
         }
 
-        std::regex pattern("^\\s*#include\\s+\"([^\"]+)\"\\s*$");
-        std::smatch matches;
-        if(!std::regex_match(line, matches, pattern))
+        regex pattern("^\\s*#include\\s+\"([^\"]+)\"\\s*$");
+        smatch matches;
+        if(!regex_match(line, matches, pattern))
         {
             continue;
         }
@@ -300,7 +301,7 @@ void Shader::ReplaceIncludes(const std::string& curFilePath, std::vector<std::st
     }
 }
 
-Shader* Shader::LoadFromFile(const std::string& glslPath)
+Shader* Shader::LoadFromFile(const string& glslPath)
 {
     {
         SharedObject* result;
@@ -310,10 +311,10 @@ Shader* Shader::LoadFromFile(const std::string& glslPath)
         }
     }
 
-    std::string vSource, fSource;
-    std::vector<std::string> glslLines = LoadFileToLines(Utils::GetRealAssetPath(glslPath));
-    std::vector<std::string> vertLines;
-    std::vector<std::string> fragLines;
+    string vSource, fSource;
+    vector<string> glslLines = LoadFileToLines(Utils::GetRealAssetPath(glslPath));
+    vector<string> vertLines;
+    vector<string> fragLines;
 
     DivideGlsl(glslLines, vertLines, fragLines);
     
@@ -325,12 +326,12 @@ Shader* Shader::LoadFromFile(const std::string& glslPath)
         vSource = Utils::JoinStrings(vertLines, "\n");
         fSource = Utils::JoinStrings(fragLines, "\n");
     }
-    catch (std::exception &e)
+    catch (exception &e)
     {
-        std::stringstream ss;
+        stringstream ss;
         ss << Utils::FormatLog(Error, glslPath) << "\n";
         ss << Utils::FormatLog(Error, "访问shader文件失败") << e.what();
-        throw std::runtime_error(ss.str());
+        throw runtime_error(ss.str());
     }
 
     auto vCharSource = vSource.c_str();
@@ -356,7 +357,42 @@ Shader* Shader::LoadFromFile(const std::string& glslPath)
 
     auto result = new Shader();
     result->glShaderId = glShaderId;
+    result->uniforms = LoadUniforms(glShaderId);
     RegisterResource(glslPath, result);
     Utils::LogInfo("成功载入Shader " + glslPath);
+    return result;
+}
+
+vector<Shader::UniformInfo> Shader::LoadUniforms(const GLuint program)
+{
+    vector<UniformInfo> result;
+    
+    GLint numUniforms = 0;
+    glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+    for (int i = 0; i < numUniforms; ++i)
+    {
+        GLchar name[256];
+        GLsizei length;
+        GLint size;
+        GLenum type;
+        glGetActiveUniform(program, i, sizeof(name), &length, &size, &type, name);
+
+        UniformInfo uniformInfo;
+        uniformInfo.index = i;
+        uniformInfo.name = string(name);
+        uniformInfo.elemNum = size;
+        uniformInfo.type = type;
+
+        if (find(result.begin(), result.end(), uniformInfo) == result.end())
+        {
+            result.push_back(uniformInfo);
+        }
+        else
+        {
+            throw runtime_error("重复的Uniform");
+        }
+    }
+
     return result;
 }
