@@ -88,18 +88,45 @@ glm::vec3 Gui::SliderFloat3(const std::string& label, const glm::vec3 input, con
     return result;
 }
 
+glm::vec3 Gui::InputFloat3(const std::string& label, glm::vec3 input, const std::string& format)
+{
+    auto arr = Utils::ToArr(input);
+    ImGui::InputFloat3(label.c_str(), arr, format.c_str());
+    auto result = Utils::FromArr(arr);
+    delete[] arr;
+    return result;
+}
+
+glm::vec3 Gui::DragFloat3(const std::string& label, glm::vec3 input, float speed, const std::string& format)
+{
+    auto arr = Utils::ToArr(input);
+    ImGui::DragFloat3(label.c_str(), arr, speed, 0, 0, format.c_str());
+    auto result = Utils::FromArr(arr);
+    delete[] arr;
+    return result;
+}
+
 void Gui::DrawApplicationPanel()
 {
-    ImGui::Begin("Application Info");
-    auto deltaTime = Time::GetInstance()->deltaTime;
-    ImGui::Text(std::string("FPS: " + Utils::ToString(1 / deltaTime, 2)).c_str());
-    ImGui::End();
+    // ImGui::Begin("Application Info");
+    // auto deltaTime = Time::GetInstance()->deltaTime;
+    // ImGui::Text(std::string("FPS: " + Utils::ToString(1 / deltaTime, 2)).c_str());
+    // ImGui::End();
 }
 
 void Gui::DrawLogInfoPanel()
 {
-    ImGui::Begin("Log Output");
-    if(ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), true))
+    ImGui::Begin("Console");
+
+    if (ImGui::CollapsingHeader("Application Info"))
+    {
+        auto deltaTime = Time::GetInstance()->deltaTime;
+        ImGui::Text(std::string("FPS: " + Utils::ToString(1 / deltaTime, 2)).c_str());
+    }
+    
+    drawGuiEvent.Invoke();
+    
+    if(ImGui::BeginChild("Log Info", ImVec2(0, 0), true))
     {
         for (const auto& msg : Utils::s_logs) {
             ImGui::TextUnformatted(msg.c_str());
@@ -114,16 +141,16 @@ void Gui::DrawLogInfoPanel()
 
 void Gui::DrawConsolePanel()
 {
-    ImGui::Begin("Console");
-
-    drawConsoleEvent.Invoke();
-
-    auto sky = SliderFloat3("GradientSky", IndirectLighting::s_gradientAmbientColor.sky, 0.0f, 1.0f, "%.2f");
-    auto equator = SliderFloat3("GradientEquator", IndirectLighting::s_gradientAmbientColor.equator, 0.0f, 1.0f, "%.2f");
-    auto ground = SliderFloat3("GradientGround", IndirectLighting::s_gradientAmbientColor.ground, 0.0f, 1.0f, "%.2f");
-    IndirectLighting::SetGradientAmbientColor(sky, equator, ground);
-
-    // auto kawaseBlurIterations = ImGui::SliderInt("KawaseBlurIterations", &RenderPipeline::instance->kawaseBlurIterations, 1, 10);
-    
-    ImGui::End();
+    // ImGui::Begin("Console");
+    //
+    // drawConsoleEvent.Invoke();
+    //
+    // auto sky = SliderFloat3("GradientSky", IndirectLighting::s_gradientAmbientColor.sky, 0.0f, 1.0f, "%.2f");
+    // auto equator = SliderFloat3("GradientEquator", IndirectLighting::s_gradientAmbientColor.equator, 0.0f, 1.0f, "%.2f");
+    // auto ground = SliderFloat3("GradientGround", IndirectLighting::s_gradientAmbientColor.ground, 0.0f, 1.0f, "%.2f");
+    // IndirectLighting::SetGradientAmbientColor(sky, equator, ground);
+    //
+    // // auto kawaseBlurIterations = ImGui::SliderInt("KawaseBlurIterations", &RenderPipeline::instance->kawaseBlurIterations, 1, 10);
+    //
+    // ImGui::End();
 }

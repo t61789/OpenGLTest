@@ -8,6 +8,14 @@
 
 float ControlPanelUi::s_intent = 20.0f;
 
+ControlPanelUi::~ControlPanelUi()
+{
+    if (m_selected)
+    {
+        DECREF(m_selected);
+    }
+}
+
 void ControlPanelUi::OnDrawGui()
 {
     auto scene = GameFramework::GetInstance()->scene;
@@ -16,23 +24,39 @@ void ControlPanelUi::OnDrawGui()
         return;
     }
     
-    ImGui::Begin("Hierarchy");
-
-    auto intent = 0;
-    Object* selected = nullptr;
-    DrawObj(scene->sceneRoot, selected);
-
-    ImGui::End();
+    ImGui::BeginChild("Hierarchy", ImVec2(0, 150), true);
+    DrawHierarchy(scene->sceneRoot);
+    ImGui::EndChild();
+        
+    ImGui::BeginChild("Properties", ImVec2(0, 150), true);
+    if (m_selected)
+    {
+        DrawProperties(m_selected);
+    }
+    else
+    {
+        ImGui::Text("未选择任何物体");
+    }
+    ImGui::EndChild();
 }
 
-void ControlPanelUi::DrawObj(Object* obj, Object*& selected)
+void ControlPanelUi::DrawHierarchy(Object* obj)
 {
     ImGui::TextUnformatted(obj->name.c_str());
     ImGui::SameLine();
     auto pathInScene = obj->GetPathInScene();
     if (ImGui::Button(("pick##" + pathInScene).c_str()))
     {
-        selected = obj;
+        if (m_selected != obj)
+        {
+            if (m_selected)
+            {
+                DECREF(m_selected);
+            }
+
+            m_selected = obj;
+            INCREF(m_selected);
+        }
     }
 
     if (!obj->children.empty())
@@ -51,9 +75,16 @@ void ControlPanelUi::DrawObj(Object* obj, Object*& selected)
             ImGui::Indent(s_intent);
             for (auto child : obj->children)
             {
-                DrawObj(child, selected);
+                DrawHierarchy(child);
             }
             ImGui::Unindent(s_intent);
         }
     }
+}
+
+void ControlPanelUi::DrawProperties(Object* obj)
+{
+    obj->position = Gui::DragFloat3("position", obj->position, 0.02f);
+    obj->scale = Gui::DragFloat3("scale", obj->scale, 0.02f);
+    obj->rotation = Gui::DragFloat3("rotation", obj->rotation, 1.0f);
 }
