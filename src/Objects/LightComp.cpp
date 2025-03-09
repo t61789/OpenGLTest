@@ -1,11 +1,9 @@
-﻿#include "Light.h"
+﻿#include "LightComp.h"
 
 #include "Utils.h"
 
-void Light::LoadFromJson(const nlohmann::json& objJson)
+void LightComp::LoadFromJson(const nlohmann::json& objJson)
 {
-    Object::LoadFromJson(objJson);
-
     if (objJson.contains("color"))
     {
         color = Utils::ToVec3(objJson["color"]);

@@ -7,10 +7,9 @@
 #include "RenderTarget.h"
 #include "Material.h"
 #include "Utils.h"
-#include "Camera.h"
-#include "Entity.h"
 #include "Scene.h"
 #include "IndirectLighting.h"
+#include "Objects/CameraComp.h"
 #include "RenderPass/DeferredShadingPass.h"
 #include "RenderPass/FinalBlitPass.h"
 #include "RenderPass/KawaseBlur.h"
@@ -90,7 +89,7 @@ void RenderPipeline::SetScreenSize(const int width, const int height)
     m_screenHeight = height;
 }
 
-void RenderPipeline::Render(const Camera* camera, Scene* scene)
+void RenderPipeline::Render(const CameraComp* camera, Scene* scene)
 {
     if(!UpdateRenderTargetsPass())
     {
@@ -142,7 +141,7 @@ void RenderPipeline::FirstDrawScene(const Scene* scene)
 
 void RenderPipeline::PrepareRenderContext(Scene* scene)
 {
-    m_renderContext->camera = Camera::GetMainCamera(); // TODO 依赖于scene
+    m_renderContext->camera = CameraComp::GetMainCamera(); // TODO 依赖于scene
     m_renderContext->scene = scene;
     m_renderContext->cullModeMgr = m_cullModeMgr.get();
     m_renderContext->mainLightShadowSize = mainLightShadowTexSize;
@@ -173,17 +172,17 @@ void RenderPipeline::RenderUiPass()
     Gui::Render();
 }
 
-std::vector<Entity*>* RenderPipeline::ExtractRenderObjsFromScene(Scene* scene)
+std::vector<RenderComp*>* RenderPipeline::ExtractRenderObjsFromScene(Scene* scene)
 {
     // TODO 每一帧都遍历整个场景开销不菲，可以在物体退出和进入场景的时候进行更新
-    auto result = new std::vector<Entity*>();
+    auto result = new std::vector<RenderComp*>();
     auto allObjs = scene->GetAllObjects();
     for (auto obj : *allObjs)
     {
-        auto entity = dynamic_cast<Entity*>(obj);
-        if (entity)
+        auto renderComp = obj->GetComp<RenderComp>("RenderComp");
+        if (renderComp)
         {
-            result->push_back(entity);
+            result->push_back(renderComp);
         }
     }
 

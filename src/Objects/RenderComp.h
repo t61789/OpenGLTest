@@ -1,21 +1,22 @@
 ﻿#pragma once
 
-#include "Object.h"
+#include <json.hpp>
+
 #include "Bounds.h"
+#include "Comp.h"
 
 class Mesh;
 class Material;
 
-class Entity : public Object
+class RenderComp : public Comp
 {
 public:
-    ~Entity() override;
-    
     Mesh* mesh = nullptr;
     Material* material = nullptr;
-
+    
     Bounds bounds;
 
-private:
+    ~RenderComp() override;
+    
     void LoadFromJson(const nlohmann::json& objJson) override;
 };

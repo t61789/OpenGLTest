@@ -3,13 +3,13 @@
 #include "glm/glm.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 
-#include "Camera.h"
 #include "Scene.h"
 #include "RenderTarget.h"
 #include "Material.h"
 #include "RenderTexture.h"
 #include "SharedObject.h"
 #include "RenderingUtils.h"
+#include "Objects/CameraComp.h"
 
 MainLightShadowPass::MainLightShadowPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
@@ -57,7 +57,7 @@ void MainLightShadowPass::Execute()
         0, 0, 0, 1); // 留空，之后设置
     auto worldToShadowCamera = inverse(shadowCameraToWorld);
     // 希望以摄像机为中心，但是先把摄像机位置转到阴影空间，然后对齐每个纹素，避免阴影光栅化时闪烁
-    auto cameraPositionVS = worldToShadowCamera * glm::vec4(camera->position, 1);
+    auto cameraPositionVS = worldToShadowCamera * glm::vec4(camera->owner->position, 1);
     cameraPositionVS.x = std::floor(cameraPositionVS.x / distancePerTexel) * distancePerTexel;
     cameraPositionVS.y = std::floor(cameraPositionVS.y / distancePerTexel) * distancePerTexel;
     auto alignedCameraPositionWS = static_cast<glm::vec3>(shadowCameraToWorld * cameraPositionVS);

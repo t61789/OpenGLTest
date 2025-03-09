@@ -3,11 +3,9 @@
 #include <fstream>
 #include <iostream>
 
-#include "Camera.h"
-#include "Entity.h"
 #include "Utils.h"
 #include "json.hpp"
-#include "Objects/Light.h"
+#include "Objects/LightComp.h"
 
 using namespace std;
 
@@ -26,43 +24,12 @@ Scene::~Scene()
     delete m_objectChildAddedCallback;
 }
 
-static Object* LoadObject(const nlohmann::json& objJson)
-{
-    Object* result;
-    if(objJson.contains("type"))
-    {
-        auto type = objJson["type"].get<string>();
-        if(type == "camera")
-        {
-            result = new Camera();
-        }
-        else if(type == "entity")
-        {
-            result = new Entity();
-        }
-        else if(type == "Light")
-        {
-            result = new Light();
-        }
-        else
-        {
-            result = new Object();
-        }
-    }
-    else
-    {
-        result = new Object();
-    }
-    
-    result->LoadFromJson(objJson);
-    return result;
-}
-
 void Scene::LoadChildren(Object* parent, const nlohmann::json& children)
 {
     for(auto elem : children)
     {
-        auto obj = LoadObject(elem);
+        auto obj = new Object();
+        obj->LoadFromJson(elem);
         
         if(elem.contains("children"))
         {

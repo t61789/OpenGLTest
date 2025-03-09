@@ -1,4 +1,4 @@
-﻿#include "Camera.h"
+﻿#include "CameraComp.h"
 
 #include "glfw3.h"
 
@@ -8,21 +8,21 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
 
-std::vector<Camera*> Camera::s_cameras;
+std::vector<CameraComp*> CameraComp::s_cameras;
 
-Camera::Camera()
+CameraComp::CameraComp()
 {
     s_cameras.push_back(this);
 }
 
-Camera::~Camera()
+CameraComp::~CameraComp()
 {
     s_cameras.erase(std::remove(s_cameras.begin(), s_cameras.end(), this), s_cameras.end());
 }
 
-void Camera::Update()
+void CameraComp::Update()
 {
-    auto localToWorld = GetLocalToWorld();
+    auto localToWorld = owner->GetLocalToWorld();
     glm::vec3 forward = localToWorld * glm::vec4(0, 0, -1.0f, 0.0f);
     glm::vec3 right = localToWorld * glm::vec4(1.0f, 0, 0, 0.0f);
 
@@ -63,7 +63,7 @@ void Camera::Update()
         m_targetPosition += glm::vec3(0, -1.0f, 0) * deltaTime * moveSpeed;
     }
 
-    position = lerp(position, m_targetPosition, damp);
+    owner->position = lerp(owner->position, m_targetPosition, damp);
     
     if(gameFramework->KeyPressed(GLFW_KEY_UP))
     {
@@ -85,13 +85,11 @@ void Camera::Update()
         m_targetRotation.y += -deltaTime * rotateSpeed;
     }
 
-    rotation = lerp(rotation, m_targetRotation, damp);
+    owner->rotation = lerp(owner->rotation, m_targetRotation, damp);
 }
 
-void Camera::LoadFromJson(const nlohmann::json& objJson)
+void CameraComp::LoadFromJson(const nlohmann::json& objJson)
 {
-    Object::LoadFromJson(objJson);
-
     if(objJson.contains("fov"))
     {
         fov = objJson["fov"].get<float>();
@@ -107,11 +105,11 @@ void Camera::LoadFromJson(const nlohmann::json& objJson)
         farClip = objJson["farClip"].get<float>();
     }
 
-    m_targetPosition = this->position;
-    m_targetRotation = this->rotation;
+    m_targetPosition = owner->position;
+    m_targetRotation = owner->rotation;
 }
 
-Camera* Camera::GetMainCamera()
+CameraComp* CameraComp::GetMainCamera()
 {
     if(s_cameras.empty())
     {

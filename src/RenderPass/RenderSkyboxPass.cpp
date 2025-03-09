@@ -7,8 +7,9 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "RenderTarget.h"
-#include "Camera.h"
 #include "RenderingUtils.h"
+#include "Objects/CameraComp.h"
+#include "Objects/RenderComp.h"
 
 RenderSkyboxPass::RenderSkyboxPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
@@ -46,7 +47,7 @@ void RenderSkyboxPass::Execute()
     RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
     
     auto m = glm::mat4(1);
-    m = translate(m, camera->position);
+    m = translate(m, camera->owner->position);
     m = scale(m, glm::vec3(1));
 
     RenderingUtils::RenderMesh(*m_renderContext, m_sphereMesh, m_skyboxMat, m);

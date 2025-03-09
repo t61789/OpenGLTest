@@ -4,14 +4,15 @@
 #include <vector>
 
 #include "glm/glm.hpp"
+#include "Objects/RenderComp.h"
 
-class Camera;
+class Object;
+class CameraComp;
 class Scene;
 class CullModeMgr;
 class RenderTargetDesc;
 class RenderContext;
 class CullingSystem;
-class Entity;
 class RenderTexture;
 class RenderPass;
 struct GLFWwindow;
@@ -26,7 +27,7 @@ public:
     RenderPipeline(int width, int height, GLFWwindow* window);
     ~RenderPipeline();
     void SetScreenSize(int width, int height);
-    void Render(const Camera* camera, Scene* scene);
+    void Render(const CameraComp* camera, Scene* scene);
     void GetViewProjMatrix(glm::mat4& view, glm::mat4& proj);
     void GetScreenSize(int& width, int& height);
 
@@ -41,7 +42,7 @@ private:
     std::unique_ptr<CullingSystem> m_cullingSystem = nullptr;
 
     Scene* m_preDrawnScene = nullptr;
-    std::unique_ptr<std::vector<Entity*>> m_renderObjs = nullptr;
+    std::unique_ptr<std::vector<Object*>> m_renderObjs = nullptr;
 
     RenderTexture* m_gBuffer0Tex = nullptr;
     RenderTexture* m_gBuffer1Tex = nullptr;
@@ -55,5 +56,5 @@ private:
     bool UpdateRenderTargetsPass();
     void RenderUiPass();
     
-    static std::vector<Entity*>* ExtractRenderObjsFromScene(Scene* scene);
+    static std::vector<RenderComp*>* ExtractRenderObjsFromScene(Scene* scene);
 };

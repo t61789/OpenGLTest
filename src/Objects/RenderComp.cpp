@@ -1,9 +1,10 @@
-﻿#include "Entity.h"
+﻿#include "RenderComp.h"
 
 #include "Mesh.h"
 #include "Material.h"
+#include "Object.h"
 
-Entity::~Entity()
+RenderComp::~RenderComp()
 {
     if (mesh)
     {
@@ -16,10 +17,8 @@ Entity::~Entity()
     }
 }
 
-void Entity::LoadFromJson(const nlohmann::json& objJson)
+void RenderComp::LoadFromJson(const nlohmann::json& objJson)
 {
-    Object::LoadFromJson(objJson);
-
     if(objJson.contains("mesh"))
     {
         mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());

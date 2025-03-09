@@ -1,46 +1,113 @@
 {
-	"config":
-	{
-		"ambientLightColorSky":[0.44, 0.44, 0.54],
-		"ambientLightColorEquator":[0.36, 0.36, 0.43],
-		"ambientLightColorGround":[0.40, 0.40, 0.46],
-		"mainLightColor":[0.7, 0.7, 0.7],
-		"mainLightDirection":[-1, 1, 1],
-		"tonemappingExposureMultiplier":1
-	},
-	"root": [
-		{
-			"name":"Main Camera",
-			"type":"camera",
-			"position":[0, 1, 3],
-			"rotation":[0, 0, 0],
-			"fov":100,
-			"nearClip":0.05,
-			"farClip":500
-		},
-		{
-			"name":"Beast",
-			"type":"entity",
-			"scale":[0.01, 0.01, 0.01],
-			"position":[0, 0, 0],
-			"mesh":"meshes/beast.obj",
-			"material":"materials/standard_mat.json"
-		},
-		{
-			"name":"Sphere",
-			"type":"entity",
-			"scale":[2, 2, 2],
-			"position":[0, 5, 0],
-			"mesh":"meshes/smooth_cube.obj",
-			"material":"materials/standard_mat.json"
-		},
-		{
-			"name":"Ground",
-			"type":"entity",
-			"scale":[100, 100, 100],
-			"rotation":[-90, 0, 0],
-			"mesh":"meshes/quad.obj",
-			"material":"materials/ground_mat.json"
-		}
-	]
+    "config": {
+        "ambientLightColorSky": [
+            0.44,
+            0.44,
+            0.54
+        ],
+        "ambientLightColorEquator": [
+            0.36,
+            0.36,
+            0.43
+        ],
+        "ambientLightColorGround": [
+            0.40,
+            0.40,
+            0.46
+        ],
+        "mainLightColor": [
+            0.7,
+            0.7,
+            0.7
+        ],
+        "mainLightDirection": [
+            -1,
+            1,
+            1
+        ],
+        "tonemappingExposureMultiplier": 1
+    },
+    "root": [
+        {
+            "name": "Main Camera",
+            "position": [
+                0,
+                1,
+                3
+            ],
+            "rotation": [
+                0,
+                0,
+                0
+            ],
+            "comps": [
+                {
+                    "name": "CameraComp",
+                    "fov": 100,
+                    "nearClip": 0.05,
+                    "farClip": 500
+                }
+            ]
+        },
+        {
+            "name": "Beast",
+            "scale": [
+                0.01,
+                0.01,
+                0.01
+            ],
+            "position": [
+                0,
+                0,
+                0
+            ],
+            "comps": [
+                {
+                    "name": "RenderComp",
+                    "mesh": "meshes/beast.obj",
+                    "material": "materials/standard_mat.json"
+                }
+            ]
+        },
+        {
+            "name": "Sphere",
+            "scale": [
+                2,
+                2,
+                2
+            ],
+            "position": [
+                0,
+                5,
+                0
+            ],
+            "comps": [
+                {
+                    "name": "RenderComp",
+                    "mesh": "meshes/smooth_cube.obj",
+                    "material": "materials/standard_mat.json"
+                }
+            ]
+        },
+        {
+            "name": "Ground",
+            "scale": [
+                100,
+                100,
+                100
+            ],
+            "rotation": [
+                -90,
+                0,
+                0
+            ],
+            "comps": [
+                {
+                    "name": "RenderComp",
+                    "mesh": "meshes/quad.obj",
+                    "material": "materials/ground_mat.json"
+                }
+            ]
+        }
+    ]
 }

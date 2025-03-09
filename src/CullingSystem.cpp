@@ -3,8 +3,9 @@
 #include <array>
 
 #include "RenderContext.h"
-#include "Entity.h"
 #include "Bounds.h"
+#include "Object.h"
+#include "Objects/RenderComp.h"
 
 // bool FrustumCulling(const float3 center, const float3 extents)
 // {
@@ -36,7 +37,7 @@ void CullingSystem::Cull()
     // 把visibleRenderObjs扔了，剔除allRenderObjs生成一个新的
     
     delete m_renderContext->visibleRenderObjs;
-    auto result = new vector<Entity*>();
+    auto result = new vector<RenderComp*>();
     
     const auto& renderObjs = *m_renderContext->allRenderObjs;
     auto boundsWS = GetWorldSpaceAABB(renderObjs);
@@ -71,15 +72,15 @@ bool CullingSystem::CullOnce(const Bounds& bounds, const array<vec4, 6>& planes)
     return FrustumCull(bounds, planes);
 }
 
-vector<Bounds> CullingSystem::GetWorldSpaceAABB(const vector<Entity*>& renderObjs)
+vector<Bounds> CullingSystem::GetWorldSpaceAABB(const vector<RenderComp*>& renderComps)
 {
-    auto result = vector<Bounds>(renderObjs.size());
+    auto result = vector<Bounds>(renderComps.size());
 
     for (int i = 0; i < result.size(); ++i)
     {
-        auto obj = renderObjs[i];
-        auto m = obj->GetLocalToWorld();
-        auto boundsOS = obj->bounds;
+        auto renderComp = renderComps[i];
+        auto m = renderComp->owner->GetLocalToWorld();
+        auto boundsOS = renderComp->owner->GetComp<RenderComp>("RenderComp")->bounds;
         auto centerWS = vec3(m * vec4(boundsOS.center, 1));
         vec3 extentsWS;
         extentsWS.x = dot(boundsOS.extents, abs(vec3(m[0])));

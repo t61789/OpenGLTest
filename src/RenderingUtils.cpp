@@ -7,31 +7,32 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Utils.h"
-#include "Entity.h"
 #include "RenderContext.h"
 #include "BuiltInRes.h"
+#include "Object.h"
+#include "Objects/RenderComp.h"
 
 using namespace std;
 
-void RenderingUtils::RenderScene(const RenderContext& renderContext, const vector<Entity*>& renderObjs)
+void RenderingUtils::RenderScene(const RenderContext& renderContext, const vector<RenderComp*>& renderComps)
 {
     // DFS地绘制场景
-    for (auto& renderObj : renderObjs)
+    for (auto& renderObj : renderComps)
     {
-        Utils::BeginDebugGroup(string("Draw Entity ") + renderObj->name);
+        Utils::BeginDebugGroup(string("Draw Entity ") + renderObj->owner->name);
         RenderEntity(renderContext, renderObj);
         Utils::EndDebugGroup();
     }
 }
 
-void RenderingUtils::RenderEntity(const RenderContext& renderContext, const Entity* entity)
+void RenderingUtils::RenderEntity(const RenderContext& renderContext, const RenderComp* renderComp)
 {
-    if(entity == nullptr)
+    if(renderComp == nullptr)
     {
         return;
     }
 
-    Mesh* mesh = entity->mesh;
+    Mesh* mesh = renderComp->mesh;
     Material* material;
     if(renderContext.replaceMaterial != nullptr)
     {
@@ -39,7 +40,7 @@ void RenderingUtils::RenderEntity(const RenderContext& renderContext, const Enti
     }
     else
     {
-        material = entity->material;
+        material = renderComp->material;
     }
     
     if(mesh == nullptr || material == nullptr)
@@ -47,7 +48,7 @@ void RenderingUtils::RenderEntity(const RenderContext& renderContext, const Enti
         return;
     }
 
-    RenderMesh(renderContext, mesh, material, entity->GetLocalToWorld());
+    RenderMesh(renderContext, mesh, material, renderComp->owner->GetLocalToWorld());
 }
 
 void RenderingUtils::RenderMesh(const RenderContext& renderContext, const Mesh* mesh, Material* mat, const glm::mat4& m)

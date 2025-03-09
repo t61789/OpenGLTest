@@ -5,7 +5,6 @@
 #include "RenderPipeline.h"
 
 class ControlPanelUi;
-
 class Scene;
 
 class GameFramework

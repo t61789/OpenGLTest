@@ -1,8 +1,8 @@
 ﻿#include "PreparingPass.h"
 
 #include "RenderTarget.h"
-#include "Camera.h"
 #include "Material.h"
+#include "Objects/CameraComp.h"
 
 PreparingPass::PreparingPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
@@ -20,9 +20,7 @@ void PreparingPass::Execute()
         return;
     }
 
-    Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(m_renderContext->camera->position, 0));
-    
-    m_renderContext->cameraPositionWS = m_renderContext->camera->position;
+    Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(m_renderContext->camera->owner->position, 0));
 
     std::vector<glm::vec4> clearColors = {
         glm::vec4(0.5f),

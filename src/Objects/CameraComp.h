@@ -2,20 +2,20 @@
 
 #include "Object.h"
 
-class Camera : public Object
+class CameraComp : public Comp
 {
 public:
-    Camera();
-    ~Camera() override;
+    CameraComp();
+    ~CameraComp() override;
     void Update() override;
-    void LoadFromJson(const nlohmann::json& objJson) override;
     float fov = 45.0f;
     float nearClip = 0.1f;
     float farClip = 30.0f;
-    static Camera* GetMainCamera();
+    static CameraComp* GetMainCamera();
+    void LoadFromJson(const nlohmann::json& objJson) override;
     
 private:
     glm::vec3 m_targetPosition = {};
     glm::vec3 m_targetRotation = {};
-    static std::vector<Camera*> s_cameras;
+    static std::vector<CameraComp*> s_cameras;
 };

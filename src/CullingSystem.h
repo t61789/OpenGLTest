@@ -5,7 +5,8 @@
 
 class RenderContext;
 class Bounds;
-class Entity;
+class RenderComp;
+class Object;
 
 class CullingSystem : public IGui
 {
@@ -21,7 +22,7 @@ private:
 
     bool CullOnce(const Bounds& bounds, const std::array<glm::vec4, 6>& planes);
     
-    static std::vector<Bounds> GetWorldSpaceAABB(const std::vector<Entity*>& renderObjs);
+    static std::vector<Bounds> GetWorldSpaceAABB(const std::vector<RenderComp*>& renderComps);
     static std::array<glm::vec4, 6> GetFrustumPlanes(const glm::mat4& vp);
     static bool FrustumCull(const Bounds& bounds, const std::array<glm::vec4, 6>& planes);
 };

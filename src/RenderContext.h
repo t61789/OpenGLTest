@@ -7,8 +7,8 @@
 
 #include "CullMode.h"
 
-class Camera;
-class Entity;
+class CameraComp;
+class RenderComp;
 class Material;
 class RenderTargetDesc;
 class RenderTexture;
@@ -31,17 +31,17 @@ public:
 
     RenderTargetDesc* gBufferDesc = nullptr;
     
-    Camera* camera = nullptr;
+    CameraComp* camera = nullptr;
     Scene* scene = nullptr;
     CullModeMgr* cullModeMgr = nullptr;
 
     std::vector<Object*>* allSceneObjs = nullptr;
-    std::vector<Entity*>* allRenderObjs = nullptr;
-    std::vector<Entity*>* visibleRenderObjs = nullptr;
+    std::vector<RenderComp*>* allRenderObjs = nullptr;
+    std::vector<RenderComp*>* visibleRenderObjs = nullptr;
 
     ~RenderContext();
 
-    void SetViewProjMatrix(const Camera* cam);
+    void SetViewProjMatrix(const CameraComp* cam);
     void SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
 
     void RegisterRt(RenderTexture* rt);

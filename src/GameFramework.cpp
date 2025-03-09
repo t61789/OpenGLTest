@@ -8,9 +8,9 @@
 
 #include "Utils.h"
 #include "Scene.h"
-#include "Camera.h"
 #include "Gui.h"
 #include "Windows.h"
+#include "Objects/CameraComp.h"
 #include "Ui/ControlPanelUi.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -204,7 +204,12 @@ void UpdateObject(Object* obj)
 {
     if(obj != nullptr)
     {
-        obj->Update();
+        auto comps = obj->GetComps();
+        for (auto comp : comps)
+        {
+            comp->Update();
+        }
+        
         for (auto child : obj->children)
         {
             UpdateObject(child);
@@ -252,7 +257,7 @@ void GameFramework::Update()
 
 void GameFramework::Render() const
 {
-    auto mainCamera = Camera::GetMainCamera();
+    auto mainCamera = CameraComp::GetMainCamera();
     if(mainCamera && scene && m_renderPipeline)
     {
         m_renderPipeline->Render(mainCamera, scene);

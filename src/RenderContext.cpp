@@ -2,10 +2,10 @@
 
 #include "glm/ext/matrix_clip_space.hpp"
 
-#include "Camera.h"
 #include "Material.h"
 #include "RenderTexture.h"
 #include "SharedObject.h"
+#include "Objects/CameraComp.h"
 
 RenderContext::~RenderContext()
 {
@@ -19,9 +19,9 @@ RenderContext::~RenderContext()
     delete visibleRenderObjs;
 }
 
-void RenderContext::SetViewProjMatrix(const Camera* cam)
+void RenderContext::SetViewProjMatrix(const CameraComp* cam)
 {
-    auto cameraLocalToWorld = cam->GetLocalToWorld();
+    auto cameraLocalToWorld = cam->owner->GetLocalToWorld();
     auto viewMatrix = glm::inverse(cameraLocalToWorld);
     auto projectionMatrix = glm::perspective(
         glm::radians(cam->fov * 0.5f),
