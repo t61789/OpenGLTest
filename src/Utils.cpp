@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <sstream>
 
+#include "Bounds.h"
+#include "Bounds.h"
 #include "glm/glm.hpp"
 #include "imgui.h"
 #include "glad.h"
@@ -13,7 +15,7 @@
 Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
 std::vector<std::string> Utils::s_logs;
 
-glm::vec3 Utils::ToVec3(nlohmann::json arr)
+glm::vec3 Utils::ToVec3(const nlohmann::json& arr)
 {
     if(!IsVec3(arr))
     {
@@ -27,7 +29,7 @@ glm::vec3 Utils::ToVec3(nlohmann::json arr)
     };
 }
 
-glm::vec4 Utils::ToVec4(nlohmann::json arr)
+glm::vec4 Utils::ToVec4(const nlohmann::json& arr)
 {
     if(!IsVec4(arr))
     {

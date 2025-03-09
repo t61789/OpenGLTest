@@ -1,4 +1,4 @@
-﻿选择一个物体或材质调整参数
+﻿生成Object反序列化接口
 点光源
 DualKawaseBloom
 SSAO
@@ -15,6 +15,7 @@ TAA
 为纹理添加导入设置json
 MCP
 
+- 选择一个物体或材质调整参数
 - 基于shader内存在的uniform进行遍历填充
 - 地面grid标记
 - 视锥体剔除

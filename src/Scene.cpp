@@ -7,6 +7,7 @@
 #include "Entity.h"
 #include "Utils.h"
 #include "json.hpp"
+#include "Objects/Light.h"
 
 using namespace std;
 
@@ -38,6 +39,10 @@ static Object* LoadObject(const nlohmann::json& objJson)
         else if(type == "entity")
         {
             result = new Entity();
+        }
+        else if(type == "Light")
+        {
+            result = new Light();
         }
         else
         {
