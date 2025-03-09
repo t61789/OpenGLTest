@@ -55,12 +55,19 @@ Light GetPointLight(int index, vec3 positionWS)
         _PointLightInfo[startOffset + 1],
         _PointLightInfo[startOffset + 2]
     );
-    l.direction = normalize(lightPositionWS - positionWS);
+    vec3 v = lightPositionWS - positionWS;
+    l.direction = normalize(v);
+
+    float radius = _PointLightInfo[startOffset + 3];
+
+    float d = length(v);
+    float i = 1 / (1 + radius * d);
     l.color = vec3(
         _PointLightInfo[startOffset + 4],
         _PointLightInfo[startOffset + 5],
         _PointLightInfo[startOffset + 6]
-    ); // TODO 衰减
+    );
+    l.color *= i;
 
     return l;
 }
@@ -138,6 +145,28 @@ vec3 LitWithParallelLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float ro
         mainLightShadowAttenuation = i == 0 ? mainLightShadowAttenuation : 1;
         result += Lit(normalWS, positionWS, light, mainLightShadowAttenuation, albedo, roughness, metallic);
     }
+
+    return result;
+}
+
+vec3 LitWithPointLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float roughness, float metallic)
+{
+    vec3 result = vec3(0);
+    for (int i = 0; i < _ParallelLightCount; i++)
+    {
+        Light light = GetPointLight(i, positionWS);
+        result += Lit(normalWS, positionWS, light, 1, albedo, roughness, metallic);
+    }
+
+    return result;
+}
+
+vec3 LitWithLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float roughness, float metallic)
+{
+    vec3 result = vec3(0);
+
+    result += LitWithParallelLights(normalWS, positionWS, albedo, roughness, metallic);
+    result += LitWithPointLights(normalWS, positionWS, albedo, roughness, metallic);
 
     return result;
 }

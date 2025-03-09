@@ -88,7 +88,7 @@ void main()
 {
     vec4 color = texture(_ShadingBufferTex, texCoord);
     
-    color.rgb = AdjustLuminance(color.rgb);
+    // color.rgb = AdjustLuminance(color.rgb);
     
 //    color.rgb = applyToneMapping(color.rgb);
     

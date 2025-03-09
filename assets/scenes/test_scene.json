@@ -70,22 +70,32 @@
             ]
         },
         {
-            "name": "Second Light",
-            "rotation": [
-                45,
-                45,
-                0
+            "name": "Point Light",
+            "position": [
+                1,
+                1,
+                1
+            ],
+            "scale": [
+                0.05,
+                0.05,
+                0.05
             ],
             "comps": [
                 {
                     "name": "LightComp",
                     "color": [
-                        0.2,
-                        0.7,
-                        0.2
+                        10,
+                        0.0,
+                        0.0
                     ],
-                    "light_type": 0,
-                    "intensity": 1
+                    "light_type": 1,
+                    "radius": 1
+                },
+                {
+                    "name": "RenderComp",
+                    "mesh": "meshes/sphere.obj",
+                    "material": "materials/standard_mat.json"
                 }
             ]
         },
