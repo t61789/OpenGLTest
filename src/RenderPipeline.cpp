@@ -9,6 +9,7 @@
 #include "Utils.h"
 #include "Scene.h"
 #include "IndirectLighting.h"
+#include "Objects/LightComp.h"
 #include "Objects/CameraComp.h"
 #include "RenderPass/DeferredShadingPass.h"
 #include "RenderPass/FinalBlitPass.h"
@@ -149,10 +150,7 @@ void RenderPipeline::PrepareRenderContext(Scene* scene)
     m_renderContext->screenHeight = m_screenHeight;
     m_renderContext->gBufferDesc = m_gBufferDesc.get();
 
-    delete m_renderContext->allSceneObjs;
-    m_renderContext->allSceneObjs = scene->GetAllObjects();
-    delete m_renderContext->allRenderObjs;
-    m_renderContext->allRenderObjs = ExtractRenderObjsFromScene(scene);
+    CategorizeObjects(*m_renderContext);
     
     m_cullingSystem->Cull();
 }
@@ -172,19 +170,32 @@ void RenderPipeline::RenderUiPass()
     Gui::Render();
 }
 
-std::vector<RenderComp*>* RenderPipeline::ExtractRenderObjsFromScene(Scene* scene)
+void RenderPipeline::CategorizeObjects(RenderContext& renderContext)
 {
     // TODO 每一帧都遍历整个场景开销不菲，可以在物体退出和进入场景的时候进行更新
-    auto result = new std::vector<RenderComp*>();
-    auto allObjs = scene->GetAllObjects();
-    for (auto obj : *allObjs)
+    renderContext.scene->GetAllObjects(renderContext.allSceneObjs);
+    renderContext.allRenderObjs.clear();
+    renderContext.lights.clear();
+    renderContext.cameras.clear();
+    
+    for (auto obj : renderContext.allSceneObjs)
     {
         auto renderComp = obj->GetComp<RenderComp>("RenderComp");
         if (renderComp)
         {
-            result->push_back(renderComp);
+            renderContext.allRenderObjs.push_back(renderComp);
+        }
+
+        auto lightComp = obj->GetComp<LightComp>("LightComp");
+        if (lightComp)
+        {
+            renderContext.lights.push_back(lightComp);
+        }
+
+        auto cameraComp = obj->GetComp<CameraComp>("CameraComp");
+        if (cameraComp)
+        {
+            renderContext.cameras.push_back(cameraComp);
         }
     }
-
-    return result;
 }

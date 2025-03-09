@@ -56,5 +56,5 @@ private:
     bool UpdateRenderTargetsPass();
     void RenderUiPass();
     
-    static std::vector<RenderComp*>* ExtractRenderObjsFromScene(Scene* scene);
+    static void CategorizeObjects(RenderContext& renderContext);
 };

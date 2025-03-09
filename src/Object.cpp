@@ -45,6 +45,14 @@ glm::mat4 Object::GetLocalToWorld() const
     return objectMatrix;
 }
 
+glm::vec3 Object::Forward() const
+{
+    auto result = glm::vec3(GetLocalToWorld()[2]);
+    return {
+        normalize(result)
+    };
+}
+
 void Object::LoadFromJson(const nlohmann::json& objJson)
 {
     if(objJson.contains("name"))

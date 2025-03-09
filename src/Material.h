@@ -60,8 +60,8 @@ private:
     template<typename T>
     static bool FindParam(
         const std::string& paramName,
-        const std::unordered_map<std::string, T> localParam,
-        const std::unordered_map<std::string, T> globalParam,
+        const std::unordered_map<std::string, T>& localParam,
+        const std::unordered_map<std::string, T>& globalParam,
         T& result)
     {
         auto it = localParam.find(paramName);

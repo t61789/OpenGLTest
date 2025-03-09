@@ -18,4 +18,9 @@ void LightComp::LoadFromJson(const nlohmann::json& objJson)
     {
         intensity = objJson["intensity"].get<float>();
     }
+    
+    if (objJson.contains("radius"))
+    {
+        intensity = objJson["radius"].get<float>();
+    }
 }

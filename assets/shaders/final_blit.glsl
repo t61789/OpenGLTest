@@ -15,7 +15,7 @@ void main()
 
 #version 330 core
 
-#include "./common.glsl"
+#include "shaders/lib/common.glsl"
 
 in vec2 texCoord;
 

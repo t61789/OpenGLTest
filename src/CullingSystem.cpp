@@ -35,11 +35,9 @@ CullingSystem::CullingSystem(RenderContext* renderContext)
 void CullingSystem::Cull()
 {
     // 把visibleRenderObjs扔了，剔除allRenderObjs生成一个新的
+    m_renderContext->visibleRenderObjs.clear();
     
-    delete m_renderContext->visibleRenderObjs;
-    auto result = new vector<RenderComp*>();
-    
-    const auto& renderObjs = *m_renderContext->allRenderObjs;
+    const auto& renderObjs = m_renderContext->allRenderObjs;
     auto boundsWS = GetWorldSpaceAABB(renderObjs);
     m_bounds = boundsWS;
     auto planes = GetFrustumPlanes(m_renderContext->vpMatrix);
@@ -48,11 +46,9 @@ void CullingSystem::Cull()
     {
         if (CullOnce(boundsWS[i], planes))
         {
-            result->push_back(renderObjs[i]);
+            m_renderContext->visibleRenderObjs.push_back(renderObjs[i]);
         }
     }
-
-    m_renderContext->visibleRenderObjs = result;
 }
 
 void CullingSystem::OnDrawConsoleGui()

@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "RenderTarget.h"
 #include "RenderingUtils.h"
+#include "Objects/LightComp.h"
 
 RenderScenePass::RenderScenePass(RenderContext* renderContext) : RenderPass(renderContext)
 {
@@ -25,9 +26,7 @@ void RenderScenePass::Execute()
 
     RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
 
-    Material::SetGlobalVector4Value("_MainLightDirection", glm::vec4(glm::normalize(scene->mainLightDirection), 0));
-    Material::SetGlobalVector4Value("_MainLightColor", glm::vec4(scene->mainLightColor, 0));
     Material::SetGlobalFloatValue("_ExposureMultiplier", scene->tonemappingExposureMultiplier);
     
-    RenderingUtils::RenderScene(*m_renderContext, *m_renderContext->visibleRenderObjs);
+    RenderingUtils::RenderScene(*m_renderContext, m_renderContext->visibleRenderObjs);
 }

@@ -28,6 +28,7 @@ public:
     Event<void(Object* parent, Object* child)> childAddedEvent;
 
     glm::mat4 GetLocalToWorld() const;
+    glm::vec3 Forward() const;
     virtual void LoadFromJson(const nlohmann::json& objJson);
 
     void AddChild(Object* child);

@@ -256,28 +256,12 @@ void Shader::DivideGlsl(const vector<string>& lines, vector<string>& vertLines, 
 
 void Shader::ReplaceIncludes(const string& curFilePath, vector<string>& lines)
 {
-    vector<size_t> loadStack;
-    vector<string> currentFilePath;
     unordered_set<string> hasInclude;
     hasInclude.insert(curFilePath);
-    loadStack.push_back(lines.size());
-    currentFilePath.push_back(curFilePath);
     for (int i = 0; i < lines.size(); ++i)
     {
-        loadStack[loadStack.size() - 1] -= 1;
-        if(loadStack[loadStack.size() - 1] == 0)
-        {
-            loadStack.pop_back();
-            currentFilePath.pop_back();
-        }
-        
+        // 如果当前行不是include就继续找
         auto line = lines[i];
-        auto includeCmdIndex = line.find("#include");
-        if(includeCmdIndex == string::npos)
-        {
-            continue;
-        }
-
         regex pattern("^\\s*#include\\s+\"([^\"]+)\"\\s*$");
         smatch matches;
         if(!regex_match(line, matches, pattern))
@@ -285,17 +269,17 @@ void Shader::ReplaceIncludes(const string& curFilePath, vector<string>& lines)
             continue;
         }
 
+        // 当前行是include
         auto includePath = matches[1].str();
         lines.erase(lines.begin() + i);
         if(hasInclude.find(includePath) != hasInclude.end())
         {
+            // 这个文件已经include过了
+            i--;
             continue;
         }
         hasInclude.insert(includePath);
-        currentFilePath.push_back(includePath);
-        auto includeLines = LoadFileToLines(Utils::GetRealAssetPath(includePath, currentFilePath[currentFilePath.size() - 2]));
-        loadStack.push_back(includeLines.size());
-        
+        auto includeLines = LoadFileToLines(Utils::GetRealAssetPath(includePath));
         lines.insert(lines.begin() + i, includeLines.begin(), includeLines.end());
         i--;
     }

@@ -9,7 +9,9 @@
 #include "RenderTexture.h"
 #include "SharedObject.h"
 #include "RenderingUtils.h"
+#include "Utils.h"
 #include "Objects/CameraComp.h"
+#include "Objects/LightComp.h"
 
 MainLightShadowPass::MainLightShadowPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
@@ -42,14 +44,20 @@ void MainLightShadowPass::Execute()
     {
         return;
     }
+    
+    auto lightDirection = normalize(glm::vec3(1,1,1));
+    if (m_renderContext->mainLight)
+    {
+        lightDirection = -m_renderContext->mainLight->owner->Forward();
+    }
 
     constexpr float range = 10;
     float range2 = 50;
     auto distancePerTexel = range * 2 / static_cast<float>(m_renderContext->mainLightShadowSize);
     // 计算阴影矩阵
-    auto forward = glm::normalize(scene->mainLightDirection);
+    auto forward = normalize(lightDirection);
     auto right = normalize(cross(glm::vec3(0, 1, 0), forward));
-    auto up = glm::normalize(glm::cross(forward, right)); // 右手从x绕到y
+    auto up = normalize(glm::cross(forward, right)); // 右手从x绕到y
     auto shadowCameraToWorld = glm::mat4(
         right.x, right.y, right.z, 0, // 第一列
         up.z, up.y, up.z, 0,
@@ -79,7 +87,7 @@ void MainLightShadowPass::Execute()
     renderTarget->Use();
 
     m_renderContext->replaceMaterial = m_drawShadowMat;
-    RenderingUtils::RenderScene(*m_renderContext, *m_renderContext->allRenderObjs);
+    RenderingUtils::RenderScene(*m_renderContext, m_renderContext->allRenderObjs);
     m_renderContext->replaceMaterial = nullptr;
 
     // 准备绘制参数

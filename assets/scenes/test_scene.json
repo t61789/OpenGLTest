@@ -50,6 +50,46 @@
             ]
         },
         {
+            "name": "Main Light",
+            "rotation": [
+                45,
+                150,
+                0
+            ],
+            "comps": [
+                {
+                    "name": "LightComp",
+                    "color": [
+                        0.7,
+                        0.7,
+                        0.7
+                    ],
+                    "light_type": 0,
+                    "intensity": 1
+                }
+            ]
+        },
+        {
+            "name": "Second Light",
+            "rotation": [
+                45,
+                45,
+                0
+            ],
+            "comps": [
+                {
+                    "name": "LightComp",
+                    "color": [
+                        0.2,
+                        0.7,
+                        0.2
+                    ],
+                    "light_type": 0,
+                    "intensity": 1
+                }
+            ]
+        },
+        {
             "name": "Beast",
             "scale": [
                 0.01,

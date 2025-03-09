@@ -40,10 +40,9 @@ void Scene::LoadChildren(Object* parent, const nlohmann::json& children)
     }
 }
 
-vector<Object*>* Scene::GetAllObjects()
+void Scene::GetAllObjects(vector<Object*>& result)
 {
-    auto result = new vector<Object*>();
-
+    result.clear();
     function<void(Object*)> fuc = [&](Object* obj)
     {
         if (!obj)
@@ -51,7 +50,7 @@ vector<Object*>* Scene::GetAllObjects()
             return;
         }
 
-        result->push_back(obj);
+        result.push_back(obj);
 
         for(auto child : obj->children)
         {
@@ -60,8 +59,6 @@ vector<Object*>* Scene::GetAllObjects()
     };
 
     fuc(sceneRoot);
-
-    return result;
 }
 
 Scene* Scene::LoadScene(const string& sceneJsonPath)
@@ -107,16 +104,6 @@ void Scene::OnObjectChildAdded(Object* parent, Object* child)
 
 void Scene::LoadSceneConfig(const nlohmann::json& configJson)
 {
-    if(configJson.contains("mainLightDirection"))
-    {
-        mainLightDirection = Utils::ToVec3(configJson["mainLightDirection"]);
-    }
-    
-    if(configJson.contains("mainLightColor"))
-    {
-        mainLightColor = Utils::ToVec3(configJson["mainLightColor"]);
-    }
-    
     if(configJson.contains("ambientLightColorSky"))
     {
         ambientLightColorSky = Utils::ToVec3(configJson["ambientLightColorSky"]);

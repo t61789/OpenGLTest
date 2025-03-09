@@ -7,13 +7,14 @@
 
 #include "CullMode.h"
 
-class CameraComp;
-class RenderComp;
 class Material;
 class RenderTargetDesc;
 class RenderTexture;
 class Scene;
 class Object;
+class CameraComp;
+class RenderComp;
+class LightComp;
 
 class RenderContext
 {
@@ -29,15 +30,20 @@ public:
     glm::vec3 cameraPositionWS;
     Material* replaceMaterial = nullptr;
 
+    LightComp* mainLight = nullptr;
+
     RenderTargetDesc* gBufferDesc = nullptr;
     
     CameraComp* camera = nullptr;
     Scene* scene = nullptr;
     CullModeMgr* cullModeMgr = nullptr;
 
-    std::vector<Object*>* allSceneObjs = nullptr;
-    std::vector<RenderComp*>* allRenderObjs = nullptr;
-    std::vector<RenderComp*>* visibleRenderObjs = nullptr;
+    std::vector<Object*> allSceneObjs;
+    
+    std::vector<LightComp*> lights;
+    std::vector<CameraComp*> cameras;
+    std::vector<RenderComp*> allRenderObjs;
+    std::vector<RenderComp*> visibleRenderObjs;
 
     ~RenderContext();
 

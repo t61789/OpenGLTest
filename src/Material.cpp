@@ -19,15 +19,7 @@ Material::Material(const std::string& name)
 
 Material::~Material()
 {
-    for (auto& element : floatArrValues)
-    {
-        delete element.second;
-    }
-
-    for (auto& element : textureValues)
-    {
-        DECREF(element.second);
-    }
+    Clear();
 
     if (shader)
     {
@@ -94,8 +86,19 @@ void Material::SetVector4Value(const std::string& paramName, const glm::vec4& va
 
 void Material::SetFloatArrValue(const std::string& paramName, const float *value, const int count)
 {
-    auto newValue = new std::vector<float>(value, value + count);
-    floatArrValues[paramName] = newValue;
+    std::vector<float>* arr;
+    auto it = floatArrValues.find(paramName);
+    if (it != floatArrValues.end())
+    {
+        arr = it->second;
+    }
+    else
+    {
+        arr = new std::vector<float>();
+        floatArrValues[paramName] = arr;
+    }
+    arr->reserve(count);
+    std::memcpy(arr->data(), value, count * sizeof(float));
 }
 
 void Material::SetGlobalIntValue(const std::string& paramName, const int value)
@@ -155,7 +158,7 @@ void Material::FillParams(const Shader* targetShader) const
             {
                 if (uniformInfo.elemNum > 1)
                 {
-                    std::vector<float>* fa = nullptr;
+                    std::vector<float>* fa;
                     auto n = uniformInfo.name.substr(0, uniformInfo.name.length() - 3);
                     if (FindParam(n, floatArrValues, s_globalMaterial->floatArrValues, fa))
                     {
