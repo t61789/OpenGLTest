@@ -57,6 +57,7 @@ void RenderingUtils::RenderMesh(const RenderContext& renderContext, const Mesh* 
 
     mesh->Use();
     mat->SetMat4Value("_MVP", mvp);
+    mat->SetMat4Value("_VP", renderContext.vpMatrix);
     mat->SetMat4Value("_ITM", transpose(inverse(m)));
     mat->SetMat4Value("_M", m);
     mat->Use(mesh);

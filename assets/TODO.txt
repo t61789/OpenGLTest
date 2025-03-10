@@ -13,6 +13,7 @@ Instancing粒子流
 TAA
 为纹理添加导入设置json
 MCP
+半透明物体
 
 - 点光源
 - 多光源

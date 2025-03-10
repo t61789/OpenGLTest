@@ -7,6 +7,7 @@
 uniform mat4 _MVP;
 uniform mat4 _ITM;
 uniform mat4 _M;
+uniform mat4 _VP;
 uniform mat4 _IVP;
 uniform mat4 _MainLightShadowVP;
 
@@ -15,6 +16,7 @@ uniform vec4 _MainLightDirection;
 uniform vec4 _MainLightColor;
 uniform vec4 _AmbientLightColor;
 
+// uniform sampler2DShadow _MainLightShadowMapTex;
 uniform sampler2D _MainLightShadowMapTex;
 
 uniform sampler2D _GBuffer0Tex;
@@ -67,9 +69,9 @@ void ReadGBuffer2(vec2 screenUV, out float depth)
     depth = color.r;
 }
 
-vec4 TransformObjectToHClip(vec3 positionOS)
+vec3 TransformObjectToWorld(vec3 positionOS)
 {
-    return _MVP * vec4(positionOS, 1);
+    return (_M * vec4(positionOS, 1)).xyz;
 }
 
 vec3 TransformObjectToWorldNormal(vec3 normalOS)
@@ -77,9 +79,14 @@ vec3 TransformObjectToWorldNormal(vec3 normalOS)
     return normalize((_ITM * vec4(normalOS, 0)).xyz);
 }
 
-vec3 TransformObjectToWorld(vec3 positionOS)
+vec4 TransformWorldToHClip(vec3 positionWS)
 {
-    return (_M * vec4(positionOS, 1)).xyz;
+    return _VP * vec4(positionWS, 1);
+}
+
+vec4 TransformObjectToHClip(vec3 positionOS)
+{
+    return _MVP * vec4(positionOS, 1);
 }
 
 vec3 TransformScreenToWorld(vec2 screenUV)
@@ -105,9 +112,14 @@ float SampleShadowMap(vec3 positionWS)
     
     float shadowDepth = texture(_MainLightShadowMapTex, shadowUV).r * 2 - 1;
     float objectDepth = positionShadowSpace.z;
-//    float bias = max(0.05 * (1 - dot(positionWS, _MainLightDirection.xyz)), 0.005);
-    float bias = 0.001;
-    return (shadowDepth + bias) < objectDepth ? 0 : 1;
+    float bias = 0.0005;
+    // float bias = 0.05;
+    // float bias = 0;
+    // #ifdef FRAG_SHADER
+    //     bias += max(abs(dFdx(objectDepth)), abs(dFdy(objectDepth))) * 5;
+    // #endif
+    // float bias = 0;
+    return step(0, shadowDepth + bias - objectDepth);
 }
 
 vec3 GetCameraPositionWS()

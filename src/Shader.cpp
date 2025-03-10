@@ -285,6 +285,16 @@ void Shader::ReplaceIncludes(const string& curFilePath, vector<string>& lines)
     }
 }
 
+void Shader::AddBuiltInMarcos(std::vector<std::string>& lines, const std::vector<std::string>& marcos)
+{
+    for (const auto& marco : marcos)
+    {
+        std::stringstream ss;
+        ss << "#define " << marco;
+        lines.insert(lines.begin() + 1, ss.str());
+    }
+}
+
 Shader* Shader::LoadFromFile(const string& glslPath)
 {
     {
@@ -305,7 +315,10 @@ Shader* Shader::LoadFromFile(const string& glslPath)
     try
     {
         ReplaceIncludes(glslPath, vertLines);
+        AddBuiltInMarcos(vertLines, { "VERT_SHADER" });
+        
         ReplaceIncludes(glslPath, fragLines);
+        AddBuiltInMarcos(fragLines, { "FRAG_SHADER" });
 
         vSource = Utils::JoinStrings(vertLines, "\n");
         fSource = Utils::JoinStrings(fragLines, "\n");

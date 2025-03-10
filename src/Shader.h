@@ -55,4 +55,5 @@ private:
     static std::vector<std::string> LoadFileToLines(const std::string& realAssetPath);
     static void DivideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines);
     static void ReplaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines);
+    static void AddBuiltInMarcos(std::vector<std::string>& lines, const std::vector<std::string>& marcos);
 };

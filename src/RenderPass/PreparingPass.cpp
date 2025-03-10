@@ -52,6 +52,7 @@ void PreparingPass::PrepareLightInfos()
             if (!m_renderContext->mainLight)
             {
                 m_renderContext->mainLight = light;
+                Material::SetGlobalVector4Value("_MainLightDirection", glm::vec4(-light->owner->Forward(), 0));
             }
 
             parallelLights.push_back(light);
@@ -62,7 +63,7 @@ void PreparingPass::PrepareLightInfos()
         }
     }
 
-    struct alignas(1) ParallelLightInfo
+    struct alignas(4) ParallelLightInfo
     {
         glm::vec3 direction;
         glm::vec3 color;
@@ -81,9 +82,8 @@ void PreparingPass::PrepareLightInfos()
         updateBuffer,
         count * (sizeof(ParallelLightInfo) / sizeof(float)));
     Material::SetGlobalIntValue("_ParallelLightCount", count);
-    
 
-    struct alignas(1) PointLightInfo
+    struct alignas(4) PointLightInfo
     {
         glm::vec3 position;
         float radius;

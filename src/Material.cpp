@@ -199,6 +199,7 @@ void Material::FillParams(const Shader* targetShader) const
             }
 
         case GL_SAMPLER_CUBE:
+        case GL_SAMPLER_2D_SHADOW:
         case GL_SAMPLER_2D:
             {
                 Texture* t = nullptr;
