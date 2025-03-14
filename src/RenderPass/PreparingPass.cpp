@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "Objects/CameraComp.h"
 #include "Objects/LightComp.h"
+#include "Objects/TransformComp.h"
 
 PreparingPass::PreparingPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
@@ -21,7 +22,7 @@ void PreparingPass::Execute()
         return;
     }
 
-    Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(m_renderContext->camera->owner->position, 0));
+    Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(m_renderContext->camera->owner->transform->GetPosition(), 0));
 
     std::vector<glm::vec4> clearColors = {
         glm::vec4(0.5f),
@@ -52,7 +53,7 @@ void PreparingPass::PrepareLightInfos()
             if (!m_renderContext->mainLight)
             {
                 m_renderContext->mainLight = light;
-                Material::SetGlobalVector4Value("_MainLightDirection", glm::vec4(-light->owner->Forward(), 0));
+                Material::SetGlobalVector4Value("_MainLightDirection", glm::vec4(-light->owner->transform->Forward(), 0));
             }
 
             parallelLights.push_back(light);
@@ -73,7 +74,7 @@ void PreparingPass::PrepareLightInfos()
     parallelLightInfos.reserve(parallelLights.size());
     for (auto light : parallelLights)
     {
-        parallelLightInfos.push_back({ -light->owner->Forward(), light->color });
+        parallelLightInfos.push_back({ -light->owner->transform->Forward(), light->color });
     }
     auto updateBuffer = reinterpret_cast<float*>(parallelLightInfos.data());
     auto count = static_cast<int>(parallelLightInfos.size());
@@ -94,7 +95,7 @@ void PreparingPass::PrepareLightInfos()
     pointLightInfos.reserve(parallelLights.size());
     for (auto light : pointLights)
     {
-        pointLightInfos.push_back({ light->owner->position, light->radius, light->color });
+        pointLightInfos.push_back({ light->owner->transform->GetPosition(), light->radius, light->color });
     }
     updateBuffer = reinterpret_cast<float*>(pointLightInfos.data());
     count = static_cast<int>(pointLightInfos.size());

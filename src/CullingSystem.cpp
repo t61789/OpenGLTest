@@ -6,6 +6,7 @@
 #include "Bounds.h"
 #include "Object.h"
 #include "Objects/RenderComp.h"
+#include "Objects/TransformComp.h"
 
 // bool FrustumCulling(const float3 center, const float3 extents)
 // {
@@ -75,7 +76,7 @@ vector<Bounds> CullingSystem::GetWorldSpaceAABB(const vector<RenderComp*>& rende
     for (int i = 0; i < result.size(); ++i)
     {
         auto renderComp = renderComps[i];
-        auto m = renderComp->owner->GetLocalToWorld();
+        auto m = renderComp->owner->transform->GetLocalToWorld();
         auto boundsOS = renderComp->owner->GetComp<RenderComp>("RenderComp")->bounds;
         auto centerWS = vec3(m * vec4(boundsOS.center, 1));
         vec3 extentsWS;

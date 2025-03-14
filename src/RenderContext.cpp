@@ -6,6 +6,7 @@
 #include "RenderTexture.h"
 #include "SharedObject.h"
 #include "Objects/CameraComp.h"
+#include "Objects/TransformComp.h"
 
 RenderContext::~RenderContext()
 {
@@ -17,7 +18,7 @@ RenderContext::~RenderContext()
 
 void RenderContext::SetViewProjMatrix(const CameraComp* cam)
 {
-    auto cameraLocalToWorld = cam->owner->GetLocalToWorld();
+    auto cameraLocalToWorld = cam->owner->transform->GetLocalToWorld();
     auto viewMatrix = glm::inverse(cameraLocalToWorld);
     auto projectionMatrix = glm::perspective(
         glm::radians(cam->fov * 0.5f),

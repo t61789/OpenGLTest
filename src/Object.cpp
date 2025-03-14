@@ -9,6 +9,7 @@
 #include "Objects/CameraComp.h"
 #include "Objects/LightComp.h"
 #include "Objects/RenderComp.h"
+#include "Objects/TransformComp.h"
 
 glm::vec3 ToVec3(nlohmann::json arr)
 {
@@ -17,6 +18,11 @@ glm::vec3 ToVec3(nlohmann::json arr)
         arr[1].get<float>(),
         arr[2].get<float>()
     };
+}
+
+Object::Object()
+{
+    transform = dynamic_cast<TransformComp*>(AddComp("TransformComp"));
 }
 
 Object::~Object()
@@ -32,47 +38,11 @@ Object::~Object()
     }
 }
 
-glm::mat4 Object::GetLocalToWorld() const
-{
-    // TODO 进行缓存
-    auto objectMatrix = glm::mat4(1);
-    objectMatrix = translate(objectMatrix, position);
-    objectMatrix = objectMatrix * glm::eulerAngleYXZ(
-        glm::radians(rotation.y),
-        glm::radians(rotation.x),
-        glm::radians(rotation.z));
-    objectMatrix = glm::scale(objectMatrix, scale);
-    return objectMatrix;
-}
-
-glm::vec3 Object::Forward() const
-{
-    auto result = glm::vec3(GetLocalToWorld()[2]);
-    return {
-        normalize(result)
-    };
-}
-
 void Object::LoadFromJson(const nlohmann::json& objJson)
 {
     if(objJson.contains("name"))
     {
         name = objJson["name"].get<std::string>();
-    }
-    
-    if(objJson.contains("position"))
-    {
-        position = Utils::ToVec3(objJson["position"]);
-    }
-    
-    if(objJson.contains("rotation"))
-    {
-        rotation = Utils::ToVec3(objJson["rotation"]);
-    }
-    
-    if(objJson.contains("scale"))
-    {
-        scale = Utils::ToVec3(objJson["scale"]);
     }
 
     if (objJson.contains("comps"))
@@ -81,20 +51,24 @@ void Object::LoadFromJson(const nlohmann::json& objJson)
         for (auto& compJson : arr)
         {
             auto compName = compJson["name"].get<std::string>();
-            auto comp = GetConstructor(compName)();
+
+            // 如果这个组件已经加载过，就读一遍参数
+            // 没加载过就加载，找不到这个组件的构造函数就不管了
+
+            auto comp = GetComp(compName);
             if (!comp)
             {
-                continue;
+                comp = GetConstructor(compName)();
+                if (!comp)
+                {
+                    continue;
+                }
+                
+                comp->owner = this;
+                m_comps[compName] = comp;
             }
 
-            if (this->name.find("Camera") != std::string::npos)
-            {
-                Utils::LogInfo("123");
-            }
-            
-            comp->owner = this;
             comp->LoadFromJson(compJson);
-            m_comps[compName] = comp;
         }
     }
 }
@@ -143,6 +117,18 @@ bool Object::HasComp(const std::string& compName)
     return m_comps.find(compName) != m_comps.end();
 }
 
+Comp* Object::GetComp(const std::string& compName)
+{
+    Comp* result = nullptr;
+    auto it = m_comps.find(compName);
+    if (it != m_comps.end())
+    {
+        result = it->second;
+    }
+
+    return result;
+}
+
 std::vector<Comp*> Object::GetComps()
 {
     auto result = std::vector<Comp*>();
@@ -154,17 +140,37 @@ std::vector<Comp*> Object::GetComps()
     return result;
 }
 
+Comp* Object::AddComp(const std::string& compName)
+{
+    auto comp = GetComp(compName);
+    if (comp)
+    {
+        return comp;
+    }
+
+    comp = GetConstructor(compName)();
+    if (!comp)
+    {
+        return nullptr;
+    }
+
+    comp->owner = this;
+    m_comps[compName] = comp;
+    return comp;
+}
+
 std::function<Comp*()> Object::GetConstructor(const std::string& name)
 {
     static std::unordered_map<std::string, std::function<Comp*()>> constructors;
     
     if (constructors.empty())
     {
-#define REGISTER_OBJECT(n, t) constructors[n] = []() -> Comp* { return new t(); }
+#define REGISTER_OBJECT(t) constructors[#t] = []() -> Comp* { return new t(); }
 
-        REGISTER_OBJECT("RenderComp", RenderComp);
-        REGISTER_OBJECT("LightComp", LightComp);
-        REGISTER_OBJECT("CameraComp", CameraComp);
+        REGISTER_OBJECT(RenderComp);
+        REGISTER_OBJECT(LightComp);
+        REGISTER_OBJECT(CameraComp);
+        REGISTER_OBJECT(TransformComp);
         
 #undef REGISTER_OBJECT
     }

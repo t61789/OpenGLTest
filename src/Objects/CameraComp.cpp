@@ -1,12 +1,13 @@
 ﻿#include "CameraComp.h"
 
 #include "glfw3.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/euler_angles.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 #include "Utils.h"
 #include "GameFramework.h"
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/euler_angles.hpp"
+#include "TransformComp.h"
 
 std::vector<CameraComp*> CameraComp::s_cameras;
 
@@ -22,7 +23,7 @@ CameraComp::~CameraComp()
 
 void CameraComp::Update()
 {
-    auto localToWorld = owner->GetLocalToWorld();
+    auto localToWorld = owner->transform->GetLocalToWorld();
     glm::vec3 forward = localToWorld * glm::vec4(0, 0, -1.0f, 0.0f);
     glm::vec3 right = localToWorld * glm::vec4(1.0f, 0, 0, 0.0f);
 
@@ -63,7 +64,7 @@ void CameraComp::Update()
         m_targetPosition += glm::vec3(0, -1.0f, 0) * deltaTime * moveSpeed;
     }
 
-    owner->position = lerp(owner->position, m_targetPosition, damp);
+    owner->transform->SetPosition(lerp(owner->transform->GetPosition(), m_targetPosition, damp));
     
     if(gameFramework->KeyPressed(GLFW_KEY_UP))
     {
@@ -85,7 +86,8 @@ void CameraComp::Update()
         m_targetRotation.y += -deltaTime * rotateSpeed;
     }
 
-    owner->rotation = lerp(owner->rotation, m_targetRotation, damp);
+    auto r = normalize(lerp(owner->transform->GetRotation(), glm::quat(glm::radians(m_targetRotation)), damp));
+    owner->transform->SetRotation(r);
 }
 
 void CameraComp::LoadFromJson(const nlohmann::json& objJson)
@@ -105,8 +107,8 @@ void CameraComp::LoadFromJson(const nlohmann::json& objJson)
         farClip = objJson["farClip"].get<float>();
     }
 
-    m_targetPosition = owner->position;
-    m_targetRotation = owner->rotation;
+    m_targetPosition = owner->transform->GetPosition();
+    m_targetRotation = degrees(eulerAngles(owner->transform->GetRotation()));
 }
 
 CameraComp* CameraComp::GetMainCamera()

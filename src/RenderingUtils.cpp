@@ -11,6 +11,7 @@
 #include "BuiltInRes.h"
 #include "Object.h"
 #include "Objects/RenderComp.h"
+#include "Objects/TransformComp.h"
 
 using namespace std;
 
@@ -48,7 +49,7 @@ void RenderingUtils::RenderEntity(const RenderContext& renderContext, const Rend
         return;
     }
 
-    RenderMesh(renderContext, mesh, material, renderComp->owner->GetLocalToWorld());
+    RenderMesh(renderContext, mesh, material, renderComp->owner->transform->GetLocalToWorld());
 }
 
 void RenderingUtils::RenderMesh(const RenderContext& renderContext, const Mesh* mesh, Material* mat, const glm::mat4& m)

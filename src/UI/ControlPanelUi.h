@@ -18,5 +18,5 @@ private:
     Object* m_selected = nullptr;
     
     void DrawHierarchy(Object* obj);
-    void DrawProperties(Object* obj);
+    void DrawProperties(const Object* obj);
 };

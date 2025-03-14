@@ -97,7 +97,7 @@ void Material::SetFloatArrValue(const std::string& paramName, const float *value
         arr = new std::vector<float>();
         floatArrValues[paramName] = arr;
     }
-    arr->reserve(count);
+    arr->resize(count);
     std::memcpy(arr->data(), value, count * sizeof(float));
 }
 
@@ -160,7 +160,7 @@ void Material::FillParams(const Shader* targetShader) const
                 {
                     std::vector<float>* fa;
                     auto n = uniformInfo.name.substr(0, uniformInfo.name.length() - 3);
-                    if (FindParam(n, floatArrValues, s_globalMaterial->floatArrValues, fa))
+                    if (FindParam(n, floatArrValues, s_globalMaterial->floatArrValues, fa) && !fa->empty())
                     {
                         targetShader->SetFloatArr(n, uniformInfo.elemNum, fa->data());
                     }

@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "json.hpp"
 #include "Objects/LightComp.h"
+#include "Objects/TransformComp.h"
 
 using namespace std;
 

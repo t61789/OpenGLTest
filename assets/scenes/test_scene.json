@@ -30,17 +30,20 @@
     "root": [
         {
             "name": "Main Camera",
-            "position": [
-                0,
-                1,
-                3
-            ],
-            "rotation": [
-                0,
-                0,
-                0
-            ],
             "comps": [
+                {
+                    "name": "TransformComp",
+                    "position": [
+                        0,
+                        1,
+                        3
+                    ],
+                    "rotation": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
                 {
                     "name": "CameraComp",
                     "fov": 100,
@@ -51,12 +54,15 @@
         },
         {
             "name": "Main Light",
-            "rotation": [
-                45,
-                150,
-                0
-            ],
             "comps": [
+                {
+                    "name": "TransformComp",
+                    "rotation": [
+                        45,
+                        150,
+                        0
+                    ]
+                },
                 {
                     "name": "LightComp",
                     "color": [
@@ -70,88 +76,79 @@
             ]
         },
         {
-            "name": "Point Light",
-            "position": [
-                1,
-                1,
-                1
-            ],
-            "scale": [
-                0.05,
-                0.05,
-                0.05
-            ],
-            "comps": [
-                {
-                    "name": "LightComp",
-                    "color": [
-                        10,
-                        0.0,
-                        0.0
-                    ],
-                    "light_type": 1,
-                    "radius": 1
-                },
-                {
-                    "name": "RenderComp",
-                    "mesh": "meshes/sphere.obj",
-                    "material": "materials/standard_mat.json"
-                }
-            ]
-        },
-        {
             "name": "Beast",
-            "scale": [
-                0.01,
-                0.01,
-                0.01
-            ],
-            "position": [
-                0,
-                0,
-                0
-            ],
             "comps": [
                 {
-                    "name": "RenderComp",
-                    "mesh": "meshes/beast.obj",
-                    "material": "materials/standard_mat.json"
-                }
-            ]
-        },
-        {
-            "name": "Sphere",
-            "scale": [
-                2,
-                2,
-                2
-            ],
-            "position": [
-                0,
-                5,
-                0
-            ],
-            "comps": [
+                    "name": "TransformComp",
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "position": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
                 {
                     "name": "RenderComp",
                     "mesh": "meshes/smooth_cube.obj",
                     "material": "materials/standard_mat.json"
                 }
+            ],
+            "children": [
+                {
+                    "name": "Point Light",
+                    "comps": [
+                        {
+                            "name": "TransformComp",
+                            "position": [
+                                1,
+                                1,
+                                1
+                            ],
+                            "scale": [
+                                0.05,
+                                0.05,
+                                0.05
+                            ]
+                        },
+                        {
+                            "name": "LightComp",
+                            "color": [
+                                10,
+                                0.0,
+                                0.0
+                            ],
+                            "light_type": 1,
+                            "radius": 1
+                        },
+                        {
+                            "name": "RenderComp",
+                            "mesh": "meshes/sphere.obj",
+                            "material": "materials/standard_mat.json"
+                        }
+                    ]
+                }
             ]
         },
         {
             "name": "Ground",
-            "scale": [
-                100,
-                100,
-                100
-            ],
-            "rotation": [
-                -90,
-                0,
-                0
-            ],
             "comps": [
+                {
+                    "name": "TransformComp",
+                    "scale": [
+                        100,
+                        100,
+                        100
+                    ],
+                    "rotation": [
+                        -90,
+                        0,
+                        0
+                    ]
+                },
                 {
                     "name": "RenderComp",
                     "mesh": "meshes/quad.obj",

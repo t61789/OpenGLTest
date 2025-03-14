@@ -5,6 +5,7 @@
 #include "Object.h"
 #include "Scene.h"
 #include "GameFramework.h"
+#include "Objects/TransformComp.h"
 
 float ControlPanelUi::s_intent = 20.0f;
 
@@ -82,9 +83,9 @@ void ControlPanelUi::DrawHierarchy(Object* obj)
     }
 }
 
-void ControlPanelUi::DrawProperties(Object* obj)
+void ControlPanelUi::DrawProperties(const Object* obj)
 {
-    obj->position = Gui::DragFloat3("position", obj->position, 0.02f);
-    obj->scale = Gui::DragFloat3("scale", obj->scale, 0.02f);
-    obj->rotation = Gui::DragFloat3("rotation", obj->rotation, 1.0f);
+    obj->transform->SetPosition(Gui::DragFloat3("position", obj->transform->GetPosition(), 0.02f));
+    obj->transform->SetScale(Gui::DragFloat3("scale", obj->transform->GetScale(), 0.02f));
+    obj->transform->SetEulerAngles(Gui::DragFloat3("rotation", obj->transform->GetEulerAngles(), 1.0f));
 }
