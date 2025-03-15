@@ -10,6 +10,8 @@ public:
 
     virtual ~Comp() = default;
 
+    virtual void Awake(){}
+
     virtual void Update(){}
     
     virtual void LoadFromJson(const nlohmann::json& objJson){}

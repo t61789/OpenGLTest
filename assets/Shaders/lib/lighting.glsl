@@ -131,6 +131,7 @@ vec3 Lit(vec3 normalWS, vec3 positionWS, Light light, float shadowAttenuation, v
     vec3 eF = F0 + (1.0 - F0) * pow(max(1.0 - ndv, 0), 5.0);
     environmentReflection *= eF; // TODO 预计算
     environmentReflection = roughness > 0.95 ? CalcIndirectLighting(normalWS) : environmentReflection;
+    environmentReflection = vec3(0); // TODO
 
     return kD * diffuse + specular + environmentReflection;
 }
@@ -161,12 +162,22 @@ vec3 LitWithPointLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float rough
     return result;
 }
 
+vec3 LitWithIndirectLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float roughness, float metallic)
+{
+    Light light;
+    light.color = CalcIndirectLighting(normalWS);   
+    light.direction = normalWS;
+
+    return Lit(normalWS, positionWS, light, 1, albedo, roughness, metallic);
+}
+
 vec3 LitWithLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float roughness, float metallic)
 {
     vec3 result = vec3(0);
 
     result += LitWithParallelLights(normalWS, positionWS, albedo, roughness, metallic);
     result += LitWithPointLights(normalWS, positionWS, albedo, roughness, metallic);
+    result += LitWithIndirectLights(normalWS, positionWS, albedo, roughness, metallic);
 
     return result;
 }

@@ -9,6 +9,7 @@
 #include "Objects/CameraComp.h"
 #include "Objects/LightComp.h"
 #include "Objects/RenderComp.h"
+#include "Objects/RuntimeComp.h"
 #include "Objects/TransformComp.h"
 
 glm::vec3 ToVec3(nlohmann::json arr)
@@ -22,7 +23,7 @@ glm::vec3 ToVec3(nlohmann::json arr)
 
 Object::Object()
 {
-    transform = dynamic_cast<TransformComp*>(AddComp("TransformComp"));
+    transform = AddComp<TransformComp>("TransformComp");
 }
 
 Object::~Object()
@@ -140,25 +141,6 @@ std::vector<Comp*> Object::GetComps()
     return result;
 }
 
-Comp* Object::AddComp(const std::string& compName)
-{
-    auto comp = GetComp(compName);
-    if (comp)
-    {
-        return comp;
-    }
-
-    comp = GetConstructor(compName)();
-    if (!comp)
-    {
-        return nullptr;
-    }
-
-    comp->owner = this;
-    m_comps[compName] = comp;
-    return comp;
-}
-
 std::function<Comp*()> Object::GetConstructor(const std::string& name)
 {
     static std::unordered_map<std::string, std::function<Comp*()>> constructors;
@@ -171,6 +153,7 @@ std::function<Comp*()> Object::GetConstructor(const std::string& name)
         REGISTER_OBJECT(LightComp);
         REGISTER_OBJECT(CameraComp);
         REGISTER_OBJECT(TransformComp);
+        REGISTER_OBJECT(RuntimeComp);
         
 #undef REGISTER_OBJECT
     }

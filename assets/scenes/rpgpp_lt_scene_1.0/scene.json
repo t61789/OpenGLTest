@@ -1,0 +1,6282 @@
+{
+  "root": [
+    {
+      "name": "Main Camera",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            84.57,
+            24.9,
+            -55.49
+          ],
+          "rotation": [
+            0.0,
+            260.898224,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "CameraComp",
+          "fov": 101.274506,
+          "nearClip": 0.3,
+          "farClip": 1000.0
+        }
+      ]
+    },
+    {
+      "name": "Directional Light",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            3.0,
+            0.0
+          ],
+          "rotation": [
+            50.0,
+            330.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "LightComp",
+          "color": [
+            0.977941155,
+            0.965833664,
+            0.8269355
+          ],
+          "light_type": 0
+        }
+      ]
+    },
+    {
+      "name": "Terrain",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "rpgpp_lt_hill_small_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -60.0,
+                21.4,
+                41.6
+              ],
+              "rotation": [
+                0.0,
+                52.9373322,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_01_7d022b34c4fce5be.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -20.2,
+                19.9,
+                98.3
+              ],
+              "rotation": [
+                0.0,
+                31.7779541,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_01 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -88.26201,
+                21.4,
+                -103.954933
+              ],
+              "rotation": [
+                0.0,
+                265.554169,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_01_7d022b34c4fce5be.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -104.320885,
+                19.9,
+                -24.9846268
+              ],
+              "rotation": [
+                0.0,
+                2.8850522,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_mountain_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -164.9997,
+                9.4,
+                52.89911
+              ],
+              "rotation": [
+                0.0,
+                70.94789,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_mountain_01_15aab8640406eb38.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_02",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -10.0838776,
+                21.094,
+                -26.1516151
+              ],
+              "rotation": [
+                0.0,
+                307.762146,
+                0.0
+              ],
+              "scale": [
+                1.6323384,
+                1.6323384,
+                1.6323384
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_02_f5ada3095f01d352.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                9.018421,
+                21.307,
+                -11.3545637
+              ],
+              "rotation": [
+                0.0,
+                307.762146,
+                0.0
+              ],
+              "scale": [
+                1.6323384,
+                1.6323384,
+                1.6323384
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                2.5114727,
+                21.214,
+                -40.1401672
+              ],
+              "rotation": [
+                0.0,
+                118.211113,
+                0.0
+              ],
+              "scale": [
+                2.03394246,
+                2.03393984,
+                2.03394246
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (2)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -20.9160271,
+                21.307,
+                -8.707571
+              ],
+              "rotation": [
+                0.0,
+                119.486076,
+                0.0
+              ],
+              "scale": [
+                1.6323384,
+                1.6323384,
+                1.6323384
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (3)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -31.2935333,
+                21.223,
+                -35.1483841
+              ],
+              "rotation": [
+                0.0,
+                119.486076,
+                0.0
+              ],
+              "scale": [
+                1.99530756,
+                1.99530661,
+                1.99530745
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_02 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -18.6144485,
+                21.014,
+                -58.48439
+              ],
+              "rotation": [
+                0.0,
+                307.762146,
+                0.0
+              ],
+              "scale": [
+                1.9775064,
+                1.97750652,
+                1.97750652
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_02_f5ada3095f01d352.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (4)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -47.3519363,
+                21.307,
+                -53.3116035
+              ],
+              "rotation": [
+                0.0,
+                265.946442,
+                0.0
+              ],
+              "scale": [
+                1.63233912,
+                1.6323384,
+                1.63233912
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (5)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -43.6130142,
+                21.214,
+                -13.5209866
+              ],
+              "rotation": [
+                0.0,
+                264.6715,
+                0.0
+              ],
+              "scale": [
+                2.033945,
+                2.03394246,
+                2.033945
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (6)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -64.9398041,
+                21.307,
+                -33.91817
+              ],
+              "rotation": [
+                0.0,
+                94.2225342,
+                0.0
+              ],
+              "scale": [
+                1.6323384,
+                1.6323384,
+                1.6323384
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (7)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                19.0003986,
+                21.223,
+                -55.80431
+              ],
+              "rotation": [
+                0.0,
+                119.486076,
+                0.0
+              ],
+              "scale": [
+                1.995306,
+                1.9953053,
+                1.995306
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (8)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                29.3785362,
+                21.307,
+                -29.3643
+              ],
+              "rotation": [
+                0.0,
+                119.486076,
+                0.0
+              ],
+              "scale": [
+                1.63233912,
+                1.6323384,
+                1.63233912
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (9)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -41.29033,
+                21.214,
+                -79.79508
+              ],
+              "rotation": [
+                0.0,
+                118.211113,
+                0.0
+              ],
+              "scale": [
+                2.033945,
+                2.03394246,
+                2.033945
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (10)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -4.73439026,
+                21.068,
+                -73.82931
+              ],
+              "rotation": [
+                0.0,
+                182.026627,
+                0.0
+              ],
+              "scale": [
+                2.66607213,
+                2.666071,
+                2.66607451
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (11)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                43.3458328,
+                21.068,
+                -6.86207771
+              ],
+              "rotation": [
+                0.0,
+                220.707352,
+                0.0
+              ],
+              "scale": [
+                2.66606855,
+                2.66606545,
+                2.666071
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (12)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                42.1862221,
+                21.307,
+                49.16765
+              ],
+              "rotation": [
+                0.0,
+                158.166809,
+                0.0
+              ],
+              "scale": [
+                1.63233912,
+                1.6323384,
+                1.63233912
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (13)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                50.6095047,
+                21.223,
+                22.0406876
+              ],
+              "rotation": [
+                0.0,
+                158.166809,
+                0.0
+              ],
+              "scale": [
+                1.995306,
+                1.9953053,
+                1.995306
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (14)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -24.69474,
+                21.214,
+                15.9179726
+              ],
+              "rotation": [
+                0.0,
+                303.352234,
+                0.0
+              ],
+              "scale": [
+                2.033943,
+                2.03394246,
+                2.033943
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_02 (2)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                22.9206524,
+                21.014,
+                -3.55969238
+              ],
+              "rotation": [
+                0.0,
+                346.442841,
+                0.0
+              ],
+              "scale": [
+                1.97751272,
+                1.97751272,
+                1.97751272
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_02_f5ada3095f01d352.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (15)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -1.56153107,
+                21.223,
+                6.733885
+              ],
+              "rotation": [
+                0.0,
+                158.166809,
+                0.0
+              ],
+              "scale": [
+                1.995306,
+                1.9953053,
+                1.995306
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (16)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -9.98576,
+                21.307,
+                33.8603859
+              ],
+              "rotation": [
+                0.0,
+                158.166809,
+                0.0
+              ],
+              "scale": [
+                1.63233912,
+                1.6323384,
+                1.63233912
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (17)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                27.947773,
+                21.214,
+                23.9647713
+              ],
+              "rotation": [
+                0.0,
+                156.89183,
+                0.0
+              ],
+              "scale": [
+                2.033945,
+                2.03394246,
+                2.033945
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (18)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                14.2564478,
+                21.197,
+                43.3480453
+              ],
+              "rotation": [
+                0.0,
+                346.442841,
+                0.0
+              ],
+              "scale": [
+                2.108688,
+                2.10868788,
+                2.10868788
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (19)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                115.072029,
+                20.947,
+                -8.434362
+              ],
+              "rotation": [
+                0.0,
+                346.442841,
+                0.0
+              ],
+              "scale": [
+                3.23502684,
+                3.23502779,
+                3.23502779
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (20)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                49.9045868,
+                20.973,
+                108.7465
+              ],
+              "rotation": [
+                0.0,
+                254.924057,
+                0.0
+              ],
+              "scale": [
+                3.078548,
+                3.078548,
+                3.07855248
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (21)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                46.5545158,
+                21.113,
+                72.28809
+              ],
+              "rotation": [
+                0.0,
+                256.198975,
+                0.0
+              ],
+              "scale": [
+                2.4706862,
+                2.47068524,
+                2.47069025
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (22)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                85.42908,
+                20.988,
+                90.65124
+              ],
+              "rotation": [
+                0.0,
+                256.198975,
+                0.0
+              ],
+              "scale": [
+                3.02006841,
+                3.02006674,
+                3.02007318
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_02 (3)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -86.80539,
+                20.457,
+                -58.88926
+              ],
+              "rotation": [
+                0.0,
+                346.442841,
+                0.0
+              ],
+              "scale": [
+                3.93506932,
+                3.93507123,
+                3.93507123
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_02_f5ada3095f01d352.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (23)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                76.55734,
+                20.973,
+                54.03808
+              ],
+              "rotation": [
+                0.0,
+                41.3844261,
+                0.0
+              ],
+              "scale": [
+                3.078548,
+                3.078548,
+                3.07855248
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (24)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                47.7528572,
+                20.988,
+                -82.26079
+              ],
+              "rotation": [
+                0.0,
+                121.933479,
+                0.0
+              ],
+              "scale": [
+                3.061084,
+                3.061083,
+                3.06108522
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (25)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                95.23193,
+                21.116,
+                -51.05828
+              ],
+              "rotation": [
+                0.0,
+                158.166809,
+                0.0
+              ],
+              "scale": [
+                2.50424075,
+                2.50424027,
+                2.5042417
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (26)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                19.1838455,
+                20.586,
+                -115.748718
+              ],
+              "rotation": [
+                0.0,
+                220.707352,
+                0.0
+              ],
+              "scale": [
+                4.802392,
+                4.80238867,
+                4.802397
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (28)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                56.19119,
+                21.143,
+                -43.3080139
+              ],
+              "rotation": [
+                0.0,
+                74.96847,
+                0.0
+              ],
+              "scale": [
+                2.34233713,
+                2.342334,
+                2.342339
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (29)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                89.23628,
+                21.028,
+                -77.1721954
+              ],
+              "rotation": [
+                0.0,
+                119.486076,
+                0.0
+              ],
+              "scale": [
+                2.87987661,
+                2.87987638,
+                2.87987781
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (31)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                77.21938,
+                21.248,
+                13.4420662
+              ],
+              "rotation": [
+                0.0,
+                50.9798851,
+                0.0
+              ],
+              "scale": [
+                1.87983859,
+                1.87983775,
+                1.8798399
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (32)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                113.395988,
+                20.973,
+                34.24632
+              ],
+              "rotation": [
+                0.0,
+                2.70371962,
+                0.0
+              ],
+              "scale": [
+                3.078548,
+                3.078548,
+                3.07855272
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (33)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                77.0563049,
+                21.161,
+                -18.26693
+              ],
+              "rotation": [
+                0.0,
+                222.703812,
+                0.0
+              ],
+              "scale": [
+                2.264681,
+                2.264681,
+                2.264683
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (35)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                112.660751,
+                21.113,
+                64.90555
+              ],
+              "rotation": [
+                0.0,
+                217.51825,
+                0.0
+              ],
+              "scale": [
+                2.4706862,
+                2.47068524,
+                2.47069025
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (37)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                81.41804,
+                21.116,
+                -113.99144
+              ],
+              "rotation": [
+                0.0,
+                307.762146,
+                0.0
+              ],
+              "scale": [
+                2.50423956,
+                2.50424027,
+                2.50424027
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (38)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -43.9574966,
+                21.086,
+                -103.540665
+              ],
+              "rotation": [
+                0.0,
+                73.39652,
+                0.0
+              ],
+              "scale": [
+                2.59123731,
+                2.59123445,
+                2.59124017
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_mountain_01 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -158.7,
+                10.1,
+                -48.2
+              ],
+              "rotation": [
+                0.0,
+                301.551575,
+                0.0
+              ],
+              "scale": [
+                1.00000024,
+                0.9043257,
+                1.00000024
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_mountain_01_15aab8640406eb38.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_mountain_01 (2)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -106.6,
+                8.1,
+                125.8
+              ],
+              "rotation": [
+                0.0,
+                134.004852,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.39054966,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_mountain_01_15aab8640406eb38.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (2)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                102.7,
+                19.9,
+                -218.2
+              ],
+              "rotation": [
+                0.0,
+                119.915321,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_01 (2)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                154.5,
+                18.1,
+                -154.0
+              ],
+              "rotation": [
+                0.0,
+                51.4433746,
+                0.0
+              ],
+              "scale": [
+                1.00000024,
+                1.45899391,
+                1.00000024
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_01_7d022b34c4fce5be.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_01 (3)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                25.1,
+                19.1,
+                -198.3
+              ],
+              "rotation": [
+                0.0,
+                169.967621,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.66537464,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_01_7d022b34c4fce5be.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (3)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -48.4,
+                19.9,
+                -161.5
+              ],
+              "rotation": [
+                0.0,
+                122.393478,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (39)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                109.126846,
+                21.116,
+                -174.383423
+              ],
+              "rotation": [
+                0.0,
+                307.762146,
+                0.0
+              ],
+              "scale": [
+                2.50423956,
+                2.50424,
+                2.50423956
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (30)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                105.0,
+                20.848,
+                -146.0
+              ],
+              "rotation": [
+                0.0,
+                119.486076,
+                0.0
+              ],
+              "scale": [
+                3.662121,
+                3.662121,
+                3.662121
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (34)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                83.9,
+                21.143,
+                -103.7
+              ],
+              "rotation": [
+                0.0,
+                74.96847,
+                0.0
+              ],
+              "scale": [
+                2.34234,
+                2.34233,
+                2.34234
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (27)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                46.89266,
+                20.586,
+                -176.1407
+              ],
+              "rotation": [
+                0.0,
+                220.707352,
+                0.0
+              ],
+              "scale": [
+                4.80239344,
+                4.80239,
+                4.80240345
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (36)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                122.94075,
+                21.116,
+                -111.450264
+              ],
+              "rotation": [
+                0.0,
+                158.166809,
+                0.0
+              ],
+              "scale": [
+                2.50424147,
+                2.50424,
+                2.50424147
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (40)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                142.780838,
+                20.947,
+                -68.82635
+              ],
+              "rotation": [
+                0.0,
+                346.442841,
+                0.0
+              ],
+              "scale": [
+                3.23502946,
+                3.23503,
+                3.23502946
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_01 (4)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                187.5,
+                20.9,
+                -81.3
+              ],
+              "rotation": [
+                0.0,
+                239.4115,
+                0.0
+              ],
+              "scale": [
+                1.00000024,
+                1.0,
+                1.00000024
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_01_7d022b34c4fce5be.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_01 (5)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                198.1,
+                21.4,
+                74.2
+              ],
+              "rotation": [
+                0.0,
+                120.88726,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_01_7d022b34c4fce5be.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (4)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                224.030411,
+                20.3,
+                -10.1426239
+              ],
+              "rotation": [
+                0.0,
+                189.359192,
+                0.0
+              ],
+              "scale": [
+                1.00000024,
+                1.0,
+                1.00000024
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (41)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                161.664063,
+                20.973,
+                54.3046
+              ],
+              "rotation": [
+                0.0,
+                2.70371962,
+                0.0
+              ],
+              "scale": [
+                3.07854986,
+                3.07854986,
+                3.07854986
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (42)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                143.5,
+                21.116,
+                -31.0
+              ],
+              "rotation": [
+                0.0,
+                158.166809,
+                0.0
+              ],
+              "scale": [
+                2.8998282,
+                2.7556386,
+                2.72962332
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_terrain_grass_01 (43)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                163.340088,
+                20.947,
+                11.6239185
+              ],
+              "rotation": [
+                0.0,
+                346.442841,
+                0.0
+              ],
+              "scale": [
+                3.23502946,
+                3.23503,
+                3.23502946
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_grass_01_725a15977fc8a8fc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (5)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                147.2,
+                19.9,
+                121.1
+              ],
+              "rotation": [
+                0.0,
+                105.007736,
+                0.0
+              ],
+              "scale": [
+                0.9999999,
+                1.0,
+                0.9999999
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_01 (6)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                72.79258,
+                21.4,
+                150.449265
+              ],
+              "rotation": [
+                0.0,
+                155.060043,
+                0.0
+              ],
+              "scale": [
+                0.99999994,
+                1.0,
+                0.99999994
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_01_7d022b34c4fce5be.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (6)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                7.2,
+                19.9,
+                163.2
+              ],
+              "rotation": [
+                0.0,
+                105.007736,
+                0.0
+              ],
+              "scale": [
+                0.9999998,
+                1.0,
+                0.9999998
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (7)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -19.0,
+                3.0,
+                -56.2
+              ],
+              "rotation": [
+                0.0,
+                90.42734,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_mountain_01 (3)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -85.4,
+                4.6,
+                219.599777
+              ],
+              "rotation": [
+                0.0,
+                239.129242,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.14308441,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_mountain_01_15aab8640406eb38.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (8)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                4.0,
+                14.5,
+                16.4
+              ],
+              "rotation": [
+                0.0,
+                5.587572,
+                0.0
+              ],
+              "scale": [
+                0.6334075,
+                0.6334075,
+                0.6334075
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (9)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                87.9024,
+                6.10000038,
+                40.9165726
+              ],
+              "rotation": [
+                0.0,
+                345.106262,
+                0.0
+              ],
+              "scale": [
+                1.21808445,
+                1.0,
+                1.00000024
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_mountain_01 (4)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -8.7,
+                5.6,
+                256.1
+              ],
+              "rotation": [
+                0.0,
+                305.359528,
+                0.0
+              ],
+              "scale": [
+                1.00000024,
+                1.073204,
+                1.00000024
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_mountain_01_15aab8640406eb38.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (10)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                111.368919,
+                9.8,
+                -17.80234
+              ],
+              "rotation": [
+                0.0,
+                275.012451,
+                0.0
+              ],
+              "scale": [
+                0.63341,
+                0.63341,
+                0.63341
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hill_small_02 (11)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                49.4194946,
+                6.6,
+                -120.8
+              ],
+              "rotation": [
+                0.0,
+                165.69928,
+                0.0
+              ],
+              "scale": [
+                1.00000024,
+                1.0,
+                1.00000024
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hill_small_02_51dbb2946d080c48.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Buildings",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "rpgpp_lt_building_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                56.2,
+                22.3,
+                -22.3
+              ],
+              "rotation": [
+                0.0,
+                41.29932,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_building_01_4d220f82c792d471.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_building_02",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                81.95,
+                22.22,
+                -21.79
+              ],
+              "rotation": [
+                0.0,
+                340.603638,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_building_02_6e15d08549c9340e.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_building_03",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                64.29,
+                21.8,
+                -67.55
+              ],
+              "rotation": [
+                0.0,
+                137.841812,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_building_03_4e41ff6109735a1e.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_building_04",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                86.95,
+                22.46,
+                -71.33
+              ],
+              "rotation": [
+                0.0,
+                296.336517,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_building_04_7cf98c00a59a295e.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_building_05",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                49.3,
+                22.22,
+                -42.12
+              ],
+              "rotation": [
+                0.0,
+                91.8263,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_building_05_bc67669525e75c74.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_building_02 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                90.52,
+                22.56,
+                -44.15
+              ],
+              "rotation": [
+                0.0,
+                304.4491,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_building_02_6e15d08549c9340e.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sky",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            -225.4,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "rpgpp_lt_sky_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -94.1,
+                156.0,
+                39.2
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                10.0,
+                10.0,
+                10.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_sky_01_af1fdfb903ffc5b4.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_sky_a_af1fdfb903ffc5b4.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_cloud_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -260.3,
+                384.64,
+                -0.21085
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.44407666,
+                1.444077,
+                1.444077
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_cloud_01_4c1be042631f311f.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_cloud_a_4c1be042631f311f.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_cloud_02",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -231.9,
+                364.0,
+                109.476746
+              ],
+              "rotation": [
+                0.0,
+                322.4416,
+                0.0
+              ],
+              "scale": [
+                1.72967911,
+                1.72967887,
+                1.72967887
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_cloud_02_7c6c762b0d5f170e.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_cloud_a_4c1be042631f311f.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_cloud_01 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -64.1,
+                363.0,
+                282.7814
+              ],
+              "rotation": [
+                0.0,
+                109.87178,
+                0.0
+              ],
+              "scale": [
+                1.44408,
+                1.44408,
+                1.44408
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_cloud_01_4c1be042631f311f.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_cloud_a_4c1be042631f311f.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_cloud_02 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -163.9,
+                411.0,
+                162.0
+              ],
+              "rotation": [
+                0.0,
+                144.006256,
+                0.0
+              ],
+              "scale": [
+                1.72968006,
+                1.72968,
+                1.72968006
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_cloud_02_7c6c762b0d5f170e.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_cloud_a_4c1be042631f311f.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rocks",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "rpgpp_lt_rock_small_02 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                78.62,
+                21.68,
+                -44.04
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rock_small_02_0efc8a29a034f62b.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rock_small_02",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                64.63,
+                21.78,
+                -52.85
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rock_small_02_0efc8a29a034f62b.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rock_02",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                79.37576,
+                22.01,
+                -42.18247
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rock_02_00e3fb1f2e435fe0.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rocks_tiny_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                63.15,
+                21.83,
+                -53.74
+              ],
+              "rotation": [
+                0.0,
+                314.732056,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rocks_tiny_01_bfdd740cd570b193.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rocks_tiny_01 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                78.75,
+                21.68,
+                -41.41
+              ],
+              "rotation": [
+                0.0,
+                314.732056,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rocks_tiny_01_bfdd740cd570b193.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rock_03",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                52.0,
+                21.99,
+                1.8
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.38799369,
+                1.38799357,
+                1.38799357
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rock_03_31784253ec981450.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rock_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                52.17,
+                22.43,
+                -56.92
+              ],
+              "rotation": [
+                0.0,
+                63.0575638,
+                0.0
+              ],
+              "scale": [
+                1.37919116,
+                1.379191,
+                1.37919116
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rock_01_25dda2eba5077f03.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rock_03 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                70.4,
+                21.86,
+                -84.5
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.38799,
+                1.38799,
+                1.38799
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rock_03_31784253ec981450.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rock_01 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                94.2,
+                22.570137,
+                -55.68
+              ],
+              "rotation": [
+                279.049133,
+                10.3815832,
+                281.139221
+              ],
+              "scale": [
+                1.37919,
+                1.37919,
+                1.37919
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rock_01_25dda2eba5077f03.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Path",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            38.8,
+            0.0,
+            -38.7
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "Terrain_path",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "children": [
+            {
+              "name": "rpgpp_lt_terrain_sand_01",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    24.28,
+                    21.57,
+                    -13.8
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_sand_01_5645ceafdc836644.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    21.1,
+                    22.2,
+                    -5.3
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    28.5,
+                    21.87,
+                    -8.1
+                  ],
+                  "rotation": [
+                    -2.13443414E-07,
+                    320.701782,
+                    355.9144
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    29.93,
+                    21.65,
+                    -21.77
+                  ],
+                  "rotation": [
+                    355.919739,
+                    233.630478,
+                    359.791443
+                  ],
+                  "scale": [
+                    1.00000024,
+                    1.0,
+                    1.00000024
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (3)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    32.3462677,
+                    21.6518974,
+                    -14.2287521
+                  ],
+                  "rotation": [
+                    354.3887,
+                    273.046722,
+                    0.410268277
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (4)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    29.301,
+                    22.056,
+                    -1.7994
+                  ],
+                  "rotation": [
+                    0.00197333773,
+                    42.8744774,
+                    358.036255
+                  ],
+                  "scale": [
+                    1.0,
+                    1.19522786,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01a (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    35.45042,
+                    21.96,
+                    4.74453735
+                  ],
+                  "rotation": [
+                    0.0,
+                    51.118,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.40953994,
+                    1.00000024
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01a_938489230e26a1f6.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (5)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    40.7,
+                    21.69,
+                    12.32
+                  ],
+                  "rotation": [
+                    0.00191920938,
+                    58.7746239,
+                    0.00054672407
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (6)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    24.7,
+                    22.06,
+                    7.97
+                  ],
+                  "rotation": [
+                    356.775116,
+                    311.81604,
+                    2.15364
+                  ],
+                  "scale": [
+                    0.9999999,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (7)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    27.87,
+                    22.11,
+                    4.69
+                  ],
+                  "rotation": [
+                    356.775,
+                    311.816,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    0.9999999,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (8)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    45.5133629,
+                    22.2075558,
+                    -10.3442459
+                  ],
+                  "rotation": [
+                    355.741943,
+                    221.793884,
+                    357.188232
+                  ],
+                  "scale": [
+                    1.00000024,
+                    1.0,
+                    1.00000048
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (9)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    38.0472832,
+                    21.7675285,
+                    -14.7906265
+                  ],
+                  "rotation": [
+                    359.375,
+                    193.588989,
+                    358.799744
+                  ],
+                  "scale": [
+                    1.00000048,
+                    1.0,
+                    1.00000048
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (10)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    45.289463,
+                    22.351532,
+                    -27.21822
+                  ],
+                  "rotation": [
+                    357.910065,
+                    288.153564,
+                    1.88915157
+                  ],
+                  "scale": [
+                    0.9999999,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_path_01b (11)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    42.571,
+                    21.964,
+                    -19.496
+                  ],
+                  "rotation": [
+                    357.91,
+                    288.154022,
+                    2.93038821
+                  ],
+                  "scale": [
+                    1.0,
+                    1.55087411,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_path_01b_eea53785056715d9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_sand_01 (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    41.8481255,
+                    21.48,
+                    -3.18213654
+                  ],
+                  "rotation": [
+                    0.0,
+                    284.668274,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_sand_01_5645ceafdc836644.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_terrain_sand_01 (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    37.11,
+                    21.29,
+                    -23.76
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_terrain_sand_01_5645ceafdc836644.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Wood_path",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "children": [
+            {
+              "name": "rpgpp_lt_wood_path_01b (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    24.48,
+                    22.14,
+                    7.21
+                  ],
+                  "rotation": [
+                    0.0,
+                    309.426056,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    21.1899986,
+                    22.0299988,
+                    10.4500008
+                  ],
+                  "rotation": [
+                    0.0,
+                    312.135529,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    27.37,
+                    22.08,
+                    3.87
+                  ],
+                  "rotation": [
+                    0.0,
+                    312.135529,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (3)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    20.97,
+                    22.14,
+                    -6.13
+                  ],
+                  "rotation": [
+                    0.0,
+                    1.24201524,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    16.213707,
+                    22.14,
+                    -6.13831329
+                  ],
+                  "rotation": [
+                    0.0,
+                    358.532562,
+                    0.0
+                  ],
+                  "scale": [
+                    1.00000048,
+                    1.0,
+                    1.00000048
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (3)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    26.07677,
+                    22.09,
+                    -5.537739
+                  ],
+                  "rotation": [
+                    0.0,
+                    35.4681244,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (4)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    29.8846169,
+                    22.04,
+                    -2.53534317
+                  ],
+                  "rotation": [
+                    0.0,
+                    42.0499763,
+                    0.0
+                  ],
+                  "scale": [
+                    0.9999999,
+                    1.0,
+                    0.9999999
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (4)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    27.9673958,
+                    21.5318832,
+                    -25.5488281
+                  ],
+                  "rotation": [
+                    3.57612562,
+                    50.062,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (5)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    30.92,
+                    21.54,
+                    -21.82
+                  ],
+                  "rotation": [
+                    3.57212186,
+                    52.776722,
+                    0.169266671
+                  ],
+                  "scale": [
+                    0.9999999,
+                    1.0,
+                    0.9999999
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (6)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    37.66218,
+                    21.92,
+                    9.114492
+                  ],
+                  "rotation": [
+                    0.0,
+                    232.395676,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (5)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    35.06,
+                    21.95,
+                    5.3
+                  ],
+                  "rotation": [
+                    0.0,
+                    229.686188,
+                    0.0
+                  ],
+                  "scale": [
+                    1.00000048,
+                    1.0,
+                    1.00000048
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (7)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    40.49,
+                    21.63,
+                    13.06
+                  ],
+                  "rotation": [
+                    0.0,
+                    232.395676,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (6)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    32.75,
+                    21.67,
+                    -10.71
+                  ],
+                  "rotation": [
+                    0.0,
+                    135.865738,
+                    0.0
+                  ],
+                  "scale": [
+                    1.00000083,
+                    1.0,
+                    1.00000083
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (8)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    25.15,
+                    22.09,
+                    -6.4
+                  ],
+                  "rotation": [
+                    0.202798456,
+                    318.204468,
+                    355.714752
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (7)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    31.15,
+                    21.67,
+                    -12.21
+                  ],
+                  "rotation": [
+                    0.0,
+                    272.4696,
+                    0.0
+                  ],
+                  "scale": [
+                    1.00000012,
+                    1.0,
+                    1.00000012
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (8)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    37.99988,
+                    21.7378731,
+                    -13.9400253
+                  ],
+                  "rotation": [
+                    -2.66804268E-08,
+                    192.767563,
+                    358.51767
+                  ],
+                  "scale": [
+                    1.00000083,
+                    1.0,
+                    1.00000083
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (9)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    42.27,
+                    21.77,
+                    -12.48
+                  ],
+                  "rotation": [
+                    0.0,
+                    195.477036,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (10)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    45.9787941,
+                    22.22931,
+                    -10.6909218
+                  ],
+                  "rotation": [
+                    1.5947603,
+                    42.7751236,
+                    359.628845
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (9)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    42.55,
+                    21.92,
+                    -13.92
+                  ],
+                  "rotation": [
+                    0.0,
+                    41.1288261,
+                    3.6812892
+                  ],
+                  "scale": [
+                    1.00000048,
+                    1.0,
+                    1.00000048
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (11)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    43.23,
+                    22.27,
+                    -24.38
+                  ],
+                  "rotation": [
+                    0.0,
+                    285.570557,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01a (12)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    40.56,
+                    21.77,
+                    -15.44
+                  ],
+                  "rotation": [
+                    357.4959,
+                    283.67453,
+                    2.43128657
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01a_dcc866d1e1e57061.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_wood_path_01b (10)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    42.1111565,
+                    21.91097,
+                    -19.9150276
+                  ],
+                  "rotation": [
+                    3.20165128E-07,
+                    282.8611,
+                    3.30777526
+                  ],
+                  "scale": [
+                    1.00000048,
+                    1.0,
+                    1.00000048
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wood_path_01b_659e68f51e7d311a.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vegetation",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            68.96652,
+            13.5385151,
+            -36.6851578
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "Trees",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -68.96652,
+                -13.5385151,
+                36.6851578
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "children": [
+            {
+              "name": "rpgpp_lt_tree_02",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    70.77,
+                    21.87,
+                    -23.62
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_02_03ef7f9bff0c1793.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    60.49,
+                    21.61,
+                    -50.77
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_01",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    60.0257645,
+                    21.44,
+                    -59.9665
+                  ],
+                  "rotation": [
+                    0.0,
+                    16.1485558,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_01_c8403d8c0250d099.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01 (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    50.08,
+                    21.27,
+                    -33.29
+                  ],
+                  "rotation": [
+                    0.0,
+                    66.08678,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_02 (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    75.1,
+                    21.16,
+                    -69.21
+                  ],
+                  "rotation": [
+                    0.0,
+                    351.539429,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_02_03ef7f9bff0c1793.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_02 (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    29.7842865,
+                    21.6534672,
+                    -22.7323322
+                  ],
+                  "rotation": [
+                    0.0,
+                    90.42302,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_02_03ef7f9bff0c1793.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_01 (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    12.9842911,
+                    21.2834663,
+                    -22.3323326
+                  ],
+                  "rotation": [
+                    0.0,
+                    16.1485558,
+                    0.0
+                  ],
+                  "scale": [
+                    1.05828428,
+                    1.05828428,
+                    1.05828428
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_01_c8403d8c0250d099.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01 (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    17.9842911,
+                    21.1534672,
+                    -35.0323334
+                  ],
+                  "rotation": [
+                    0.0,
+                    27.4941273,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.10195887,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01 (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    31.08429,
+                    21.8834667,
+                    -7.632332
+                  ],
+                  "rotation": [
+                    0.0,
+                    30.0678177,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_01 (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    57.88429,
+                    21.5934658,
+                    -12.2323341
+                  ],
+                  "rotation": [
+                    0.0,
+                    326.052734,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.11343837,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_01_c8403d8c0250d099.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01 (3)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    78.48428,
+                    21.4934673,
+                    4.367668
+                  ],
+                  "rotation": [
+                    0.0,
+                    339.972015,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.266369,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_01 (3)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    69.28429,
+                    21.4734669,
+                    12.0676689
+                  ],
+                  "rotation": [
+                    0.0,
+                    157.885,
+                    0.0
+                  ],
+                  "scale": [
+                    1.05828047,
+                    1.05828,
+                    1.05828047
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_01_c8403d8c0250d099.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_02 (3)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    63.684288,
+                    21.6534672,
+                    -0.8323326
+                  ],
+                  "rotation": [
+                    0.0,
+                    204.66832,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_02_03ef7f9bff0c1793.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01 (4)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    75.98428,
+                    21.6734657,
+                    -10.3323326
+                  ],
+                  "rotation": [
+                    0.0,
+                    144.313141,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_01 (4)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    41.86012,
+                    21.7,
+                    -82.40619
+                  ],
+                  "rotation": [
+                    0.0,
+                    342.217743,
+                    0.0
+                  ],
+                  "scale": [
+                    1.05828,
+                    1.05828,
+                    1.05828
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_01_c8403d8c0250d099.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_02 (4)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    49.38495,
+                    21.74,
+                    -67.3908157
+                  ],
+                  "rotation": [
+                    0.0,
+                    95.70932,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_02_03ef7f9bff0c1793.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01 (5)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    35.6214,
+                    21.2,
+                    -59.9389076
+                  ],
+                  "rotation": [
+                    0.0,
+                    356.137,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01 (6)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    55.5,
+                    21.85,
+                    -82.9
+                  ],
+                  "rotation": [
+                    0.0,
+                    353.563324,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.10196,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_tree_pine_01 (7)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    95.53177,
+                    21.85,
+                    -50.70952
+                  ],
+                  "rotation": [
+                    0.0,
+                    307.452881,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.10196,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_tree_pine_01_dd3665771f567e1e.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Grass",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -68.96652,
+                -13.5385151,
+                36.6851578
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "children": [
+            {
+              "name": "rpgpp_lt_grass_small_01a",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    71.8,
+                    21.87,
+                    -23.97
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.27456236,
+                    1.27456236,
+                    1.27456236
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01b",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    70.42,
+                    21.87,
+                    -24.96
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.27456236,
+                    1.27456236,
+                    1.27456236
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01b_6951e87884be1c67.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01b (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    69.58,
+                    21.87,
+                    -23.4
+                  ],
+                  "rotation": [
+                    0.0,
+                    315.822144,
+                    0.0
+                  ],
+                  "scale": [
+                    1.27456,
+                    1.27456,
+                    1.27456
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01b_6951e87884be1c67.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    70.94,
+                    21.87,
+                    -22.62
+                  ],
+                  "rotation": [
+                    0.0,
+                    315.822144,
+                    0.0
+                  ],
+                  "scale": [
+                    1.27456,
+                    1.27456,
+                    1.27456
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    63.23,
+                    21.67,
+                    -58.77
+                  ],
+                  "rotation": [
+                    0.0,
+                    315.822144,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38927019,
+                    1.38927042,
+                    1.38927019
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01b (2)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    61.78,
+                    21.58,
+                    -58.359
+                  ],
+                  "rotation": [
+                    0.0,
+                    315.822144,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38927019,
+                    1.38927042,
+                    1.38927019
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01b_6951e87884be1c67.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01b (3)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    62.696,
+                    21.58,
+                    -60.059
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38927042,
+                    1.38927042,
+                    1.38927042
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01b_6951e87884be1c67.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (3)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    61.44,
+                    21.61,
+                    -59.91
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38927042,
+                    1.38927042,
+                    1.38927042
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (4)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    73.89,
+                    21.11,
+                    -51.329998
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38927,
+                    1.38927,
+                    1.38927
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01b (4)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    74.2299957,
+                    21.21,
+                    -49.779
+                  ],
+                  "rotation": [
+                    0.0,
+                    315.822144,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38926971,
+                    1.38927,
+                    1.38926971
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01b_6951e87884be1c67.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (5)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    75.68,
+                    21.3,
+                    -50.19
+                  ],
+                  "rotation": [
+                    0.0,
+                    315.822144,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38926971,
+                    1.38927,
+                    1.38926971
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (6)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    73.8547058,
+                    21.5,
+                    -43.19052
+                  ],
+                  "rotation": [
+                    0.0,
+                    195.617828,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38926971,
+                    1.38927,
+                    1.38926971
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01b (5)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    74.93939,
+                    21.4,
+                    -42.14413
+                  ],
+                  "rotation": [
+                    0.0,
+                    195.617828,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38926971,
+                    1.38927,
+                    1.38926971
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01b_6951e87884be1c67.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (7)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    73.77,
+                    21.31,
+                    -41.07
+                  ],
+                  "rotation": [
+                    0.0,
+                    239.795685,
+                    0.0
+                  ],
+                  "scale": [
+                    1.38927,
+                    1.38927,
+                    1.38927
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (8)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    77.01,
+                    21.5,
+                    -57.79
+                  ],
+                  "rotation": [
+                    0.0,
+                    157.190125,
+                    0.0
+                  ],
+                  "scale": [
+                    1.06959081,
+                    1.06959057,
+                    1.06959081
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01b (6)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    78.09469,
+                    21.53,
+                    -56.74361
+                  ],
+                  "rotation": [
+                    0.0,
+                    157.190125,
+                    0.0
+                  ],
+                  "scale": [
+                    1.06959081,
+                    1.06959057,
+                    1.06959081
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01b_6951e87884be1c67.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (9)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    78.18,
+                    21.66,
+                    -55.46
+                  ],
+                  "rotation": [
+                    0.0,
+                    136.653381,
+                    0.0
+                  ],
+                  "scale": [
+                    1.06959128,
+                    1.06959057,
+                    1.06959128
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01b (7)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    84.63,
+                    21.52,
+                    -54.529995
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.27456,
+                    1.27456,
+                    1.27456
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01b_6951e87884be1c67.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (10)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    85.15,
+                    21.77,
+                    -52.19
+                  ],
+                  "rotation": [
+                    0.0,
+                    315.822144,
+                    0.0
+                  ],
+                  "scale": [
+                    1.27455974,
+                    1.27456,
+                    1.27455974
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_grass_small_01a (11)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    86.01,
+                    21.754,
+                    -53.5399971
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.27456,
+                    1.27456,
+                    1.27456
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_grass_small_01a_8b8b44d6a2125801.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Flowers&Plants",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -68.96652,
+                -13.5385151,
+                36.6851578
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "children": [
+            {
+              "name": "rpgpp_lt_flower_03",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    67.156,
+                    21.46,
+                    -52.785
+                  ],
+                  "rotation": [
+                    0.0,
+                    4.90202,
+                    0.0
+                  ],
+                  "scale": [
+                    1.29751873,
+                    1.29751873,
+                    1.29751873
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_flower_03_0c33afc3f54864f7.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_flower_02",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    70.24,
+                    21.638,
+                    -27.59
+                  ],
+                  "rotation": [
+                    0.0,
+                    269.7669,
+                    0.0
+                  ],
+                  "scale": [
+                    1.21656859,
+                    1.21656835,
+                    1.21656835
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_flower_02_5000a67c3089fcc6.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_flower_01",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    63.707,
+                    21.74,
+                    -41.219
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.25494921,
+                    1.25494945,
+                    1.25494945
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_flower_01_2e53a8b17934acf9.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_flower_03 (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    67.24,
+                    21.45,
+                    -51.75
+                  ],
+                  "rotation": [
+                    0.0,
+                    118.230804,
+                    0.0
+                  ],
+                  "scale": [
+                    1.29751992,
+                    1.53859508,
+                    1.29751992
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_flower_03_0c33afc3f54864f7.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_flower_02 (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    70.8,
+                    21.465,
+                    -26.6
+                  ],
+                  "rotation": [
+                    0.0,
+                    40.86382,
+                    0.0
+                  ],
+                  "scale": [
+                    1.35950875,
+                    1.58579862,
+                    1.35950875
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_flower_02_5000a67c3089fcc6.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_plant_01",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    61.38,
+                    21.991,
+                    -48.72
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.30458188,
+                    1.30458176,
+                    1.30458176
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_plant_01_22f4155d6432e221.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_plant_02",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    74.407,
+                    21.52,
+                    -57.5
+                  ],
+                  "rotation": [
+                    359.335938,
+                    3.640285,
+                    9.491363
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_plant_02_9b273961f6d46c07.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_flower_02",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    84.45,
+                    21.538,
+                    -57.159996
+                  ],
+                  "rotation": [
+                    0.0,
+                    269.7669,
+                    0.0
+                  ],
+                  "scale": [
+                    1.21657026,
+                    1.21657,
+                    1.21657026
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_flower_02_5000a67c3089fcc6.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_flower_02 (1)",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    85.01,
+                    21.465,
+                    -56.17
+                  ],
+                  "rotation": [
+                    0.0,
+                    40.86382,
+                    0.0
+                  ],
+                  "scale": [
+                    1.35951,
+                    1.58579993,
+                    1.35951
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_flower_02_5000a67c3089fcc6.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Bushes",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -68.96652,
+                -13.5385151,
+                36.6851578
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "children": [
+            {
+              "name": "rpgpp_lt_bush_02",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    65.28,
+                    21.84,
+                    -38.14
+                  ],
+                  "rotation": [
+                    0.0,
+                    260.734253,
+                    0.0
+                  ],
+                  "scale": [
+                    0.7,
+                    0.7,
+                    0.7
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_bush_02_c62a54a8884968b4.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            },
+            {
+              "name": "rpgpp_lt_bush_01",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    83.613266,
+                    21.55,
+                    -36.55379
+                  ],
+                  "rotation": [
+                    0.0,
+                    267.442749,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                {
+                  "name": "RenderComp",
+                  "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_bush_01_673c31255749ceb2.obj",
+                  "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Props",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            68.96652,
+            13.5385151,
+            -36.6851578
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "rpgpp_lt_vase_02",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                18.1034775,
+                8.719484,
+                -28.41484
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_vase_02_b0608c7e701de41f.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_package_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                19.11348,
+                8.931484,
+                -28.4648438
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_package_01_64219e0d2739cd75.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_barrel_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                18.3534775,
+                8.661486,
+                -29.1348419
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_barrel_01_b5a7772cd4fac32a.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_trough_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                12.7434769,
+                8.631485,
+                -31.7548447
+              ],
+              "rotation": [
+                0.0,
+                21.2723026,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_trough_01_11e49c53a31072a8.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_bowl_metal_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                4.62747955,
+                8.829485,
+                -25.2848434
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                0.4560269,
+                0.456026852,
+                0.456026852
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_bowl_metal_01_05443e060163a963.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_jug_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                5.137474,
+                8.832485,
+                -25.4418411
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_jug_01_0ee0d7ce37915589.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_sack_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -3.46652222,
+                8.341484,
+                -14.1348419
+              ],
+              "rotation": [
+                358.0338,
+                322.250977,
+                5.33922844E-08
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_sack_01_6ade05217ee4feb1.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_bench_wood_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -13.3775215,
+                8.44648552,
+                -10.0688438
+              ],
+              "rotation": [
+                0.0,
+                260.940857,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_bench_wood_01_4bd06d858ec86441.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_log_wood_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -15.8565216,
+                8.701485,
+                -2.08484268
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_log_wood_01_2eba9d2b66e3eabd.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_rake_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -4.716522,
+                8.359486,
+                -16.9948425
+              ],
+              "rotation": [
+                0.0,
+                320.652,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_rake_01_cef9677b68d7fb5d.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_ladder_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.01,
+                8.02,
+                -29.4
+              ],
+              "rotation": [
+                0.0,
+                143.271576,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_ladder_01_ee08d2e6f7f72965.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_bird_house_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                9.153481,
+                8.001486,
+                -14.0448418
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_bird_house_01_7a2d3a4c7aa351ac.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_wagon_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -9.743877,
+                9.266949,
+                -1.63454819
+              ],
+              "rotation": [
+                358.167023,
+                296.059967,
+                355.7963
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_wagon_01_1a4fd0aea7e5a55a.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_sack_open_01 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -13.7565269,
+                8.111485,
+                -4.604843
+              ],
+              "rotation": [
+                0.0,
+                85.01029,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.326911,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_sack_open_01_71e2b9bb1c3c9ccd.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_bathtub_wood_01 (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -8.65,
+                8.81,
+                3.05
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_bathtub_wood_01_37cf526a3f0652cd.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_chair_01b (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                5.11,
+                7.9744854,
+                -26.86
+              ],
+              "rotation": [
+                0.0,
+                325.635132,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_chair_01b_f751899d8ff1dc87.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_chair_01a (1)",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                4.28,
+                7.70548439,
+                -26.59
+              ],
+              "rotation": [
+                0.0,
+                7.717454,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_chair_01a_fa0c3d921d1c311a.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_well_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                2.36,
+                7.879999,
+                -8.06
+              ],
+              "rotation": [
+                0.0,
+                98.87986,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_well_01_bd98f03ac4fb611f.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_chair_01b",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                5.86347961,
+                7.9744854,
+                -24.2248421
+              ],
+              "rotation": [
+                0.0,
+                143.700073,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_chair_01b_f751899d8ff1dc87.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_chair_01a",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                4.703476,
+                7.95148468,
+                -23.8848419
+              ],
+              "rotation": [
+                0.0,
+                185.782425,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_chair_01a_fa0c3d921d1c311a.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_table_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                4.9524765,
+                7.91748428,
+                -25.3928413
+              ],
+              "rotation": [
+                0.0,
+                351.702942,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_table_01_0a5b6d60c18dbfde.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_hanger_clothes_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -10.409996,
+                8.51,
+                3.449997
+              ],
+              "rotation": [
+                0.0,
+                66.15571,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_hanger_clothes_01_981f8ce68d295acc.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_bathtub_wood_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                3.61347961,
+                7.98148537,
+                -10.3563042
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_bathtub_wood_01_37cf526a3f0652cd.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_sack_open_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -13.8365211,
+                8.151485,
+                -3.78484344
+              ],
+              "rotation": [
+                0.0,
+                275.464722,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_sack_open_01_71e2b9bb1c3c9ccd.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_vase_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.593475342,
+                8.131485,
+                -30.1348419
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_vase_01_923bf2a8ccd37db7.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_box_wood_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.633476257,
+                8.601484,
+                -31.1548386
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_box_wood_01_7900aa176070e2a5.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_sack_open_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -8.606522,
+                8.07148552,
+                -19.3748436
+              ],
+              "rotation": [
+                0.0,
+                302.976074,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_sack_open_01_71e2b9bb1c3c9ccd.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_barrel_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -9.076523,
+                8.021484,
+                -20.1548424
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_barrel_01_b5a7772cd4fac32a.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        },
+        {
+          "name": "rpgpp_lt_log_wood_01",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                -9.88652,
+                8.69413948,
+                -18.6083221
+              ],
+              "rotation": [
+                0.0,
+                346.068237,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/rpgpp_lt_scene_1.0/meshes/rpgpp_lt_log_wood_01_2eba9d2b66e3eabd.obj",
+              "material": "scenes/rpgpp_lt_scene_1.0/materials/rpgpp_lt_mat_a_7d022b34c4fce5be.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GameObject",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            93.78328,
+            43.96647,
+            -59.4893456
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  ],
+  "config": {
+"ambientLightColorSky": [
+            0.44,
+            0.44,
+            0.54
+        ],
+        "ambientLightColorEquator": [
+            0.36,
+            0.36,
+            0.43
+        ],
+        "ambientLightColorGround": [
+            0.40,
+            0.40,
+            0.46
+        ]
+  }
+}

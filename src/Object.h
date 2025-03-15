@@ -41,7 +41,25 @@ public:
         return dynamic_cast<T*>(GetComp(compName));
     }
     std::vector<Comp*> GetComps();
-    Comp* AddComp(const std::string& compName);
+    template <typename T>
+    T* AddComp(const std::string& compName)
+    {
+        auto comp = GetComp<T>(compName);
+        if (comp)
+        {
+            return comp;
+        }
+
+        comp = dynamic_cast<T*>(GetConstructor(compName)());
+        if (!comp)
+        {
+            return nullptr;
+        }
+
+        comp->owner = this;
+        m_comps[compName] = comp;
+        return comp;
+    }
 
 private:
     std::unordered_map<std::string, Comp*> m_comps;

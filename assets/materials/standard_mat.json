@@ -1,7 +1,7 @@
 {
     "shader": "shaders/lit.glsl",
     "cullMode": "Back",
-    "_ShowTex": 0.0,
+    "_MainTex" : "built_in/texture/white.png",
     "_Albedo": [
         1,
         1,

@@ -281,7 +281,8 @@ void GameFramework::OnSetFrameBufferSize(GLFWwindow* window, const int width, co
 void GameFramework::InitGame()
 {
     m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
-    scene = Scene::LoadScene("scenes/test_scene.json");
+    scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
+    // scene = Scene::LoadScene("scenes/test_scene.json");
     INCREF(scene);
 
     m_controlPanelUi = std::make_unique<ControlPanelUi>();

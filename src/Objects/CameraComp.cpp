@@ -9,7 +9,10 @@
 #include "GameFramework.h"
 #include "TransformComp.h"
 
-std::vector<CameraComp*> CameraComp::s_cameras;
+using namespace std;
+using namespace glm;
+
+vector<CameraComp*> CameraComp::s_cameras;
 
 CameraComp::CameraComp()
 {
@@ -18,21 +21,32 @@ CameraComp::CameraComp()
 
 CameraComp::~CameraComp()
 {
-    s_cameras.erase(std::remove(s_cameras.begin(), s_cameras.end(), this), s_cameras.end());
+    s_cameras.erase(remove(s_cameras.begin(), s_cameras.end(), this), s_cameras.end());
+}
+
+void CameraComp::Awake()
+{
+    m_targetPosition = owner->transform->GetPosition();
+    m_targetRotation = owner->transform->GetEulerAngles();
 }
 
 void CameraComp::Update()
 {
     auto localToWorld = owner->transform->GetLocalToWorld();
-    glm::vec3 forward = localToWorld * glm::vec4(0, 0, -1.0f, 0.0f);
-    glm::vec3 right = localToWorld * glm::vec4(1.0f, 0, 0, 0.0f);
+    vec3 forward = localToWorld * vec4(0, 0, -1.0f, 0.0f);
+    vec3 right = localToWorld * vec4(1.0f, 0, 0, 0.0f);
 
-    float moveSpeed = 3;
-    float rotateSpeed = 80;
+    float moveSpeed = 6;
+    float rotateSpeed = 155;
     float damp = 0.07f;
 
     GameFramework* gameFramework = GameFramework::GetInstance();
     auto deltaTime = Time::GetInstance()->deltaTime;
+
+    if(gameFramework->KeyPressed(GLFW_KEY_LEFT_SHIFT))
+    {
+        moveSpeed *= 3;
+    }
 
     if(gameFramework->KeyPressed(GLFW_KEY_W))
     {
@@ -56,12 +70,12 @@ void CameraComp::Update()
     
     if(gameFramework->KeyPressed(GLFW_KEY_E))
     {
-        m_targetPosition += glm::vec3(0, 1.0f, 0) * deltaTime * moveSpeed;
+        m_targetPosition += vec3(0, 1.0f, 0) * deltaTime * moveSpeed;
     }
 
     if(gameFramework->KeyPressed(GLFW_KEY_Q))
     {
-        m_targetPosition += glm::vec3(0, -1.0f, 0) * deltaTime * moveSpeed;
+        m_targetPosition += vec3(0, -1.0f, 0) * deltaTime * moveSpeed;
     }
 
     owner->transform->SetPosition(lerp(owner->transform->GetPosition(), m_targetPosition, damp));
@@ -86,7 +100,7 @@ void CameraComp::Update()
         m_targetRotation.y += -deltaTime * rotateSpeed;
     }
 
-    auto r = normalize(lerp(owner->transform->GetRotation(), glm::quat(glm::radians(m_targetRotation)), damp));
+    auto r = slerp(owner->transform->GetRotation(), quat(radians(m_targetRotation)), damp);
     owner->transform->SetRotation(r);
 }
 
@@ -106,9 +120,6 @@ void CameraComp::LoadFromJson(const nlohmann::json& objJson)
     {
         farClip = objJson["farClip"].get<float>();
     }
-
-    m_targetPosition = owner->transform->GetPosition();
-    m_targetRotation = degrees(eulerAngles(owner->transform->GetRotation()));
 }
 
 CameraComp* CameraComp::GetMainCamera()

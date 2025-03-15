@@ -52,7 +52,7 @@ void MainLightShadowPass::Execute()
         lightDirection = -m_renderContext->mainLight->owner->transform->Forward();
     }
 
-    constexpr float range = 10;
+    constexpr float range = 50;
     float range2 = 50;
     auto distancePerTexel = range * 2 / static_cast<float>(m_renderContext->mainLightShadowSize);
     // 计算阴影矩阵

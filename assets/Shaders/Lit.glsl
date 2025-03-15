@@ -47,10 +47,7 @@ layout(location = 2) out vec4 FragColor2;
 void main()
 {
     vec3 albedo = _Albedo.rgb;
-    if(_ShowTex > 0.5)
-    {
-        albedo *= texture(_MainTex, texCoord).rgb;
-    }
+    albedo *= texture(_MainTex, texCoord).rgb;
 
     FragColor0 = WriteGBuffer0(albedo, PIXEL_TYPE_LIT);
     FragColor1 = WriteGBuffer1(normalize(normalWS));

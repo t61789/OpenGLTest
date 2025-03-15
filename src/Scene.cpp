@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "json.hpp"
 #include "Objects/LightComp.h"
+#include "Objects/RuntimeComp.h"
 #include "Objects/TransformComp.h"
 
 using namespace std;
@@ -92,9 +93,27 @@ Scene* Scene::LoadScene(const string& sceneJsonPath)
 
         result->sceneRoot = rootObj;
         INCREF_BY(rootObj, result);
+
+        result->sceneRoot->AddComp<RuntimeComp>("RuntimeComp");
     }
 
     RegisterResource(sceneJsonPath, result);
+
+    // 调用所有组件的Awake
+    function<void(Object*)> callAwake =[&callAwake](Object* obj)
+    {
+        for(auto comp : obj->GetComps())
+        {
+            comp->Awake();
+        }
+
+        for(auto child : obj->children)
+        {
+            callAwake(child);
+        }
+    };
+    callAwake(result->sceneRoot);
+    
     return result;
 }
 

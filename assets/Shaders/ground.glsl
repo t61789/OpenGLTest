@@ -67,7 +67,12 @@ float GetGridFactor(vec3 positionWS)
 
 void main()
 {
-    vec3 albedo = mix(_EdgeColor, _GroundColor, GetGridFactor(positionWS)).xyz;
+    float factor = GetGridFactor(positionWS);
+    vec3 albedo = mix(_EdgeColor, _GroundColor, factor).xyz;
+    if (factor > 0.5)
+    {
+        discard;
+    }
 
     FragColor0 = WriteGBuffer0(albedo, PIXEL_TYPE_LIT);
     FragColor1 = WriteGBuffer1(normalize(normalWS));

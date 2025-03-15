@@ -112,7 +112,7 @@ float SampleShadowMap(vec3 positionWS)
     
     float shadowDepth = texture(_MainLightShadowMapTex, shadowUV).r * 2 - 1;
     float objectDepth = positionShadowSpace.z;
-    float bias = 0.0005;
+    float bias = 0.005;
     // float bias = 0.05;
     // float bias = 0;
     // #ifdef FRAG_SHADER

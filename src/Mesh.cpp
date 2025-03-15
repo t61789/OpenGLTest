@@ -208,6 +208,7 @@ Mesh* Mesh::LoadFromFile(const std::string& modelPath)
     auto indicesCount = static_cast<uint32_t>(indicesContainer.size());
 
     auto bounds = Bounds((boundsMax + boundsMin) * 0.5f, (boundsMax - boundsMin) * 0.5f);
+    bounds.extents = max(bounds.extents, glm::vec3(0.01f));
 
     auto result = CreateMesh(
         bounds,
