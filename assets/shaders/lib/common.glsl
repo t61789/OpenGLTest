@@ -2,7 +2,7 @@
 #define PIXEL_TYPE_LIT 2.0
 
 #define PI 3.141592657
-#define SMALL 0.001
+#define SMALL 0.0001
 
 uniform mat4 _MVP;
 uniform mat4 _ITM;
@@ -111,7 +111,7 @@ float SampleShadowMap(vec3 positionWS)
     }
     
     float shadowDepth = texture(_MainLightShadowMapTex, shadowUV).r * 2 - 1;
-    float objectDepth = positionShadowSpace.z;
+    float objectDepth = clamp(positionShadowSpace.z, -1, 1);
     float bias = 0.005;
     // float bias = 0.05;
     // float bias = 0;

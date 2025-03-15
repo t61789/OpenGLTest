@@ -53,9 +53,9 @@
         {
           "name": "LightComp",
           "color": [
-            0.977941155,
-            0.965833664,
-            0.8269355
+            2.977941155,
+            2.965833664,
+            2.8269355
           ],
           "light_type": 0
         }
@@ -6263,20 +6263,20 @@
     }
   ],
   "config": {
-"ambientLightColorSky": [
-            0.44,
-            0.44,
-            0.54
-        ],
-        "ambientLightColorEquator": [
-            0.36,
-            0.36,
-            0.43
-        ],
-        "ambientLightColorGround": [
-            0.40,
-            0.40,
-            0.46
-        ]
+    "ambientLightColorSky": [
+      1.712,
+      1.727,
+      1.759
+    ],
+    "ambientLightColorEquator": [
+      1.712,
+      1.727,
+      1.759
+    ],
+    "ambientLightColorGround": [
+      1.712,
+      1.727,
+      1.759
+    ]
   }
 }

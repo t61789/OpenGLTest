@@ -136,7 +136,36 @@ vec3 Lit(vec3 normalWS, vec3 positionWS, Light light, float shadowAttenuation, v
     return kD * diffuse + specular + environmentReflection;
 }
 
-vec3 LitWithParallelLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float roughness, float metallic)
+vec3 Lit0(vec3 normalWS, vec3 viewDirWS, Light light, float mainLightShadowAttenuation, vec3 albedo, float roughness,  float metallic)
+{
+    light.color *= mainLightShadowAttenuation;
+
+    float a = roughness * roughness;
+    vec3 h = normalize(light.direction + viewDirWS);
+    float ndh = max(dot(normalWS, h), SMALL);
+    float vdh = max(dot(viewDirWS, h), SMALL);
+    float ndl = max(dot(normalWS, light.direction), SMALL);
+    float ndv = max(dot(normalWS, viewDirWS), SMALL);
+
+    float t0 = ndh * ndh * (a - 1) + 1;
+    float D = a / (PI * t0 * t0);
+
+    vec3 F0 = mix(vec3(0.04), albedo, metallic);
+    vec3 F = F0 + (1 - F0) * pow(max(1 - vdh, 0), 5);
+
+    float k = a * 0.5;
+    t0 = ndl / (ndl * (1 - k) + k);
+    float t1 = ndv / (ndv * (1 - k) + k);
+    float G = t0 * t1;
+
+    vec3 specular = D * F * G / max(4 * ndv * ndl, SMALL);
+
+    vec3 diffuse = albedo / PI * (1 - F) * (1 - metallic);
+
+    return (specular + diffuse) * light.color * ndl;
+}
+
+vec3 LitWithParallelLights(vec3 normalWS, vec3 positionWS, vec3 viewDirWS, vec3 albedo, float roughness, float metallic)
 {
     vec3 result = vec3(0);
     float mainLightShadowAttenuation = SampleShadowMap(positionWS);
@@ -144,40 +173,42 @@ vec3 LitWithParallelLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float ro
     {
         Light light = GetParallelLight(i);
         mainLightShadowAttenuation = i == 0 ? mainLightShadowAttenuation : 1;
-        result += Lit(normalWS, positionWS, light, mainLightShadowAttenuation, albedo, roughness, metallic);
+        result += Lit0(normalWS, viewDirWS, light, mainLightShadowAttenuation, albedo, roughness, metallic);
     }
 
     return result;
 }
 
-vec3 LitWithPointLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float roughness, float metallic)
+vec3 LitWithPointLights(vec3 normalWS, vec3 positionWS, vec3 viewDirWS, vec3 albedo, float roughness, float metallic)
 {
     vec3 result = vec3(0);
     for (int i = 0; i < _ParallelLightCount; i++)
     {
         Light light = GetPointLight(i, positionWS);
-        result += Lit(normalWS, positionWS, light, 1, albedo, roughness, metallic);
+        result += Lit0(normalWS, viewDirWS, light, 1, albedo, roughness, metallic);
     }
 
     return result;
 }
 
-vec3 LitWithIndirectLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float roughness, float metallic)
+vec3 LitWithIndirectLights(vec3 normalWS, vec3 viewDirWS, vec3 albedo, float roughness, float metallic)
 {
     Light light;
     light.color = CalcIndirectLighting(normalWS);   
     light.direction = normalWS;
 
-    return Lit(normalWS, positionWS, light, 1, albedo, roughness, metallic);
+    return Lit0(normalWS, viewDirWS, light, 1, albedo, roughness, metallic);
 }
 
 vec3 LitWithLights(vec3 normalWS, vec3 positionWS, vec3 albedo, float roughness, float metallic)
 {
+    vec3 viewDirWS = normalize(GetCameraPositionWS() - positionWS);
+
     vec3 result = vec3(0);
 
-    result += LitWithParallelLights(normalWS, positionWS, albedo, roughness, metallic);
-    result += LitWithPointLights(normalWS, positionWS, albedo, roughness, metallic);
-    result += LitWithIndirectLights(normalWS, positionWS, albedo, roughness, metallic);
+    result += LitWithParallelLights(normalWS, positionWS, viewDirWS, albedo, roughness, metallic);
+    result += LitWithPointLights(normalWS, positionWS, viewDirWS, albedo, roughness, metallic);
+    result += LitWithIndirectLights(normalWS, viewDirWS, albedo, roughness, metallic);
 
     return result;
 }

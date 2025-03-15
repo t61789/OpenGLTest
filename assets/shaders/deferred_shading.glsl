@@ -36,7 +36,7 @@ void main()
     vec3 finalColor;
     if(pixelType == PIXEL_TYPE_LIT)
     {
-        finalColor = LitWithLights(normalWS, positionWS, albedo, 1.0, 0.0);
+        finalColor = LitWithLights(normalWS, positionWS, albedo, 0.8, 0.0);
     }
     else
     {
