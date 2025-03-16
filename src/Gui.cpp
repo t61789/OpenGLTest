@@ -141,16 +141,16 @@ void Gui::DrawLogInfoPanel()
 
 void Gui::DrawConsolePanel()
 {
-    // ImGui::Begin("Console");
-    //
-    // drawConsoleEvent.Invoke();
-    //
+    ImGui::Begin("Console");
+    
+    drawConsoleEvent.Invoke();
+    
     // auto sky = SliderFloat3("GradientSky", IndirectLighting::s_gradientAmbientColor.sky, 0.0f, 1.0f, "%.2f");
     // auto equator = SliderFloat3("GradientEquator", IndirectLighting::s_gradientAmbientColor.equator, 0.0f, 1.0f, "%.2f");
     // auto ground = SliderFloat3("GradientGround", IndirectLighting::s_gradientAmbientColor.ground, 0.0f, 1.0f, "%.2f");
     // IndirectLighting::SetGradientAmbientColor(sky, equator, ground);
-    //
-    // // auto kawaseBlurIterations = ImGui::SliderInt("KawaseBlurIterations", &RenderPipeline::instance->kawaseBlurIterations, 1, 10);
-    //
-    // ImGui::End();
+    
+    // auto kawaseBlurIterations = ImGui::SliderInt("KawaseBlurIterations", &RenderPipeline::instance->kawaseBlurIterations, 1, 10);
+    
+    ImGui::End();
 }

@@ -44,6 +44,7 @@ void main()
     }
 
     FragColor = vec4(finalColor, 1);
+    // FragColor = vec4(texCoord, 0, 1);
 //    FragColor = vec4(albedo, 1);
 //    FragColor = vec4(mainLightShadowAttenuation);
 //    FragColor = vec4(mod(positionWS.xz, 1), 0, 1);

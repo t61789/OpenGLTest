@@ -14,6 +14,7 @@
 #include "RenderPass/DeferredShadingPass.h"
 #include "RenderPass/FinalBlitPass.h"
 #include "RenderPass/KawaseBlur.h"
+#include "RenderPass/DualKawaseBlur.h"
 #include "RenderPass/MainLightShadowPass.h"
 #include "RenderPass/PreparingPass.h"
 #include "RenderPass/RenderScenePass.h"
@@ -62,6 +63,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_passes.push_back(new RenderScenePass(m_renderContext.get()));
     m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
     // m_passes.push_back(new KawaseBlur());
+    m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));
     m_passes.push_back(new FinalBlitPass(m_renderContext.get()));
 }
 

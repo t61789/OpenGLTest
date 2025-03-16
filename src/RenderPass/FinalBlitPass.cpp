@@ -48,6 +48,6 @@ void FinalBlitPass::Execute()
 
 void FinalBlitPass::OnDrawConsoleGui()
 {
-    ImGui::SliderFloat("Min Lum Intensity", &m_minLuminance, 0.0f, 10.0f);
-    ImGui::SliderFloat("Max Lum Intensity", &m_maxLuminance, 0.0f, 10.0f);
+    // ImGui::SliderFloat("Min Lum Intensity", &m_minLuminance, 0.0f, 10.0f);
+    // ImGui::SliderFloat("Max Lum Intensity", &m_maxLuminance, 0.0f, 10.0f);
 }

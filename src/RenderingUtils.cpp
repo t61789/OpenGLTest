@@ -89,5 +89,5 @@ void RenderingUtils::Blit(RenderTexture* src, RenderTexture* dst, Material* mate
     RenderTarget::Get(dst, nullptr)->Use();
     quad->Use();
     blitMat->Use(quad);
-    glDrawElements(GL_TRIANGLES, static_cast<GLint>(quad->indicesCount), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, quad->indicesCount, GL_UNSIGNED_INT, nullptr);
 }

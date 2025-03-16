@@ -57,7 +57,7 @@ void DeferredShadingPass::UpdateRt()
             m_renderContext->screenWidth,
             m_renderContext->screenHeight,
             RGBAHdr,
-            Point,
+            Bilinear,
             Clamp,
             "_ShadingBufferTex");
         m_shadingRt = new RenderTexture(desc);
