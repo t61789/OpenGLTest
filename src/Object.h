@@ -15,6 +15,7 @@ class Object : public SharedObject
 {
 public:
     Object();
+    explicit Object(const std::string& name);
     ~Object() override;
     
     bool enabled = true;

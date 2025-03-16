@@ -90,7 +90,7 @@ void main()
     
     // color.rgb = AdjustLuminance(color.rgb);
     
-//    color.rgb = applyToneMapping(color.rgb);
+    color.rgb = applyToneMapping(color.rgb);
     
 //    color.rgb = applyLut(color.rgb);
 

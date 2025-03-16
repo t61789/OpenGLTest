@@ -2,6 +2,9 @@
 
 #include <cassert>
 
+#include "Object.h"
+#include "Utils.h"
+
 std::unordered_map<std::string, SharedObject*> SharedObject::m_resource;
 std::vector<SharedObject*> SharedObject::m_count;
 
@@ -24,6 +27,12 @@ void SharedObject::IncRef()
 
 void SharedObject::IncRef(const std::string& key)
 {
+    // auto obj = dynamic_cast<Object*>(this);
+    // if (obj && obj->name == std::string("GroundGrid"))
+    // {
+    //     Utils::LogInfo("asdasd");
+    // }
+    
     if (m_reference.find(key) == m_reference.end())
     {
         m_reference[key] = 1;
@@ -42,8 +51,18 @@ void SharedObject::DecRef()
 
 void SharedObject::DecRef(const std::string& key)
 {
+    // auto obj = dynamic_cast<Object*>(this);
+    // if (obj && obj->name == std::string("GroundGrid"))
+    // {
+    //     Utils::LogInfo("asdasd");
+    // }
+    
     auto it = m_reference.find(key);
-    assert(it != m_reference.end());
+    if (it == m_reference.end())
+    {
+        return;
+    }
+    assert(it != m_reference.end() && Utils::FormatString("DecRef时，key不存在，物体 %s，类型 %s, key %s", filePath.c_str(), typeid(*this).name(), key.c_str()).c_str());
     
     auto val = it->second - 1;
     if (val <= 0)

@@ -26,6 +26,12 @@ Object::Object()
     transform = AddComp<TransformComp>("TransformComp");
 }
 
+Object::Object(const std::string& name)
+{
+    this->name = name;
+    transform = AddComp<TransformComp>("TransformComp");
+}
+
 Object::~Object()
 {
     for (auto child : children)
