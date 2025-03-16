@@ -267,7 +267,7 @@ Material* Material::LoadFromFile(const std::string& path)
         }
     }
     
-    auto s = std::ifstream(Utils::GetRealAssetPath(path));
+    auto s = std::ifstream(Utils::GetAbsolutePath(path));
     nlohmann::json json;
     s >> json;
     s.close();

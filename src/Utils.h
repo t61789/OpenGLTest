@@ -51,9 +51,7 @@ public:
     static glm::vec4 ToVec4(const nlohmann::json& arr);
 
     static std::vector<std::string> ToDirectories(const std::string& path);
-    
-    static std::string GetRealAssetPath(const std::string& relativePath);
-    static std::string GetRealAssetPath(const std::string& relativePath, const std::string& curPath);
+    static std::string GetAbsolutePath(const std::string& relativePath);
     
     template<typename Base, typename T>
     static bool InstanceOf(const T* ptr)
@@ -128,4 +126,7 @@ public:
     static void DebugDrawCube(const Bounds& bounds, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
     static int ComputeRegionCode(float x, float y, float xmin, float ymin, float xmax, float ymax);
     static bool CohenSutherlandClip(float &x1, float &y1, float &x2, float &y2, float xmin, float ymin, float xmax, float ymax);
+
+    static nlohmann::json LoadJson(const std::string& assetPath);
+    static void MergeJson(nlohmann::json& json1, const nlohmann::json& json2);
 };

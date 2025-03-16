@@ -17,10 +17,13 @@ MCP
 支持设置世界空间的坐标
 用斜度处理阴影纹理
 雾效
-整理直接光和间接光
 修复tonemapping
 缓存shader所使用的参数
+处理unity到opengl的旋转问题
+处理sRGB问题
 
+- 场景json覆写
+- 整理直接光和间接光
 - 子物体的变换矩阵
 - Transform组件
 - 点光源

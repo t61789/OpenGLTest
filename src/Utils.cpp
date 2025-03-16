@@ -3,14 +3,16 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <filesystem>
+#include <fstream>
 
-#include "Bounds.h"
-#include "Bounds.h"
 #include "glm/glm.hpp"
 #include "imgui.h"
 #include "glad.h"
 
 #include "Bounds.h"
+
+namespace fs = std::filesystem;
 
 Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
 std::vector<std::string> Utils::s_logs;
@@ -67,54 +69,9 @@ std::vector<std::string> Utils::ToDirectories(const std::string& path)
     return directories;
 }
 
-std::string Utils::GetRealAssetPath(const std::string& relativePath)
+std::string Utils::GetAbsolutePath(const std::string& relativePath)
 {
-    return std::string("../assets/") + relativePath;
-}
-
-std::string Utils::GetRealAssetPath(const std::string& relativePath, const std::string& curPath)
-{
-    auto relativePathDirectories = ToDirectories(relativePath);
-    auto curPathDirectories = ToDirectories(curPath);
-
-    if(relativePathDirectories.empty() || curPathDirectories.empty())
-    {
-        return GetRealAssetPath(relativePath);
-    }
-
-    if(relativePathDirectories[0] != "." && relativePathDirectories[0] != "..")
-    {
-        return GetRealAssetPath(relativePath);
-    }
-
-    // 如果当前路径是文件，则把最后的文件名去掉
-    if(curPathDirectories[curPathDirectories.size() - 1] != "." &&
-        curPathDirectories[curPathDirectories.size() - 1].find(".") != std::string::npos)
-    {
-        curPathDirectories.pop_back();
-    }
-
-    for (const auto& dir : relativePathDirectories)
-    {
-        if(dir == "..")
-        {
-            if(curPathDirectories.empty())
-            {
-                return "pathError";
-            }
-            curPathDirectories.pop_back();
-        }
-        else if(dir == ".")
-        {
-            // do nothing
-        }
-        else
-        {
-            curPathDirectories.push_back(dir);
-        }
-    }
-
-    return GetRealAssetPath(JoinStrings(curPathDirectories, "/"));
+    return (fs::current_path() / relativePath).generic_string();
 }
 
 std::string Utils::GetCurrentTimeFormatted()
@@ -476,4 +433,33 @@ bool Utils::CohenSutherlandClip(float &x1, float &y1, float &x2, float &y2,
     }
 
     return accept;
+}
+
+nlohmann::json Utils::LoadJson(const std::string& assetPath)
+{
+    auto s = std::ifstream(GetAbsolutePath(assetPath));
+    nlohmann::json json;
+    s >> json;
+    s.close();
+
+    return json;
+}
+
+void Utils::MergeJson(nlohmann::json& json1, const nlohmann::json& json2)
+{
+    for (auto& it : json2.items())
+    {
+        auto key = it.key();
+        auto& value = it.value();
+        
+        if (!json1.contains(key) ||
+            value.type() != nlohmann::json::value_t::object ||
+            json1[key].type() != nlohmann::json::value_t::object)
+        {
+            json1[key] = value;
+            continue;
+        }
+
+        MergeJson(json1[key], value);
+    }
 }

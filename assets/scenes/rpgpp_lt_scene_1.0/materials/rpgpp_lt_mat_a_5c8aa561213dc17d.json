@@ -1,0 +1,10 @@
+{
+  "shader": "shaders/lit.glsl",
+  "_Albedo": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "_MainTex": "scenes/rpgpp_lt_scene_1.0/textures/rpgpp_lt_tex_a_2202cd8f3d1cd174.png"
+}

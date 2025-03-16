@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 #include "Utils.h"
 #include "json.hpp"
@@ -74,10 +75,16 @@ Scene* Scene::LoadScene(const string& sceneJsonPath)
     }
 
     auto result = new Scene();
-    auto s = ifstream(Utils::GetRealAssetPath(sceneJsonPath));
-    nlohmann::json json;
-    s >> json;
-    s.close();
+    nlohmann::json json = Utils::LoadJson(sceneJsonPath);
+
+    // 合并替换json
+    auto p = filesystem::path(sceneJsonPath);
+    auto coverSceneJsonPath = p.parent_path() / (p.stem().generic_string() + "_cover.json");
+    if (exists(coverSceneJsonPath))
+    {
+        nlohmann::json coverSceneJson = Utils::LoadJson(coverSceneJsonPath.generic_string());
+        Utils::MergeJson(json, coverSceneJson);
+    }
 
     if(json.contains("config"))
     {

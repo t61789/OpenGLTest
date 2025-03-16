@@ -43,7 +43,7 @@ Image* Image::LoadFromFile(const std::string& path, const ImageDescriptor& desc)
     stbi_uc* data;
     try
     {
-        data = stbi_load(Utils::GetRealAssetPath(path).c_str(), &width, &height, &nChannels, 0);
+        data = stbi_load(Utils::GetAbsolutePath(path).c_str(), &width, &height, &nChannels, 0);
         if(!data)
         {
             throw std::runtime_error("ERROR>> Failed to load texture: " + std::string(path));
@@ -109,7 +109,7 @@ Image* Image::LoadCubeFromFile(const std::string& dirPath, const std::string& ex
         for (int i = 0; i < std::size(faces); ++i)
         {
             auto path = dirPath + "/" + faces[i] + "." + expansionName;
-            auto data = stbi_load(Utils::GetRealAssetPath(path).c_str(), &width, &height, &nChannels, 0);
+            auto data = stbi_load(Utils::GetAbsolutePath(path).c_str(), &width, &height, &nChannels, 0);
             if(!data)
             {
                 stbi_image_free(data);

@@ -33,6 +33,8 @@ bool initGl()
     std::cout << "Max vertex attributes: " << maxVertexAttributes << "\n";
 
     glEnable(GL_DEPTH_TEST);
+    
+    // glEnable(GL_FRAMEBUFFER_SRGB);
 
     return true;
 }
@@ -169,7 +171,7 @@ bool GameFramework::InitImGui(GLFWwindow* glfwWindow)
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->Clear();
     // 加载中文字体（确保你的项目中有相应的字体文件）
-    io.Fonts->AddFontFromFileTTF(Utils::GetRealAssetPath("others/msyh.ttc").c_str(), 18.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+    io.Fonts->AddFontFromFileTTF(Utils::GetAbsolutePath("others/msyh.ttc").c_str(), 18.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
     // 重新创建字体纹理
     ImGui_ImplOpenGL3_CreateFontsTexture();
     
@@ -283,6 +285,7 @@ void GameFramework::InitGame()
     m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
     scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
     // scene = Scene::LoadScene("scenes/test_scene.json");
+    // scene = Scene::LoadScene("scenes/ImportTest/scene.json");
     INCREF(scene);
 
     m_controlPanelUi = std::make_unique<ControlPanelUi>();

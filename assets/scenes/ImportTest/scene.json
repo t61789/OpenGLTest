@@ -1,0 +1,161 @@
+{
+  "root": [
+    {
+      "name": "Main Camera",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            1.0,
+            10.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "CameraComp",
+          "fov": 91.49284,
+          "nearClip": 0.3,
+          "farClip": 1000.0
+        }
+      ]
+    },
+    {
+      "name": "rpgpp_lt_building_03",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            -19.18238,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "RenderComp",
+          "mesh": "scenes/ImportTest/meshes/rpgpp_lt_building_03_79b00ca6ac8496f6.obj",
+          "material": "scenes/ImportTest/materials/Default-Material_28e620823e0f65b6.json"
+        }
+      ]
+    },
+    {
+      "name": "Directional Light",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            3.0,
+            0.0
+          ],
+          "rotation": [
+            -50.00001,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "LightComp",
+          "color": [
+            3.0,
+            2.8705883,
+            2.517647
+          ],
+          "light_type": 0
+        }
+      ]
+    },
+    {
+      "name": "GameObject",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cube",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            20.0,
+            1.0,
+            20.0
+          ]
+        },
+        {
+          "name": "RenderComp",
+          "mesh": "scenes/ImportTest/meshes/Cube_d264f91f82a2c856.obj",
+          "material": "scenes/ImportTest/materials/Default-Material_28e620823e0f65b6.json"
+        }
+      ]
+    }
+  ],
+  "config": {
+    "ambientLightColorSky": [
+      0.636,
+      0.681,
+      0.777
+    ],
+    "ambientLightColorEquator": [
+      0.636,
+      0.681,
+      0.777
+    ],
+    "ambientLightColorGround": [
+      0.636,
+      0.681,
+      0.777
+    ]
+  }
+}

@@ -279,7 +279,7 @@ void Shader::ReplaceIncludes(const string& curFilePath, vector<string>& lines)
             continue;
         }
         hasInclude.insert(includePath);
-        auto includeLines = LoadFileToLines(Utils::GetRealAssetPath(includePath));
+        auto includeLines = LoadFileToLines(Utils::GetAbsolutePath(includePath));
         lines.insert(lines.begin() + i, includeLines.begin(), includeLines.end());
         i--;
     }
@@ -306,7 +306,7 @@ Shader* Shader::LoadFromFile(const string& glslPath)
     }
 
     string vSource, fSource;
-    vector<string> glslLines = LoadFileToLines(Utils::GetRealAssetPath(glslPath));
+    vector<string> glslLines = LoadFileToLines(Utils::GetAbsolutePath(glslPath));
     vector<string> vertLines;
     vector<string> fragLines;
 
