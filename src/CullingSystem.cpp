@@ -52,7 +52,7 @@ void CullingSystem::Cull()
     }
 }
 
-void CullingSystem::OnDrawConsoleGui()
+void CullingSystem::DrawConsoleUi()
 {
     // for (auto bounds : m_bounds)
     // {

@@ -1,5 +1,6 @@
 ﻿#include "PreparingPass.h"
 
+#include "Gui.h"
 #include "IndirectLighting.h"
 #include "RenderTarget.h"
 #include "Material.h"
@@ -45,9 +46,14 @@ void PreparingPass::Execute()
         m_renderContext->scene->ambientLightColorGround);
 }
 
-void PreparingPass::OnDrawConsoleGui()
+void PreparingPass::DrawConsoleUi()
 {
     if (!m_renderContext->scene)
+    {
+        return;
+    }
+
+    if (!ImGui::CollapsingHeader("Ambient Lights"))
     {
         return;
     }

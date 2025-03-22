@@ -2,19 +2,20 @@
 #include <vector>
 
 #include "Gui.h"
+#include "UI/ControlPanelUi.h"
 
 class RenderContext;
 class Bounds;
 class RenderComp;
 class Object;
 
-class CullingSystem : public IGui
+class CullingSystem : public ControlPanelUi::UiProxy
 {
 public:
     explicit CullingSystem(RenderContext* renderContext);
     void Cull();
 
-    void OnDrawConsoleGui() override;
+    void DrawConsoleUi() override;
 
 private:
     RenderContext* m_renderContext = nullptr;

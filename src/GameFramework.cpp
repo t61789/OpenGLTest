@@ -15,8 +15,6 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
-GameFramework* GameFramework::s_instance = nullptr;
-
 bool initGl()
 {
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -39,20 +37,8 @@ bool initGl()
     return true;
 }
 
-GameFramework* GameFramework::GetInstance()
-{
-    return s_instance;
-}
-
 GameFramework::GameFramework()
 {
-    if(s_instance != nullptr)
-    {
-        throw std::runtime_error("GameFramework instance already exists");
-    }
-    
-    s_instance = this;
-    
     m_setFrameBufferSizeCallBack = new std::function<void(GLFWwindow*, int, int)>
         ([this](GLFWwindow* window, const int width, const int height)
         {
@@ -67,8 +53,6 @@ GameFramework::~GameFramework()
     delete m_setFrameBufferSizeCallBack;
 
     ReleaseGame();
-
-    s_instance = nullptr;
 }
 
 bool GameFramework::Init()
@@ -188,7 +172,7 @@ void GameFramework::ProcessInput() const
 
 void GameFramework::FrameBegin()
 {
-    Gui::BeginFrame();
+    Gui::GetInstance()->BeginFrame();
 
     auto time = Time::GetInstance();
     time->frame += 1;
@@ -221,9 +205,7 @@ void UpdateObject(Object* obj)
 
 void GameFramework::BeforeUpdate()
 {
-    Gui::BeforeUpdate();
-
-    Gui::OnGui();
+    Gui::GetInstance()->BeforeUpdate();
 }
 
 void GameFramework::Update()
@@ -266,7 +248,7 @@ void GameFramework::Render() const
     }
     else
     {
-        Gui::Render();
+        Gui::GetInstance()->Render();
         std::cout << "未找到可用摄像机\n";
         Sleep(16);
     }
@@ -282,13 +264,12 @@ void GameFramework::OnSetFrameBufferSize(GLFWwindow* window, const int width, co
 
 void GameFramework::InitGame()
 {
+    m_gui = std::make_unique<Gui>();
     m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
     scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
     // scene = Scene::LoadScene("scenes/test_scene.json");
     // scene = Scene::LoadScene("scenes/ImportTest/scene.json");
     INCREF(scene);
-
-    m_controlPanelUi = std::make_unique<ControlPanelUi>();
 }
 
 void GameFramework::ReleaseGame()

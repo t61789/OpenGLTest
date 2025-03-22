@@ -3,15 +3,15 @@
 #include "functional"
 
 #include "RenderPipeline.h"
+#include "Utils.h"
 
 class ControlPanelUi;
 class Scene;
+class Gui;
 
-class GameFramework
+class GameFramework : public Singleton<GameFramework>
 {
 public:
-    static GameFramework* GetInstance();
-
     Scene* scene = nullptr;
     
     GameFramework();
@@ -23,12 +23,10 @@ public:
     bool KeyPressed(int glfwKey) const;
     
 private:
-    static GameFramework* s_instance;
-    
     GLFWwindow* m_window = nullptr;
     
+    std::unique_ptr<Gui> m_gui = nullptr;
     std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
-    std::unique_ptr<ControlPanelUi> m_controlPanelUi = nullptr;
 
     int m_screenWidth = 1270;
     int m_screenHeight = 800;

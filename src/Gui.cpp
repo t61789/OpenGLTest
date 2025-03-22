@@ -4,27 +4,12 @@
 
 #include "Utils.h"
 #include "RenderPipeline.h"
-#include "IndirectLighting.h"
+#include "UI/ControlPanelUi.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-
-Event<> Gui::drawGuiEvent;
-Event<> Gui::drawConsoleEvent;
-
-IGui::IGui()
+Gui::Gui()
 {
-    m_drawConsoleGuiCallBack = new std::function<void()>([this]{this->OnDrawConsoleGui();});
-    Gui::drawConsoleEvent.AddCallBack(m_drawConsoleGuiCallBack);
-    m_drawGuiCallBack = new std::function<void()>([this]{this->OnDrawGui();});
-    Gui::drawGuiEvent.AddCallBack(m_drawGuiCallBack);
-}
-
-IGui::~IGui()
-{
-    Gui::drawConsoleEvent.RemoveCallBack(m_drawConsoleGuiCallBack);
-    delete m_drawConsoleGuiCallBack;
-    Gui::drawGuiEvent.RemoveCallBack(m_drawGuiCallBack);
-    delete m_drawGuiCallBack;
+    m_controlPanelUi = std::make_unique<ControlPanelUi>();
 }
 
 void Gui::BeginFrame()
@@ -36,26 +21,18 @@ void Gui::BeginFrame()
 
 void Gui::BeforeUpdate()
 {
-    DrawApplicationPanel();
-}
-
-void Gui::OnGui()
-{
-    DrawCoordinateDirLine();
-
-    DrawConsolePanel();
     
-    drawGuiEvent.Invoke();
 }
 
 void Gui::AfterUpdate()
 {
-    
 }
 
 void Gui::Render()
 {
-    DrawLogInfoPanel();
+    DrawCoordinateDirLine();
+    
+    DrawConsolePanel();
     
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -106,48 +83,11 @@ glm::vec3 Gui::DragFloat3(const std::string& label, glm::vec3 input, float speed
     return result;
 }
 
-void Gui::DrawApplicationPanel()
-{
-    // ImGui::Begin("Application Info");
-    // auto deltaTime = Time::GetInstance()->deltaTime;
-    // ImGui::Text(std::string("FPS: " + Utils::ToString(1 / deltaTime, 2)).c_str());
-    // ImGui::End();
-}
-
-void Gui::DrawLogInfoPanel()
-{
-    ImGui::Begin("Console");
-
-    if (ImGui::CollapsingHeader("Application Info"))
-    {
-        auto deltaTime = Time::GetInstance()->deltaTime;
-        ImGui::Text(std::string("FPS: " + Utils::ToString(1 / deltaTime, 2)).c_str());
-    }
-    
-    drawGuiEvent.Invoke();
-    
-    if(ImGui::BeginChild("Log Info", ImVec2(0, 0), true))
-    {
-        for (const auto& msg : Utils::s_logs) {
-            ImGui::TextUnformatted(msg.c_str());
-        }
-        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
-            ImGui::SetScrollHereY(1.0f);
-        }
-    }
-    ImGui::EndChild();
-    ImGui::End();
-}
-
 void Gui::DrawConsolePanel()
 {
     ImGui::Begin("Console");
-    
-    drawConsoleEvent.Invoke();
-    
-    // IndirectLighting::SetGradientAmbientColor(sky, equator, ground);
-    
-    // auto kawaseBlurIterations = ImGui::SliderInt("KawaseBlurIterations", &RenderPipeline::instance->kawaseBlurIterations, 1, 10);
+
+    m_controlPanelUi->Draw();
     
     ImGui::End();
 }

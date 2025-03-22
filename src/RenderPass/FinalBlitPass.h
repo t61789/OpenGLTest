@@ -2,8 +2,9 @@
 #include "Image.h"
 #include "Gui.h"
 #include "RenderPass.h"
+#include "UI/ControlPanelUi.h"
 
-class FinalBlitPass : public RenderPass, public IGui
+class FinalBlitPass : public RenderPass, public ControlPanelUi::UiProxy
 {
 public:
     Material* finalBlitMat = nullptr;
@@ -14,7 +15,7 @@ public:
     
     std::string GetName() override;
     void Execute() override;
-    void OnDrawConsoleGui() override;
+    void DrawConsoleUi() override;
 
 private:
     float m_minLuminance = 0;

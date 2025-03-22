@@ -46,7 +46,7 @@ void FinalBlitPass::Execute()
     RenderingUtils::RenderMesh(*m_renderContext, quad, finalBlitMat, glm::mat4());
 }
 
-void FinalBlitPass::OnDrawConsoleGui()
+void FinalBlitPass::DrawConsoleUi()
 {
     // ImGui::SliderFloat("Min Lum Intensity", &m_minLuminance, 0.0f, 10.0f);
     // ImGui::SliderFloat("Max Lum Intensity", &m_maxLuminance, 0.0f, 10.0f);

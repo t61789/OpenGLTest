@@ -41,6 +41,34 @@ private:
     Time() = default;
 };
 
+template<typename T>
+class Singleton
+{
+public:
+    Singleton()
+    {
+        if (m_instance)
+        {
+            throw std::runtime_error("Singleton instance already exists!");
+        }
+
+        m_instance = static_cast<T*>(this);
+    }
+
+    ~Singleton()
+    {
+        m_instance = nullptr;
+    }
+    
+    static T* GetInstance()
+    {
+        return m_instance;
+    }
+    
+protected:
+    inline static T* m_instance = nullptr;
+};
+
 class Utils
 {
 public:

@@ -1,15 +1,15 @@
 ﻿#pragma once
-#include "Gui.h"
 #include "RenderPass.h"
+#include "UI/ControlPanelUi.h"
 
-class PreparingPass : public RenderPass, public IGui
+class PreparingPass : public RenderPass, public ControlPanelUi::UiProxy
 {
 public:
     PreparingPass(RenderContext* renderContext);
     std::string GetName() override;
     void Execute() override;
 
-    void OnDrawConsoleGui() override;
+    void DrawConsoleUi() override;
 
 private:
     void PrepareLightInfos();

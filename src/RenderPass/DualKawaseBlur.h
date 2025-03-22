@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "Gui.h"
 #include "RenderPass.h"
+#include "UI/ControlPanelUi.h"
 
-class DualKawaseBlur : public RenderPass, public IGui
+class DualKawaseBlur : public RenderPass, public ControlPanelUi::UiProxy
 {
 public:
     explicit DualKawaseBlur(RenderContext* renderContext);
@@ -11,12 +11,12 @@ public:
     
     std::string GetName() override;
     void Execute() override;
-    void OnDrawConsoleGui() override;
+    void DrawConsoleUi() override;
 
 private:
-    int m_maxIterations = 4;
-    int m_blurSize = 1;
-    float m_threshold = 0.7f;
+    int m_maxIterations = 5;
+    int m_blurSize = 3;
+    float m_threshold = 0.97f;
     
     Material* m_downsampleMat = nullptr;
     Material* m_upsampleMat = nullptr;

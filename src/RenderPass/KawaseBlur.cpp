@@ -19,18 +19,12 @@ KawaseBlur::KawaseBlur(RenderContext* renderContext) : RenderPass(renderContext)
 
     m_kawaseBlitMat = Material::CreateEmptyMaterial("shaders/kawase_blit.glsl");
     INCREF(m_kawaseBlitMat);
-
-    m_guiConsoleCallBack = new std::function<void()>([this]{this->OnGuiConsole();});
-    Gui::drawConsoleEvent.AddCallBack(m_guiConsoleCallBack);
 }
 
 KawaseBlur::~KawaseBlur()
 {
     DECREF(rt);
     DECREF(m_kawaseBlitMat);
-
-    Gui::drawConsoleEvent.RemoveCallBack(m_guiConsoleCallBack);
-    delete m_guiConsoleCallBack;
 }
 
 std::string KawaseBlur::GetName()
@@ -67,7 +61,7 @@ void KawaseBlur::Execute()
     }
 }
 
-void KawaseBlur::OnGuiConsole()
+void KawaseBlur::DrawConsoleUi()
 {
     ImGui::SliderInt("Kawase Blur Iterations", &m_iteration, 0, 16);
 }

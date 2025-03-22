@@ -63,7 +63,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_passes.push_back(new RenderScenePass(m_renderContext.get()));
     m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
     // m_passes.push_back(new KawaseBlur());
-    // m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));
+    m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));
     m_passes.push_back(new FinalBlitPass(m_renderContext.get()));
 }
 
@@ -168,7 +168,7 @@ bool RenderPipeline::UpdateRenderTargetsPass()
 
 void RenderPipeline::RenderUiPass()
 {
-    Gui::Render();
+    Gui::GetInstance()->Render();
 }
 
 void RenderPipeline::CategorizeObjects(RenderContext& renderContext)
