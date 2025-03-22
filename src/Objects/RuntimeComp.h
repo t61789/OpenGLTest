@@ -1,13 +1,16 @@
 ﻿#pragma once
 #include "Comp.h"
 
-class RuntimeComp : public Comp
+namespace op
 {
-public:
-    ~RuntimeComp() override;
+    class RuntimeComp : public Comp
+    {
+    public:
+        ~RuntimeComp() override;
     
-    void Awake() override;
+        void Awake() override;
 
-private:
-    Object* m_groundGrid = nullptr;
-};
+    private:
+        Object* m_groundGrid = nullptr;
+    };
+}

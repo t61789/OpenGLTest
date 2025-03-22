@@ -1,18 +1,21 @@
 ﻿#pragma once
 #include <json.hpp>
 
-class Object;
-
-class Comp
+namespace op
 {
-public:
-    Object* owner = nullptr;
+    class Object;
 
-    virtual ~Comp() = default;
+    class Comp
+    {
+    public:
+        Object* owner = nullptr;
 
-    virtual void Awake(){}
+        virtual ~Comp() = default;
 
-    virtual void Update(){}
+        virtual void Awake(){}
+
+        virtual void Update(){}
     
-    virtual void LoadFromJson(const nlohmann::json& objJson){}
-};
+        virtual void LoadFromJson(const nlohmann::json& objJson){}
+    };
+}

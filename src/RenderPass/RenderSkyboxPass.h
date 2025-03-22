@@ -1,19 +1,22 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class Mesh;
-class Image;
-
-class RenderSkyboxPass : public RenderPass
+namespace op
 {
-public:
-    RenderSkyboxPass(RenderContext* renderContext);
-    ~RenderSkyboxPass() override;
-    std::string GetName() override;
-    void Execute() override;
+    class Mesh;
+    class Image;
 
-private:
-    Image* m_skyboxCubeTexture = nullptr;
-    Mesh* m_sphereMesh = nullptr;
-    Material* m_skyboxMat = nullptr;
-};
+    class RenderSkyboxPass : public RenderPass
+    {
+    public:
+        RenderSkyboxPass(RenderContext* renderContext);
+        ~RenderSkyboxPass() override;
+        std::string GetName() override;
+        void Execute() override;
+
+    private:
+        Image* m_skyboxCubeTexture = nullptr;
+        Mesh* m_sphereMesh = nullptr;
+        Material* m_skyboxMat = nullptr;
+    };
+}

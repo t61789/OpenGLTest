@@ -1,18 +1,21 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class MainLightShadowPass : public RenderPass
+namespace op
 {
-public:
-    Material* m_drawShadowMat = nullptr;
+    class MainLightShadowPass : public RenderPass
+    {
+    public:
+        Material* m_drawShadowMat = nullptr;
 
-    explicit MainLightShadowPass(RenderContext* renderContext);
-    ~MainLightShadowPass() override;
-    std::string GetName() override;
-    void Execute() override;
+        explicit MainLightShadowPass(RenderContext* renderContext);
+        ~MainLightShadowPass() override;
+        std::string GetName() override;
+        void Execute() override;
 
-private:
-    void UpdateRt();
+    private:
+        void UpdateRt();
     
-    RenderTexture* m_mainLightShadowRt = nullptr;
-};
+        RenderTexture* m_mainLightShadowRt = nullptr;
+    };
+}

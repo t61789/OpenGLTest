@@ -4,20 +4,23 @@
 #include "RenderPass.h"
 #include "UI/ControlPanelUi.h"
 
-class FinalBlitPass : public RenderPass, public ControlPanelUi::UiProxy
+namespace op
 {
-public:
-    Material* finalBlitMat = nullptr;
-    Image* lutTexture = nullptr; 
+    class FinalBlitPass : public RenderPass, public ControlPanelUi::UiProxy
+    {
+    public:
+        Material* finalBlitMat = nullptr;
+        Image* lutTexture = nullptr; 
     
-    FinalBlitPass(RenderContext* renderContext);
-    ~FinalBlitPass() override;
+        FinalBlitPass(RenderContext* renderContext);
+        ~FinalBlitPass() override;
     
-    std::string GetName() override;
-    void Execute() override;
-    void DrawConsoleUi() override;
+        std::string GetName() override;
+        void Execute() override;
+        void DrawConsoleUi() override;
 
-private:
-    float m_minLuminance = 0;
-    float m_maxLuminance = 1;
-};
+    private:
+        float m_minLuminance = 0;
+        float m_maxLuminance = 1;
+    };
+}

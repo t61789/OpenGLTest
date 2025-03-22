@@ -4,57 +4,60 @@
 #include <vector>
 
 #include "glm/glm.hpp"
+#include "glfw3.h"
 #include "Objects/RenderComp.h"
 
-class Object;
-class CameraComp;
-class Scene;
-class CullModeMgr;
-class RenderTargetDesc;
-class RenderContext;
-class CullingSystem;
-class RenderTexture;
-class RenderPass;
-struct GLFWwindow;
-
-class RenderPipeline
+namespace op
 {
-public:
-    static RenderPipeline* instance;
+    class Object;
+    class CameraComp;
+    class Scene;
+    class CullModeMgr;
+    class RenderTargetDesc;
+    class RenderContext;
+    class CullingSystem;
+    class RenderTexture;
+    class RenderPass;
 
-    int mainLightShadowTexSize = 4096;
+    class RenderPipeline
+    {
+    public:
+        static RenderPipeline* instance;
 
-    RenderPipeline(int width, int height, GLFWwindow* window);
-    ~RenderPipeline();
-    void SetScreenSize(int width, int height);
-    void Render(const CameraComp* camera, Scene* scene);
-    void GetViewProjMatrix(glm::mat4& view, glm::mat4& proj);
-    void GetScreenSize(int& width, int& height);
+        int mainLightShadowTexSize = 4096;
 
-private:
-    int m_screenWidth;
-    int m_screenHeight;
+        RenderPipeline(int width, int height, GLFWwindow* window);
+        ~RenderPipeline();
+        void SetScreenSize(int width, int height);
+        void Render(const CameraComp* camera, Scene* scene);
+        void GetViewProjMatrix(glm::mat4& view, glm::mat4& proj);
+        void GetScreenSize(int& width, int& height);
 
-    GLFWwindow* m_window = nullptr;
-    std::unique_ptr<CullModeMgr> m_cullModeMgr = nullptr;
-    std::unique_ptr<RenderTargetDesc> m_gBufferDesc = nullptr;
-    std::unique_ptr<RenderContext> m_renderContext = nullptr;
-    std::unique_ptr<CullingSystem> m_cullingSystem = nullptr;
+    private:
+        int m_screenWidth;
+        int m_screenHeight;
 
-    Scene* m_preDrawnScene = nullptr;
-    std::unique_ptr<std::vector<Object*>> m_renderObjs = nullptr;
+        GLFWwindow* m_window = nullptr;
+        std::unique_ptr<CullModeMgr> m_cullModeMgr = nullptr;
+        std::unique_ptr<RenderTargetDesc> m_gBufferDesc = nullptr;
+        std::unique_ptr<RenderContext> m_renderContext = nullptr;
+        std::unique_ptr<CullingSystem> m_cullingSystem = nullptr;
 
-    RenderTexture* m_gBuffer0Tex = nullptr;
-    RenderTexture* m_gBuffer1Tex = nullptr;
-    RenderTexture* m_gBuffer2Tex = nullptr;
-    RenderTexture* m_gBufferDepthTex = nullptr;
+        Scene* m_preDrawnScene = nullptr;
+        std::unique_ptr<std::vector<Object*>> m_renderObjs = nullptr;
 
-    std::vector<RenderPass*> m_passes;
-    
-    void FirstDrawScene(const Scene* scene);
-    void PrepareRenderContext(Scene* scene);
-    bool UpdateRenderTargetsPass();
-    void RenderUiPass();
-    
-    static void CategorizeObjects(RenderContext& renderContext);
-};
+        RenderTexture* m_gBuffer0Tex = nullptr;
+        RenderTexture* m_gBuffer1Tex = nullptr;
+        RenderTexture* m_gBuffer2Tex = nullptr;
+        RenderTexture* m_gBufferDepthTex = nullptr;
+
+        std::vector<RenderPass*> m_passes;
+        
+        void FirstDrawScene(const Scene* scene);
+        void PrepareRenderContext(Scene* scene);
+        bool UpdateRenderTargetsPass();
+        void RenderUiPass();
+        
+        static void CategorizeObjects(RenderContext& renderContext);
+    };
+}

@@ -1,10 +1,13 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class RenderScenePass : public RenderPass
+namespace op
 {
-public:
-    explicit RenderScenePass(RenderContext* renderContext);
-    std::string GetName() override;
-    void Execute() override;
-};
+    class RenderScenePass : public RenderPass
+    {
+    public:
+        explicit RenderScenePass(RenderContext* renderContext);
+        std::string GetName() override;
+        void Execute() override;
+    };
+}

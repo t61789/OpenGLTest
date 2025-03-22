@@ -2,67 +2,69 @@
 
 #include <unordered_map>
 
-#include "glad.h"
 #include "Utils.h"
 
-std::unordered_map<std::string, CullMode> cullModeTable =
+namespace op
 {
-    {"None", None},
-    {"Front", Front},
-    {"Back", Back},
-    {"FrontAndBack", FrontAndBack}
-};
-
-CullModeMgr::CullModeMgr()
-{
-    glDisable(GL_CULL_FACE);
-}
-
-CullModeMgr::~CullModeMgr()
-{
-    glDisable(GL_CULL_FACE);
-}
-
-void CullModeMgr::SetCullMode(const CullMode cullMode)
-{
-    if (curMode == cullMode)
+    std::unordered_map<std::string, CullMode> cullModeTable =
     {
-        return;
-    }
+        {"None", None},
+        {"Front", Front},
+        {"Back", Back},
+        {"FrontAndBack", FrontAndBack}
+    };
 
-    if (curMode == None && cullMode != None)
-    {
-        glEnable(GL_CULL_FACE);
-    }
-    else if (curMode != None && cullMode == None)
+    CullModeMgr::CullModeMgr()
     {
         glDisable(GL_CULL_FACE);
     }
 
-    if (cullMode == Front)
+    CullModeMgr::~CullModeMgr()
     {
-        glCullFace(GL_FRONT);
-    }
-    else if (cullMode == Back)
-    {
-        glCullFace(GL_BACK);
-    }
-    else if (cullMode == FrontAndBack)
-    {
-        glCullFace(GL_FRONT_AND_BACK);
+        glDisable(GL_CULL_FACE);
     }
 
-    curMode = cullMode;
-}
-
-CullMode CullModeMgr::FromStr(const std::string& str)
-{
-    auto it = cullModeTable.find(str);
-    if (it == cullModeTable.end())
+    void CullModeMgr::SetCullMode(const CullMode cullMode)
     {
-        Utils::LogWarning("未找到CullMode：" + str + " 重置成None");
-        return None;
+        if (curMode == cullMode)
+        {
+            return;
+        }
+
+        if (curMode == None && cullMode != None)
+        {
+            glEnable(GL_CULL_FACE);
+        }
+        else if (curMode != None && cullMode == None)
+        {
+            glDisable(GL_CULL_FACE);
+        }
+
+        if (cullMode == Front)
+        {
+            glCullFace(GL_FRONT);
+        }
+        else if (cullMode == Back)
+        {
+            glCullFace(GL_BACK);
+        }
+        else if (cullMode == FrontAndBack)
+        {
+            glCullFace(GL_FRONT_AND_BACK);
+        }
+
+        curMode = cullMode;
     }
 
-    return it->second;
+    CullMode CullModeMgr::FromStr(const std::string& str)
+    {
+        auto it = cullModeTable.find(str);
+        if (it == cullModeTable.end())
+        {
+            Utils::LogWarning("未找到CullMode：" + str + " 重置成None");
+            return None;
+        }
+
+        return it->second;
+    }
 }

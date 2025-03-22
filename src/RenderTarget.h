@@ -8,82 +8,85 @@
 #include "glad.h"
 #include "glm/glm.hpp"
 
-class RenderTexture;
-
-class RenderTargetAttachment
+namespace op
 {
-public:
-    GLuint attachmentType;
-    RenderTexture* renderTexture;
+    class RenderTexture;
 
-    bool Equals(const RenderTargetAttachment* other);
+    class RenderTargetAttachment
+    {
+    public:
+        GLuint attachmentType;
+        RenderTexture* renderTexture;
 
-    RenderTargetAttachment(GLuint attachmentType, RenderTexture* renderTexture);
-};
+        bool Equals(const RenderTargetAttachment* other);
 
-class RenderTargetDesc
-{
-public:
-    std::string name;
-    
-    RenderTargetDesc() = default;
-    RenderTargetDesc(const RenderTargetDesc&) = default;
-    RenderTargetDesc& operator=(const RenderTargetDesc&) = default;
-    ~RenderTargetDesc();
-    
-    void SetColorAttachment(RenderTexture* rt);
-    void SetColorAttachment(int index, RenderTexture* rt);
-    void SetDepthAttachment(RenderTexture* rt, bool hasStencil = false);
+        RenderTargetAttachment(GLuint attachmentType, RenderTexture* renderTexture);
+    };
 
-    std::vector<RenderTargetAttachment*> colorAttachments;
-    RenderTargetAttachment* depthAttachment = nullptr;
-};
+    class RenderTargetDesc
+    {
+    public:
+        std::string name;
+        
+        RenderTargetDesc() = default;
+        RenderTargetDesc(const RenderTargetDesc&) = default;
+        RenderTargetDesc& operator=(const RenderTargetDesc&) = default;
+        ~RenderTargetDesc();
+        
+        void SetColorAttachment(RenderTexture* rt);
+        void SetColorAttachment(int index, RenderTexture* rt);
+        void SetDepthAttachment(RenderTexture* rt, bool hasStencil = false);
 
-class RenderTarget
-{
-public:
-    std::string name;
-    
-    GLuint frameBufferId;
+        std::vector<RenderTargetAttachment*> colorAttachments;
+        RenderTargetAttachment* depthAttachment = nullptr;
+    };
 
-    int width;
-    int height;
+    class RenderTarget
+    {
+    public:
+        std::string name;
+        
+        GLuint frameBufferId;
 
-    void Use();
-    void Clear(float depth);
-    void Clear(glm::vec4 color);
-    void Clear(glm::vec4 color, float depth);
-    void Clear(const std::vector<glm::vec4>& colors);
-    void Clear(const std::vector<glm::vec4>& colors, float depth);
-    void RebindAttachments();
+        int width;
+        int height;
 
-    static RenderTarget* Get(RenderTexture* colorAttachment, RenderTexture* depthAttachment, bool hasStencil = false);
-    static RenderTarget* Get(const RenderTargetDesc& desc);
-    static void UseScreenTarget();
-    static void ClearFrameBuffer(GLuint frameBuffer, glm::vec4 clearColor, GLuint clearBits);
-    static void ClearAllCache();
+        void Use();
+        void Clear(float depth);
+        void Clear(glm::vec4 color);
+        void Clear(glm::vec4 color, float depth);
+        void Clear(const std::vector<glm::vec4>& colors);
+        void Clear(const std::vector<glm::vec4>& colors, float depth);
+        void RebindAttachments();
 
-private:
-    int m_lastUseFrame = 0;
-    bool m_dirty = true;
+        static RenderTarget* Get(RenderTexture* colorAttachment, RenderTexture* depthAttachment, bool hasStencil = false);
+        static RenderTarget* Get(const RenderTargetDesc& desc);
+        static void UseScreenTarget();
+        static void ClearFrameBuffer(GLuint frameBuffer, glm::vec4 clearColor, GLuint clearBits);
+        static void ClearAllCache();
 
-    std::unique_ptr<std::function<void()>> m_resizeCallback = nullptr;
+    private:
+        int m_lastUseFrame = 0;
+        bool m_dirty = true;
 
-    std::vector<RenderTargetAttachment*> m_colorAttachments;
-    RenderTargetAttachment* m_depthAttachment = nullptr;
+        std::unique_ptr<std::function<void()>> m_resizeCallback = nullptr;
 
-    RenderTarget(const RenderTargetDesc& desc);
-    ~RenderTarget();
-    
-    void Clear(const std::vector<glm::vec4>& colors, float depth, int clearType);
-    void LoadAttachments(const RenderTargetDesc& desc);
-    void ReleaseAttachments();
-    bool AttachmentsMatched(const RenderTargetDesc& desc);
+        std::vector<RenderTargetAttachment*> m_colorAttachments;
+        RenderTargetAttachment* m_depthAttachment = nullptr;
 
-    static void CheckRenderTargetComplete();
+        RenderTarget(const RenderTargetDesc& desc);
+        ~RenderTarget();
+        
+        void Clear(const std::vector<glm::vec4>& colors, float depth, int clearType);
+        void LoadAttachments(const RenderTargetDesc& desc);
+        void ReleaseAttachments();
+        bool AttachmentsMatched(const RenderTargetDesc& desc);
 
-    static std::vector<RenderTarget*> m_renderTargetsPool;
-    static int m_lastClearFrame;
-    static int m_renderTargetTimeout;
-    static void ClearUnusedRenderTargets();
-};
+        static void CheckRenderTargetComplete();
+
+        static std::vector<RenderTarget*> m_renderTargetsPool;
+        static int m_lastClearFrame;
+        static int m_renderTargetTimeout;
+        static void ClearUnusedRenderTargets();
+    };
+}

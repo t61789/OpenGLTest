@@ -1,38 +1,41 @@
 #pragma once
 #include "TimeOutBuffer.h"
 
-class Object;
-
-class ControlPanelUi : public Singleton<ControlPanelUi>
+namespace op
 {
-public:
-    class UiProxy
+    class Object;
+
+    class ControlPanelUi : public Singleton<ControlPanelUi>
     {
     public:
-        explicit UiProxy();
-        virtual ~UiProxy();
+        class UiProxy
+        {
+        public:
+            explicit UiProxy();
+            virtual ~UiProxy();
 
-        virtual void DrawConsoleUi() = 0;
+            virtual void DrawConsoleUi() = 0;
+
+        private:
+            std::function<void()>* m_drawConsoleUiCallBack = nullptr;
+        };
+    
+        ~ControlPanelUi();
+    
+        void Draw();
 
     private:
-        std::function<void()>* m_drawConsoleUiCallBack = nullptr;
+        TimeOutBuffer<std::string, bool> m_foldout = TimeOutBuffer<std::string, bool>(true);
+
+        static float s_intent;
+        Object* m_selected = nullptr;
+
+        Event<> m_drawConsoleUiEvent;
+
+        void DrawSceneInfo();
+        void DrawHierarchy(Object* obj);
+        void DrawProperties(const Object* obj);
+        void DrawApplicationInfo();
+        void DrawLogInfo();
     };
-    
-    ~ControlPanelUi();
-    
-    void Draw();
-
-private:
-    TimeOutBuffer<std::string, bool> m_foldout = TimeOutBuffer<std::string, bool>(true);
-
-    static float s_intent;
-    Object* m_selected = nullptr;
-
-    Event<> m_drawConsoleUiEvent;
-
-    void DrawSceneInfo();
-    void DrawHierarchy(Object* obj);
-    void DrawProperties(const Object* obj);
-    void DrawApplicationInfo();
-    void DrawLogInfo();
-};
+}

@@ -2,15 +2,18 @@
 #include "RenderPass.h"
 #include "UI/ControlPanelUi.h"
 
-class PreparingPass : public RenderPass, public ControlPanelUi::UiProxy
+namespace op
 {
-public:
-    PreparingPass(RenderContext* renderContext);
-    std::string GetName() override;
-    void Execute() override;
+    class PreparingPass : public RenderPass, public ControlPanelUi::UiProxy
+    {
+    public:
+        PreparingPass(RenderContext* renderContext);
+        std::string GetName() override;
+        void Execute() override;
 
-    void DrawConsoleUi() override;
+        void DrawConsoleUi() override;
 
-private:
-    void PrepareLightInfos();
-};
+    private:
+        void PrepareLightInfos();
+    };
+}

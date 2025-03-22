@@ -5,18 +5,21 @@
 #include "Bounds.h"
 #include "Comp.h"
 
-class Mesh;
-class Material;
-
-class RenderComp : public Comp
+namespace op
 {
-public:
-    Mesh* mesh = nullptr;
-    Material* material = nullptr;
-    
-    Bounds bounds;
+    class Mesh;
+    class Material;
 
-    ~RenderComp() override;
+    class RenderComp : public Comp
+    {
+    public:
+        Mesh* mesh = nullptr;
+        Material* material = nullptr;
     
-    void LoadFromJson(const nlohmann::json& objJson) override;
-};
+        Bounds bounds;
+
+        ~RenderComp() override;
+    
+        void LoadFromJson(const nlohmann::json& objJson) override;
+    };
+}

@@ -7,54 +7,57 @@
 
 #include "CullMode.h"
 
-class Material;
-class RenderTargetDesc;
-class RenderTexture;
-class Scene;
-class Object;
-class CameraComp;
-class RenderComp;
-class LightComp;
-
-class RenderContext
+namespace op
 {
-public:
-    int screenWidth = 0;
-    int screenHeight = 0;
+    class Material;
+    class RenderTargetDesc;
+    class RenderTexture;
+    class Scene;
+    class Object;
+    class CameraComp;
+    class RenderComp;
+    class LightComp;
 
-    int mainLightShadowSize = 0;
-    
-    glm::mat4 vMatrix;
-    glm::mat4 pMatrix;
-    glm::mat4 vpMatrix;
-    glm::vec3 cameraPositionWS;
-    Material* replaceMaterial = nullptr;
+    class RenderContext
+    {
+    public:
+        int screenWidth = 0;
+        int screenHeight = 0;
 
-    LightComp* mainLight = nullptr;
+        int mainLightShadowSize = 0;
+        
+        glm::mat4 vMatrix;
+        glm::mat4 pMatrix;
+        glm::mat4 vpMatrix;
+        glm::vec3 cameraPositionWS;
+        Material* replaceMaterial = nullptr;
 
-    RenderTargetDesc* gBufferDesc = nullptr;
-    
-    CameraComp* camera = nullptr;
-    Scene* scene = nullptr;
-    CullModeMgr* cullModeMgr = nullptr;
+        LightComp* mainLight = nullptr;
 
-    std::vector<Object*> allSceneObjs;
-    
-    std::vector<LightComp*> lights;
-    std::vector<CameraComp*> cameras;
-    std::vector<RenderComp*> allRenderObjs;
-    std::vector<RenderComp*> visibleRenderObjs;
+        RenderTargetDesc* gBufferDesc = nullptr;
+        
+        CameraComp* camera = nullptr;
+        Scene* scene = nullptr;
+        CullModeMgr* cullModeMgr = nullptr;
 
-    ~RenderContext();
+        std::vector<Object*> allSceneObjs;
+        
+        std::vector<LightComp*> lights;
+        std::vector<CameraComp*> cameras;
+        std::vector<RenderComp*> allRenderObjs;
+        std::vector<RenderComp*> visibleRenderObjs;
 
-    void SetViewProjMatrix(const CameraComp* cam);
-    void SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
+        ~RenderContext();
 
-    void RegisterRt(RenderTexture* rt);
-    void UnRegisterRt(const RenderTexture* rt);
-    RenderTexture* GetRt(const std::string& name);
+        void SetViewProjMatrix(const CameraComp* cam);
+        void SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
 
-private:
-    std::unordered_map<std::string, RenderTexture*> m_rts;
-};
+        void RegisterRt(RenderTexture* rt);
+        void UnRegisterRt(const RenderTexture* rt);
+        RenderTexture* GetRt(const std::string& name);
+
+    private:
+        std::unordered_map<std::string, RenderTexture*> m_rts;
+    };
+}
 

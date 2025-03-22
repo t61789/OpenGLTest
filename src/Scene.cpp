@@ -10,144 +10,147 @@
 #include "Objects/RuntimeComp.h"
 #include "Objects/TransformComp.h"
 
-using namespace std;
-
-Scene::Scene()
+namespace op
 {
-    m_objectChildAddedCallback = CreateCallback(this, &Scene::OnObjectChildAdded);
-}
+    using namespace std;
 
-Scene::~Scene()
-{
-    if (sceneRoot)
+    Scene::Scene()
     {
-        DECREF(sceneRoot);
+        m_objectChildAddedCallback = CreateCallback(this, &Scene::OnObjectChildAdded);
     }
 
-    delete m_objectChildAddedCallback;
-}
-
-void Scene::LoadChildren(Object* parent, const nlohmann::json& children)
-{
-    for(auto elem : children)
+    Scene::~Scene()
     {
-        auto obj = new Object();
-        obj->LoadFromJson(elem);
+        if (sceneRoot)
+        {
+            DECREF(sceneRoot);
+        }
+
+        delete m_objectChildAddedCallback;
+    }
+
+    void Scene::LoadChildren(Object* parent, const nlohmann::json& children)
+    {
+        for(auto elem : children)
+        {
+            auto obj = new Object();
+            obj->LoadFromJson(elem);
+            
+            if(elem.contains("children"))
+            {
+                LoadChildren(obj, elem["children"]);
+            }
+            
+            parent->AddChild(obj);
+        }
+    }
+
+    void Scene::GetAllObjects(vector<Object*>& result)
+    {
+        result.clear();
+        function<void(Object*)> fuc = [&](Object* obj)
+        {
+            if (!obj)
+            {
+                return;
+            }
+
+            result.push_back(obj);
+
+            for(auto child : obj->children)
+            {
+                fuc(child);
+            }
+        };
+
+        fuc(sceneRoot);
+    }
+
+    Scene* Scene::LoadScene(const string& sceneJsonPath)
+    {
+        {
+            SharedObject* result;
+            if(TryGetResource(sceneJsonPath, result))
+            {
+                return dynamic_cast<Scene*>(result);
+            }
+        }
+
+        auto result = new Scene();
+        nlohmann::json json = Utils::LoadJson(sceneJsonPath);
+
+        // 合并替换json
+        auto p = filesystem::path(sceneJsonPath);
+        auto coverSceneJsonPath = p.parent_path() / (p.stem().generic_string() + "_cover.json");
+        if (exists(coverSceneJsonPath))
+        {
+            nlohmann::json coverSceneJson = Utils::LoadJson(coverSceneJsonPath.generic_string());
+            Utils::MergeJson(json, coverSceneJson);
+        }
+
+        if(json.contains("config"))
+        {
+            result->LoadSceneConfig(json["config"]);
+        }
+
+        if(json.contains("root"))
+        {
+            auto rootObj = new Object();
+            rootObj->name = "Scene Root";
+            
+            LoadChildren(rootObj, json["root"]);
+
+            result->sceneRoot = rootObj;
+            INCREF_BY(rootObj, result);
+
+            result->sceneRoot->AddComp<RuntimeComp>("RuntimeComp");
+        }
+
+        RegisterResource(sceneJsonPath, result);
+
+        // 调用所有组件的Awake
+        function<void(Object*)> callAwake =[&callAwake](Object* obj)
+        {
+            for(auto comp : obj->GetComps())
+            {
+                comp->Awake();
+            }
+
+            for(auto child : obj->children)
+            {
+                callAwake(child);
+            }
+        };
+        callAwake(result->sceneRoot);
         
-        if(elem.contains("children"))
+        return result;
+    }
+
+    void Scene::OnObjectChildAdded(Object* parent, Object* child)
+    {
+        
+    }
+
+    void Scene::LoadSceneConfig(const nlohmann::json& configJson)
+    {
+        if(configJson.contains("ambientLightColorSky"))
         {
-            LoadChildren(obj, elem["children"]);
+            ambientLightColorSky = Utils::ToVec3(configJson["ambientLightColorSky"]);
         }
         
-        parent->AddChild(obj);
-    }
-}
-
-void Scene::GetAllObjects(vector<Object*>& result)
-{
-    result.clear();
-    function<void(Object*)> fuc = [&](Object* obj)
-    {
-        if (!obj)
+        if(configJson.contains("ambientLightColorEquator"))
         {
-            return;
+            ambientLightColorEquator = Utils::ToVec3(configJson["ambientLightColorEquator"]);
         }
-
-        result.push_back(obj);
-
-        for(auto child : obj->children)
-        {
-            fuc(child);
-        }
-    };
-
-    fuc(sceneRoot);
-}
-
-Scene* Scene::LoadScene(const string& sceneJsonPath)
-{
-    {
-        SharedObject* result;
-        if(TryGetResource(sceneJsonPath, result))
-        {
-            return dynamic_cast<Scene*>(result);
-        }
-    }
-
-    auto result = new Scene();
-    nlohmann::json json = Utils::LoadJson(sceneJsonPath);
-
-    // 合并替换json
-    auto p = filesystem::path(sceneJsonPath);
-    auto coverSceneJsonPath = p.parent_path() / (p.stem().generic_string() + "_cover.json");
-    if (exists(coverSceneJsonPath))
-    {
-        nlohmann::json coverSceneJson = Utils::LoadJson(coverSceneJsonPath.generic_string());
-        Utils::MergeJson(json, coverSceneJson);
-    }
-
-    if(json.contains("config"))
-    {
-        result->LoadSceneConfig(json["config"]);
-    }
-
-    if(json.contains("root"))
-    {
-        auto rootObj = new Object();
-        rootObj->name = "Scene Root";
         
-        LoadChildren(rootObj, json["root"]);
-
-        result->sceneRoot = rootObj;
-        INCREF_BY(rootObj, result);
-
-        result->sceneRoot->AddComp<RuntimeComp>("RuntimeComp");
-    }
-
-    RegisterResource(sceneJsonPath, result);
-
-    // 调用所有组件的Awake
-    function<void(Object*)> callAwake =[&callAwake](Object* obj)
-    {
-        for(auto comp : obj->GetComps())
+        if(configJson.contains("ambientLightColorGround"))
         {
-            comp->Awake();
+            ambientLightColorGround = Utils::ToVec3(configJson["ambientLightColorGround"]);
         }
 
-        for(auto child : obj->children)
+        if(configJson.contains("tonemappingExposureMultiplier"))
         {
-            callAwake(child);
+            tonemappingExposureMultiplier = configJson["tonemappingExposureMultiplier"].get<float>();
         }
-    };
-    callAwake(result->sceneRoot);
-    
-    return result;
-}
-
-void Scene::OnObjectChildAdded(Object* parent, Object* child)
-{
-    
-}
-
-void Scene::LoadSceneConfig(const nlohmann::json& configJson)
-{
-    if(configJson.contains("ambientLightColorSky"))
-    {
-        ambientLightColorSky = Utils::ToVec3(configJson["ambientLightColorSky"]);
-    }
-    
-    if(configJson.contains("ambientLightColorEquator"))
-    {
-        ambientLightColorEquator = Utils::ToVec3(configJson["ambientLightColorEquator"]);
-    }
-    
-    if(configJson.contains("ambientLightColorGround"))
-    {
-        ambientLightColorGround = Utils::ToVec3(configJson["ambientLightColorGround"]);
-    }
-
-    if(configJson.contains("tonemappingExposureMultiplier"))
-    {
-        tonemappingExposureMultiplier = configJson["tonemappingExposureMultiplier"].get<float>();
     }
 }

@@ -4,47 +4,50 @@
 
 #include "SharedObject.h"
 
-enum RenderTextureFormat
+namespace op
 {
-    RGBA,
-    RGB,
-    RGBAHdr,
-    DepthStencil,
-    Depth,
-    DepthTex
-};
+    enum RenderTextureFormat : std::uint8_t
+    {
+        RGBA,
+        RGB,
+        RGBAHdr,
+        DepthStencil,
+        Depth,
+        DepthTex
+    };
 
-enum TextureFilterMode
-{
-    Point,
-    Bilinear,
-};
+    enum TextureFilterMode : std::uint8_t
+    {
+        Point,
+        Bilinear,
+    };
 
-enum TextureWrapMode
-{
-    Repeat,
-    Clamp,
-    MirroredRepeat,
-};
+    enum TextureWrapMode : std::uint8_t
+    {
+        Repeat,
+        Clamp,
+        MirroredRepeat,
+    };
 
-extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLFormat;
-extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLInternalFormat;
-extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLType;
-extern std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLFilterMode;
-extern std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLMinFilterMode;
-extern std::unordered_map<TextureWrapMode, GLuint> textureWrapModeToGLWrapMode;
+    extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLFormat;
+    extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLInternalFormat;
+    extern std::unordered_map<RenderTextureFormat, GLuint> renderTextureFormatToGLType;
+    extern std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLFilterMode;
+    extern std::unordered_map<TextureFilterMode, GLuint> textureFilterModeToGLMinFilterMode;
+    extern std::unordered_map<TextureWrapMode, GLuint> textureWrapModeToGLWrapMode;
 
-class Texture : public SharedObject
-{
-public:
-    bool isCreated;
-    
-    GLuint glTextureId;
+    class Texture : public SharedObject
+    {
+    public:
+        bool isCreated;
+        
+        GLuint glTextureId;
 
-    int width = 0;
-    int height = 0;
+        int width = 0;
+        int height = 0;
 
-    bool isCubeMap = false;
+        bool isCubeMap = false;
 
-    Texture(GLuint glTextureId);
-};
+        Texture(GLuint glTextureId);
+    };
+}

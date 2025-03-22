@@ -4,37 +4,40 @@
 #include "Material.h"
 #include "Object.h"
 
-RenderComp::~RenderComp()
+namespace op
 {
-    if (mesh)
+    RenderComp::~RenderComp()
     {
-        DECREF(mesh);
-    }
-
-    if (material)
-    {
-        DECREF(material);
-    }
-}
-
-void RenderComp::LoadFromJson(const nlohmann::json& objJson)
-{
-    if(objJson.contains("mesh"))
-    {
-        mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
         if (mesh)
         {
-            bounds = mesh->bounds;
-            INCREF(mesh);
+            DECREF(mesh);
+        }
+
+        if (material)
+        {
+            DECREF(material);
         }
     }
 
-    if(objJson.contains("material"))
+    void RenderComp::LoadFromJson(const nlohmann::json& objJson)
     {
-        material = Material::LoadFromFile(objJson["material"].get<std::string>());
-        if (material)
+        if(objJson.contains("mesh"))
         {
-            INCREF(material);
+            mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
+            if (mesh)
+            {
+                bounds = mesh->bounds;
+                INCREF(mesh);
+            }
+        }
+
+        if(objJson.contains("material"))
+        {
+            material = Material::LoadFromFile(objJson["material"].get<std::string>());
+            if (material)
+            {
+                INCREF(material);
+            }
         }
     }
 }

@@ -8,62 +8,65 @@
 #include "Objects/CameraComp.h"
 #include "Objects/TransformComp.h"
 
-RenderContext::~RenderContext()
+namespace op
 {
-    for (auto it : m_rts)
+    RenderContext::~RenderContext()
     {
-        DECREF(it.second);
+        for (auto it : m_rts)
+        {
+            DECREF(it.second);
+        }
     }
-}
 
-void RenderContext::SetViewProjMatrix(const CameraComp* cam)
-{
-    auto cameraLocalToWorld = cam->owner->transform->GetLocalToWorld();
-    auto viewMatrix = glm::inverse(cameraLocalToWorld);
-    auto projectionMatrix = glm::perspective(
-        glm::radians(cam->fov * 0.5f),
-        static_cast<float>(screenWidth) / static_cast<float>(screenHeight),
-        cam->nearClip,
-        cam->farClip);
-    SetViewProjMatrix(viewMatrix, projectionMatrix);
-}
-
-void RenderContext::SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj)
-{
-    vMatrix = view;
-    pMatrix = proj;
-    vpMatrix = proj * view;
-    Material::SetGlobalMat4Value("_VP", vpMatrix);
-    Material::SetGlobalMat4Value("_IVP", inverse(vpMatrix));
-}
-
-void RenderContext::RegisterRt(RenderTexture* rt)
-{
-    auto it = m_rts.find(rt->desc.name);
-    if (it != m_rts.end())
+    void RenderContext::SetViewProjMatrix(const CameraComp* cam)
     {
-        DECREF(it->second);
+        auto cameraLocalToWorld = cam->owner->transform->GetLocalToWorld();
+        auto viewMatrix = glm::inverse(cameraLocalToWorld);
+        auto projectionMatrix = glm::perspective(
+            glm::radians(cam->fov * 0.5f),
+            static_cast<float>(screenWidth) / static_cast<float>(screenHeight),
+            cam->nearClip,
+            cam->farClip);
+        SetViewProjMatrix(viewMatrix, projectionMatrix);
     }
-    m_rts[rt->desc.name] = rt;
-    INCREF(rt);
-}
 
-void RenderContext::UnRegisterRt(const RenderTexture* rt)
-{
-    auto it = m_rts.find(rt->desc.name);
-    if (it != m_rts.end())
+    void RenderContext::SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj)
     {
-        DECREF(it->second);
-        m_rts.erase(it);
+        vMatrix = view;
+        pMatrix = proj;
+        vpMatrix = proj * view;
+        Material::SetGlobalMat4Value("_VP", vpMatrix);
+        Material::SetGlobalMat4Value("_IVP", inverse(vpMatrix));
     }
-}
 
-RenderTexture* RenderContext::GetRt(const std::string& name)
-{
-    auto it = m_rts.find(name);
-    if (it != m_rts.end())
+    void RenderContext::RegisterRt(RenderTexture* rt)
     {
-        return it->second;
+        auto it = m_rts.find(rt->desc.name);
+        if (it != m_rts.end())
+        {
+            DECREF(it->second);
+        }
+        m_rts[rt->desc.name] = rt;
+        INCREF(rt);
     }
-    return nullptr;
+
+    void RenderContext::UnRegisterRt(const RenderTexture* rt)
+    {
+        auto it = m_rts.find(rt->desc.name);
+        if (it != m_rts.end())
+        {
+            DECREF(it->second);
+            m_rts.erase(it);
+        }
+    }
+
+    RenderTexture* RenderContext::GetRt(const std::string& name)
+    {
+        auto it = m_rts.find(name);
+        if (it != m_rts.end())
+        {
+            return it->second;
+        }
+        return nullptr;
+    }
 }

@@ -7,6 +7,8 @@
 #include "Material.h"
 #include "GameFramework.h"
 
+using namespace op;
+
 static void ReleaseStaticRes()
 {
     Material::ReleaseStaticRes();

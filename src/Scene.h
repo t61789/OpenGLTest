@@ -8,30 +8,33 @@
 #include "Event.h"
 #include "SharedObject.h"
 
-class Object;
-
-class Scene : public SharedObject
+namespace op
 {
-public:
-    Object* sceneRoot = nullptr;
+    class Object;
 
-    glm::vec3 ambientLightColorSky = glm::vec3(0, 0, 0);
-    glm::vec3 ambientLightColorEquator = glm::vec3(0, 0, 0);
-    glm::vec3 ambientLightColorGround = glm::vec3(0, 0, 0);
-    float tonemappingExposureMultiplier = 1.0f;
+    class Scene : public SharedObject
+    {
+    public:
+        Object* sceneRoot = nullptr;
 
-    void GetAllObjects(std::vector<Object*>& result);
-    
-    static Scene* LoadScene(const std::string& sceneJsonPath);
+        glm::vec3 ambientLightColorSky = glm::vec3(0, 0, 0);
+        glm::vec3 ambientLightColorEquator = glm::vec3(0, 0, 0);
+        glm::vec3 ambientLightColorGround = glm::vec3(0, 0, 0);
+        float tonemappingExposureMultiplier = 1.0f;
 
-private:
-    Scene();
-    ~Scene() override;
+        void GetAllObjects(std::vector<Object*>& result);
+        
+        static Scene* LoadScene(const std::string& sceneJsonPath);
 
-    EventCallback<void, Object*, Object*> m_objectChildAddedCallback = nullptr;
-    void OnObjectChildAdded(Object* parent, Object* child);
+    private:
+        Scene();
+        ~Scene() override;
 
-    void LoadSceneConfig(const nlohmann::json& configJson);
-    
-    static void LoadChildren(Object* parent, const nlohmann::json& children);
-};
+        EventCallback<void, Object*, Object*> m_objectChildAddedCallback = nullptr;
+        void OnObjectChildAdded(Object* parent, Object* child);
+
+        void LoadSceneConfig(const nlohmann::json& configJson);
+        
+        static void LoadChildren(Object* parent, const nlohmann::json& children);
+    };
+}

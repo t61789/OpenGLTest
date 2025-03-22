@@ -5,13 +5,16 @@
 
 #include "Object.h"
 
-class LightComp : public Comp
+namespace op
 {
-public:
-    glm::vec3 color = glm::vec3(1.0f);
-    float intensity = 1;
-    int lightType = 0; // 0 parallel, 1 point
-    float radius = 10;
+    class LightComp : public Comp
+    {
+    public:
+        glm::vec3 color = glm::vec3(1.0f);
+        float intensity = 1;
+        int lightType = 0; // 0 parallel, 1 point
+        float radius = 10;
 
-    void LoadFromJson(const nlohmann::json& objJson) override;
-};
+        void LoadFromJson(const nlohmann::json& objJson) override;
+    };
+}

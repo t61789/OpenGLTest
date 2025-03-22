@@ -4,26 +4,29 @@
 #include "Gui.h"
 #include "UI/ControlPanelUi.h"
 
-class RenderContext;
-class Bounds;
-class RenderComp;
-class Object;
-
-class CullingSystem : public ControlPanelUi::UiProxy
+namespace op
 {
-public:
-    explicit CullingSystem(RenderContext* renderContext);
-    void Cull();
+    class RenderContext;
+    class Bounds;
+    class RenderComp;
+    class Object;
 
-    void DrawConsoleUi() override;
+    class CullingSystem : public ControlPanelUi::UiProxy
+    {
+    public:
+        explicit CullingSystem(RenderContext* renderContext);
+        void Cull();
 
-private:
-    RenderContext* m_renderContext = nullptr;
-    std::vector<Bounds> m_bounds;
+        void DrawConsoleUi() override;
 
-    bool CullOnce(const Bounds& bounds, const std::array<glm::vec4, 6>& planes);
+    private:
+        RenderContext* m_renderContext = nullptr;
+        std::vector<Bounds> m_bounds;
+
+        bool CullOnce(const Bounds& bounds, const std::array<glm::vec4, 6>& planes);
     
-    static std::vector<Bounds> GetWorldSpaceAABB(const std::vector<RenderComp*>& renderComps);
-    static std::array<glm::vec4, 6> GetFrustumPlanes(const glm::mat4& vp);
-    static bool FrustumCull(const Bounds& bounds, const std::array<glm::vec4, 6>& planes);
-};
+        static std::vector<Bounds> GetWorldSpaceAABB(const std::vector<RenderComp*>& renderComps);
+        static std::array<glm::vec4, 6> GetFrustumPlanes(const glm::mat4& vp);
+        static bool FrustumCull(const Bounds& bounds, const std::array<glm::vec4, 6>& planes);
+    };
+}
