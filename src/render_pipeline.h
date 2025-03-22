@@ -5,7 +5,7 @@
 
 #include "glm/glm.hpp"
 #include "glfw3.h"
-#include "Objects/RenderComp.h"
+#include "objects/render_comp.h"
 
 namespace op
 {

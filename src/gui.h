@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include <string>
 
-#include "Utils.h"
+#include "utils.h"
 #include "glm/glm.hpp"
-#include "UI/ControlPanelUi.h"
+#include "ui/control_panel_ui.h"
 
 namespace op
 {

@@ -1,10 +1,10 @@
-﻿#include "Mesh.h"
+﻿#include "mesh.h"
 
-#include "SharedObject.h"
-#include "Utils.h"
+#include "shared_object.h"
+#include "utils.h"
 #include "assimp/Importer.hpp"
-#include "assimp/scene.h"
-#include "assimp/postprocess.h"
+#include "assimp\scene.h"
+#include "assimp\postprocess.h"
 #include <fstream>
 
 namespace op

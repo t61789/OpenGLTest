@@ -1,10 +1,10 @@
-﻿#include "RenderScenePass.h"
+﻿#include "render_scene_pass.h"
 
-#include "Scene.h"
-#include "Material.h"
-#include "RenderTarget.h"
-#include "RenderingUtils.h"
-#include "Objects/LightComp.h"
+#include "scene.h"
+#include "material.h"
+#include "render_target.h"
+#include "rendering_utils.h"
+#include "objects/light_comp.h"
 
 namespace op
 {

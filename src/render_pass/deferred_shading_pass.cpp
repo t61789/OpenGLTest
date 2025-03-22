@@ -1,10 +1,10 @@
-﻿#include "DeferredShadingPass.h"
+﻿#include "deferred_shading_pass.h"
 
-#include "Mesh.h"
-#include "RenderingUtils.h"
-#include "Material.h"
-#include "RenderTexture.h"
-#include "RenderTarget.h"
+#include "mesh.h"
+#include "rendering_utils.h"
+#include "material.h"
+#include "render_texture.h"
+#include "render_target.h"
 
 namespace op
 {

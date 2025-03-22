@@ -1,11 +1,11 @@
-﻿#include "FinalBlitPass.h"
+﻿#include "final_blit_pass.h"
 
 #include "imgui.h"
 
-#include "RenderTarget.h"
-#include "Material.h"
-#include "BuiltInRes.h"
-#include "RenderingUtils.h"
+#include "render_target.h"
+#include "material.h"
+#include "built_in_res.h"
+#include "rendering_utils.h"
 
 namespace op
 {

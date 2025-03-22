@@ -1,8 +1,8 @@
-﻿#include "BuiltInRes.h"
+﻿#include "built_in_res.h"
 
-#include "Mesh.h"
-#include "Material.h"
-#include "Image.h"
+#include "mesh.h"
+#include "material.h"
+#include "image.h"
 
 namespace op
 {

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <string>
 
-#include "RenderContext.h"
+#include "render_context.h"
 
 namespace op
 {

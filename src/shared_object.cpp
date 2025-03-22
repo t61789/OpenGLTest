@@ -1,9 +1,9 @@
-﻿#include "SharedObject.h"
+﻿#include "shared_object.h"
 
 #include <cassert>
 
-#include "Object.h"
-#include "Utils.h"
+#include "object.h"
+#include "utils.h"
 
 namespace op
 {

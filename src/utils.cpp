@@ -1,4 +1,4 @@
-﻿#include "Utils.h"
+﻿#include "utils.h"
 
 #include <chrono>
 #include <iomanip>
@@ -9,7 +9,7 @@
 #include "glm/glm.hpp"
 #include "imgui.h"
 
-#include "Bounds.h"
+#include "bounds.h"
 
 namespace op
 {

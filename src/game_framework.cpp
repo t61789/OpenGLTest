@@ -1,15 +1,15 @@
-﻿#include "GameFramework.h"
+﻿#include "game_framework.h"
 
 #include <iostream>
 
 #include "imgui.h"
 
-#include "Utils.h"
-#include "Scene.h"
-#include "Gui.h"
-#include "Windows.h"
-#include "BuiltInRes.h"
-#include "Objects/CameraComp.h"
+#include "utils.h"
+#include "scene.h"
+#include "gui.h"
+#include "windows.h"
+#include "built_in_res.h"
+#include "objects/camera_comp.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 

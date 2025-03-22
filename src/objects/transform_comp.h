@@ -2,7 +2,7 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/quaternion.hpp>
 
-#include "Comp.h"
+#include "comp.h"
 
 namespace op
 {

@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "glm/glm.hpp"
-#include "Objects/RenderComp.h"
+#include "objects/render_comp.h"
 
 namespace op
 {

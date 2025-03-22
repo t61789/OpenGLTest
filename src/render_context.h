@@ -5,7 +5,7 @@
 
 #include "glm/glm.hpp"
 
-#include "CullMode.h"
+#include "cull_mode.h"
 
 namespace op
 {

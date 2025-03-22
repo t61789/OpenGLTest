@@ -1,6 +1,6 @@
-﻿#include "LightComp.h"
+﻿#include "light_comp.h"
 
-#include "Utils.h"
+#include "utils.h"
 
 namespace op
 {

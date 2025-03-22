@@ -1,10 +1,10 @@
-﻿#include "DualKawaseBlur.h"
+﻿#include "dual_kawase_blur.h"
 
 #include "imgui.h"
 
-#include "RenderTexture.h"
-#include "Material.h"
-#include "RenderingUtils.h"
+#include "render_texture.h"
+#include "material.h"
+#include "rendering_utils.h"
 
 namespace op
 {

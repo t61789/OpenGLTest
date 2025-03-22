@@ -5,9 +5,9 @@
 #include "json.hpp"
 #include "glm/glm.hpp"
 
-#include "Event.h"
-#include "SharedObject.h"
-#include "Objects/Comp.h"
+#include "event.h"
+#include "shared_object.h"
+#include "objects/comp.h"
 
 namespace op
 {

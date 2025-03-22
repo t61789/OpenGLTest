@@ -1,11 +1,11 @@
-﻿#include "TransformComp.h"
+﻿#include "transform_comp.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/ext/matrix_transform.hpp"
 
-#include "Object.h"
-#include "Utils.h"
+#include "object.h"
+#include "utils.h"
 
 namespace op
 {

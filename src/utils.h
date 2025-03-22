@@ -10,7 +10,7 @@
 #include "json.hpp"
 #include "imgui.h"
 
-#include "Event.h"
+#include "event.h"
 
 namespace op
 {

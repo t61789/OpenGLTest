@@ -1,4 +1,4 @@
-﻿#include "ConstVars.h"
+﻿#include "const_vars.h"
 
 const char* VERTEX_ATTRIB_NAMES[] = {
     "aPositionOS",

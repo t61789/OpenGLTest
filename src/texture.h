@@ -2,7 +2,7 @@
 
 #include "glad.h"
 
-#include "SharedObject.h"
+#include "shared_object.h"
 
 namespace op
 {

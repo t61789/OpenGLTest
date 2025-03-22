@@ -1,11 +1,11 @@
-#include "OpenGLTest.h"
+#include "opengl_test.h"
 
 #include <iostream>
 
-#include "Utils.h"
-#include "SharedObject.h"
-#include "Material.h"
-#include "GameFramework.h"
+#include "utils.h"
+#include "shared_object.h"
+#include "material.h"
+#include "game_framework.h"
 
 using namespace op;
 

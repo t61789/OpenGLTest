@@ -1,8 +1,8 @@
-﻿#include "RenderComp.h"
+﻿#include "render_comp.h"
 
-#include "Mesh.h"
-#include "Material.h"
-#include "Object.h"
+#include "mesh.h"
+#include "material.h"
+#include "object.h"
 
 namespace op
 {

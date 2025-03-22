@@ -1,7 +1,7 @@
-﻿#include "Image.h"
+﻿#include "image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "Utils.h"
+#include "utils.h"
 #include "stb_image.h"
 
 namespace op

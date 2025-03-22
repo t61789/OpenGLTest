@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "Image.h"
-#include "Gui.h"
-#include "RenderPass.h"
-#include "UI/ControlPanelUi.h"
+#include "image.h"
+#include "gui.h"
+#include "render_pass.h"
+#include "ui/control_panel_ui.h"
 
 namespace op
 {

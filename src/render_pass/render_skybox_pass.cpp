@@ -1,16 +1,16 @@
-﻿#include "RenderSkyboxPass.h"
+﻿#include "render_skybox_pass.h"
 
 #include "glm/ext/matrix_transform.hpp"
 
-#include "SharedObject.h"
-#include "Image.h"
-#include "Material.h"
-#include "Mesh.h"
-#include "RenderTarget.h"
-#include "RenderingUtils.h"
-#include "Objects/CameraComp.h"
-#include "Objects/RenderComp.h"
-#include "Objects/TransformComp.h"
+#include "shared_object.h"
+#include "image.h"
+#include "material.h"
+#include "mesh.h"
+#include "render_target.h"
+#include "rendering_utils.h"
+#include "objects/camera_comp.h"
+#include "objects/render_comp.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {

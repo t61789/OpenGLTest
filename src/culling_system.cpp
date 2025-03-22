@@ -1,12 +1,12 @@
-﻿#include "CullingSystem.h"
+﻿#include "culling_system.h"
 
 #include <array>
 
-#include "RenderContext.h"
-#include "Bounds.h"
-#include "Object.h"
-#include "Objects/RenderComp.h"
-#include "Objects/TransformComp.h"
+#include "render_context.h"
+#include "bounds.h"
+#include "object.h"
+#include "objects/render_comp.h"
+#include "objects/transform_comp.h"
 
 // bool FrustumCulling(const float3 center, const float3 extents)
 // {

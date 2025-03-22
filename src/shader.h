@@ -4,9 +4,9 @@
 
 #include "glm/glm.hpp"
 
-#include "SharedObject.h"
-#include "Mesh.h"
-#include "Texture.h"
+#include "shared_object.h"
+#include "mesh.h"
+#include "texture.h"
 
 namespace op
 {

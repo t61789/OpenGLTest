@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "RenderPass.h"
-#include "UI/ControlPanelUi.h"
+#include "render_pass.h"
+#include "ui/control_panel_ui.h"
 
 namespace op
 {

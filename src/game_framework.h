@@ -3,8 +3,8 @@
 #include "functional"
 
 #include "glfw3.h"
-#include "RenderPipeline.h"
-#include "Utils.h"
+#include "render_pipeline.h"
+#include "utils.h"
 
 namespace op
 {

@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <vector>
 
-#include "Gui.h"
-#include "UI/ControlPanelUi.h"
+#include "gui.h"
+#include "ui/control_panel_ui.h"
 
 namespace op
 {

@@ -1,12 +1,12 @@
-﻿#include "Gui.h"
+﻿#include "gui.h"
 
 #include <string>
 
-#include "Utils.h"
-#include "RenderPipeline.h"
-#include "UI/ControlPanelUi.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include "utils.h"
+#include "render_pipeline.h"
+#include "ui/control_panel_ui.h"
+#include "backends\imgui_impl_glfw.h"
+#include "backends\imgui_impl_opengl3.h"
 
 namespace op
 {

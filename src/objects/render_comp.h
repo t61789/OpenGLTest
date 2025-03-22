@@ -2,8 +2,8 @@
 
 #include <json.hpp>
 
-#include "Bounds.h"
-#include "Comp.h"
+#include "bounds.h"
+#include "comp.h"
 
 namespace op
 {

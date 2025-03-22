@@ -1,18 +1,18 @@
-﻿#include "MainLightShadowPass.h"
+﻿#include "main_light_shadow_pass.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 
-#include "Scene.h"
-#include "RenderTarget.h"
-#include "Material.h"
-#include "RenderTexture.h"
-#include "SharedObject.h"
-#include "RenderingUtils.h"
-#include "Utils.h"
-#include "Objects/CameraComp.h"
-#include "Objects/LightComp.h"
-#include "Objects/TransformComp.h"
+#include "scene.h"
+#include "render_target.h"
+#include "material.h"
+#include "render_texture.h"
+#include "shared_object.h"
+#include "rendering_utils.h"
+#include "utils.h"
+#include "objects/camera_comp.h"
+#include "objects/light_comp.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {

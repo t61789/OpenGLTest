@@ -2,8 +2,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "CullMode.h"
-#include "SharedObject.h"
+#include "cull_mode.h"
+#include "shared_object.h"
 #include "glm/glm.hpp"
 
 namespace op

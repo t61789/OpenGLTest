@@ -1,10 +1,10 @@
-﻿#include "RuntimeComp.h"
+﻿#include "runtime_comp.h"
 
-#include "Material.h"
-#include "Mesh.h"
-#include "Object.h"
-#include "RenderComp.h"
-#include "TransformComp.h"
+#include "material.h"
+#include "mesh.h"
+#include "object.h"
+#include "render_comp.h"
+#include "transform_comp.h"
 
 namespace op
 {

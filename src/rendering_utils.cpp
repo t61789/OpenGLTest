@@ -1,15 +1,15 @@
-﻿#include "RenderingUtils.h"
+﻿#include "rendering_utils.h"
 
-#include "RenderTarget.h"
-#include "RenderTexture.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "Utils.h"
-#include "RenderContext.h"
-#include "BuiltInRes.h"
-#include "Object.h"
-#include "Objects/RenderComp.h"
-#include "Objects/TransformComp.h"
+#include "render_target.h"
+#include "render_texture.h"
+#include "mesh.h"
+#include "material.h"
+#include "utils.h"
+#include "render_context.h"
+#include "built_in_res.h"
+#include "object.h"
+#include "objects/render_comp.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {

@@ -1,7 +1,7 @@
-﻿#include "IndirectLighting.h"
+﻿#include "indirect_lighting.h"
 
-#include "Material.h"
-#include "Utils.h"
+#include "material.h"
+#include "utils.h"
 
 namespace op
 {

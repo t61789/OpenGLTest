@@ -1,14 +1,14 @@
-﻿#include "Scene.h"
+﻿#include "scene.h"
 
 #include <fstream>
 #include <iostream>
 #include <filesystem>
 
-#include "Utils.h"
+#include "utils.h"
 #include "json.hpp"
-#include "Objects/LightComp.h"
-#include "Objects/RuntimeComp.h"
-#include "Objects/TransformComp.h"
+#include "objects/light_comp.h"
+#include "objects/runtime_comp.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {

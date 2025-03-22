@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "Comp.h"
+#include "comp.h"
 #include "glm/glm.hpp"
 
-#include "Object.h"
+#include "object.h"
 
 namespace op
 {

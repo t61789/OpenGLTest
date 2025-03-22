@@ -1,8 +1,8 @@
-﻿#include "CullMode.h"
+﻿#include "cull_mode.h"
 
 #include <unordered_map>
 
-#include "Utils.h"
+#include "utils.h"
 
 namespace op
 {

@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "Event.h"
-#include "Texture.h"
+#include "event.h"
+#include "texture.h"
 
 namespace op
 {

@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include <string>
 
-#include "Bounds.h"
-#include "ConstVars.h"
-#include "SharedObject.h"
-#include "Utils.h"
+#include "bounds.h"
+#include "const_vars.h"
+#include "shared_object.h"
+#include "utils.h"
 
 namespace op
 {

@@ -5,8 +5,8 @@
 #include "glm/glm.hpp"
 #include "json.hpp"
 
-#include "Event.h"
-#include "SharedObject.h"
+#include "event.h"
+#include "shared_object.h"
 
 namespace op
 {

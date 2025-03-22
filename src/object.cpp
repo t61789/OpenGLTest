@@ -1,16 +1,16 @@
-﻿#include "Object.h"
+﻿#include "object.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include "glm/gtx/euler_angles.hpp"
 
-#include "Utils.h"
-#include "Objects/CameraComp.h"
-#include "Objects/LightComp.h"
-#include "Objects/RenderComp.h"
-#include "Objects/RuntimeComp.h"
-#include "Objects/TransformComp.h"
+#include "utils.h"
+#include "objects/camera_comp.h"
+#include "objects/light_comp.h"
+#include "objects/render_comp.h"
+#include "objects/runtime_comp.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {

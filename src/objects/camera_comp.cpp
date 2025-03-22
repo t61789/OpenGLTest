@@ -1,13 +1,13 @@
-﻿#include "CameraComp.h"
+﻿#include "camera_comp.h"
 
 #include "glfw3.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/gtc/quaternion.hpp"
 
-#include "Utils.h"
-#include "GameFramework.h"
-#include "TransformComp.h"
+#include "utils.h"
+#include "game_framework.h"
+#include "transform_comp.h"
 
 namespace op
 {

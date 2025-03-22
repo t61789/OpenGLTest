@@ -1,7 +1,7 @@
-﻿#include "RenderTexture.h"
+﻿#include "render_texture.h"
 
-#include "Texture.h"
-#include "Utils.h"
+#include "texture.h"
+#include "utils.h"
 
 namespace op
 {

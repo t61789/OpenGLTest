@@ -1,12 +1,12 @@
-﻿#include "RenderContext.h"
+﻿#include "render_context.h"
 
 #include "glm/ext/matrix_clip_space.hpp"
 
-#include "Material.h"
-#include "RenderTexture.h"
-#include "SharedObject.h"
-#include "Objects/CameraComp.h"
-#include "Objects/TransformComp.h"
+#include "material.h"
+#include "render_texture.h"
+#include "shared_object.h"
+#include "objects/camera_comp.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {

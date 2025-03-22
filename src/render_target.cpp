@@ -1,9 +1,9 @@
-﻿#include "RenderTarget.h"
+﻿#include "render_target.h"
 
-#include "RenderTexture.h"
-#include "SharedObject.h"
-#include "GameFramework.h"
-#include "Utils.h"
+#include "render_texture.h"
+#include "shared_object.h"
+#include "game_framework.h"
+#include "utils.h"
 
 namespace op
 {

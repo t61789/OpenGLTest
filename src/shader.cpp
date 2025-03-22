@@ -1,13 +1,13 @@
-﻿#include "Shader.h"
+﻿#include "shader.h"
 
 #include <fstream>
 #include <regex>
 #include <sstream>
 #include <unordered_set>
 
-#include "GameFramework.h"
-#include "RenderTexture.h"
-#include "Utils.h"
+#include "game_framework.h"
+#include "render_texture.h"
+#include "utils.h"
 #include "glm/gtc/type_ptr.hpp"
 
 namespace op

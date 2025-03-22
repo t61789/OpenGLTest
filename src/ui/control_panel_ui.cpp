@@ -1,14 +1,14 @@
-#include "ControlPanelUi.h"
+#include "control_panel_ui.h"
 
 #include <utility>
 
 #include "imgui.h"
 
-#include "Gui.h"
-#include "Object.h"
-#include "Scene.h"
-#include "GameFramework.h"
-#include "Objects/TransformComp.h"
+#include "gui.h"
+#include "object.h"
+#include "scene.h"
+#include "game_framework.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {

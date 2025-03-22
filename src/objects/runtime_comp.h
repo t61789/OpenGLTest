@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Comp.h"
+#include "comp.h"
 
 namespace op
 {

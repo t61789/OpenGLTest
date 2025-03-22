@@ -1,14 +1,14 @@
-﻿#include "Material.h"
+﻿#include "material.h"
 
 #include <fstream>
 #include <sstream>
 
 #include "json.hpp"
 
-#include "Shader.h"
-#include "BuiltInRes.h"
-#include "Image.h"
-#include "Utils.h"
+#include "shader.h"
+#include "built_in_res.h"
+#include "image.h"
+#include "utils.h"
 
 namespace op
 {

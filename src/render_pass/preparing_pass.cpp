@@ -1,13 +1,13 @@
-﻿#include "PreparingPass.h"
+﻿#include "preparing_pass.h"
 
-#include "Gui.h"
-#include "IndirectLighting.h"
-#include "RenderTarget.h"
-#include "Material.h"
-#include "Scene.h"
-#include "Objects/CameraComp.h"
-#include "Objects/LightComp.h"
-#include "Objects/TransformComp.h"
+#include "gui.h"
+#include "indirect_lighting.h"
+#include "render_target.h"
+#include "material.h"
+#include "scene.h"
+#include "objects/camera_comp.h"
+#include "objects/light_comp.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {
