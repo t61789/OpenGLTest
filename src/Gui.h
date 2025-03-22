@@ -1,12 +1,9 @@
 ﻿#pragma once
-#include <functional>
 #include <string>
 
-#include "Event.h"
 #include "Utils.h"
 #include "glm/glm.hpp"
-
-class ControlPanelUi;
+#include "UI/ControlPanelUi.h"
 
 class Gui : public Singleton<Gui>
 {

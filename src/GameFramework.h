@@ -5,7 +5,7 @@
 #include "RenderPipeline.h"
 #include "Utils.h"
 
-class ControlPanelUi;
+class BuiltInRes;
 class Scene;
 class Gui;
 
@@ -24,8 +24,10 @@ public:
     
 private:
     GLFWwindow* m_window = nullptr;
-    
+
+    std::unique_ptr<Time> m_time = nullptr;
     std::unique_ptr<Gui> m_gui = nullptr;
+    std::unique_ptr<BuiltInRes> m_builtInRes = nullptr;
     std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
 
     int m_screenWidth = 1270;

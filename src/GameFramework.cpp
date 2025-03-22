@@ -10,8 +10,8 @@
 #include "Scene.h"
 #include "Gui.h"
 #include "Windows.h"
+#include "BuiltInRes.h"
 #include "Objects/CameraComp.h"
-#include "Ui/ControlPanelUi.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
@@ -264,7 +264,9 @@ void GameFramework::OnSetFrameBufferSize(GLFWwindow* window, const int width, co
 
 void GameFramework::InitGame()
 {
+    m_time = std::make_unique<Time>();
     m_gui = std::make_unique<Gui>();
+    m_builtInRes = std::make_unique<BuiltInRes>();
     m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
     scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
     // scene = Scene::LoadScene("scenes/test_scene.json");

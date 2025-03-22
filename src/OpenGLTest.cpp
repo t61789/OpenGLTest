@@ -5,13 +5,11 @@
 #include "Utils.h"
 #include "SharedObject.h"
 #include "Material.h"
-#include "BuiltInRes.h"
 #include "GameFramework.h"
 
 static void ReleaseStaticRes()
 {
     Material::ReleaseStaticRes();
-    BuiltInRes::ReleaseInstance();
 }
 
 int main(int argc, char* argv[])

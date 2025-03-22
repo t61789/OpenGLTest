@@ -20,27 +20,6 @@ enum LogType
     Error,
 };
 
-class Time
-{
-public:
-    int frame = -1;
-    float time = 0;
-    float deltaTime = 999;
-
-    static Time* GetInstance()
-    {
-        static Time* instance = nullptr;
-        if (!instance)
-        {
-            instance = new Time();
-        }
-        return instance;
-    }
-    
-private:
-    Time() = default;
-};
-
 template<typename T>
 class Singleton
 {
@@ -49,7 +28,7 @@ public:
     {
         if (m_instance)
         {
-            throw std::runtime_error("Singleton instance already exists!");
+            throw std::runtime_error("Singleton instance already exists! type " + std::string(typeid(T).name()));
         }
 
         m_instance = static_cast<T*>(this);
@@ -67,6 +46,14 @@ public:
     
 protected:
     inline static T* m_instance = nullptr;
+};
+
+class Time : public Singleton<Time>
+{
+public:
+    int frame = -1;
+    float time = 0;
+    float deltaTime = 999;
 };
 
 class Utils
