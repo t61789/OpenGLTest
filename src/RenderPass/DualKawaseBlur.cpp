@@ -43,8 +43,19 @@ void DualKawaseBlur::Execute()
 
     for (int i = 0; i < m_blurTextures.size(); ++i)
     {
-        auto from = i == 0 ? shadingRt : m_blurTextures[i - 1];
-        auto to  = m_blurTextures[i];
+        RenderTexture* from;
+        RenderTexture* to = m_blurTextures[i];
+        if (i == 0)
+        {
+            from = shadingRt;
+            m_downsampleMat->SetFloatValue("_ApplyThreshold", 1);
+            m_downsampleMat->SetFloatValue("_Threshold", m_threshold);
+        }
+        else
+        {
+            from = m_blurTextures[i - 1];
+            m_downsampleMat->SetFloatValue("_ApplyThreshold", 0);
+        }
 
         RenderingUtils::Blit(from, to, m_downsampleMat);
     }
@@ -55,15 +66,26 @@ void DualKawaseBlur::Execute()
         auto to = m_blurTextures[i - 1];
         
         RenderingUtils::Blit(from, to, m_upsampleMat);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        RenderingUtils::Blit(m_blurTextures[i - 1], shadingRt);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_BLEND);
     }
-
-    RenderingUtils::Blit(m_blurTextures.front(), shadingRt);
+    
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_ONE, GL_ONE);
+    // RenderingUtils::Blit(m_blurTextures.front(), shadingRt);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glDisable(GL_BLEND);
 }
 
 void DualKawaseBlur::OnDrawConsoleGui()
 {
     ImGui::SliderInt("Max Iterations", &m_maxIterations, 0, 10);
     ImGui::SliderInt("Blur Size", &m_blurSize, 1, 10);
+    ImGui::SliderFloat("Threshold", &m_threshold, 0, 4);
 }
 
 void DualKawaseBlur::UpdateRt(const RenderTexture* shadingRt)

@@ -16,6 +16,7 @@ public:
 private:
     int m_maxIterations = 4;
     int m_blurSize = 1;
+    float m_threshold = 0.7f;
     
     Material* m_downsampleMat = nullptr;
     Material* m_upsampleMat = nullptr;

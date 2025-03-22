@@ -63,7 +63,7 @@ RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* wi
     m_passes.push_back(new RenderScenePass(m_renderContext.get()));
     m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
     // m_passes.push_back(new KawaseBlur());
-    m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));
+    // m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));
     m_passes.push_back(new FinalBlitPass(m_renderContext.get()));
 }
 
@@ -138,7 +138,6 @@ void RenderPipeline::GetScreenSize(int& width, int& height)
 
 void RenderPipeline::FirstDrawScene(const Scene* scene)
 {
-    IndirectLighting::SetGradientAmbientColor(scene->ambientLightColorSky, scene->ambientLightColorEquator, scene->ambientLightColorGround);
     
 }
 

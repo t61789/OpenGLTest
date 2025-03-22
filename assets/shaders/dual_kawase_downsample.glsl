@@ -23,22 +23,37 @@ uniform sampler2D _MainTex;
 uniform vec4 _MainTex_TexelSize;
 
 uniform float _BlurSize;
+uniform float _ApplyThreshold;
+uniform float _Threshold;
 
 out vec4 FragColor;
+
+vec3 SampleColor(vec2 center, vec2 offset)
+{
+    vec2 uv = center + offset * _MainTex_TexelSize.xy * _BlurSize;
+    vec3 color = texture(_MainTex, uv).rgb;
+
+    if (_ApplyThreshold > 0)
+    {
+        float lume = Luminance(color);
+        if (lume < _Threshold)
+        {
+            color = vec3(0);
+        }
+    }
+
+    return color;
+}
 
 void main()
 {
     vec2 center = texCoord;
-    vec2 uv0 = center + vec2(-1, -1) * _MainTex_TexelSize.xy * _BlurSize;
-    vec2 uv1 = center + vec2(1, -1) * _MainTex_TexelSize.xy * _BlurSize;
-    vec2 uv2 = center + vec2(-1, 1) * _MainTex_TexelSize.xy * _BlurSize;
-    vec2 uv3 = center + vec2(1, 1) * _MainTex_TexelSize.xy * _BlurSize;
 
-    vec3 color = texture(_MainTex, center).rgb;
-    vec3 color0 = texture(_MainTex, uv0).rgb;
-    vec3 color1 = texture(_MainTex, uv1).rgb;
-    vec3 color2 = texture(_MainTex, uv2).rgb;
-    vec3 color3 = texture(_MainTex, uv3).rgb;
+    vec3 color = SampleColor(center, vec2(0, 0));
+    vec3 color0 = SampleColor(center, vec2(-1, -1));
+    vec3 color1 = SampleColor(center, vec2(1, -1));
+    vec3 color2 = SampleColor(center, vec2(-1, 1));
+    vec3 color3 = SampleColor(center, vec2(1, 1));
 
     vec3 col = (color * 4.0 + color0 + color1 + color2 + color3) / 8.0;
 

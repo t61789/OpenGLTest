@@ -1,10 +1,13 @@
 ﻿#include "PreparingPass.h"
 
+#include "IndirectLighting.h"
 #include "RenderTarget.h"
 #include "Material.h"
+#include "Scene.h"
 #include "Objects/CameraComp.h"
 #include "Objects/LightComp.h"
 #include "Objects/TransformComp.h"
+
 
 PreparingPass::PreparingPass(RenderContext* renderContext) : RenderPass(renderContext)
 {
@@ -35,6 +38,23 @@ void PreparingPass::Execute()
     Material::SetGlobalVector4Value("_ViewportSize", viewportSize);
 
     PrepareLightInfos();
+    
+    IndirectLighting::SetGradientAmbientColor(
+        m_renderContext->scene->ambientLightColorSky,
+        m_renderContext->scene->ambientLightColorEquator,
+        m_renderContext->scene->ambientLightColorGround);
+}
+
+void PreparingPass::OnDrawConsoleGui()
+{
+    if (!m_renderContext->scene)
+    {
+        return;
+    }
+    
+    m_renderContext->scene->ambientLightColorSky = Gui::SliderFloat3("GradientSky", m_renderContext->scene->ambientLightColorSky, 0.0f, 10.0f, "%.2f");
+    m_renderContext->scene->ambientLightColorEquator = Gui::SliderFloat3("GradientEquator", m_renderContext->scene->ambientLightColorEquator, 0.0f, 10.0f, "%.2f");
+    m_renderContext->scene->ambientLightColorGround = Gui::SliderFloat3("GradientGround", m_renderContext->scene->ambientLightColorGround, 0.0f, 10.0f, "%.2f");
 }
 
 void PreparingPass::PrepareLightInfos()

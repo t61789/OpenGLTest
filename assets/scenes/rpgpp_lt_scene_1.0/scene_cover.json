@@ -1,19 +1,19 @@
 {
-  "config": {
-    "ambientLightColorSky": [
-      1.636,
-      1.681,
-      1.777
-    ],
-    "ambientLightColorEquator": [
-      1.636,
-      1.681,
-      1.777
-    ],
-    "ambientLightColorGround": [
-      1.636,
-      1.681,
-      1.777
-    ]
-  }
+    "config": {
+        "ambientLightColorSky": [
+            2.636,
+            2.681,
+            2.777
+        ],
+        "ambientLightColorEquator": [
+            2.15,
+            2.26,
+            2.21
+        ],
+        "ambientLightColorGround": [
+            2.636,
+            2.681,
+            2.777
+        ]
+    }
 }
