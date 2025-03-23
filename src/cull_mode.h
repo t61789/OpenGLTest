@@ -3,7 +3,7 @@
 
 namespace op
 {
-    enum CullMode : uint8_t
+    enum class CullMode : uint8_t
     {
         None,
         Front,
@@ -14,7 +14,7 @@ namespace op
     class CullModeMgr
     {
     public:
-        CullMode curMode = None;
+        CullMode curMode = CullMode::None;
 
         CullModeMgr();
         ~CullModeMgr();

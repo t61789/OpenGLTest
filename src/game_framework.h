@@ -33,8 +33,8 @@ namespace op
         std::unique_ptr<BuiltInRes> m_builtInRes = nullptr;
         std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
 
-        int m_screenWidth = 1270;
-        int m_screenHeight = 800;
+        int m_screenWidth = 1600;
+        int m_screenHeight = 900;
 
         std::function<void(GLFWwindow*, int, int)>* m_setFrameBufferSizeCallBack = nullptr;
 

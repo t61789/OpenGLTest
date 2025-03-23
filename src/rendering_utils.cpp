@@ -7,6 +7,8 @@
 #include "utils.h"
 #include "render_context.h"
 #include "built_in_res.h"
+#include "cull_mode.h"
+#include "blend_mode.h"
 #include "object.h"
 #include "objects/render_comp.h"
 #include "objects/transform_comp.h"
@@ -63,6 +65,7 @@ namespace op
         mat->SetMat4Value("_M", m);
         mat->Use(mesh);
         renderContext.cullModeMgr->SetCullMode(mat->cullMode);
+        renderContext.blendModeMgr->SetBlendMode(mat->blendMode);
         
         glDrawElements(GL_TRIANGLES, static_cast<GLint>(mesh->indicesCount), GL_UNSIGNED_INT, nullptr);
     }

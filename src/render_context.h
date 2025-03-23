@@ -1,14 +1,15 @@
 ﻿#pragma once
 
+#include <string>
 #include <vector>
 #include <unordered_map>
 
 #include "glm/glm.hpp"
 
-#include "cull_mode.h"
-
 namespace op
 {
+    class CullModeMgr;
+    class BlendModeMgr;
     class Material;
     class RenderTargetDesc;
     class RenderTexture;
@@ -39,6 +40,7 @@ namespace op
         CameraComp* camera = nullptr;
         Scene* scene = nullptr;
         CullModeMgr* cullModeMgr = nullptr;
+        BlendModeMgr* blendModeMgr = nullptr;
 
         std::vector<Object*> allSceneObjs;
         

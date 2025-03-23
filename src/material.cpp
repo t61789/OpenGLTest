@@ -293,6 +293,12 @@ namespace op
                 result->cullMode = CullModeMgr::FromStr(elemValue.get<std::string>());
                 continue;
             }
+
+            if (elemKey == "blendMode")
+            {
+                result->blendMode = BlendModeMgr::FromStr(elemValue.get<std::string>());
+                continue;
+            }
             
             if (elemValue.is_number_integer())
             {

@@ -6,12 +6,12 @@
 
 namespace op
 {
-    std::unordered_map<std::string, CullMode> cullModeTable =
+    static std::unordered_map<std::string, CullMode> cullModeTable =
     {
-        {"None", None},
-        {"Front", Front},
-        {"Back", Back},
-        {"FrontAndBack", FrontAndBack}
+        {"None", CullMode::None},
+        {"Front", CullMode::Front},
+        {"Back", CullMode::Back},
+        {"FrontAndBack", CullMode::FrontAndBack}
     };
 
     CullModeMgr::CullModeMgr()
@@ -31,24 +31,24 @@ namespace op
             return;
         }
 
-        if (curMode == None && cullMode != None)
+        if (curMode == CullMode::None && cullMode != CullMode::None)
         {
             glEnable(GL_CULL_FACE);
         }
-        else if (curMode != None && cullMode == None)
+        else if (curMode != CullMode::None && cullMode == CullMode::None)
         {
             glDisable(GL_CULL_FACE);
         }
 
-        if (cullMode == Front)
+        if (cullMode == CullMode::Front)
         {
             glCullFace(GL_FRONT);
         }
-        else if (cullMode == Back)
+        else if (cullMode == CullMode::Back)
         {
             glCullFace(GL_BACK);
         }
-        else if (cullMode == FrontAndBack)
+        else if (cullMode == CullMode::FrontAndBack)
         {
             glCullFace(GL_FRONT_AND_BACK);
         }
@@ -62,7 +62,7 @@ namespace op
         if (it == cullModeTable.end())
         {
             Utils::LogWarning("未找到CullMode：" + str + " 重置成None");
-            return None;
+            return CullMode::None;
         }
 
         return it->second;

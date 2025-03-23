@@ -13,6 +13,7 @@ namespace op
     class CameraComp;
     class Scene;
     class CullModeMgr;
+    class BlendModeMgr;
     class RenderTargetDesc;
     class RenderContext;
     class CullingSystem;
@@ -39,6 +40,7 @@ namespace op
 
         GLFWwindow* m_window = nullptr;
         std::unique_ptr<CullModeMgr> m_cullModeMgr = nullptr;
+        std::unique_ptr<BlendModeMgr> m_blendModeMgr = nullptr;
         std::unique_ptr<RenderTargetDesc> m_gBufferDesc = nullptr;
         std::unique_ptr<RenderContext> m_renderContext = nullptr;
         std::unique_ptr<CullingSystem> m_cullingSystem = nullptr;

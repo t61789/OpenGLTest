@@ -2,6 +2,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "blend_mode.h"
 #include "cull_mode.h"
 #include "shared_object.h"
 #include "glm/glm.hpp"
@@ -19,7 +20,8 @@ namespace op
 
         Shader* shader = nullptr;
 
-        CullMode cullMode = Back;
+        CullMode cullMode = CullMode::Back;
+        BlendMode blendMode = BlendMode::None;
 
         std::unordered_map<std::string, int> intValues;
         std::unordered_map<std::string, bool> boolValues;
