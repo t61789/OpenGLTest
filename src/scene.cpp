@@ -152,5 +152,15 @@ namespace op
         {
             tonemappingExposureMultiplier = configJson["tonemappingExposureMultiplier"].get<float>();
         }
+
+        if (configJson.contains("fog_intensity"))
+        {
+            fogIntensity = configJson["fog_intensity"].get<float>();
+        }
+
+        if (configJson.contains("fog_color"))
+        {
+            fogColor = Utils::ToVec3(configJson["fog_color"]);
+        }
     }
 }

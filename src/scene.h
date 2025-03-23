@@ -21,6 +21,8 @@ namespace op
         glm::vec3 ambientLightColorEquator = glm::vec3(0, 0, 0);
         glm::vec3 ambientLightColorGround = glm::vec3(0, 0, 0);
         float tonemappingExposureMultiplier = 1.0f;
+        float fogIntensity = 0.01f;
+        glm::vec3 fogColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
         void GetAllObjects(std::vector<Object*>& result);
         

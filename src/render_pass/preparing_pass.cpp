@@ -45,6 +45,9 @@ namespace op
             m_renderContext->scene->ambientLightColorSky,
             m_renderContext->scene->ambientLightColorEquator,
             m_renderContext->scene->ambientLightColorGround);
+
+        Material::SetGlobalFloatValue("_FogIntensity", m_renderContext->scene->fogIntensity);
+        Material::SetGlobalVector4Value("_FogColor", glm::vec4(m_renderContext->scene->fogColor, 0));
     }
 
     void PreparingPass::DrawConsoleUi()
@@ -62,6 +65,8 @@ namespace op
         m_renderContext->scene->ambientLightColorSky = Gui::SliderFloat3("GradientSky", m_renderContext->scene->ambientLightColorSky, 0.0f, 10.0f, "%.2f");
         m_renderContext->scene->ambientLightColorEquator = Gui::SliderFloat3("GradientEquator", m_renderContext->scene->ambientLightColorEquator, 0.0f, 10.0f, "%.2f");
         m_renderContext->scene->ambientLightColorGround = Gui::SliderFloat3("GradientGround", m_renderContext->scene->ambientLightColorGround, 0.0f, 10.0f, "%.2f");
+        ImGui::SliderFloat("Fog Intensity", &m_renderContext->scene->fogIntensity, 0.0f, 0.005f, "%.5f");
+        m_renderContext->scene->fogColor = Gui::SliderFloat3("Fog Color", m_renderContext->scene->fogColor, 0.0f, 1.0f, "%.2f");
     }
 
     void PreparingPass::PrepareLightInfos()

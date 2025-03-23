@@ -21,8 +21,17 @@ void main()
 in vec2 texCoord;
 
 uniform float _ExposureMultiplier;
+uniform float _FogIntensity;
+uniform vec4 _FogColor;
 
 out vec4 FragColor;
+
+vec3 ApplyFog(vec3 albedo, vec3 positionWS)
+{
+    float dir = length(GetCameraPositionWS() - positionWS);
+    float factor = exp(-_FogIntensity * dir);
+    return mix(_FogColor.rgb, albedo, factor);
+}
 
 void main()
 {
@@ -32,7 +41,7 @@ void main()
     ReadGBuffer0(texCoord, albedo, pixelType);
     ReadGBuffer1(texCoord, normalWS);
     vec3 positionWS = TransformScreenToWorld(texCoord);
-    
+
     vec3 finalColor;
     if(pixelType == PIXEL_TYPE_LIT)
     {
@@ -42,6 +51,8 @@ void main()
     {
         finalColor = albedo;
     }
+
+    finalColor = ApplyFog(finalColor, positionWS);
 
     FragColor = vec4(finalColor, 1);
     // FragColor = vec4(texCoord, 0, 1);
