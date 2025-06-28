@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-#include "glad.h"
-#include "glfw3.h"
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include "imgui.h"
 
 #include "event.h"

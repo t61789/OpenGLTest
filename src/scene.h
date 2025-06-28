@@ -3,7 +3,7 @@
 #include <string>
 
 #include "glm/glm.hpp"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 
 #include "event.h"
 #include "shared_object.h"

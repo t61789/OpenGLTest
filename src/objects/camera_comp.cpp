@@ -1,6 +1,7 @@
 ﻿#include "camera_comp.h"
 
-#include "glfw3.h"
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/gtc/quaternion.hpp"

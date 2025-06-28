@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 
 #include "shader.h"
 #include "built_in_res.h"

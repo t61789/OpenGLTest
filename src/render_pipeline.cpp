@@ -21,8 +21,6 @@
 #include "render_pass/render_scene_pass.h"
 #include "render_pass/render_skybox_pass.h"
 
-#include "glfw3.h"
-
 namespace op
 {
     RenderPipeline* RenderPipeline::instance = nullptr;

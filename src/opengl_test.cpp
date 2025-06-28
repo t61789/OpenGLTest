@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
     if (!SharedObject::m_count.empty())
     {
-        Utils::LogWarning("SharedObject未完全释放");
+        Utils::LogWarning("SharedObject未完全释放 ");
     }
     
     return 0;

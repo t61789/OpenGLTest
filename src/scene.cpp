@@ -5,7 +5,7 @@
 #include <filesystem>
 
 #include "utils.h"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include "objects/light_comp.h"
 #include "objects/runtime_comp.h"
 #include "objects/transform_comp.h"

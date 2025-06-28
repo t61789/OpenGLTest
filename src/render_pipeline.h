@@ -4,7 +4,8 @@
 #include <vector>
 
 #include "glm/glm.hpp"
-#include "glfw3.h"
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #include "objects/render_comp.h"
 
 namespace op

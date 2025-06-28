@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include "glm/glm.hpp"
 
 #include "event.h"

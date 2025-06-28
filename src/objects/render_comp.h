@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <json.hpp>
+#include "nlohmann/json.hpp"
 
 #include "bounds.h"
 #include "comp.h"

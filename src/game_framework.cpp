@@ -4,14 +4,13 @@
 
 #include "imgui.h"
 
-#include "utils.h"
 #include "scene.h"
 #include "gui.h"
 #include "windows.h"
 #include "built_in_res.h"
 #include "objects/camera_comp.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 namespace op
 {
