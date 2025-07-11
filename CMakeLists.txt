@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)  # 确保 CMake 版本足够新
 	
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_SUPPRESS_REGENERATION TRUE)
 
 project(OpenGLTest LANGUAGES C CXX)
