@@ -4,6 +4,11 @@
 
 namespace op
 {
+    Vec3 LightComp::GetColor() const
+    {
+        return color * intensity;
+    }
+
     void LightComp::LoadFromJson(const nlohmann::json& objJson)
     {
         if (objJson.contains("color"))
@@ -23,7 +28,7 @@ namespace op
     
         if (objJson.contains("radius"))
         {
-            intensity = objJson["radius"].get<float>();
+            radius = objJson["radius"].get<float>();
         }
     }
 }

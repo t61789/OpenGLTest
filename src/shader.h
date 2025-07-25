@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include "glm/glm.hpp"
-
 #include "shared_object.h"
 #include "mesh.h"
 #include "texture.h"
@@ -39,10 +37,10 @@ namespace op
         static void SetInt(const int &location, int value);
         void SetFloat(const std::string &name, float value) const;
         static void SetFloat(const int &location, float value);
-        void SetVector(const std::string &name, const glm::vec4& value) const;
-        static void SetVector(const int &location, const glm::vec4& value);
-        void SetMatrix(const std::string& name, const glm::mat4& value) const;
-        static void SetMatrix(const int& location, const glm::mat4& value);
+        void SetVector(const std::string &name, const Vec4& value) const;
+        static void SetVector(const int &location, const Vec4& value);
+        void SetMatrix(const std::string& name, const Matrix4x4& value) const;
+        static void SetMatrix(const int& location, const Matrix4x4& value);
         void SetTexture(const std::string& name, const int slot, const Texture* value) const;
         static void SetTexture(const int& location, const int slot, const Texture* value);
         void SetFloatArr(const std::string& name, uint32_t count, float* value) const;

@@ -14,6 +14,8 @@ namespace op
 
         virtual void Awake(){}
 
+        virtual void OnDestroy(){}
+
         virtual void Update(){}
     
         virtual void LoadFromJson(const nlohmann::json& objJson){}

@@ -27,16 +27,16 @@ namespace op
             return;
         }
 
-        Material::SetGlobalVector4Value("_CameraPositionWS", glm::vec4(m_renderContext->camera->owner->transform->GetPosition(), 0));
+        Material::SetGlobalVector4Value("_CameraPositionWS", Vec4(m_renderContext->camera->owner->transform->GetPosition(), 0));
 
-        std::vector<glm::vec4> clearColors = {
-            glm::vec4(0.5f),
-            glm::vec4(0.0f),
-            glm::vec4(1.0f),
+        std::vector clearColors = {
+            Vec4(0.5f),
+            Vec4(0.0f),
+            Vec4(1.0f),
         };
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Clear(clearColors, 1.0f);
 
-        auto viewportSize = glm::vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
+        auto viewportSize = Vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
         Material::SetGlobalVector4Value("_ViewportSize", viewportSize);
 
         PrepareLightInfos();
@@ -47,7 +47,9 @@ namespace op
             m_renderContext->scene->ambientLightColorGround);
 
         Material::SetGlobalFloatValue("_FogIntensity", m_renderContext->scene->fogIntensity);
-        Material::SetGlobalVector4Value("_FogColor", glm::vec4(m_renderContext->scene->fogColor, 0));
+        Material::SetGlobalVector4Value("_FogColor", Vec4(m_renderContext->scene->fogColor, 0));
+
+        m_renderContext->SetViewProjMatrix(m_renderContext->camera);
     }
 
     void PreparingPass::DrawConsoleUi()
@@ -85,7 +87,7 @@ namespace op
                 if (!m_renderContext->mainLight)
                 {
                     m_renderContext->mainLight = light;
-                    Material::SetGlobalVector4Value("_MainLightDirection", glm::vec4(-light->owner->transform->Forward(), 0));
+                    Material::SetGlobalVector4Value("_MainLightDirection", Vec4(-light->owner->transform->GetLocalToWorld().Forward(), 0));
                 }
 
                 parallelLights.push_back(light);
@@ -96,17 +98,20 @@ namespace op
             }
         }
 
-        struct alignas(4) ParallelLightInfo
+        struct alignas(8) ParallelLightInfo
         {
-            glm::vec3 direction;
-            glm::vec3 color;
+            Vec4 param0; // x: dir.x, y: dir.y, z: dir.z, w: dummy
+            Vec4 param1; // x: color.x, y: color.y, z: color.z, w: dummy
         };
 
         auto parallelLightInfos = std::vector<ParallelLightInfo>();
         parallelLightInfos.reserve(parallelLights.size());
         for (auto light : parallelLights)
         {
-            parallelLightInfos.push_back({ -light->owner->transform->Forward(), light->color });
+            parallelLightInfos.push_back({
+                Vec4(-light->owner->transform->GetLocalToWorld().Forward(), 0),
+                Vec4(light->GetColor(), 0)
+            });
         }
         auto updateBuffer = reinterpret_cast<float*>(parallelLightInfos.data());
         auto count = static_cast<int>(parallelLightInfos.size());
@@ -116,18 +121,20 @@ namespace op
             count * (sizeof(ParallelLightInfo) / sizeof(float)));
         Material::SetGlobalIntValue("_ParallelLightCount", count);
 
-        struct alignas(4) PointLightInfo
+        struct alignas(8) PointLightInfo
         {
-            glm::vec3 position;
-            float radius;
-            glm::vec3 color;
+            Vec4 param0; // x: pos.x, y: pos.y, z: pos.z, w: radius
+            Vec4 param1; // x: color.x, y: color.y, z: color.z, w: dummy
         };
     
         auto pointLightInfos = std::vector<PointLightInfo>();
         pointLightInfos.reserve(parallelLights.size());
         for (auto light : pointLights)
         {
-            pointLightInfos.push_back({ light->owner->transform->GetPosition(), light->radius, light->color });
+            pointLightInfos.push_back({
+                Vec4(light->owner->transform->GetPosition(), light->radius),
+                Vec4(light->GetColor(), 0)
+            });
         }
         updateBuffer = reinterpret_cast<float*>(pointLightInfos.data());
         count = static_cast<int>(pointLightInfos.size());
@@ -135,5 +142,6 @@ namespace op
             "_PointLightInfo",
             updateBuffer,
             count * (sizeof(PointLightInfo) / sizeof(float)));
+        Material::SetGlobalIntValue("_PointLightCount", count);
     }
 }

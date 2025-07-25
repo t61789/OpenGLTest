@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "glm/glm.hpp"
+#include "math/math.h"
 #include "nlohmann/json.hpp"
 
 #include "event.h"
@@ -17,12 +17,12 @@ namespace op
     public:
         Object* sceneRoot = nullptr;
 
-        glm::vec3 ambientLightColorSky = glm::vec3(0, 0, 0);
-        glm::vec3 ambientLightColorEquator = glm::vec3(0, 0, 0);
-        glm::vec3 ambientLightColorGround = glm::vec3(0, 0, 0);
+        Vec3 ambientLightColorSky = Vec3(0, 0, 0);
+        Vec3 ambientLightColorEquator = Vec3(0, 0, 0);
+        Vec3 ambientLightColorGround = Vec3(0, 0, 0);
         float tonemappingExposureMultiplier = 1.0f;
         float fogIntensity = 0.01f;
-        glm::vec3 fogColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        Vec3 fogColor = Vec3(1.0f, 1.0f, 1.0f);
 
         void GetAllObjects(std::vector<Object*>& result);
         
@@ -32,7 +32,7 @@ namespace op
         Scene();
         ~Scene() override;
 
-        EventCallback<void, Object*, Object*> m_objectChildAddedCallback = nullptr;
+        EventHandler m_objectChildAddedHandler = 0;
         void OnObjectChildAdded(Object* parent, Object* child);
 
         void LoadSceneConfig(const nlohmann::json& configJson);

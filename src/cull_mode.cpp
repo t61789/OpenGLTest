@@ -17,6 +17,7 @@ namespace op
     CullModeMgr::CullModeMgr()
     {
         glDisable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
     }
 
     CullModeMgr::~CullModeMgr()

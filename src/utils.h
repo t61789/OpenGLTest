@@ -4,13 +4,12 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
 #include "nlohmann/json.hpp"
 #include "imgui.h"
 
 #include "event.h"
+
+#include "math/math.h"
 
 namespace op
 {
@@ -68,8 +67,8 @@ namespace op
         static Event<GLFWwindow*, int, int> s_setFrameBufferSizeEvent;
         static std::vector<std::string> s_logs;
         
-        static glm::vec3 ToVec3(const nlohmann::json& arr);
-        static glm::vec4 ToVec4(const nlohmann::json& arr);
+        static Vec3 ToVec3(const nlohmann::json& arr);
+        static Vec4 ToVec4(const nlohmann::json& arr);
 
         static std::vector<std::string> ToDirectories(const std::string& path);
         static std::string GetAbsolutePath(const std::string& relativePath);
@@ -122,12 +121,6 @@ namespace op
         }
         
         static std::string ToString(float val, int fixed);
-        static std::string ToString(const glm::vec3& val);
-        static std::string ToString(const glm::vec4& val);
-        static std::string ToString(const glm::mat4& val);
-
-        static float* ToArr(const glm::vec3& val);
-        static glm::vec3 FromArr(const float* arr);
 
         static bool IsVec(const nlohmann::json& jsonValue, int components);
         static bool IsVec3(const nlohmann::json& jsonValue);
@@ -142,9 +135,11 @@ namespace op
         static bool EndsWith(const std::string& str, const std::string& suffix);
         static std::string JoinStrings(const std::vector<std::string>& strings, std::string delimiter);
 
-        static glm::vec3 WorldToScreen(const glm::vec3& worldPos, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize);
-        static void DebugDrawLine(const glm::vec3& worldStart, const glm::vec3& worldEnd, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
-        static void DebugDrawCube(const Bounds& bounds, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
+        static Matrix4x4 CreateProjection(float fov, float aspect, float near, float far);
+        static Matrix4x4 CreateOrthoProjection(float r, float l, float t, float b, float f, float n);
+        static Vec3 WorldToScreen(const Vec3& worldPos, const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, const Vec2& screenSize);
+        static void DebugDrawLine(const Vec3& worldStart, const Vec3& worldEnd, const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, const Vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
+        static void DebugDrawCube(const Bounds& bounds, const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, const Vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
         static int ComputeRegionCode(float x, float y, float xmin, float ymin, float xmax, float ymax);
         static bool CohenSutherlandClip(float &x1, float &y1, float &x2, float &y2, float xmin, float ymin, float xmax, float ymax);
 

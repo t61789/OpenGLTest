@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include "glm/glm.hpp"
+#include "math/math.h"
 
 namespace op
 {
@@ -27,10 +27,10 @@ namespace op
 
         int mainLightShadowSize = 0;
         
-        glm::mat4 vMatrix;
-        glm::mat4 pMatrix;
-        glm::mat4 vpMatrix;
-        glm::vec3 cameraPositionWS;
+        Matrix4x4 vMatrix;
+        Matrix4x4 pMatrix;
+        Matrix4x4 vpMatrix;
+        Vec3 cameraPositionWS;
         Material* replaceMaterial = nullptr;
 
         LightComp* mainLight = nullptr;
@@ -52,7 +52,7 @@ namespace op
         ~RenderContext();
 
         void SetViewProjMatrix(const CameraComp* cam);
-        void SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj);
+        void SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj);
 
         void RegisterRt(RenderTexture* rt);
         void UnRegisterRt(const RenderTexture* rt);

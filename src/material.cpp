@@ -44,7 +44,7 @@ namespace op
         floatValues[paramName] = value;
     }
 
-    void Material::SetMat4Value(const std::string& paramName, const glm::mat4& value)
+    void Material::SetMat4Value(const std::string& paramName, const Matrix4x4& value)
     {
         mat4Values[paramName] = value;
     }
@@ -67,7 +67,7 @@ namespace op
             textureValues[paramName] = value;
             INCREF(value);
             
-            auto texelSize = glm::vec4(
+            auto texelSize = Vec4(
                 1.0f / static_cast<float>(value->width),
                 1.0f / static_cast<float>(value->height),
                 static_cast<float>(value->width),
@@ -81,7 +81,7 @@ namespace op
         }
     }
 
-    void Material::SetVector4Value(const std::string& paramName, const glm::vec4& value)
+    void Material::SetVector4Value(const std::string& paramName, const Vec4& value)
     {
         vec4Values[paramName] = value;
     }
@@ -118,7 +118,7 @@ namespace op
         s_globalMaterial->SetFloatValue(paramName, value);
     }
 
-    void Material::SetGlobalMat4Value(const std::string& paramName, const glm::mat4& value)
+    void Material::SetGlobalMat4Value(const std::string& paramName, const Matrix4x4& value)
     {
         s_globalMaterial->SetMat4Value(paramName, value);
     }
@@ -128,7 +128,7 @@ namespace op
         s_globalMaterial->SetTextureValue(paramName, value);
     }
 
-    void Material::SetGlobalVector4Value(const std::string& paramName, const glm::vec4& value)
+    void Material::SetGlobalVector4Value(const std::string& paramName, const Vec4& value)
     {
         s_globalMaterial->SetVector4Value(paramName, value);
     }
@@ -194,7 +194,7 @@ namespace op
                 
             case GL_FLOAT_MAT4:
                 {
-                    auto m = glm::mat4(0);
+                    Matrix4x4 m;
                     FindParam(uniformInfo.name, mat4Values, s_globalMaterial->mat4Values, m);
                     targetShader->SetMatrix(uniformInfo.name, m);
                     break;
@@ -215,7 +215,7 @@ namespace op
                 
             case GL_FLOAT_VEC4:
                 {
-                    glm::vec4 v;
+                    Vec4 v;
                     FindParam(uniformInfo.name, vec4Values, s_globalMaterial->vec4Values, v);
                     targetShader->SetVector(uniformInfo.name, v);
                     break;

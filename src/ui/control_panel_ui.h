@@ -17,7 +17,7 @@ namespace op
             virtual void DrawConsoleUi() = 0;
 
         private:
-            std::function<void()>* m_drawConsoleUiCallBack = nullptr;
+            EventHandler m_drawConsoleUiHandler = 0;
         };
     
         ~ControlPanelUi();

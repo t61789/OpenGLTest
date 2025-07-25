@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "math/math.h"
 #include "object.h"
 
 namespace op
@@ -18,8 +19,8 @@ namespace op
         void LoadFromJson(const nlohmann::json& objJson) override;
     
     private:
-        glm::vec3 m_targetPosition = {};
-        glm::vec3 m_targetRotation = {};
+        Vec3 m_targetPosition = {};
+        Vec3 m_targetRotation = {};
         static std::vector<CameraComp*> s_cameras;
     };
 }

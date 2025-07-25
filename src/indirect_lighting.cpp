@@ -27,7 +27,7 @@ namespace op
         return m_data.data();
     }
 
-    void IndirectLighting::SetGradientAmbientColor(const glm::vec3& sky, const glm::vec3& equator, const glm::vec3& ground)
+    void IndirectLighting::SetGradientAmbientColor(const Vec3& sky, const Vec3& equator, const Vec3& ground)
     {
         auto cur = GradientAmbientColor{ sky, equator, ground };
         if (s_gradientAmbientColor.Equals(cur))
@@ -40,16 +40,16 @@ namespace op
         Material::SetGlobalFloatArrValue("_Shc", shc.GetData(), 27);
     }
 
-    Shc IndirectLighting::CalcShc(const glm::vec3& sky, const glm::vec3& equator, const glm::vec3& ground)
+    Shc IndirectLighting::CalcShc(const Vec3& sky, const Vec3& equator, const Vec3& ground)
     {
-        static glm::vec3 directions[6] =
+        static Vec3 directions[6] =
         {
-            glm::vec3(1.0f, 0.0f, 0.0f),
-            glm::vec3(-1.0f, 0.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, -1.0f, 0.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f),
-            glm::vec3(0.0f, 0.0f, -1.0f)
+            Vec3(1.0f, 0.0f, 0.0f),
+            Vec3(-1.0f, 0.0f, 0.0f),
+            Vec3(0.0f, 1.0f, 0.0f),
+            Vec3(0.0f, -1.0f, 0.0f),
+            Vec3(0.0f, 0.0f, 1.0f),
+            Vec3(0.0f, 0.0f, -1.0f)
         };
 
         Shc result;
@@ -70,13 +70,13 @@ namespace op
         return result;
     }
 
-    glm::vec3 IndirectLighting::RestoreLighting(Shc& shc, glm::vec3 direction)
+    Vec3 IndirectLighting::RestoreLighting(Shc& shc, Vec3 direction)
     {
-        direction = glm::normalize(direction);
+        direction = direction.Normalize();
 
         auto baseShc = CalcBaseShc(direction);
         
-        glm::vec3 result;
+        Vec3 result;
         for (int term = 0; term < 9; ++term)
         {
             for (int channel = 0; channel < 3; ++channel)
@@ -88,7 +88,7 @@ namespace op
         return result;
     }
 
-    std::array<float, 9> IndirectLighting::CalcBaseShc(const glm::vec3& direction)
+    std::array<float, 9> IndirectLighting::CalcBaseShc(const Vec3& direction)
     {
         return {
             0.282095f,
@@ -103,7 +103,7 @@ namespace op
         };
     }
 
-    glm::vec3 IndirectLighting::SampleColor(const glm::vec3& direction, const glm::vec3& sky, const glm::vec3& equator, const glm::vec3& ground)
+    Vec3 IndirectLighting::SampleColor(const Vec3& direction, const Vec3& sky, const Vec3& equator, const Vec3& ground)
     {
         if (direction.y > 0.5f)
         {

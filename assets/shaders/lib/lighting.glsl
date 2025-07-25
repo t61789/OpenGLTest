@@ -6,20 +6,19 @@
 
 struct ParallelLightInfo
 {
-    vec3 direction;
-    vec3 color;
+    vec4 direction;
+    vec4 color;
 };
-#define PARALLEL_LIGHT_INFO_STRIDE 6
-uniform float _ParallelLightInfo[6 * MAX_PARALLEL_LIGHT_COUNT];
+#define PARALLEL_LIGHT_INFO_STRIDE 8
+uniform float _ParallelLightInfo[PARALLEL_LIGHT_INFO_STRIDE * MAX_PARALLEL_LIGHT_COUNT];
 uniform int _ParallelLightCount;
 
 struct PointLightInfo
 {
-    vec3 positionWS;
-    float radius;
-    vec3 color;
+    vec4 param0; // x: pos.x, y: pos.y, z: pos.z, w: radius
+    vec4 param1; // x: color.x, y: color.y, z: color.z, w: dummy
 };
-#define POINT_LIGHT_INFO_STRIDE 7
+#define POINT_LIGHT_INFO_STRIDE 8
 uniform float _PointLightInfo[POINT_LIGHT_INFO_STRIDE * MAX_POINT_LIGHT_COUNT];
 uniform int _PointLightCount;
 
@@ -39,9 +38,9 @@ Light GetParallelLight(int index)
         _ParallelLightInfo[startOffset + 2]
     );
     l.color = vec3(
-        _ParallelLightInfo[startOffset + 3], 
         _ParallelLightInfo[startOffset + 4], 
-        _ParallelLightInfo[startOffset + 5]
+        _ParallelLightInfo[startOffset + 5], 
+        _ParallelLightInfo[startOffset + 6]
     );
     return l;
 }
@@ -182,7 +181,7 @@ vec3 LitWithParallelLights(vec3 normalWS, vec3 positionWS, vec3 viewDirWS, vec3 
 vec3 LitWithPointLights(vec3 normalWS, vec3 positionWS, vec3 viewDirWS, vec3 albedo, float roughness, float metallic)
 {
     vec3 result = vec3(0);
-    for (int i = 0; i < _ParallelLightCount; i++)
+    for (int i = 0; i < _PointLightCount; i++)
     {
         Light light = GetPointLight(i, positionWS);
         result += Lit0(normalWS, viewDirWS, light, 1, albedo, roughness, metallic);

@@ -37,7 +37,7 @@ namespace op
         int m_screenWidth = 1600;
         int m_screenHeight = 900;
 
-        std::function<void(GLFWwindow*, int, int)>* m_setFrameBufferSizeCallBack = nullptr;
+        EventHandler m_setFrameBufferSizeHandler = 0;
 
         void InitGame();
         void ReleaseGame();

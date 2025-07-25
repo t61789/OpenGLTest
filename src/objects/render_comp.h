@@ -4,6 +4,7 @@
 
 #include "bounds.h"
 #include "comp.h"
+#include "event.h"
 
 namespace op
 {
@@ -16,10 +17,21 @@ namespace op
         Mesh* mesh = nullptr;
         Material* material = nullptr;
     
-        Bounds bounds;
+        void Awake() override;
 
-        ~RenderComp() override;
+        void OnDestroy() override;
     
         void LoadFromJson(const nlohmann::json& objJson) override;
+
+        const Bounds& GetWorldBounds();
+
+    private:
+        EventHandler m_transformDirtyHandler = 0;
+        bool m_worldBoundsDirty = true;
+        Bounds m_worldBounds;
+
+        void OnTransformDirty();
+
+        void UpdateWorldBounds();
     };
 }

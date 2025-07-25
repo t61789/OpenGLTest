@@ -16,7 +16,6 @@ namespace op
 
     Scene::Scene()
     {
-        m_objectChildAddedCallback = CreateCallback(this, &Scene::OnObjectChildAdded);
     }
 
     Scene::~Scene()
@@ -25,8 +24,6 @@ namespace op
         {
             DECREF(sceneRoot);
         }
-
-        delete m_objectChildAddedCallback;
     }
 
     void Scene::LoadChildren(Object* parent, const nlohmann::json& children)

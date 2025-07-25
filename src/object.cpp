@@ -1,10 +1,5 @@
 ﻿#include "object.h"
 
-#include "glm/gtc/matrix_transform.hpp"
-#define GLM_ENABLE_EXPERIMENTAL
-
-#include "glm/gtx/euler_angles.hpp"
-
 #include "utils.h"
 #include "objects/camera_comp.h"
 #include "objects/light_comp.h"
@@ -14,15 +9,6 @@
 
 namespace op
 {
-    static glm::vec3 ToVec3(nlohmann::json arr)
-    {
-        return {
-            arr[0].get<float>(),
-            arr[1].get<float>(),
-            arr[2].get<float>()
-        };
-    }
-
     Object::Object()
     {
         transform = AddComp<TransformComp>("TransformComp");
@@ -39,6 +25,11 @@ namespace op
         for (auto child : children)
         {
             DECREF(child);
+        }
+        
+        for (const auto& comp : m_comps)
+        {
+            comp.second->OnDestroy();
         }
 
         for (const auto& comp : m_comps)

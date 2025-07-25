@@ -43,6 +43,24 @@ namespace op
         _mm_store_ps(dst, a);
     }
 
+    inline void max(const float* l, const float* r, float* dst)
+    {
+        __m128 sl = _mm_load_ps(l);
+        __m128 sr = _mm_load_ps(r);
+
+        auto a = _mm_max_ps(sl, sr);
+        _mm_store_ps(dst, a);
+    }
+
+    inline void min(const float* l, const float* r, float* dst)
+    {
+        __m128 sl = _mm_load_ps(l);
+        __m128 sr = _mm_load_ps(r);
+
+        auto a = _mm_min_ps(sl, sr);
+        _mm_store_ps(dst, a);
+    }
+
     inline void length(const float* f4, float* dst)
     {
         __m128 f = _mm_load_ps(f4);
@@ -116,10 +134,27 @@ namespace op
         return _mm_movemask_ps(cmp) == 0xF;
     }
 
-    inline void gram_schmidt_orth(const float* forward, const float* up, float* right, float* new_up)
+    inline void gram_schmidt_ortho(const float* forward, const float* up, float* right, float* new_up)
     {
-        cross(forward, up, right);
+        cross(up, forward, right);
         normalize(right, right);
         cross(forward, right, new_up);
+    }
+
+    inline __m128 sign(const __m128 v)
+    {
+        auto s = _mm_and_ps(v, _mm_set1_ps(-0.0f));
+        auto notZero = _mm_cmpneq_ps(v, _mm_setzero_ps());
+        s = _mm_or_ps(s, _mm_set1_ps(1.0f));
+        s = _mm_and_ps(s, notZero);
+
+        return s;
+    }
+
+    inline void sign(const float* v, float* dst)
+    {
+        auto sv = _mm_load_ps(v);
+        
+        _mm_store_ps(dst, sign(sv));
     }
 }

@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <fstream>
 
-#include "glm/glm.hpp"
 #include "imgui.h"
 
 #include "bounds.h"
@@ -18,7 +17,7 @@ namespace op
     Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
     std::vector<std::string> Utils::s_logs;
 
-    glm::vec3 Utils::ToVec3(const nlohmann::json& arr)
+    Vec3 Utils::ToVec3(const nlohmann::json& arr)
     {
         if(!IsVec3(arr))
         {
@@ -32,7 +31,7 @@ namespace op
         };
     }
 
-    glm::vec4 Utils::ToVec4(const nlohmann::json& arr)
+    Vec4 Utils::ToVec4(const nlohmann::json& arr)
     {
         if(!IsVec4(arr))
         {
@@ -128,39 +127,6 @@ namespace op
         return oss.str();
     }
 
-    std::string Utils::ToString(const glm::vec3& val)
-    {
-        return "(" + ToString(val.x, 2) + ", " + ToString(val.y, 2) + ", " + ToString(val.z, 2) + ")";   
-    }
-
-    std::string Utils::ToString(const glm::vec4& val)
-    {
-        return "(" + ToString(val.x, 2) + ", " + ToString(val.y, 2) + ", " + ToString(val.z, 2) + ", " + ToString(val.w, 2) + ")";   
-    }
-
-    std::string Utils::ToString(const glm::mat4& val)
-    {
-        return "\t|" + ToString(val[0][0], 2) + ", " + ToString(val[1][0], 2) + ", " + ToString(val[2][0], 2) + ", " + ToString(val[3][0], 2) + "|\n" +
-               "\t|" + ToString(val[0][1], 2) + ", " + ToString(val[1][1], 2) + ", " + ToString(val[2][1], 2) + ", " + ToString(val[3][1], 2) + "|\n" +
-               "\t|" + ToString(val[0][2], 2) + ", " + ToString(val[1][2], 2) + ", " + ToString(val[2][2], 2) + ", " + ToString(val[3][2], 2) + "|\n" +
-               "\t|" + ToString(val[0][3], 2) + ", " + ToString(val[1][3], 2) + ", " + ToString(val[2][3], 2) + ", " + ToString(val[3][3], 2) + "|";
-    }
-
-    float* Utils::ToArr(const glm::vec3& val)
-    {
-        auto arr = new float[3];
-        arr[0] = val.x;
-        arr[1] = val.y;
-        arr[2] = val.z;
-
-        return arr;
-    }
-
-    glm::vec3 Utils::FromArr(const float* arr)
-    {
-        return {arr[0], arr[1], arr[2]};
-    }
-
     bool Utils::IsVec(const nlohmann::json& jsonValue, const int components)
     {
         if (jsonValue.is_array() && jsonValue.size() == components)
@@ -249,9 +215,34 @@ namespace op
         return ss.str();
     }
 
+    Matrix4x4 Utils::CreateProjection(const float fov, const float aspect, const float near, const float far)
+    {
+        auto f = 1 / std::tan(fov * 0.5f * DEG2RAD);
+        auto a = (far) / (near - far);
+        auto b = (far * near) / (near - far);
+
+        return {
+            f / aspect, 0, 0, 0,
+            0, f, 0, 0,
+            0, 0, a, b,
+            0, 0, -1, 0
+        };
+    }
+
+    Matrix4x4 Utils::CreateOrthoProjection(const float r, const float l, const float t, const float b, const float f, const float n)
+    {
+        return {
+            2 / (r - l), 0, 0, (l + r) / (l - r),
+            0, 2 / (t - b), 0, (t + b) / (b - t),
+            0, 0, 1 / (f - n), n / (n - f),
+            0, 0, 0, 1
+        };
+    }
+
     // 将世界坐标转换为屏幕坐标的工具函数
-    glm::vec3 Utils::WorldToScreen(const glm::vec3& worldPos, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const glm::vec2& screenSize) {
-        glm::vec4 clipSpacePos = projMatrix * viewMatrix * glm::vec4(worldPos, 1.0f);
+    Vec3 Utils::WorldToScreen(const Vec3& worldPos, const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, const Vec2& screenSize)
+    {
+        Vec4 clipSpacePos = projMatrix * viewMatrix * Vec4(worldPos, 1.0f);
 
         // 透视除法，转到 NDC（Normalized Device Coordinates）空间
         if (clipSpacePos.w != 0.0f) {
@@ -260,7 +251,7 @@ namespace op
         }
 
         // 转换到屏幕坐标
-        glm::vec3 screenPos;
+        Vec3 screenPos;
         screenPos.x = (clipSpacePos.x * 0.5f + 0.5f) * screenSize.x; // NDC x [-1,1] -> screen x [0,width]
         screenPos.y = (1.0f - (clipSpacePos.y * 0.5f + 0.5f)) * screenSize.y; // NDC y [-1,1] -> screen y [height,0]
         screenPos.z = clipSpacePos.z;
@@ -268,16 +259,16 @@ namespace op
     }
 
     // 封装的绘制线条函数
-    void Utils::DebugDrawLine(const glm::vec3& worldStart, const glm::vec3& worldEnd, 
-                       const glm::mat4& viewMatrix, const glm::mat4& projMatrix, 
-                       const glm::vec2& screenSize, 
-                       ImU32 color, float thickness) {
-        
+    void Utils::DebugDrawLine(const Vec3& worldStart, const Vec3& worldEnd, 
+                       const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, 
+                       const Vec2& screenSize, 
+                       ImU32 color, float thickness)
+    {
         auto drawList = ImGui::GetBackgroundDrawList();
         
         // 转换世界坐标到屏幕坐标
-        glm::vec3 screenStart = WorldToScreen(worldStart, viewMatrix, projMatrix, screenSize);
-        glm::vec3 screenEnd = WorldToScreen(worldEnd, viewMatrix, projMatrix, screenSize);
+        auto screenStart = WorldToScreen(worldStart, viewMatrix, projMatrix, screenSize);
+        auto screenEnd = WorldToScreen(worldEnd, viewMatrix, projMatrix, screenSize);
 
         if(screenStart.z < 0 || screenEnd.z < 0)
         {
@@ -298,23 +289,23 @@ namespace op
 
     void Utils::DebugDrawCube(
         const Bounds& bounds,
-        const glm::mat4& viewMatrix,
-        const glm::mat4& projMatrix,
-        const glm::vec2& screenSize,
+        const Matrix4x4& viewMatrix,
+        const Matrix4x4& projMatrix,
+        const Vec2& screenSize,
         ImU32 color,
         float thickness)
     {
         // 计算八个顶点
-        std::array<glm::vec3, 8> vertices =
+        std::array<Vec3, 8> vertices =
         {
-            bounds.center + glm::vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
-            bounds.center + glm::vec3( bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
-            bounds.center + glm::vec3( bounds.extents.x,  bounds.extents.y, -bounds.extents.z),
-            bounds.center + glm::vec3(-bounds.extents.x,  bounds.extents.y, -bounds.extents.z),
-            bounds.center + glm::vec3(-bounds.extents.x, -bounds.extents.y,  bounds.extents.z),
-            bounds.center + glm::vec3( bounds.extents.x, -bounds.extents.y,  bounds.extents.z),
-            bounds.center + glm::vec3( bounds.extents.x,  bounds.extents.y,  bounds.extents.z),
-            bounds.center + glm::vec3(-bounds.extents.x,  bounds.extents.y,  bounds.extents.z)
+            bounds.center + Vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
+            bounds.center + Vec3( bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
+            bounds.center + Vec3( bounds.extents.x,  bounds.extents.y, -bounds.extents.z),
+            bounds.center + Vec3(-bounds.extents.x,  bounds.extents.y, -bounds.extents.z),
+            bounds.center + Vec3(-bounds.extents.x, -bounds.extents.y,  bounds.extents.z),
+            bounds.center + Vec3( bounds.extents.x, -bounds.extents.y,  bounds.extents.z),
+            bounds.center + Vec3( bounds.extents.x,  bounds.extents.y,  bounds.extents.z),
+            bounds.center + Vec3(-bounds.extents.x,  bounds.extents.y,  bounds.extents.z)
         };
 
         // 定义12条边 [11]()
@@ -326,11 +317,11 @@ namespace op
         }};
 
         // 绘制所有边
-        for (const auto& edge : edges)
+        for (const auto& [start, end] : edges)
         {
             DebugDrawLine(
-                vertices[edge.first],
-                vertices[edge.second],
+                vertices[start],
+                vertices[end],
                 viewMatrix,
                 projMatrix,
                 screenSize,

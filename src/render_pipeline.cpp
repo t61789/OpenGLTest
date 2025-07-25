@@ -59,13 +59,13 @@ namespace op
         m_gBufferDesc->SetColorAttachment(2, m_gBuffer2Tex);
         m_gBufferDesc->SetDepthAttachment(m_gBufferDepthTex, true);
 
-        m_passes.push_back(new PreparingPass(m_renderContext.get()));
+        m_passes.push_back(new PreparingPass(m_renderContext.get())); // TODO 改成shared_ptr
         m_passes.push_back(new MainLightShadowPass(m_renderContext.get()));
         m_passes.push_back(new RenderSkyboxPass(m_renderContext.get()));
         m_passes.push_back(new RenderScenePass(m_renderContext.get()));
         m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
         // m_passes.push_back(new KawaseBlur());
-        m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));
+        // m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));
         m_passes.push_back(new FinalBlitPass(m_renderContext.get()));
     }
 
@@ -117,7 +117,7 @@ namespace op
         }
         
         Utils::BeginDebugGroup("Draw UI");
-        RenderUiPass();
+        RenderUiPass(m_renderContext.get());
         Utils::EndDebugGroup();
 
         glfwSwapBuffers(m_window);
@@ -126,7 +126,7 @@ namespace op
         Utils::ClearGlError();
     }
 
-    void RenderPipeline::GetViewProjMatrix(glm::mat4& view, glm::mat4& proj)
+    void RenderPipeline::GetViewProjMatrix(Matrix4x4& view, Matrix4x4& proj)
     {
         view = m_renderContext->vMatrix;
         proj = m_renderContext->pMatrix;
@@ -169,9 +169,9 @@ namespace op
         return true;
     }
 
-    void RenderPipeline::RenderUiPass()
+    void RenderPipeline::RenderUiPass(const RenderContext* context)
     {
-        Gui::GetInstance()->Render();
+        Gui::GetInstance()->Render(context);
     }
 
     void RenderPipeline::CategorizeObjects(RenderContext& renderContext)

@@ -30,34 +30,6 @@
       ]
     },
     {
-      "name": "rpgpp_lt_building_03",
-      "comps": [
-        {
-          "name": "TransformComp",
-          "position": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "rotation": [
-            0.0,
-            -19.18238,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
-        },
-        {
-          "name": "RenderComp",
-          "mesh": "scenes/ImportTest/meshes/rpgpp_lt_building_03_79b00ca6ac8496f6.obj",
-          "material": "scenes/ImportTest/materials/Default-Material_28e620823e0f65b6.json"
-        }
-      ]
-    },
-    {
       "name": "Directional Light",
       "comps": [
         {
@@ -86,29 +58,6 @@
             2.517647
           ],
           "light_type": 0
-        }
-      ]
-    },
-    {
-      "name": "GameObject",
-      "comps": [
-        {
-          "name": "TransformComp",
-          "position": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "rotation": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
         }
       ]
     },

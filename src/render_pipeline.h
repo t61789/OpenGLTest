@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 
-#include "glm/glm.hpp"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "objects/render_comp.h"
@@ -32,7 +31,7 @@ namespace op
         ~RenderPipeline();
         void SetScreenSize(int width, int height);
         void Render(const CameraComp* camera, Scene* scene);
-        void GetViewProjMatrix(glm::mat4& view, glm::mat4& proj);
+        void GetViewProjMatrix(Matrix4x4& view, Matrix4x4& proj);
         void GetScreenSize(int& width, int& height);
 
     private:
@@ -59,7 +58,7 @@ namespace op
         void FirstDrawScene(const Scene* scene);
         void PrepareRenderContext(Scene* scene);
         bool UpdateRenderTargetsPass();
-        void RenderUiPass();
+        void RenderUiPass(const RenderContext* renderContext);
         
         static void CategorizeObjects(RenderContext& renderContext);
     };

@@ -1,25 +1,27 @@
 ﻿#pragma once
-#include "glm/glm.hpp"
-#include <glm/gtc/quaternion.hpp>
+
+#include "math/math.h"
 
 #include "comp.h"
+#include "event.h"
 
 namespace op
 {
     class TransformComp : public Comp
     {
     public:
-        glm::vec3 GetPosition();
-        void SetPosition(const glm::vec3& pos);
-        glm::vec3 GetScale();
-        void SetScale(const glm::vec3& scale);
-        glm::quat GetRotation();
-        void SetRotation(const glm::quat& rotation);
-        glm::vec3 GetEulerAngles();
-        void SetEulerAngles(const glm::vec3& ea);
+        Event<> dirtyEvent;
+        
+        Vec3 GetPosition();
+        void SetPosition(const Vec3& pos);
+        Vec3 GetScale();
+        void SetScale(const Vec3& scale);
+        Quaternion GetRotation();
+        void SetRotation(Quaternion& rotation);
+        Vec3 GetEulerAngles();
+        void SetEulerAngles(const Vec3& ea);
     
-        glm::mat4 GetLocalToWorld();
-        glm::vec3 Forward();
+        const Matrix4x4& GetLocalToWorld();
 
         void LoadFromJson(const nlohmann::json& objJson) override;
 
@@ -38,11 +40,11 @@ namespace op
         bool m_localDirty = true;
         bool m_worldDirty = true;
         bool m_matrixDirty = true;
-        TransformCompProp<glm::vec3> m_position = TransformCompProp<glm::vec3>(glm::vec3());
-        TransformCompProp<glm::quat> m_rotation = TransformCompProp<glm::quat>(glm::quat());
-        TransformCompProp<glm::vec3> m_eulerAngles = TransformCompProp<glm::vec3>(glm::vec3());
-        TransformCompProp<glm::vec3> m_scale = TransformCompProp<glm::vec3>(glm::vec3(1.0f));
-        TransformCompProp<glm::mat4> m_matrix = TransformCompProp<glm::mat4>(glm::mat4());
+        TransformCompProp<Vec3> m_position = TransformCompProp(Vec3());
+        TransformCompProp<Quaternion> m_rotation = TransformCompProp(Quaternion());
+        TransformCompProp<Vec3> m_eulerAngles = TransformCompProp(Vec3());
+        TransformCompProp<Vec3> m_scale = TransformCompProp(Vec3(1.0f));
+        TransformCompProp<Matrix4x4> m_matrix = TransformCompProp(Matrix4x4());
     
         void UpdateMatrix();
 

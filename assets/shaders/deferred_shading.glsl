@@ -42,17 +42,22 @@ void main()
     ReadGBuffer1(texCoord, normalWS);
     vec3 positionWS = TransformScreenToWorld(texCoord);
 
+    //albedo = vec3(mod(positionWS.xz, 1.0), 0.0);
+
     vec3 finalColor;
     if(pixelType == PIXEL_TYPE_LIT)
     {
         finalColor = LitWithLights(normalWS, positionWS, albedo, 0.8, 0.0);
+        //finalColor = normalWS;
+        // finalColor = albedo;
+        // finalColor = vec3(mod(abs(positionWS.xz), 1.0), 0.0);
     }
     else
     {
         finalColor = albedo;
     }
 
-    finalColor = ApplyFog(finalColor, positionWS);
+    //finalColor = ApplyFog(finalColor, positionWS);
 
     FragColor = vec4(finalColor, 1);
     // FragColor = vec4(texCoord, 0, 1);

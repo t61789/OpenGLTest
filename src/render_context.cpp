@@ -1,7 +1,6 @@
 ﻿#include "render_context.h"
 
-#include "glm/ext/matrix_clip_space.hpp"
-
+#include "utils.h"
 #include "material.h"
 #include "render_texture.h"
 #include "shared_object.h"
@@ -21,22 +20,24 @@ namespace op
     void RenderContext::SetViewProjMatrix(const CameraComp* cam)
     {
         auto cameraLocalToWorld = cam->owner->transform->GetLocalToWorld();
-        auto viewMatrix = glm::inverse(cameraLocalToWorld);
-        auto projectionMatrix = glm::perspective(
-            glm::radians(cam->fov * 0.5f),
-            static_cast<float>(screenWidth) / static_cast<float>(screenHeight),
-            cam->nearClip,
-            cam->farClip);
+        cameraLocalToWorld[0][2] = -cameraLocalToWorld[0][2];
+        cameraLocalToWorld[1][2] = -cameraLocalToWorld[1][2];
+        cameraLocalToWorld[2][2] = -cameraLocalToWorld[2][2];
+        auto viewMatrix = cameraLocalToWorld.Inverse();
+
+        auto aspect = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
+        auto projectionMatrix = Utils::CreateProjection(cam->fov, aspect, cam->nearClip, cam->farClip);
+
         SetViewProjMatrix(viewMatrix, projectionMatrix);
     }
 
-    void RenderContext::SetViewProjMatrix(const glm::mat4& view, const glm::mat4& proj)
+    void RenderContext::SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj)
     {
         vMatrix = view;
         pMatrix = proj;
         vpMatrix = proj * view;
         Material::SetGlobalMat4Value("_VP", vpMatrix);
-        Material::SetGlobalMat4Value("_IVP", inverse(vpMatrix));
+        Material::SetGlobalMat4Value("_IVP", vpMatrix.Inverse());
     }
 
     void RenderContext::RegisterRt(RenderTexture* rt)

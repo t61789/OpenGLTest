@@ -16,14 +16,12 @@ namespace op
 
     ControlPanelUi::UiProxy::UiProxy()
     {
-        m_drawConsoleUiCallBack = new std::function([this]{this->DrawConsoleUi();});
-        GetInstance()->m_drawConsoleUiEvent.AddCallBack(m_drawConsoleUiCallBack);
+        m_drawConsoleUiHandler = GetInstance()->m_drawConsoleUiEvent.Add(this, &UiProxy::DrawConsoleUi);
     }
 
     ControlPanelUi::UiProxy::~UiProxy()
     {
-        GetInstance()->m_drawConsoleUiEvent.RemoveCallBack(m_drawConsoleUiCallBack);
-        delete m_drawConsoleUiCallBack;
+        GetInstance()->m_drawConsoleUiEvent.Remove(m_drawConsoleUiHandler);
     }
 
     ControlPanelUi::~ControlPanelUi()
@@ -110,9 +108,10 @@ namespace op
     void ControlPanelUi::DrawProperties(const Object* obj)
     {
         ImGui::BeginChild("Properties", ImVec2(0, 150), true);
-
+        
         if (obj)
         {
+            ImGui::TextUnformatted(obj->name.c_str());
             obj->transform->SetPosition(Gui::DragFloat3("position", obj->transform->GetPosition(), 0.02f));
             obj->transform->SetScale(Gui::DragFloat3("scale", obj->transform->GetScale(), 0.02f));
             obj->transform->SetEulerAngles(Gui::DragFloat3("rotation", obj->transform->GetEulerAngles(), 1.0f));

@@ -1,23 +1,18 @@
 ﻿#include "transform_comp.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/euler_angles.hpp"
-#include "glm/ext/matrix_transform.hpp"
-
 #include "object.h"
 #include "utils.h"
 
 namespace op
 {
     using namespace std;
-    using namespace glm;
 
-    vec3 TransformComp::GetPosition()
+    Vec3 TransformComp::GetPosition()
     {
         return m_position.localVal;
     }
 
-    void TransformComp::SetPosition(const vec3& pos)
+    void TransformComp::SetPosition(const Vec3& pos)
     {
         if (m_position.localVal == pos)
         {
@@ -33,12 +28,12 @@ namespace op
         m_position.worldDirty = true;
     }
 
-    vec3 TransformComp::GetScale()
+    Vec3 TransformComp::GetScale()
     {
         return m_scale.localVal;
     }
 
-    void TransformComp::SetScale(const vec3& scale)
+    void TransformComp::SetScale(const Vec3& scale)
     {
         if (m_scale.localVal == scale)
         {
@@ -54,12 +49,12 @@ namespace op
         m_scale.worldDirty = true;
     }
 
-    quat TransformComp::GetRotation()
+    Quaternion TransformComp::GetRotation()
     {
         return m_rotation.localVal;
     }
 
-    void TransformComp::SetRotation(const quat& rotation)
+    void TransformComp::SetRotation(Quaternion& rotation)
     {
         if (m_rotation.localVal == rotation)
         {
@@ -71,20 +66,19 @@ namespace op
             SetDirty(owner);
         }
 
-        m_eulerAngles.localVal = eulerAngles(rotation);
+        m_eulerAngles.localVal = rotation.ToEuler();
         m_rotation.localVal = rotation;
         m_rotation.worldDirty = true;
     }
 
-    vec3 TransformComp::GetEulerAngles()
+    Vec3 TransformComp::GetEulerAngles()
     {
-        return degrees(m_eulerAngles.localVal);
+        return m_eulerAngles.localVal;
     }
 
-    void TransformComp::SetEulerAngles(const vec3& ea)
+    void TransformComp::SetEulerAngles(const Vec3& ea)
     {
-        auto e = radians(ea);
-        if (m_eulerAngles.localVal == e)
+        if (m_eulerAngles.localVal == ea)
         {
             return;
         }
@@ -94,27 +88,20 @@ namespace op
             SetDirty(owner);
         }
 
-        m_eulerAngles.localVal = e;
-        m_rotation.localVal = quat(e);
+        m_eulerAngles.localVal = ea;
+        m_rotation.localVal = Quaternion::Euler(ea);
         m_rotation.worldDirty = true;
     }
 
-    mat4 TransformComp::GetLocalToWorld()
+    const Matrix4x4& TransformComp::GetLocalToWorld()
     {
         if (m_matrix.worldDirty)
         {
             UpdateMatrix();
+            m_matrix.worldDirty = false;
         }
 
         return m_matrix.localVal;
-    }
-
-    vec3 TransformComp::Forward()
-    {
-        auto result = vec3(GetLocalToWorld()[2]);
-        return {
-            normalize(result)
-        };
     }
 
     void TransformComp::LoadFromJson(const nlohmann::json& objJson)
@@ -137,7 +124,7 @@ namespace op
 
     void TransformComp::UpdateMatrix()
     {
-        mat4 parentLocalToWorld;
+        Matrix4x4 parentLocalToWorld;
         if (owner->parent)
         {
             // 如果parent还是dirty的话，GetLocalToWorld会继续往上递归地UpdateMatrix
@@ -145,22 +132,22 @@ namespace op
         }
         else
         {
-            parentLocalToWorld = mat4(1);
+            parentLocalToWorld = Matrix4x4::Identity();
         }
 
-        auto objectMatrix = mat4(1);
-        objectMatrix = translate(objectMatrix, m_position.localVal);
-        objectMatrix = objectMatrix * mat4_cast(m_rotation.localVal);
-        objectMatrix = scale(objectMatrix, m_scale.localVal);
+        auto objectMatrix = Matrix4x4::TRS(m_position.localVal, m_rotation.localVal, m_scale.localVal);
 
         m_matrix.localVal = parentLocalToWorld * objectMatrix;
-        m_matrix.worldVal = inverse(m_matrix.localVal);
-        m_matrix.worldDirty = false;
+        m_matrix.worldVal = m_matrix.localVal.Inverse();
     }
 
     /// 递归地将当前物体和它的子物体都标记为dirty
     void TransformComp::SetDirty(const Object* object)
     {
+        if (!object->transform->m_matrix.worldDirty)
+        {
+            object->transform->dirtyEvent.Invoke();
+        }
         object->transform->m_matrix.worldDirty = true;
     
         if (object->children.empty())

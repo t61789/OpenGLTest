@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "nlohmann/json.hpp"
-#include "glm/glm.hpp"
 
 #include "event.h"
 #include "shared_object.h"
@@ -27,8 +26,7 @@ namespace op
         TransformComp* transform = nullptr;
         Object* parent = nullptr;
         std::vector<Object*> children;
-        typedef std::function<void(Object* parent, Object* child)> ChildAddedCallback;
-        Event<void(Object* parent, Object* child)> childAddedEvent;
+        Event<Object*, Object*> childAddedEvent; // parent, child
 
         virtual void LoadFromJson(const nlohmann::json& objJson);
 

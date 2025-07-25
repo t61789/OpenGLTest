@@ -1,7 +1,5 @@
 ﻿#include "render_skybox_pass.h"
 
-#include "glm/ext/matrix_transform.hpp"
-
 #include "shared_object.h"
 #include "image.h"
 #include "material.h"
@@ -49,9 +47,7 @@ namespace op
 
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
     
-        auto m = glm::mat4(1);
-        m = translate(m, camera->owner->transform->GetPosition());
-        m = scale(m, glm::vec3(1));
+        auto m = Matrix4x4::TRS(camera->owner->transform->GetPosition(), Quaternion::Identity(), Vec3::One());
 
         RenderingUtils::RenderMesh(*m_renderContext, m_sphereMesh, m_skyboxMat, m);
     }

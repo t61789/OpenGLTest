@@ -1,8 +1,5 @@
 ﻿#include "main_light_shadow_pass.h"
 
-#include "glm/glm.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
-
 #include "scene.h"
 #include "render_target.h"
 #include "material.h"
@@ -48,40 +45,40 @@ namespace op
             return;
         }
     
-        auto lightDirection = normalize(glm::vec3(1,1,1));
+        auto lightDirection = -Vec3::One().Normalize();
         if (m_renderContext->mainLight)
         {
-            lightDirection = -m_renderContext->mainLight->owner->transform->Forward();
+            lightDirection = m_renderContext->mainLight->owner->transform->GetLocalToWorld().Forward().Normalize();
         }
 
-        constexpr float range = 100;
-        float range2 = 50;
+        constexpr float range = 30;
+        float range2 = 20;
         auto distancePerTexel = range * 2 / static_cast<float>(m_renderContext->mainLightShadowSize);
         // 计算阴影矩阵
-        auto forward = normalize(lightDirection);
-        auto right = normalize(cross(glm::vec3(0, 1, 0), forward));
-        auto up = normalize(glm::cross(forward, right)); // 右手从x绕到y
-        auto shadowCameraToWorld = glm::mat4(
-            right.x, right.y, right.z, 0, // 第一列
-            up.z, up.y, up.z, 0,
+        Vec3 forward, right, up;
+        forward = lightDirection;
+        gram_schmidt_ortho(&forward.x, &Vec3::Up().x, &right.x, &up.x);
+        auto shadowCameraToWorld = Matrix4x4(
+            right.x, up.x, forward.x, 0,
+            right.y, up.y, forward.y, 0,
             forward.x, forward.y, forward.z, 0,
-            0, 0, 0, 1); // 留空，之后设置
-        auto worldToShadowCamera = inverse(shadowCameraToWorld);
+            0, 0, 0, 1);
+        auto worldToShadowCamera = shadowCameraToWorld.Inverse();
         // 希望以摄像机为中心，但是先把摄像机位置转到阴影空间，然后对齐每个纹素，避免阴影光栅化时闪烁
-        auto cameraPositionVS = worldToShadowCamera * glm::vec4(camera->owner->transform->GetPosition(), 1);
+        auto cameraPositionVS = worldToShadowCamera * Vec4(camera->owner->transform->GetPosition(), 1);
         cameraPositionVS.x = std::floor(cameraPositionVS.x / distancePerTexel) * distancePerTexel;
         cameraPositionVS.y = std::floor(cameraPositionVS.y / distancePerTexel) * distancePerTexel;
-        auto alignedCameraPositionWS = static_cast<glm::vec3>(shadowCameraToWorld * cameraPositionVS);
+        auto alignedCameraPositionWS = (shadowCameraToWorld * cameraPositionVS).ToVec3();
         // 得到对齐后的摄像机位置
         auto shadowCameraPositionWS = alignedCameraPositionWS + forward * range2;
         // 把阴影矩阵的中心设置为对齐后的摄像机位置
-        shadowCameraToWorld[3][0] = shadowCameraPositionWS.x; // 第3列第0行
-        shadowCameraToWorld[3][1] = shadowCameraPositionWS.y;
-        shadowCameraToWorld[3][2] = shadowCameraPositionWS.z;
-        worldToShadowCamera = inverse(shadowCameraToWorld);
+        shadowCameraToWorld[0][3] = shadowCameraPositionWS.x; // 第3列第0行
+        shadowCameraToWorld[1][3] = shadowCameraPositionWS.y;
+        shadowCameraToWorld[2][3] = shadowCameraPositionWS.z;
+        worldToShadowCamera = shadowCameraToWorld.Inverse();
     
-        auto projMatrix = glm::ortho(-range, range, -range, range, 0.05f, 2 * range2);
-        m_renderContext->SetViewProjMatrix(worldToShadowCamera, projMatrix);
+        auto projMatrix = Utils::CreateOrthoProjection(range, -range, range, -range, 2 * range2, 0.05f);
+        m_renderContext->SetViewProjMatrix(worldToShadowCamera, projMatrix); // TODO push
 
         Material::SetGlobalMat4Value("_MainLightShadowVP", projMatrix * worldToShadowCamera);
 

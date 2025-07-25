@@ -67,7 +67,7 @@ namespace op
     {
         name = desc.name;
         width = height = 0;
-        m_resizeCallback = std::make_unique<std::function<void()>>([this]{m_dirty = true;});
+        m_resizeHandler = GenEventHandler();
         
         LoadAttachments(desc);
         
@@ -110,30 +110,30 @@ namespace op
 
     void RenderTarget::Clear(const float depth)
     {
-        Clear(std::vector<glm::vec4>(), depth, 0b10);
+        Clear(std::vector<Vec4>(), depth, 0b10);
     }
 
-    void RenderTarget::Clear(const glm::vec4 color)
+    void RenderTarget::Clear(const Vec4 color)
     {
-        Clear(std::vector<glm::vec4>{color}, 1.0f, 0b01);
+        Clear(std::vector{color}, 1.0f, 0b01);
     }
 
-    void RenderTarget::Clear(const glm::vec4 color, const float depth)
+    void RenderTarget::Clear(const Vec4 color, const float depth)
     {
-        Clear(std::vector<glm::vec4>{color}, depth, 0b11);
+        Clear(std::vector{color}, depth, 0b11);
     }
 
-    void RenderTarget::Clear(const std::vector<glm::vec4>& colors)
+    void RenderTarget::Clear(const std::vector<Vec4>& colors)
     {
         Clear(colors, 1.0f, 0b01);
     }
 
-    void RenderTarget::Clear(const std::vector<glm::vec4>& colors, const float depth)
+    void RenderTarget::Clear(const std::vector<Vec4>& colors, const float depth)
     {
         Clear(colors, depth, 0b11);
     }
 
-    void RenderTarget::Clear(const std::vector<glm::vec4>& colors, const float depth, const int clearType)
+    void RenderTarget::Clear(const std::vector<Vec4>& colors, const float depth, const int clearType)
     {
         Use();
         
@@ -144,8 +144,8 @@ namespace op
             clearBits |= GL_COLOR_BUFFER_BIT;
             for (int i = 0; i < colors.size(); ++i)
             {
-                glm::vec4 clearColor = colors[i];
-                GLfloat glClearColor[] = {clearColor.r, clearColor.g, clearColor.b, clearColor.a};
+                Vec4 clearColor = colors[i];
+                GLfloat glClearColor[] = {clearColor.x, clearColor.y, clearColor.z, clearColor.w};
                 glClearBufferfv(GL_COLOR, i, glClearColor);
             }
         }
@@ -167,7 +167,7 @@ namespace op
         {
             rta = new RenderTargetAttachment(colorAttachment->attachmentType, colorAttachment->renderTexture);
             INCREF(rta->renderTexture);
-            rta->renderTexture->onResize->AddCallBack(m_resizeCallback.get());
+            rta->renderTexture->onResize->Add(this, &RenderTarget::SetDirty, m_resizeHandler);
             m_colorAttachments.push_back(rta);
         }
 
@@ -175,7 +175,7 @@ namespace op
         if (desc.depthAttachment)
         {
             rta = new RenderTargetAttachment(desc.depthAttachment->attachmentType, desc.depthAttachment->renderTexture);
-            rta->renderTexture->onResize->AddCallBack(m_resizeCallback.get());
+            rta->renderTexture->onResize->Add(this, &RenderTarget::SetDirty, m_resizeHandler);
             INCREF(rta->renderTexture);
         }
         m_depthAttachment = rta;
@@ -185,14 +185,14 @@ namespace op
     {
         for (auto colorAttachment : m_colorAttachments)
         {
-            colorAttachment->renderTexture->onResize->RemoveCallBack(m_resizeCallback.get());
+            colorAttachment->renderTexture->onResize->Remove(m_resizeHandler);
             DECREF(colorAttachment->renderTexture);
             delete colorAttachment;
         }
 
         if (m_depthAttachment)
         {
-            m_depthAttachment->renderTexture->onResize->RemoveCallBack(m_resizeCallback.get());
+            m_depthAttachment->renderTexture->onResize->Remove(m_resizeHandler);
             DECREF(m_depthAttachment->renderTexture);
             delete m_depthAttachment;
         }
@@ -224,6 +224,11 @@ namespace op
         }
 
         return m_depthAttachment->Equals(desc.depthAttachment); 
+    }
+
+    void RenderTarget::SetDirty()
+    {
+        m_dirty = true;
     }
 
     void RenderTarget::RebindAttachments()
@@ -346,10 +351,10 @@ namespace op
         }
     }
 
-    void RenderTarget::ClearFrameBuffer(const GLuint frameBuffer, const glm::vec4 clearColor, const GLuint clearBits)
+    void RenderTarget::ClearFrameBuffer(const GLuint frameBuffer, const Vec4& clearColor, const GLuint clearBits)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+        glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
         glClear(clearBits);
     }
 

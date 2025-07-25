@@ -8,7 +8,6 @@
 #include "game_framework.h"
 #include "render_texture.h"
 #include "utils.h"
-#include "glm/gtc/type_ptr.hpp"
 
 namespace op
 {
@@ -126,13 +125,13 @@ namespace op
         glUniform1f(location, value);
     }
 
-    void Shader::SetVector(const string& name, const glm::vec4& value) const
+    void Shader::SetVector(const string& name, const Vec4& value) const
     {
         int location = glGetUniformLocation(glShaderId, name.c_str());
         SetVector(location, value);
     }
 
-    void Shader::SetVector(const int& location, const glm::vec4& value)
+    void Shader::SetVector(const int& location, const Vec4& value)
     {
         if(location == -1)
         {
@@ -141,19 +140,19 @@ namespace op
         glUniform4f(location, value.x, value.y, value.z, value.w);
     }
 
-    void Shader::SetMatrix(const string& name, const glm::mat4& value) const
+    void Shader::SetMatrix(const string& name, const Matrix4x4& value) const
     {
         int location = glGetUniformLocation(glShaderId, name.c_str());
         SetMatrix(location, value);
     }
 
-    void Shader::SetMatrix(const int& location, const glm::mat4& value)
+    void Shader::SetMatrix(const int& location, const Matrix4x4& value)
     {
         if(location == -1)
         {
             return;
         }
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        glUniformMatrix4fv(location, 1, GL_FALSE, value.Transpose().GetData());
     }
 
     void Shader::SetTexture(const string& name, const int slot, const Texture* value) const

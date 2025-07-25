@@ -4,39 +4,90 @@
 
 namespace op
 {
-    template<typename Return, typename Pt0, typename Pt1>
-    using EventCallback = std::function<Return(Pt0, Pt1)>*;
+    using EventHandler = unsigned long long;
 
-    template<typename Return, typename Pt0, typename Pt1, typename T>
-    std::function<Return(Pt0, Pt1)>* CreateCallback(T* obj, Return (T::*func)(Pt0, Pt1)) {
-        return new std::function<Return(Pt0, Pt1)>([obj, func](Pt0 p0, Pt1 p1) {
-            return (obj->*func)(p0, p1);
-        });
+    static EventHandler GenEventHandler()
+    {
+        static EventHandler handler = 0;
+        return ++handler;
     }
-
+    
     template<typename... Args>
     class Event
     {
     public:
-        void AddCallBack(std::function<void(Args...)>* callback)
+        template<typename T>
+        EventHandler Add(T* obj, void (T::*func)(Args...), EventHandler handler = 0)
         {
-            m_callbacks.push_back(callback);
+            auto cb = new std::function<void(Args...)>([obj, func](Args... a) {
+                return (obj->*func)(a...);
+            });
+            
+            return AddCallback(cb, handler);
+        }
+        
+        EventHandler Add(void (*func)(Args...), EventHandler handler = 0)
+        {
+            auto cb = new std::function<void(Args...)>([func](Args... a) {
+                return (*func)(a...);
+            });
+            
+            return AddCallback(cb, handler);
+        }
+        
+        EventHandler Add(const std::function<void(Args...)>& cb, EventHandler handler = 0)
+        {
+            auto cb_ptr = new std::function<void(Args...)>(cb);
+            
+            return AddCallback(cb_ptr, handler);
         }
 
-        void RemoveCallBack(std::function<void(Args...)>* callback)
+        void Remove(EventHandler handler)
         {
-            m_callbacks.erase(std::remove(m_callbacks.begin(), m_callbacks.end(), callback), m_callbacks.end());
+            if (handler == 0)
+            {
+                return;
+            }
+
+            auto index = -1;
+            for (auto& callback : m_callbacks)
+            {
+                index++;
+                if (callback.first == handler)
+                {
+                    delete callback.second;
+                    break;
+                }
+            }
+
+            if (index == -1)
+            {
+                return;
+            }
+
+            m_callbacks.erase(m_callbacks.begin() + index);
         }
 
         void Invoke(Args... args)
         {
             for (auto& callback : m_callbacks)
             {
-                (*callback)(args...);
+                (*callback.second)(std::forward<Args>(args)...);
             }
         }
 
     private:
-        std::vector<std::function<void(Args ...)>*> m_callbacks;
+        std::vector<std::pair<EventHandler, std::function<void(Args ...)>*>> m_callbacks;
+
+        EventHandler AddCallback(std::function<void(Args...)>* cb, EventHandler handler)
+        {
+            if (handler == 0)
+            {
+                handler = GenEventHandler();
+            }
+            
+            m_callbacks.push_back(std::pair(handler, cb));
+            return handler;
+        }
     };
 }

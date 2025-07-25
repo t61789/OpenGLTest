@@ -38,18 +38,12 @@ namespace op
 
     GameFramework::GameFramework()
     {
-        m_setFrameBufferSizeCallBack = new std::function<void(GLFWwindow*, int, int)>
-            ([this](GLFWwindow* window, const int width, const int height)
-            {
-                this->OnSetFrameBufferSize(window, width, height);
-            });
-        Utils::s_setFrameBufferSizeEvent.AddCallBack(m_setFrameBufferSizeCallBack);
+        m_setFrameBufferSizeHandler = Utils::s_setFrameBufferSizeEvent.Add(this, &GameFramework::OnSetFrameBufferSize);
     }
 
     GameFramework::~GameFramework()
     {
-        Utils::s_setFrameBufferSizeEvent.RemoveCallBack(m_setFrameBufferSizeCallBack);
-        delete m_setFrameBufferSizeCallBack;
+        Utils::s_setFrameBufferSizeEvent.Remove(m_setFrameBufferSizeHandler);
 
         ReleaseGame();
     }
@@ -247,7 +241,7 @@ namespace op
         }
         else
         {
-            Gui::GetInstance()->Render();
+            Gui::GetInstance()->Render(nullptr);
             std::cout << "未找到可用摄像机\n";
             Sleep(16);
         }
@@ -267,8 +261,8 @@ namespace op
         m_gui = std::make_unique<Gui>();
         m_builtInRes = std::make_unique<BuiltInRes>();
         m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
-        scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
-        // scene = Scene::LoadScene("scenes/test_scene.json");
+        // scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
+        scene = Scene::LoadScene("scenes/test_scene/test_scene.json");
         // scene = Scene::LoadScene("scenes/ImportTest/scene.json");
         INCREF(scene);
     }

@@ -16,8 +16,11 @@ out vec3 normalOS;
 
 void main()
 {
-    gl_Position = TransformObjectToHClip(aPositionOS);
-    positionCS = gl_Position;
+    positionCS = TransformObjectToHClip(aPositionOS);
+    //gl_Position = vec4(aPositionOS.xyz, 1.0);
+    // positionCS.z = 0.5;
+    // positionCS.w = 1.0;
+    gl_Position = positionCS;
     normalWS = TransformObjectToWorldNormal(normalize(aNormalOS));
     normalOS = aNormalOS;
     positionWS = TransformObjectToWorld(aPositionOS);
@@ -48,6 +51,7 @@ void main()
 {
     vec3 albedo = _Albedo.rgb;
     albedo *= texture(_MainTex, texCoord).rgb;
+    //albedo = vec3(mod(positionWS.y, 1.0)); 
 
     FragColor0 = WriteGBuffer0(albedo, PIXEL_TYPE_LIT);
     FragColor1 = WriteGBuffer1(normalize(normalWS));

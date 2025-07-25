@@ -134,7 +134,7 @@ namespace op
         }
         
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(Utils::GetAbsolutePath(modelPath).c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals);
+        const aiScene *scene = importer.ReadFile(Utils::GetAbsolutePath(modelPath).c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipWindingOrder);
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
             throw std::runtime_error(std::string("ERROR>> Load model failed: ") + importer.GetErrorString());
@@ -144,8 +144,8 @@ namespace op
         auto verticesCount = mesh->mNumVertices;
 
         // Load positionOS
-        auto boundsMin = glm::vec3(std::numeric_limits<float>::max());
-        auto boundsMax = glm::vec3(std::numeric_limits<float>::min());
+        auto boundsMin = Vec3(std::numeric_limits<float>::max());
+        auto boundsMax = Vec3(std::numeric_limits<float>::min());
         std::vector<float> positionOSContainer;
         for (uint32_t i = 0; i < verticesCount; ++i)
         {
@@ -210,7 +210,7 @@ namespace op
         auto indicesCount = static_cast<uint32_t>(indicesContainer.size());
 
         auto bounds = Bounds((boundsMax + boundsMin) * 0.5f, (boundsMax - boundsMin) * 0.5f);
-        bounds.extents = max(bounds.extents, glm::vec3(0.01f));
+        bounds.extents = max(bounds.extents, Vec3(0.01f));
 
         auto result = CreateMesh(
             bounds,
@@ -226,7 +226,7 @@ namespace op
         auto msg = "成功载入Mesh " + modelPath + "\n";
         msg += "\t顶点数量 " + std::to_string(verticesCount) + "\n";
         msg += "\t三角形数量 " + std::to_string(indicesCount / 3) + "\n";
-        msg += "\t包围盒 c:" + Utils::ToString(bounds.center) + " e:" + Utils::ToString(bounds.extents);
+        msg += "\t包围盒 c:" + bounds.center.ToString() + " e:" + bounds.extents.ToString();
         Utils::LogInfo(msg);
         return result;
     }

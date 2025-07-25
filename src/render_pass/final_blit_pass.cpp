@@ -38,14 +38,14 @@ namespace op
             return;
         }
     
-        RenderTarget::ClearFrameBuffer(0, glm::vec4(0), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        RenderTarget::ClearFrameBuffer(0, Vec4::Zero(), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         RenderTarget::UseScreenTarget();
 
         finalBlitMat->SetFloatValue("_MinLuminance", m_minLuminance);
         finalBlitMat->SetFloatValue("_MaxLuminance", m_maxLuminance);
 
         finalBlitMat->SetTextureValue("_LutTex", lutTexture);
-        RenderingUtils::RenderMesh(*m_renderContext, quad, finalBlitMat, glm::mat4());
+        RenderingUtils::RenderMesh(*m_renderContext, quad, finalBlitMat, Matrix4x4::Identity());
     }
 
     void FinalBlitPass::DrawConsoleUi()

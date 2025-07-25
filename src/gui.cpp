@@ -31,59 +31,80 @@ namespace op
     {
     }
 
-    void Gui::Render()
+    void Gui::Render(const RenderContext* renderContext)
     {
-        DrawCoordinateDirLine();
+        DrawCoordinateDirLine(renderContext);
+
+        // DrawBounds(renderContext);
         
         DrawConsolePanel();
-        
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void Gui::DrawCoordinateDirLine()
+    void Gui::DrawCoordinateDirLine(const RenderContext* renderContext)
     {
-        if(RenderPipeline::instance == nullptr)
+        if (!renderContext)
         {
             return;
         }
         
-        glm::mat4 view, proj;
-        int width, height;
-        RenderPipeline::instance->GetViewProjMatrix(view, proj);
-        RenderPipeline::instance->GetScreenSize(width, height);
-        auto screenSize = glm::vec2(static_cast<float>(width), static_cast<float>(height));
+        const auto& view = renderContext->vMatrix;
+        const auto& proj = renderContext->pMatrix;
+        auto width = renderContext->screenWidth;
+        auto height = renderContext->screenHeight;
         
-        Utils::DebugDrawLine(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), view, proj, screenSize, IM_COL32(255, 0, 0, 255));
-        Utils::DebugDrawLine(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), view, proj, screenSize, IM_COL32(0, 255, 0, 255));
-        Utils::DebugDrawLine(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), view, proj, screenSize, IM_COL32(0, 0, 255, 255));
+        RenderPipeline::instance->GetScreenSize(width, height);
+        auto screenSize = Vec2(static_cast<float>(width), static_cast<float>(height));
+        
+        Utils::DebugDrawLine(Vec3::Zero(), Vec3::Right(), view, proj, screenSize, IM_COL32(255, 0, 0, 255));
+        Utils::DebugDrawLine(Vec3::Zero(), Vec3::Up(), view, proj, screenSize, IM_COL32(0, 255, 0, 255));
+        Utils::DebugDrawLine(Vec3::Zero(), Vec3::Forward(), view, proj, screenSize, IM_COL32(0, 0, 255, 255));
     }
 
-    glm::vec3 Gui::SliderFloat3(const std::string& label, const glm::vec3 input, const float v_min, const float v_max, const std::string& format)
+    void Gui::DrawBounds(const RenderContext* renderContext)
     {
-        auto arr = Utils::ToArr(input);
-        ImGui::SliderFloat3(label.c_str(), arr, v_min, v_max, format.c_str());
-        auto result = Utils::FromArr(arr);
-        delete[] arr;
-        return result;
+        if (!renderContext)
+        {
+            return;
+        }
+        
+        const auto& view = renderContext->vMatrix;
+        const auto& proj = renderContext->pMatrix;
+        auto width = renderContext->screenWidth;
+        auto height = renderContext->screenHeight;
+        
+        auto screenSize = Vec2(static_cast<float>(width), static_cast<float>(height));
+        for (auto const& renderComp : renderContext->visibleRenderObjs)
+        {
+            Utils::DebugDrawCube(
+                renderComp->GetWorldBounds(),
+                view,
+                proj,
+                screenSize);
+        }
     }
 
-    glm::vec3 Gui::InputFloat3(const std::string& label, glm::vec3 input, const std::string& format)
+    Vec3 Gui::SliderFloat3(const std::string& label, const Vec3 input, const float v_min, const float v_max, const std::string& format)
     {
-        auto arr = Utils::ToArr(input);
-        ImGui::InputFloat3(label.c_str(), arr, format.c_str());
-        auto result = Utils::FromArr(arr);
-        delete[] arr;
-        return result;
+        auto tmp = input;
+        ImGui::SliderFloat3(label.c_str(), &tmp.x, v_min, v_max, format.c_str());
+        return tmp;
     }
 
-    glm::vec3 Gui::DragFloat3(const std::string& label, glm::vec3 input, float speed, const std::string& format)
+    Vec3 Gui::InputFloat3(const std::string& label, const Vec3 input, const std::string& format)
     {
-        auto arr = Utils::ToArr(input);
-        ImGui::DragFloat3(label.c_str(), arr, speed, 0, 0, format.c_str());
-        auto result = Utils::FromArr(arr);
-        delete[] arr;
-        return result;
+        auto tmp = input;
+        ImGui::InputFloat3(label.c_str(), &tmp.x, format.c_str());
+        return tmp;
+    }
+
+    Vec3 Gui::DragFloat3(const std::string& label, const Vec3 input, float speed, const std::string& format)
+    {
+        auto tmp = input;
+        ImGui::DragFloat3(label.c_str(), &tmp.x, speed, 0, 0, format.c_str());
+        return tmp;
     }
 
     void Gui::DrawConsolePanel()

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <array>
-#include "glm/glm.hpp"
+
+#include "math/math.h"
 
 namespace op
 {
@@ -18,9 +19,9 @@ namespace op
 
     struct GradientAmbientColor
     {
-        glm::vec3 sky;
-        glm::vec3 equator;
-        glm::vec3 ground;
+        Vec3 sky;
+        Vec3 equator;
+        Vec3 ground;
 
         bool Equals(const GradientAmbientColor& other)
         {
@@ -33,12 +34,12 @@ namespace op
     public:
         static GradientAmbientColor s_gradientAmbientColor;
 
-        static void SetGradientAmbientColor(const glm::vec3& sky, const glm::vec3& equator, const glm::vec3& ground);
+        static void SetGradientAmbientColor(const Vec3& sky, const Vec3& equator, const Vec3& ground);
         
-        static Shc CalcShc(const glm::vec3& sky, const glm::vec3& equator, const glm::vec3& ground);
-        static glm::vec3 RestoreLighting(Shc& shc, glm::vec3 direction);
+        static Shc CalcShc(const Vec3& sky, const Vec3& equator, const Vec3& ground);
+        static Vec3 RestoreLighting(Shc& shc, Vec3 direction);
 
-        static std::array<float, 9> CalcBaseShc(const glm::vec3& direction);
-        static glm::vec3 SampleColor(const glm::vec3& direction, const glm::vec3& sky, const glm::vec3& equator, const glm::vec3& ground);
+        static std::array<float, 9> CalcBaseShc(const Vec3& direction);
+        static Vec3 SampleColor(const Vec3& direction, const Vec3& sky, const Vec3& equator, const Vec3& ground);
     };
 }

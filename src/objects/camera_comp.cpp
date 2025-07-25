@@ -2,9 +2,6 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/euler_angles.hpp"
-#include "glm/gtc/quaternion.hpp"
 
 #include "utils.h"
 #include "game_framework.h"
@@ -13,7 +10,6 @@
 namespace op
 {
     using namespace std;
-    using namespace glm;
 
     vector<CameraComp*> CameraComp::s_cameras;
 
@@ -35,12 +31,13 @@ namespace op
 
     void CameraComp::Update()
     {
-        auto localToWorld = owner->transform->GetLocalToWorld();
-        vec3 forward = localToWorld * vec4(0, 0, -1.0f, 0.0f);
-        vec3 right = localToWorld * vec4(1.0f, 0, 0, 0.0f);
+        Matrix4x4 localToWorld = owner->transform->GetLocalToWorld();
+        Vec3 forward = localToWorld.Forward();
+        Vec3 right = localToWorld.Right();
+        Vec3 up = localToWorld.Up();
 
         float moveSpeed = 6;
-        float rotateSpeed = 155;
+        float rotateSpeed = 125;
         float damp = 0.07f;
 
         GameFramework* gameFramework = GameFramework::GetInstance();
@@ -73,37 +70,37 @@ namespace op
     
         if(gameFramework->KeyPressed(GLFW_KEY_E))
         {
-            m_targetPosition += vec3(0, 1.0f, 0) * deltaTime * moveSpeed;
+            m_targetPosition += up * deltaTime * moveSpeed;
         }
 
         if(gameFramework->KeyPressed(GLFW_KEY_Q))
         {
-            m_targetPosition += vec3(0, -1.0f, 0) * deltaTime * moveSpeed;
+            m_targetPosition -= up * deltaTime * moveSpeed;
         }
 
         owner->transform->SetPosition(lerp(owner->transform->GetPosition(), m_targetPosition, damp));
     
         if(gameFramework->KeyPressed(GLFW_KEY_UP))
         {
-            m_targetRotation.x += deltaTime * rotateSpeed;
+            m_targetRotation.x -= deltaTime * rotateSpeed;
         }
     
         if(gameFramework->KeyPressed(GLFW_KEY_DOWN))
         {
-            m_targetRotation.x += -deltaTime * rotateSpeed;
+            m_targetRotation.x += deltaTime * rotateSpeed;
         }
     
         if(gameFramework->KeyPressed(GLFW_KEY_LEFT))
         {
-            m_targetRotation.y += deltaTime * rotateSpeed;
+            m_targetRotation.y -= deltaTime * rotateSpeed;
         }
     
         if(gameFramework->KeyPressed(GLFW_KEY_RIGHT))
         {
-            m_targetRotation.y += -deltaTime * rotateSpeed;
+            m_targetRotation.y += deltaTime * rotateSpeed;
         }
 
-        auto r = slerp(owner->transform->GetRotation(), quat(radians(m_targetRotation)), damp);
+        auto r = slerp(owner->transform->GetRotation(), Quaternion::Euler(m_targetRotation), damp);
         owner->transform->SetRotation(r);
     }
 

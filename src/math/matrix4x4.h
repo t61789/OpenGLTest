@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include "math/quaternion.h"
 #include "simd_math.h"
 #include "vec.h"
 
@@ -58,9 +59,9 @@ namespace op
             memcpy(m_data, f, sizeof(float) * 16);
         }
 
-        float* operator[](const int i)
+        float* operator[](const size_t i)
         {
-            return m_data + static_cast<ptrdiff_t>(i) * 4;
+            return m_data + i * 4;
         }
 
         Matrix4x4 operator*(const Matrix4x4& other) const
@@ -68,12 +69,12 @@ namespace op
             Matrix4x4 result;
             Matrix4x4 other_transpose = other.Transpose();
             
-            for (int i = 0; i < 4; ++i)
+            for (size_t i = 0; i < 4; ++i)
             {
-                __m128 l = _mm_load_ps(m_data + static_cast<ptrdiff_t>(i) * 4);
-                for (int j = 0; j < 4; ++j)
+                __m128 l = _mm_load_ps(m_data + i * 4);
+                for (size_t j = 0; j < 4; ++j)
                 {
-                    __m128 r = _mm_load_ps(other_transpose.m_data + static_cast<ptrdiff_t>(j) * 4);
+                    __m128 r = _mm_load_ps(other_transpose.m_data + j * 4);
                     r = _mm_mul_ps(l, r);
                     r = _mm_hadd_ps(r, r);
                     r = _mm_hadd_ps(r, r);
@@ -83,6 +84,23 @@ namespace op
             }
 
             return result;
+        }
+
+        Vec4 operator*(const Vec4& other) const
+        {
+            float result[4];
+            for (size_t i = 0; i < 4; ++i)
+            {
+                __m128 l = _mm_load_ps(m_data + i * 4);
+                __m128 r = _mm_load_ps(&other.x);
+                r = _mm_mul_ps(l, r);
+                r = _mm_hadd_ps(r, r);
+                r = _mm_hadd_ps(r, r);
+                
+                result[i] = _mm_cvtss_f32(r);
+            }
+
+            return Vec4(result);
         }
 
         [[nodiscard]] Matrix4x4 Transpose() const
@@ -165,7 +183,37 @@ namespace op
             return result;
         }
 
-        std::string ToString()
+        const float* GetData() const
+        {
+            return m_data;
+        }
+
+        void SetRow(const int row, const Vec4 v)
+        {
+            memcpy(m_data + static_cast<size_t>(row) * 4, &v.x, sizeof(float) * 4);
+        }
+
+        Vec4 GetRow(const int row)
+        {
+            return Vec4(m_data + static_cast<size_t>(row) * 4);
+        }
+
+        Vec3 Forward() const
+        {
+            return Vec3(m_data[2], m_data[6], m_data[10]).Normalize();
+        }
+
+        Vec3 Up() const
+        {
+            return Vec3(m_data[1], m_data[5], m_data[9]).Normalize();
+        }
+
+        Vec3 Right() const
+        {
+            return Vec3(m_data[0], m_data[4], m_data[8]).Normalize();
+        }
+
+        std::string ToString() const
         {
             std::stringstream ss;
             ss << std::fixed << std::setprecision(2);
@@ -178,6 +226,11 @@ namespace op
                     ss << ", ";
                 }
                 ss << m_data[i];
+
+                if (i % 4 == 3 && i != 15)
+                {
+                    ss << "\n";
+                }
             }
 
             ss << ')';
@@ -208,6 +261,51 @@ namespace op
                 Vec4(forward.Normalize(), 0),
                 Vec4(0, 0, 0, 1)
             ).Transpose();
+        }
+        
+        static Matrix4x4 TRS(const Vec3& trans, const Quaternion& rot, const Vec3& scale)
+        {
+            auto m = Identity();
+            m[0][3] = trans.x;
+            m[1][3] = trans.y;
+            m[2][3] = trans.z;
+
+            auto qq = rot;
+            auto q = qq.GetNormalizedData();
+            
+            auto x2 = q.x * q.x;
+            auto xy = q.x * q.y;
+            auto xz = q.x * q.z;
+            auto xw = q.x * q.w;
+            auto y2 = q.y * q.y;
+            auto yz = q.y * q.z;
+            auto yw = q.y * q.w;
+            auto z2 = q.z * q.z;
+            auto zw = q.z * q.w;
+            
+            m[0][0] = (1 - 2 * (y2 + z2)) * scale.x;
+            m[0][1] = 2 * (xy - zw) * scale.y;
+            m[0][2] = 2 * (xz + yw) * scale.z;
+            m[1][0] = 2 * (xy + zw) * scale.x;
+            m[1][1] = (1 - 2 * (x2 + z2)) * scale.y;
+            m[1][2] = 2 * (yz - xw) * scale.z;
+            m[2][0] = 2 * (xz - yw) * scale.x;
+            m[2][1] = 2 * (yz + xw) * scale.y;
+            m[2][2] = (1 - 2 * (x2 + y2)) * scale.z;
+
+            return m;
+        }
+
+        static const Matrix4x4& Identity()
+        {
+            static Matrix4x4 m = {
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            };
+
+            return m;
         }
     };
 }

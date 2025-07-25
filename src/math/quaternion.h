@@ -1,6 +1,5 @@
 #pragma once
 
-#include "utils.h"
 #include "math/const.h"
 #include "math/vec.h"
 #include "math/simd_math.h"
@@ -27,10 +26,15 @@ namespace op
             m_data = Vec4(data);
         }
 
-        Quaternion Normalize()
+        explicit Quaternion(const Vec4& data)
+        {
+            m_data = data;
+        }
+
+        void Normalize()
         {
             CalcNormalizedData();
-            return Quaternion(&m_data_normalized.x);
+            m_data = m_data_normalized;
         }
         
         Quaternion operator*(const Quaternion& other)
@@ -53,9 +57,83 @@ namespace op
             return {result.x, result.y, result.z};
         }
 
+        bool operator==(const Quaternion& other)
+        {
+            return std::fabs(m_data.x - other.m_data.x) < EPSILON && std::fabs(m_data.y - other.m_data.y) < EPSILON && std::fabs(m_data.z - other.m_data.z) < EPSILON;
+        }
+        
+        Quaternion operator-() const
+        {
+            return {-m_data.x, -m_data.y, -m_data.z, -m_data.w};
+        }
+
+        Vec3 ToEuler()
+        {
+            CalcNormalizedData();
+            
+            Vec3 result;
+            result.x = std::asin(2 * (m_data_normalized.w * m_data_normalized.x - m_data_normalized.y * m_data_normalized.z)) * RAD2DEG;
+            result.y = std::atan2(2 * (m_data_normalized.w * m_data_normalized.y + m_data_normalized.x * m_data_normalized.z),
+                                   1 - 2 * (m_data_normalized.x * m_data_normalized.x + m_data_normalized.y * m_data_normalized.y)) * RAD2DEG;
+            result.z = std::atan2(2 * (m_data_normalized.w * m_data_normalized.z + m_data_normalized.x * m_data_normalized.y),
+                                   1 - 2 * (m_data_normalized.x * m_data_normalized.x + m_data_normalized.z * m_data_normalized.z)) * RAD2DEG;
+            return result;
+        }
+
+        const Vec4& GetData() const
+        {
+            return m_data;
+        }
+
+        const Vec4& GetNormalizedData()
+        {
+            CalcNormalizedData();
+
+            return m_data_normalized;
+        }
+
+        // void ApplyRot(Matrix4x4& m)
+        // {
+        //     CalcNormalizedData();
+        //
+        //     auto q = m_data_normalized;
+        //
+        //     auto x2 = q.x * q.x;
+        //     auto xy = q.x * q.y;
+        //     auto xz = q.x * q.z;
+        //     auto xw = q.x * q.w;
+        //     auto y2 = q.y * q.y;
+        //     auto yz = q.y * q.z;
+        //     auto yw = q.y * q.w;
+        //     auto z2 = q.z * q.z;
+        //     auto zw = q.z * q.w;
+        //
+        //     m[0][0] = 1 - 2 * (y2 + z2);
+        //     m[0][1] = 2 * (xy - zw);
+        //     m[0][2] = 2 * (xz + yw);
+        //     m[1][0] = 2 * (xy + zw);
+        //     m[1][1] = 1 - 2 * (x2 + z2);
+        //     m[1][2] = 2 * (yz - xw);
+        //     m[2][0] = 2 * (xz - yw);
+        //     m[2][1] = 2 * (yz + xw);
+        //     m[2][2] = 1 - 2 * (x2 + y2);
+        //     
+        //     // m = {
+        //     //     1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.w * q.z, 2 * q.x * q.z + 2 * q.w * q.y, 0,
+        //     //     2 * q.x * q.y + 2 * q.w * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.w * q.x, 0,
+        //     //     2 * q.x * q.z - 2 * q.w * q.y, 2 * q.y * q.z + 2 * q.w * q.x, 1 - 2 * q.x * q.x - 2 * q.y * q.y, 0,
+        //     //     0, 0, 0, 1
+        //     // };
+        // }
+
         std::string ToString()
         {
             return m_data.ToString();
+        }
+
+        static Quaternion Euler(const Vec3& v)
+        {
+            return Euler(v.x, v.y, v.z);
         }
 
         static Quaternion Euler(float x, float y, float z)

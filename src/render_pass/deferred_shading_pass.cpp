@@ -48,7 +48,7 @@ namespace op
     
         RenderTarget::Get(m_shadingRt, nullptr)->Use();
 
-        RenderingUtils::RenderMesh(*m_renderContext, m_quadMesh, m_deferredShadingMat, glm::mat4(1));
+        RenderingUtils::RenderMesh(*m_renderContext, m_quadMesh, m_deferredShadingMat, Matrix4x4::Identity());
     }
 
     void DeferredShadingPass::UpdateRt()
