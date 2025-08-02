@@ -30,8 +30,7 @@ namespace op
     {
         for(auto elem : children)
         {
-            auto obj = new Object();
-            obj->LoadFromJson(elem);
+            auto obj = Object::CreateFromJson(elem);
             
             if(elem.contains("children"))
             {
@@ -92,33 +91,17 @@ namespace op
 
         if(json.contains("root"))
         {
-            auto rootObj = new Object();
-            rootObj->name = "Scene Root";
+            auto rootObj = Object::Create("Scene Root");
             
             LoadChildren(rootObj, json["root"]);
 
             result->sceneRoot = rootObj;
             INCREF_BY(rootObj, result);
 
-            result->sceneRoot->AddComp<RuntimeComp>("RuntimeComp");
+            result->sceneRoot->AddOrCreateComp<RuntimeComp>("RuntimeComp");
         }
 
         RegisterResource(sceneJsonPath, result);
-
-        // 调用所有组件的Awake
-        function<void(Object*)> callAwake =[&callAwake](Object* obj)
-        {
-            for(auto comp : obj->GetComps())
-            {
-                comp->Awake();
-            }
-
-            for(auto child : obj->children)
-            {
-                callAwake(child);
-            }
-        };
-        callAwake(result->sceneRoot);
         
         return result;
     }

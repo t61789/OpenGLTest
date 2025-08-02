@@ -16,8 +16,6 @@ namespace op
     class GameFramework : public Singleton<GameFramework>
     {
     public:
-        Scene* scene = nullptr;
-        
         GameFramework();
         ~GameFramework();
 
@@ -25,6 +23,8 @@ namespace op
         void GameLoop();
 
         bool KeyPressed(int glfwKey) const;
+
+        Scene* GetMainScene() const;
         
     private:
         GLFWwindow* m_window = nullptr;
@@ -38,6 +38,8 @@ namespace op
         int m_screenHeight = 900;
 
         EventHandler m_setFrameBufferSizeHandler = 0;
+
+        Scene* m_scene = nullptr;
 
         void InitGame();
         void ReleaseGame();

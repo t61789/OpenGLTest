@@ -55,7 +55,7 @@ namespace op
         auto width = renderContext->screenWidth;
         auto height = renderContext->screenHeight;
         
-        RenderPipeline::instance->GetScreenSize(width, height);
+        RenderPipeline::GetInstance()->GetScreenSize(width, height);
         auto screenSize = Vec2(static_cast<float>(width), static_cast<float>(height));
         
         Utils::DebugDrawLine(Vec3::Zero(), Vec3::Right(), view, proj, screenSize, IM_COL32(255, 0, 0, 255));

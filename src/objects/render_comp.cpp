@@ -9,12 +9,17 @@ namespace op
 {
     void RenderComp::Awake()
     {
-        m_transformDirtyHandler = owner->transform->dirtyEvent.Add(this, &RenderComp::OnTransformDirty);
+        m_onTransformDirtyHandler = owner->transform->dirtyEvent.Add(this, &RenderComp::OnTransformDirty);
+    }
+
+    void RenderComp::Start()
+    {
+        
     }
 
     void RenderComp::OnDestroy()
     {
-        owner->transform->dirtyEvent.Remove(m_transformDirtyHandler);
+        owner->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
         
         if (mesh)
         {

@@ -7,6 +7,11 @@ namespace op
 {
     using namespace std;
 
+    void TransformComp::Awake()
+    {
+        owner->transform = this;
+    }
+
     Vec3 TransformComp::GetPosition()
     {
         return m_position.localVal;

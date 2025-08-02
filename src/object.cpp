@@ -9,15 +9,27 @@
 
 namespace op
 {
-    Object::Object()
+    Object* Object::Create()
     {
-        transform = AddComp<TransformComp>("TransformComp");
+        return Create("Unnamed object", nlohmann::json::object());
     }
 
-    Object::Object(const std::string& name)
+    Object* Object::Create(const std::string& name)
     {
-        this->name = name;
-        transform = AddComp<TransformComp>("TransformComp");
+        return Create(name, nlohmann::json::object());
+    }
+    
+    Object* Object::CreateFromJson(const nlohmann::json& objJson)
+    {
+        return Create("Unnamed object", objJson);
+    }
+    
+    Object* Object::Create(const std::string& name, const nlohmann::json& objJson)
+    {
+        auto result = new Object();
+        result->name = name;
+        result->LoadFromJson(objJson);
+        return result;
     }
 
     Object::~Object()
@@ -40,36 +52,13 @@ namespace op
 
     void Object::LoadFromJson(const nlohmann::json& objJson)
     {
+        std::vector<nlohmann::json> comps = GetPresetCompJsons();
+        LoadCompJsons(comps, objJson);
+        AddCompsFromJsons(comps);
+        
         if(objJson.contains("name"))
         {
             name = objJson["name"].get<std::string>();
-        }
-
-        if (objJson.contains("comps"))
-        {
-            auto arr = objJson["comps"];
-            for (auto& compJson : arr)
-            {
-                auto compName = compJson["name"].get<std::string>();
-
-                // 如果这个组件已经加载过，就读一遍参数
-                // 没加载过就加载，找不到这个组件的构造函数就不管了
-
-                auto comp = GetComp(compName);
-                if (!comp)
-                {
-                    comp = GetConstructor(compName)();
-                    if (!comp)
-                    {
-                        continue;
-                    }
-                    
-                    comp->owner = this;
-                    m_comps[compName] = comp;
-                }
-
-                comp->LoadFromJson(compJson);
-            }
         }
     }
 
@@ -164,5 +153,57 @@ namespace op
         }
 
         return []() -> Comp* { return nullptr; };
+    }
+
+    std::vector<nlohmann::json> Object::GetPresetCompJsons()
+    {
+        std::vector<nlohmann::json> result;
+        result.push_back({
+            {"name", "TransformComp"}
+        });
+
+        return result;
+    }
+
+    void Object::LoadCompJsons(std::vector<nlohmann::json>& target, const nlohmann::json& objJson)
+    {
+        if (!objJson.contains("comps"))
+        {
+            return;
+        }
+        
+        for (const auto& compFromFile : objJson["comps"])
+        {
+            auto compName = compFromFile["name"].get<std::string>();
+
+            // 如果文件里的这个组件在结果list中已经存在了，就合并到结果中的对应组件，否则就添加它
+            auto it = std::find_if(target.begin(), target.end(), [&compName](const nlohmann::json& compJson) {
+                return compJson["name"].get<std::string>() == compName;
+            });
+
+            if (it == target.end())
+            {
+                target.push_back(compFromFile);
+                continue;
+            }
+
+            Utils::MergeJson(*it, compFromFile);
+        }
+    }
+    
+    void Object::AddCompsFromJsons(const std::vector<nlohmann::json>& compJsons)
+    {
+        for (auto& compJson : compJsons)
+        {
+            auto compName = compJson["name"].get<std::string>();
+            auto comp = GetConstructor(compName);
+            assert(comp);
+            if (!comp)
+            {
+                continue;
+            }
+
+            AddOrCreateComp(compName, compJson);
+        }
     }
 }

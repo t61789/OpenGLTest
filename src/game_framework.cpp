@@ -91,6 +91,11 @@ namespace op
         return glfwGetKey(m_window, glfwKey) == GLFW_PRESS;
     }
 
+    Scene* GameFramework::GetMainScene() const
+    {
+        return m_scene;
+    }
+
     bool GameFramework::InitFrame()
     {
         if(!InitGlfw())
@@ -186,6 +191,11 @@ namespace op
             auto comps = obj->GetComps();
             for (auto comp : comps)
             {
+                if (!comp->IsStarted())
+                {
+                    comp->Start();
+                }
+                
                 comp->Update();
             }
             
@@ -203,9 +213,9 @@ namespace op
 
     void GameFramework::Update()
     {
-        if(scene)
+        if(GetMainScene())
         {
-            UpdateObject(scene->sceneRoot);
+            UpdateObject(GetMainScene()->sceneRoot);
         }
 
         // if (scene)
@@ -235,9 +245,9 @@ namespace op
     void GameFramework::Render() const
     {
         auto mainCamera = CameraComp::GetMainCamera();
-        if(mainCamera && scene && m_renderPipeline)
+        if(mainCamera && GetMainScene() && m_renderPipeline)
         {
-            m_renderPipeline->Render(mainCamera, scene);
+            m_renderPipeline->Render(mainCamera, GetMainScene());
         }
         else
         {
@@ -262,16 +272,16 @@ namespace op
         m_builtInRes = std::make_unique<BuiltInRes>();
         m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
         // scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
-        scene = Scene::LoadScene("scenes/test_scene/test_scene.json");
+        m_scene = Scene::LoadScene("scenes/test_scene/test_scene.json");
         // scene = Scene::LoadScene("scenes/ImportTest/scene.json");
-        INCREF(scene);
+        INCREF(m_scene);
     }
 
     void GameFramework::ReleaseGame()
     {
-        if (scene)
+        if (m_scene)
         {
-            DECREF(scene);
+            DECREF(m_scene);
         }
     }
 }

@@ -19,6 +19,8 @@ namespace op
     
         void Awake() override;
 
+        void Start() override;
+
         void OnDestroy() override;
     
         void LoadFromJson(const nlohmann::json& objJson) override;
@@ -26,7 +28,7 @@ namespace op
         const Bounds& GetWorldBounds();
 
     private:
-        EventHandler m_transformDirtyHandler = 0;
+        EventHandler m_onTransformDirtyHandler = 0;
         bool m_worldBoundsDirty = true;
         Bounds m_worldBounds;
 

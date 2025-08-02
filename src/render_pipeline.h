@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "utils.h"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "objects/render_comp.h"
@@ -20,11 +21,9 @@ namespace op
     class RenderTexture;
     class RenderPass;
 
-    class RenderPipeline
+    class RenderPipeline : public Singleton<RenderPipeline>
     {
     public:
-        static RenderPipeline* instance;
-
         int mainLightShadowTexSize = 4096;
 
         RenderPipeline(int width, int height, GLFWwindow* window);

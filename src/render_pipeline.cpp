@@ -23,12 +23,8 @@
 
 namespace op
 {
-    RenderPipeline* RenderPipeline::instance = nullptr;
-
     RenderPipeline::RenderPipeline(const int width, const int height, GLFWwindow* window)
     {
-        instance = this;
-
         m_window = window;
         SetScreenSize(width, height);
 
@@ -71,8 +67,6 @@ namespace op
 
     RenderPipeline::~RenderPipeline()
     {
-        instance = nullptr;
-
         for (auto pass : m_passes)
         {
             delete pass;

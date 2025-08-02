@@ -48,7 +48,7 @@
                     "name": "CameraComp",
                     "fov": 45,
                     "nearClip": 0.01,
-                    "farClip": 30
+                    "farClip": 300
                 }
             ]
         },
@@ -105,9 +105,9 @@
                 {
                     "name": "TransformComp",
                     "scale": [
-                        0.01,
-                        0.01,
-                        0.01
+                        1,
+                        1,
+                        1
                     ],
                     "position": [
                         0,
@@ -122,8 +122,28 @@
                 },
                 {
                     "name": "RenderComp",
-                    "mesh": "meshes/beast.obj",
+                    "mesh": "meshes/smooth_cube.obj",
                     "material": "materials/standard_mat.json"
+                }
+            ],
+            "children": [
+                {
+                    "name": "Cube",
+                    "comps": [
+                        {
+                            "name": "TransformComp",
+                            "position": [
+                                1,
+                                0,
+                                0
+                            ]
+                        },
+                        {
+                            "name": "RenderComp",
+                            "mesh": "meshes/smooth_cube.obj",
+                            "material": "materials/standard_mat.json"
+                        }
+                    ]
                 }
             ]
         },

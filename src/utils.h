@@ -144,6 +144,6 @@ namespace op
         static bool CohenSutherlandClip(float &x1, float &y1, float &x2, float &y2, float xmin, float ymin, float xmax, float ymax);
 
         static nlohmann::json LoadJson(const std::string& assetPath);
-        static void MergeJson(nlohmann::json& json1, const nlohmann::json& json2);
+        static void MergeJson(nlohmann::json& json1, const nlohmann::json& json2, bool combineArray = false);
     };
 }

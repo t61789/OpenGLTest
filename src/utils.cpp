@@ -437,22 +437,35 @@ namespace op
         return json;
     }
 
-    void Utils::MergeJson(nlohmann::json& json1, const nlohmann::json& json2)
+    void Utils::MergeJson(nlohmann::json& json1, const nlohmann::json& json2, bool combineArray)
     {
         for (auto& it : json2.items())
         {
-            auto key = it.key();
-            auto& value = it.value();
-            
-            if (!json1.contains(key) ||
-                value.type() != nlohmann::json::value_t::object ||
-                json1[key].type() != nlohmann::json::value_t::object)
+            const auto& key = it.key();
+            const auto& value = it.value();
+
+            if (!json1.contains(key))
             {
+                // 1里没这个key，就直接添加
                 json1[key] = value;
                 continue;
             }
 
-            MergeJson(json1[key], value);
+            if (combineArray && value.type() == nlohmann::json::value_t::array && json1[key].type() == nlohmann::json::value_t::array)
+            {
+                // 是数组就将2的加在1的后面
+                json1[key].insert(json1[key].end(), value.begin(), value.end());
+                continue;
+            }
+
+            if (value.type() == nlohmann::json::value_t::object && json1[key].type() == nlohmann::json::value_t::object)
+            {
+                // 是dict就递归合并
+                MergeJson(json1[key], value);
+                continue;
+            }
+
+            json1[key] = value;
         }
     }
 }

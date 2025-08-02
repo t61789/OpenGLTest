@@ -11,6 +11,8 @@ namespace op
     {
     public:
         Event<> dirtyEvent;
+
+        void Awake() override;
         
         Vec3 GetPosition();
         void SetPosition(const Vec3& pos);
