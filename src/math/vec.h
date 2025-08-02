@@ -4,6 +4,8 @@
 #include <sstream>
 #include <cstring>
 
+#include <nlohmann/json.hpp>
+
 #include "const.h"
 #include "math/simd_math.h"
 
@@ -470,5 +472,20 @@ namespace op
     inline Vec3::Vec3(const Vec4& v4)
     {
         memcpy(&x, &v4.x, sizeof(float) * 3);
+    }
+    
+    inline void from_json(const nlohmann::json& j, Vec3& v)
+    {
+        j.at(0).get_to(v.x);
+        j.at(1).get_to(v.y);
+        j.at(2).get_to(v.z);
+    }
+    
+    inline void from_json(const nlohmann::json& j, Vec4& v)
+    {
+        j.at(0).get_to(v.x);
+        j.at(1).get_to(v.y);
+        j.at(2).get_to(v.z);
+        j.at(3).get_to(v.w);
     }
 }

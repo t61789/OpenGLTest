@@ -11,6 +11,7 @@
 namespace op
 {
     class TransformComp;
+    class Scene;
 
     class Object : public SharedObject
     {
@@ -28,6 +29,7 @@ namespace op
 
         TransformComp* transform = nullptr;
         Object* parent = nullptr;
+        Scene* scene = nullptr;
         std::vector<Object*> children;
         Event<Object*, Object*> childAddedEvent; // parent, child
 

@@ -72,7 +72,7 @@ namespace op
             }
         }
 
-        auto result = new Scene();
+        auto scene = new Scene();
         nlohmann::json json = Utils::LoadJson(sceneJsonPath);
 
         // 合并替换json
@@ -86,24 +86,23 @@ namespace op
 
         if(json.contains("config"))
         {
-            result->LoadSceneConfig(json["config"]);
+            scene->LoadSceneConfig(json["config"]);
         }
 
         if(json.contains("root"))
         {
             auto rootObj = Object::Create("Scene Root");
+            rootObj->scene = scene;
+            INCREF_BY(rootObj, scene);
+            scene->sceneRoot = rootObj;
+            scene->sceneRoot->AddOrCreateComp<RuntimeComp>("RuntimeComp");
             
             LoadChildren(rootObj, json["root"]);
-
-            result->sceneRoot = rootObj;
-            INCREF_BY(rootObj, result);
-
-            result->sceneRoot->AddOrCreateComp<RuntimeComp>("RuntimeComp");
         }
 
-        RegisterResource(sceneJsonPath, result);
+        RegisterResource(sceneJsonPath, scene);
         
-        return result;
+        return scene;
     }
 
     void Scene::OnObjectChildAdded(Object* parent, Object* child)
@@ -115,32 +114,32 @@ namespace op
     {
         if(configJson.contains("ambientLightColorSky"))
         {
-            ambientLightColorSky = Utils::ToVec3(configJson["ambientLightColorSky"]);
+            ambientLightColorSky = configJson.at("ambientLightColorSky").get<Vec3>();
         }
         
         if(configJson.contains("ambientLightColorEquator"))
         {
-            ambientLightColorEquator = Utils::ToVec3(configJson["ambientLightColorEquator"]);
+            ambientLightColorEquator = configJson.at("ambientLightColorEquator").get<Vec3>();
         }
         
         if(configJson.contains("ambientLightColorGround"))
         {
-            ambientLightColorGround = Utils::ToVec3(configJson["ambientLightColorGround"]);
+            ambientLightColorGround = configJson.at("ambientLightColorGround").get<Vec3>();
         }
 
         if(configJson.contains("tonemappingExposureMultiplier"))
         {
-            tonemappingExposureMultiplier = configJson["tonemappingExposureMultiplier"].get<float>();
+            tonemappingExposureMultiplier = configJson.at("tonemappingExposureMultiplier").get<float>();
         }
 
         if (configJson.contains("fog_intensity"))
         {
-            fogIntensity = configJson["fog_intensity"].get<float>();
+            fogIntensity = configJson.at("fog_intensity").get<float>();
         }
 
         if (configJson.contains("fog_color"))
         {
-            fogColor = Utils::ToVec3(configJson["fog_color"]);
+            fogColor = configJson.at("fog_color").get<Vec3>();
         }
     }
 }

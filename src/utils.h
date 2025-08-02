@@ -67,9 +67,6 @@ namespace op
         static Event<GLFWwindow*, int, int> s_setFrameBufferSizeEvent;
         static std::vector<std::string> s_logs;
         
-        static Vec3 ToVec3(const nlohmann::json& arr);
-        static Vec4 ToVec4(const nlohmann::json& arr);
-
         static std::vector<std::string> ToDirectories(const std::string& path);
         static std::string GetAbsolutePath(const std::string& relativePath);
         
@@ -145,5 +142,7 @@ namespace op
 
         static nlohmann::json LoadJson(const std::string& assetPath);
         static void MergeJson(nlohmann::json& json1, const nlohmann::json& json2, bool combineArray = false);
+
+        static nlohmann::json GetResourceMeta(const std::string& assetPath);
     };
 }

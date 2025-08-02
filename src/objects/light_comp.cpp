@@ -13,7 +13,7 @@ namespace op
     {
         if (objJson.contains("color"))
         {
-            color = Utils::ToVec3(objJson["color"]);
+            color = objJson["color"].get<Vec3>();
         }
 
         if (objJson.contains("light_type"))

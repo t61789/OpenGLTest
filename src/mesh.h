@@ -38,5 +38,8 @@ namespace op
             uint32_t indicesCount,
             const std::string& name = "Unnamed Mesh"
         );
+
+    private:
+        static void GetMeshLoadConfig(const std::string& modelPath, float& initScale);
     };
 }

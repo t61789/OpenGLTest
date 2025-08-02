@@ -133,8 +133,19 @@ namespace op
             }
         }
         
+        float init_scale;
+        GetMeshLoadConfig(modelPath, init_scale);
+        
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(Utils::GetAbsolutePath(modelPath).c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipWindingOrder);
+        importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, init_scale);
+        
+        const aiScene *scene = importer.ReadFile(
+            Utils::GetAbsolutePath(modelPath).c_str(),
+            aiProcess_Triangulate |
+            aiProcess_GenSmoothNormals |
+            aiProcess_FlipWindingOrder |
+            aiProcess_GlobalScale);
+        
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
             throw std::runtime_error(std::string("ERROR>> Load model failed: ") + importer.GetErrorString());
@@ -235,5 +246,16 @@ namespace op
     {
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    }
+
+    void Mesh::GetMeshLoadConfig(const std::string& modelPath, float& initScale)
+    {
+        auto config = Utils::GetResourceMeta(modelPath);
+
+        initScale = 1.0f;
+        if (config.contains("init_scale"))
+        {
+            initScale = config.at("init_scale").get<float>();
+        }
     }
 }

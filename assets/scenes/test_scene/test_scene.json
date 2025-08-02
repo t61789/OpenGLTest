@@ -122,7 +122,7 @@
                 },
                 {
                     "name": "RenderComp",
-                    "mesh": "meshes/smooth_cube.obj",
+                    "mesh": "meshes/beast.obj",
                     "material": "materials/standard_mat.json"
                 }
             ],

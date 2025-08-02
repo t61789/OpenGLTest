@@ -320,7 +320,7 @@ namespace op
             
             if (Utils::IsVec4(elemValue))
             {
-                result->SetVector4Value(elemKey, Utils::ToVec4(elemValue));
+                result->SetVector4Value(elemKey, elemValue.get<Vec4>());
                 continue;
             }
             

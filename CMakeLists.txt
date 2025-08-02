@@ -18,6 +18,7 @@ find_package(glm REQUIRED)
 find_package(imgui REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(stb REQUIRED)
+find_package(tinyxml2 REQUIRED)
 
 include_directories(src)
 include_directories(lib/imgui)
@@ -45,5 +46,6 @@ target_link_libraries(
 		nlohmann_json::nlohmann_json
 		stb::stb
 		glad
+		tinyxml2::tinyxml2
 )
 

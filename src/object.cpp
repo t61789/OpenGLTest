@@ -70,6 +70,7 @@ namespace op
         }
 
         child->parent = this;
+        child->scene = scene;
         children.push_back(child);
         INCREF(child);
     }

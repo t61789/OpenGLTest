@@ -17,6 +17,7 @@ class ImGuiExample(ConanFile):
         self.requires("glm/1.0.1")
         self.requires("nlohmann_json/3.12.0")
         self.requires("stb/cci.20230920")
+        self.requires("tinyxml2/11.0.0")
         
 
     def generate(self):

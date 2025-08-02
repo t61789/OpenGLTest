@@ -113,17 +113,17 @@ namespace op
     {
         if(objJson.contains("position"))
         {
-            SetPosition(Utils::ToVec3(objJson["position"]));
+            SetPosition(objJson.at("position").get<Vec3>());
         }
     
         if(objJson.contains("rotation"))
         {
-            SetEulerAngles(Utils::ToVec3(objJson["rotation"]));
+            SetEulerAngles(objJson.at("rotation").get<Vec3>());
         }
     
         if(objJson.contains("scale"))
         {
-            SetScale(Utils::ToVec3(objJson["scale"]));
+            SetScale(objJson.at("scale").get<Vec3>());
         }
     }
 

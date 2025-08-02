@@ -17,35 +17,6 @@ namespace op
     Event<GLFWwindow*, int, int> Utils::s_setFrameBufferSizeEvent;
     std::vector<std::string> Utils::s_logs;
 
-    Vec3 Utils::ToVec3(const nlohmann::json& arr)
-    {
-        if(!IsVec3(arr))
-        {
-            return {};
-        }
-        
-        return {
-            arr[0].get<float>(),
-            arr[1].get<float>(),
-            arr[2].get<float>()
-        };
-    }
-
-    Vec4 Utils::ToVec4(const nlohmann::json& arr)
-    {
-        if(!IsVec4(arr))
-        {
-            return {};
-        }
-        
-        return {
-            arr[0].get<float>(),
-            arr[1].get<float>(),
-            arr[2].get<float>(),
-            arr[3].get<float>()
-        };
-    }
-
     std::vector<std::string> Utils::ToDirectories(const std::string& path)
     {
         std::string curPath = path;
@@ -467,5 +438,16 @@ namespace op
 
             json1[key] = value;
         }
+    }
+
+    nlohmann::json Utils::GetResourceMeta(const std::string& assetPath)
+    {
+        auto metaPath = assetPath + ".meta";
+        if (!fs::exists(GetAbsolutePath(metaPath)))
+        {
+            return nlohmann::json::object();
+        }
+
+        return LoadJson(metaPath);
     }
 }

@@ -20,9 +20,8 @@ static void ReleaseStaticRes()
 
 int main(int argc, char* argv[])
 {
-    // Vec4 v = Vec4(-1.0f, 0, -3.0f, 0);
-    //
-    // sign(&v.x, &v.x);
+    // auto j = Utils::LoadJson(Utils::GetAbsolutePath("test.json"));
+    // auto v = j.get<Vec3>();
     //
     // Utils::Log(Info, "%s", v.ToString().c_str());
     //
