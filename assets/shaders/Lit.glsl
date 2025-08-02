@@ -51,7 +51,7 @@ void main()
 {
     vec3 albedo = _Albedo.rgb;
     albedo *= texture(_MainTex, texCoord).rgb;
-    //albedo = vec3(mod(positionWS.y, 1.0)); 
+    // albedo = vec3(mod(positionWS.y, 1.0));
 
     FragColor0 = WriteGBuffer0(albedo, PIXEL_TYPE_LIT);
     FragColor1 = WriteGBuffer1(normalize(normalWS));

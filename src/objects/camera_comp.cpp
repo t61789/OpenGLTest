@@ -23,9 +23,9 @@ namespace op
         s_cameras.erase(remove(s_cameras.begin(), s_cameras.end(), this), s_cameras.end());
     }
 
-    void CameraComp::Awake()
+    void CameraComp::Start()
     {
-        m_targetPosition = owner->transform->GetPosition();
+        m_targetPosition = owner->transform->GetWorldPosition();
         m_targetRotation = owner->transform->GetEulerAngles();
     }
 
@@ -78,7 +78,7 @@ namespace op
             m_targetPosition -= up * deltaTime * moveSpeed;
         }
 
-        owner->transform->SetPosition(lerp(owner->transform->GetPosition(), m_targetPosition, damp));
+        owner->transform->SetWorldPosition(lerp(owner->transform->GetWorldPosition(), m_targetPosition, damp));
     
         if(gameFramework->KeyPressed(GLFW_KEY_UP))
         {

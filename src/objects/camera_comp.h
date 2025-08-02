@@ -10,7 +10,7 @@ namespace op
     public:
         CameraComp();
         ~CameraComp() override;
-        void Awake() override;
+        void Start() override;
         void Update() override;
         float fov = 45.0f;
         float nearClip = 0.1f;

@@ -12,6 +12,30 @@ namespace op
         owner->transform = this;
     }
 
+    Vec3 TransformComp::GetWorldPosition()
+    {
+        UpdateMatrix();
+        
+        return {
+            m_matrix.localVal[0][3],
+            m_matrix.localVal[1][3],
+            m_matrix.localVal[2][3],
+        };
+    }
+
+    void TransformComp::SetWorldPosition(const Vec3& pos)
+    {
+        if (owner->parent)
+        {
+            owner->parent->transform->UpdateMatrix();
+            auto localPos = (owner->parent->transform->GetWorldToLocal() * Vec4(pos, 1.0f)).ToVec3();
+            SetPosition(localPos);
+            return;
+        }
+        
+        SetPosition(pos);
+    }
+
     Vec3 TransformComp::GetPosition()
     {
         return m_position.localVal;
@@ -107,6 +131,17 @@ namespace op
         }
 
         return m_matrix.localVal;
+    }
+    
+    const Matrix4x4& TransformComp::GetWorldToLocal()
+    {
+        if (m_matrix.worldDirty)
+        {
+            UpdateMatrix();
+            m_matrix.worldDirty = false;
+        }
+
+        return m_matrix.worldVal;
     }
 
     void TransformComp::LoadFromJson(const nlohmann::json& objJson)

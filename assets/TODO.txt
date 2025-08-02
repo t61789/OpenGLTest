@@ -34,3 +34,5 @@ MCP
 - 基于shader内存在的uniform进行遍历填充
 - 地面grid标记
 - 视锥体剔除
+- 自制数学库
+- 支持资源meta

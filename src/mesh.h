@@ -40,6 +40,6 @@ namespace op
         );
 
     private:
-        static void GetMeshLoadConfig(const std::string& modelPath, float& initScale);
+        static void GetMeshLoadConfig(const std::string& modelPath, float& initScale, bool& flipWindingOrder);
     };
 }

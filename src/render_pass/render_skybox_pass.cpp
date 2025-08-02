@@ -16,7 +16,7 @@ namespace op
     {
         auto desc = ImageDescriptor::GetDefault();
         desc.needFlipVertical = false;
-        m_skyboxCubeTexture = Image::LoadCubeFromFile("textures/skybox", "jpg", desc);
+        m_skyboxCubeTexture = Image::LoadCubeFromFile("built_in/texture/skybox", "png", desc);
         INCREF(m_skyboxCubeTexture);
         Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
         m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");

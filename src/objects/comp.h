@@ -11,6 +11,7 @@ namespace op
         Object* owner = nullptr;
 
         bool IsStarted() const { return m_isStarted; }
+        void SetIsStarted(const bool val) { m_isStarted = val; }
 
         virtual ~Comp() = default;
 

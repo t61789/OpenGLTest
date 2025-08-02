@@ -13,17 +13,22 @@ namespace op
         Event<> dirtyEvent;
 
         void Awake() override;
-        
+
+        Vec3 GetWorldPosition();
+        void SetWorldPosition(const Vec3& pos);
         Vec3 GetPosition();
         void SetPosition(const Vec3& pos);
         Vec3 GetScale();
         void SetScale(const Vec3& scale);
-        Quaternion GetRotation();
+        Quaternion GetRotation(); // TODO 世界空间下的旋转
         void SetRotation(Quaternion& rotation);
         Vec3 GetEulerAngles();
         void SetEulerAngles(const Vec3& ea);
     
+        void UpdateMatrix();
+    
         const Matrix4x4& GetLocalToWorld();
+        const Matrix4x4& GetWorldToLocal();
 
         void LoadFromJson(const nlohmann::json& objJson) override;
 
@@ -47,8 +52,6 @@ namespace op
         TransformCompProp<Vec3> m_eulerAngles = TransformCompProp(Vec3());
         TransformCompProp<Vec3> m_scale = TransformCompProp(Vec3(1.0f));
         TransformCompProp<Matrix4x4> m_matrix = TransformCompProp(Matrix4x4());
-    
-        void UpdateMatrix();
 
         template <typename T, typename ExtractFromMatrix>
         T GetWorldVal(TransformCompProp<T>& prop, ExtractFromMatrix extractFromMatrix)

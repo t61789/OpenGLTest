@@ -134,17 +134,23 @@ namespace op
         }
         
         float init_scale;
-        GetMeshLoadConfig(modelPath, init_scale);
+        bool flip_winding_order;
+        GetMeshLoadConfig(modelPath, init_scale, flip_winding_order);
         
         Assimp::Importer importer;
         importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, init_scale);
-        
-        const aiScene *scene = importer.ReadFile(
-            Utils::GetAbsolutePath(modelPath).c_str(),
+
+        unsigned int pFlags = 
             aiProcess_Triangulate |
             aiProcess_GenSmoothNormals |
-            aiProcess_FlipWindingOrder |
-            aiProcess_GlobalScale);
+            aiProcess_GlobalScale;
+
+        if (flip_winding_order)
+        {
+            pFlags |= aiProcess_FlipWindingOrder;
+        }
+        
+        const aiScene *scene = importer.ReadFile(Utils::GetAbsolutePath(modelPath).c_str(), pFlags);
         
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
@@ -248,7 +254,7 @@ namespace op
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
     }
 
-    void Mesh::GetMeshLoadConfig(const std::string& modelPath, float& initScale)
+    void Mesh::GetMeshLoadConfig(const std::string& modelPath, float& initScale, bool& flipWindingOrder)
     {
         auto config = Utils::GetResourceMeta(modelPath);
 
@@ -256,6 +262,12 @@ namespace op
         if (config.contains("init_scale"))
         {
             initScale = config.at("init_scale").get<float>();
+        }
+
+        flipWindingOrder = true;
+        if (config.contains("flip_winding_order"))
+        {
+            flipWindingOrder = config.at("flip_winding_order").get<bool>();
         }
     }
 }
