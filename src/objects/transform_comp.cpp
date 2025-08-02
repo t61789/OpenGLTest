@@ -14,47 +14,57 @@ namespace op
 
     Vec3 TransformComp::GetWorldPosition()
     {
+        if (m_position.needUpdateFromWorld)
+        {
+            return m_position.worldVal;
+        }
+        
         UpdateMatrix();
         
-        return {
-            m_matrix.localVal[0][3],
-            m_matrix.localVal[1][3],
-            m_matrix.localVal[2][3],
-        };
+        return m_position.worldVal;
     }
 
     void TransformComp::SetWorldPosition(const Vec3& pos)
     {
-        if (owner->parent)
+        if (m_position.needUpdateFromWorld && m_position.worldVal == pos)
         {
-            owner->parent->transform->UpdateMatrix();
-            auto localPos = (owner->parent->transform->GetWorldToLocal() * Vec4(pos, 1.0f)).ToVec3();
-            SetPosition(localPos);
             return;
         }
         
-        SetPosition(pos);
+        m_position.worldVal = pos;
+        m_position.needUpdateFromWorld = true;
+
+        if (!m_dirty)
+        {
+            SetDirty(owner);
+        }
     }
 
     Vec3 TransformComp::GetPosition()
     {
+        if (m_position.needUpdateFromWorld)
+        {
+            UpdateMatrix();
+        }
+        
         return m_position.localVal;
     }
 
     void TransformComp::SetPosition(const Vec3& pos)
     {
+        m_position.needUpdateFromWorld = false;
+        
         if (m_position.localVal == pos)
         {
             return;
         }
 
-        if (!m_matrix.worldDirty)
+        if (!m_dirty)
         {
             SetDirty(owner);
         }
 
         m_position.localVal = pos;
-        m_position.worldDirty = true;
     }
 
     Vec3 TransformComp::GetScale()
@@ -69,13 +79,12 @@ namespace op
             return;
         }
 
-        if (!m_matrix.worldDirty)
+        if (!m_dirty)
         {
             SetDirty(owner);
         }
 
         m_scale.localVal = scale;
-        m_scale.worldDirty = true;
     }
 
     Quaternion TransformComp::GetRotation()
@@ -90,14 +99,13 @@ namespace op
             return;
         }
 
-        if (!m_matrix.worldDirty)
+        if (!m_dirty)
         {
             SetDirty(owner);
         }
 
         m_eulerAngles.localVal = rotation.ToEuler();
         m_rotation.localVal = rotation;
-        m_rotation.worldDirty = true;
     }
 
     Vec3 TransformComp::GetEulerAngles()
@@ -112,34 +120,25 @@ namespace op
             return;
         }
 
-        if (!m_matrix.worldDirty)
+        if (!m_dirty)
         {
             SetDirty(owner);
         }
 
         m_eulerAngles.localVal = ea;
         m_rotation.localVal = Quaternion::Euler(ea);
-        m_rotation.worldDirty = true;
     }
 
     const Matrix4x4& TransformComp::GetLocalToWorld()
     {
-        if (m_matrix.worldDirty)
-        {
-            UpdateMatrix();
-            m_matrix.worldDirty = false;
-        }
+        UpdateMatrix();
 
         return m_matrix.localVal;
     }
     
     const Matrix4x4& TransformComp::GetWorldToLocal()
     {
-        if (m_matrix.worldDirty)
-        {
-            UpdateMatrix();
-            m_matrix.worldDirty = false;
-        }
+        UpdateMatrix();
 
         return m_matrix.worldVal;
     }
@@ -164,31 +163,50 @@ namespace op
 
     void TransformComp::UpdateMatrix()
     {
+        if (!m_dirty)
+        {
+            return;
+        }
+        m_dirty = false;
+        
         Matrix4x4 parentLocalToWorld;
         if (owner->parent)
         {
             // 如果parent还是dirty的话，GetLocalToWorld会继续往上递归地UpdateMatrix
             parentLocalToWorld = owner->parent->transform->GetLocalToWorld();
+            if (m_position.needUpdateFromWorld)
+            {
+                auto& parentWorldToLocal = owner->parent->transform->GetWorldToLocal();
+                m_position.localVal = (parentWorldToLocal * Vec4(m_position.worldVal, 1.0f)).ToVec3();
+                m_position.needUpdateFromWorld = false;
+            }
         }
         else
         {
             parentLocalToWorld = Matrix4x4::Identity();
+            if (m_position.needUpdateFromWorld)
+            {
+                m_position.localVal = m_position.worldVal;
+                m_position.needUpdateFromWorld = false;
+            }
         }
 
         auto objectMatrix = Matrix4x4::TRS(m_position.localVal, m_rotation.localVal, m_scale.localVal);
 
         m_matrix.localVal = parentLocalToWorld * objectMatrix;
         m_matrix.worldVal = m_matrix.localVal.Inverse();
+
+        m_position.worldVal = m_position.localVal;
     }
 
     /// 递归地将当前物体和它的子物体都标记为dirty
     void TransformComp::SetDirty(const Object* object)
     {
-        if (!object->transform->m_matrix.worldDirty)
+        if (!object->transform->m_dirty)
         {
             object->transform->dirtyEvent.Invoke();
         }
-        object->transform->m_matrix.worldDirty = true;
+        object->transform->m_dirty = true;
     
         if (object->children.empty())
         {
@@ -197,7 +215,7 @@ namespace op
 
         for (auto child : object->children)
         {
-            if (child->transform->m_matrix.worldDirty)
+            if (child->transform->m_dirty)
             {
                 continue;
             }

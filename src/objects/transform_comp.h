@@ -40,13 +40,12 @@ namespace op
             T localVal;
             T worldVal = T();
             bool worldDirty = true;
+            bool needUpdateFromWorld = false;
 
             explicit TransformCompProp(T localVal) : localVal(localVal) {}
         };
     
-        bool m_localDirty = true;
-        bool m_worldDirty = true;
-        bool m_matrixDirty = true;
+        bool m_dirty = true;
         TransformCompProp<Vec3> m_position = TransformCompProp(Vec3());
         TransformCompProp<Quaternion> m_rotation = TransformCompProp(Quaternion());
         TransformCompProp<Vec3> m_eulerAngles = TransformCompProp(Vec3());
