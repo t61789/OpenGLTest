@@ -1,0 +1,10 @@
+{
+  "shader": "shaders/lit.glsl",
+  "_Albedo": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "_MainTex": "scenes/HDRP_template/textures/ConcreteMatteGrey_Albedo_7570351943fe438f.png"
+}

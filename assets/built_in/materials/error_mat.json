@@ -1,0 +1,11 @@
+{
+    "shader": "shaders/lit.glsl",
+    "cullMode": "Back",
+    "_MainTex" : "built_in/texture/error.png",
+    "_Albedo": [
+        1,
+        1,
+        1,
+        1
+    ]
+}

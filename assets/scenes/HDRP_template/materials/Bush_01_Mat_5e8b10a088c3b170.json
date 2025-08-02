@@ -1,0 +1,10 @@
+{
+  "shader": "shaders/lit.glsl",
+  "_Albedo": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "_MainTex": "scenes/HDRP_template/textures/Bush_01_BC_4e034dc5f9306d9b.png"
+}

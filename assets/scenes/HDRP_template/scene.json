@@ -1,0 +1,481 @@
+{
+  "root": [
+    {
+      "name": "Lighting",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "Directional Light Sun",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.0,
+                10.02,
+                0.0
+              ],
+              "rotation": [
+                72.02113,
+                328.4635,
+                210.952164
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "LightComp",
+              "color": [
+                3.0,
+                3.0,
+                3.0
+              ],
+              "light_type": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Props",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "Room 1",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "children": [
+            {
+              "name": "Ball_PF",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    0.0,
+                    3.192,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    0.5,
+                    0.5,
+                    0.5
+                  ]
+                }
+              ],
+              "children": [
+                {
+                  "name": "Ball",
+                  "comps": [
+                    {
+                      "name": "TransformComp",
+                      "position": [
+                        2.35910491E-07,
+                        1.84,
+                        2.68133533E-07
+                      ],
+                      "rotation": [
+                        26.747,
+                        270.0,
+                        0.0
+                      ],
+                      "scale": [
+                        15.0,
+                        15.0,
+                        15.0
+                      ]
+                    },
+                    {
+                      "name": "RenderComp",
+                      "mesh": "scenes/HDRP_template/meshes/UnityBall_51b0e990a9652496.obj",
+                      "material": "scenes/HDRP_template/materials/Brass_Mat_c73522d2d11b9378.json"
+                    }
+                  ]
+                },
+                {
+                  "name": "Base",
+                  "comps": [
+                    {
+                      "name": "TransformComp",
+                      "position": [
+                        0.119288355,
+                        0.000141635537,
+                        0.0276066661
+                      ],
+                      "rotation": [
+                        0.0,
+                        330.0,
+                        0.0
+                      ],
+                      "scale": [
+                        15.0,
+                        15.0,
+                        15.0
+                      ]
+                    },
+                    {
+                      "name": "RenderComp",
+                      "mesh": "scenes/HDRP_template/meshes/Plane006_db12fac74db01c45.obj",
+                      "material": "scenes/HDRP_template/materials/MetalBlack_Mat_8095e42f4cb6d89e.json"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "StaticLightingSky",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SceneIDMap",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Structure",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "Room 1",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "children": [
+            {
+              "name": "FR_Platform_01",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    0.0,
+                    2.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    9.334668E-06,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                }
+              ],
+              "children": [
+                {
+                  "name": "FR_Platform_01_Col",
+                  "comps": [
+                    {
+                      "name": "TransformComp",
+                      "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "FR_Platform_01_LOD0",
+                  "comps": [
+                    {
+                      "name": "TransformComp",
+                      "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                      ]
+                    },
+                    {
+                      "name": "RenderComp",
+                      "mesh": "scenes/HDRP_template/meshes/FR_Platform_01_LOD0_d361f0d55ba8d045.obj",
+                      "material": "scenes/HDRP_template/materials/ConcretePolished_Mat_74c64f522a0a94f4.json"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PlayerControllerFPS",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            -6.0,
+            4.2,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            90.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "Main Camera",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.0,
+                0.7,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "CameraComp",
+              "fov": 50.53402,
+              "nearClip": 0.1,
+              "farClip": 1000.0
+            }
+          ]
+        },
+        {
+          "name": "GroundCheck",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.0,
+                -1.25,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GameObject",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            7.33260727,
+            -1.03877342,
+            -11.5402412
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  ],
+  "config": {
+    "ambientLightColorSky": [
+      0.636,
+      0.681,
+      0.777
+    ],
+    "ambientLightColorEquator": [
+      0.636,
+      0.681,
+      0.777
+    ],
+    "ambientLightColorGround": [
+      0.636,
+      0.681,
+      0.777
+    ]
+  }
+}

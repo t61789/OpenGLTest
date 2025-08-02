@@ -1,0 +1,10 @@
+{
+  "shader": "shaders/lit.glsl",
+  "_Albedo": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "_MainTex": "scenes/HDRP_template/textures/Fern_01_Albedo_83b1d44297e2b707.png"
+}

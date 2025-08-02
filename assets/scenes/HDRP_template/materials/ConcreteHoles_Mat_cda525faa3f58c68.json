@@ -1,0 +1,10 @@
+{
+  "shader": "shaders/lit.glsl",
+  "_Albedo": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "_MainTex": "scenes/HDRP_template/textures/ConcreteHoles_Albedo_2417ef66f0d10068.png"
+}

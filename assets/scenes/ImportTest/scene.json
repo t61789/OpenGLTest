@@ -8,7 +8,7 @@
           "position": [
             0.0,
             1.0,
-            10.0
+            -10.0
           ],
           "rotation": [
             0.0,
@@ -23,9 +23,37 @@
         },
         {
           "name": "CameraComp",
-          "fov": 91.49284,
+          "fov": 60.0,
           "nearClip": 0.3,
           "farClip": 1000.0
+        }
+      ]
+    },
+    {
+      "name": "rpgpp_lt_building_03",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "RenderComp",
+          "mesh": "scenes/ImportTest/meshes/rpgpp_lt_building_03_79b00ca6ac8496f6.obj",
+          "material": "scenes/ImportTest/materials/defaultMat_340f9b70548d062d.json"
         }
       ]
     },
@@ -40,7 +68,7 @@
             0.0
           ],
           "rotation": [
-            -50.00001,
+            50.00001,
             0.0,
             0.0
           ],
@@ -53,9 +81,9 @@
         {
           "name": "LightComp",
           "color": [
-            3.0,
-            2.8705883,
-            2.517647
+            4.0,
+            3.827451,
+            3.35686278
           ],
           "light_type": 0
         }
@@ -88,23 +116,101 @@
           "material": "scenes/ImportTest/materials/Default-Material_28e620823e0f65b6.json"
         }
       ]
+    },
+    {
+      "name": "Prop_FlyingSaucer_Animated",
+      "comps": [
+        {
+          "name": "TransformComp",
+          "position": [
+            0.0,
+            26.3,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "FlyingSaucer_Body",
+          "comps": [
+            {
+              "name": "TransformComp",
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                2.504478E-06,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "RenderComp",
+              "mesh": "scenes/ImportTest/meshes/lo_FlyingSaucer_9c78624632ec9902.obj",
+              "material": "scenes/ImportTest/materials/PROP_FlyingSaucer_c942fe5bef6c692c.json"
+            }
+          ],
+          "children": [
+            {
+              "name": "Part_ExhaustRings",
+              "comps": [
+                {
+                  "name": "TransformComp",
+                  "position": [
+                    -0.179992676,
+                    -9.0,
+                    0.0399784222
+                  ],
+                  "rotation": [
+                    89.98022,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "config": {
     "ambientLightColorSky": [
-      0.636,
-      0.681,
-      0.777
+      0.848,
+      0.908,
+      1.036
     ],
     "ambientLightColorEquator": [
-      0.636,
-      0.681,
-      0.777
+      0.848,
+      0.908,
+      1.036
     ],
     "ambientLightColorGround": [
-      0.636,
-      0.681,
-      0.777
+      0.848,
+      0.908,
+      1.036
     ]
   }
 }
