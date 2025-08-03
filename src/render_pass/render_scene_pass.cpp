@@ -32,7 +32,7 @@ namespace op
 
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
 
-        Material::SetGlobalFloatValue("_ExposureMultiplier", scene->tonemappingExposureMultiplier);
+        Material::SetGlobalFloatValue(EXPOSURE_MULTIPLIER, scene->tonemappingExposureMultiplier);
     
         RenderingUtils::RenderScene(*m_renderContext, m_renderContext->visibleRenderObjs);
     }

@@ -36,8 +36,8 @@ namespace op
         vMatrix = view;
         pMatrix = proj;
         vpMatrix = proj * view;
-        Material::SetGlobalMat4Value("_VP", vpMatrix);
-        Material::SetGlobalMat4Value("_IVP", vpMatrix.Inverse());
+        Material::SetGlobalMat4Value(VP, vpMatrix);
+        Material::SetGlobalMat4Value(IVP, vpMatrix.Inverse());
     }
 
     void RenderContext::RegisterRt(RenderTexture* rt)

@@ -58,7 +58,7 @@ namespace op
         {
             memcpy(m_data, f, sizeof(float) * 16);
         }
-
+        
         float* operator[](const size_t i)
         {
             return m_data + i * 4;

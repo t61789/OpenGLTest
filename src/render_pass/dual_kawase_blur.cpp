@@ -44,8 +44,8 @@ namespace op
 
         UpdateRt(shadingRt);
 
-        m_downsampleMat->SetFloatValue("_BlurSize", static_cast<float>(m_blurSize));
-        m_upsampleMat->SetFloatValue("_BlurSize", static_cast<float>(m_blurSize));
+        m_downsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize));
+        m_upsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize));
 
         for (int i = 0; i < m_blurTextures.size(); ++i)
         {
@@ -54,13 +54,13 @@ namespace op
             if (i == 0)
             {
                 from = shadingRt;
-                m_downsampleMat->SetFloatValue("_ApplyThreshold", 1);
-                m_downsampleMat->SetFloatValue("_Threshold", m_threshold);
+                m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 1);
+                m_downsampleMat->SetFloatValue(THRESHOLD, m_threshold);
             }
             else
             {
                 from = m_blurTextures[i - 1];
-                m_downsampleMat->SetFloatValue("_ApplyThreshold", 0);
+                m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 0);
             }
 
             RenderingUtils::Blit(from, to, m_downsampleMat);

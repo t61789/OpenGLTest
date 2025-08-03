@@ -37,7 +37,7 @@ namespace op
 
         s_gradientAmbientColor = cur;
         auto shc = CalcShc(sky, equator, ground);
-        Material::SetGlobalFloatArrValue("_Shc", shc.GetData(), 27);
+        Material::SetGlobalFloatArrValue(SHC, shc.GetData(), 27);
     }
 
     Shc IndirectLighting::CalcShc(const Vec3& sky, const Vec3& equator, const Vec3& ground)

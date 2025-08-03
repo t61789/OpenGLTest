@@ -45,10 +45,10 @@ namespace op
         RenderTarget::ClearFrameBuffer(0, Vec4::Zero(), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         RenderTarget::UseScreenTarget();
 
-        finalBlitMat->SetFloatValue("_MinLuminance", m_minLuminance);
-        finalBlitMat->SetFloatValue("_MaxLuminance", m_maxLuminance);
+        finalBlitMat->SetFloatValue(MIN_LUMINANCE, m_minLuminance);
+        finalBlitMat->SetFloatValue(MAX_LUMINANCE, m_maxLuminance);
 
-        finalBlitMat->SetTextureValue("_LutTex", lutTexture);
+        finalBlitMat->SetTextureValue(LUT_TEX, lutTexture);
         RenderingUtils::RenderMesh(*m_renderContext, quad, finalBlitMat, Matrix4x4::Identity());
     }
 

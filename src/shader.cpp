@@ -7,6 +7,7 @@
 
 #include "game_framework.h"
 #include "render_texture.h"
+#include "string_handle.h"
 #include "utils.h"
 
 namespace op
@@ -73,126 +74,128 @@ namespace op
         }
     }
 
-    bool Shader::HasParam(const string &name) const
+    const Shader::UniformInfo& Shader::GetUniformInfo(const size_t nameId) const
     {
-        int location = glGetUniformLocation(glShaderId, name.c_str());
-        return location != -1;
-    }
-
-    void Shader::SetBool(const string& name, const bool value) const
-    {
-        int location = glGetUniformLocation(glShaderId, name.c_str());
-        SetBool(location, value);
-    }
-
-    void Shader::SetBool(const int& location, const bool value)
-    {
-        if(location == -1)
+        auto it = uniforms.find(nameId);
+        if (it != uniforms.end())
         {
-            return;
-        }
-        glUniform1i(location, value);
-    }
-
-    void Shader::SetInt(const string& name, const int value) const
-    {
-        int location = glGetUniformLocation(glShaderId, name.c_str());
-        SetInt(location, value);
-    }
-
-    void Shader::SetInt(const int& location, const int value)
-    {
-        if(location == -1)
-        {
-            return;
+            return it->second;
         }
 
-        glUniform1i(location, value);
+        return UniformInfo::GetUnavailable();
     }
 
-    void Shader::SetFloat(const string& name, const float value) const
+    bool Shader::HasParam(const size_t &nameId) const
     {
-        int location = glGetUniformLocation(glShaderId, name.c_str());
-        SetFloat(location, value);
+        const auto& uniformInfo = GetUniformInfo(nameId);
+        return uniformInfo.location != -1;
     }
 
-    void Shader::SetFloat(const int& location, const float value)
+    void Shader::SetBool(const size_t nameId, const bool value) const
     {
-        if(location == -1)
+        const auto& uniformInfo = GetUniformInfo(nameId);
+        SetBoolGl(uniformInfo.location, value);
+    }
+    
+    void Shader::SetBoolGl(const int location, const bool value)
+    {
+        if (location != -1)
         {
-            return;
+            glUniform1i(location, value);
         }
-        glUniform1f(location, value);
     }
-
-    void Shader::SetVector(const string& name, const Vec4& value) const
+    
+    void Shader::SetInt(const size_t nameId, const int value) const
     {
-        int location = glGetUniformLocation(glShaderId, name.c_str());
-        SetVector(location, value);
+        const auto& uniformInfo = GetUniformInfo(nameId);
+        SetIntGl(uniformInfo.location, value);
     }
-
-    void Shader::SetVector(const int& location, const Vec4& value)
+    
+    void Shader::SetIntGl(const int location, const int value)
     {
-        if(location == -1)
+        if (location != -1)
         {
-            return;
+            glUniform1i(location, value);
         }
-        glUniform4f(location, value.x, value.y, value.z, value.w);
     }
-
-    void Shader::SetMatrix(const string& name, const Matrix4x4& value) const
+    
+    void Shader::SetFloat(const size_t nameId, const float value) const
     {
-        int location = glGetUniformLocation(glShaderId, name.c_str());
-        SetMatrix(location, value);
+        const auto& uniformInfo = GetUniformInfo(nameId);
+        SetFloatGl(uniformInfo.location, value);
     }
-
-    void Shader::SetMatrix(const int& location, const Matrix4x4& value)
+    
+    void Shader::SetFloatGl(const int location, const float value)
     {
-        if(location == -1)
+        if (location != -1)
         {
-            return;
-        }
-        glUniformMatrix4fv(location, 1, GL_FALSE, value.Transpose().GetData());
-    }
-
-    void Shader::SetTexture(const string& name, const int slot, const Texture* value) const
-    {
-        int location = glGetUniformLocation(glShaderId, name.c_str());
-        SetTexture(location, slot, value);
-    }
-
-    void Shader::SetTexture(const int& location, const int slot, const Texture* value)
-    {
-        if(location == -1 || value == nullptr || !value->isCreated)
-        {
-            return;
-        }
-        
-        SetInt(location, slot);
-        glActiveTexture(GL_TEXTURE0 + slot);
-        if(value->isCubeMap)
-        {
-            glBindTexture(GL_TEXTURE_CUBE_MAP, value->glTextureId);
-        }
-        else
-        {
-            glBindTexture(GL_TEXTURE_2D, value->glTextureId);
+            glUniform1f(location, value);
         }
     }
 
-    void Shader::SetFloatArr(const string& name, uint32_t count, float* value) const
+    void Shader::SetVector(const size_t nameId, const Vec4& value) const
     {
-        int location = glGetUniformLocation(glShaderId, name.c_str());
-        SetFloatArr(location, count, value);
+        const auto& uniformInfo = GetUniformInfo(nameId);
+        SetVectorGl(uniformInfo.location, value);
+    }
+    
+    void Shader::SetVectorGl(const int location, const Vec4& value)
+    {
+        if (location != -1)
+        {
+            glUniform4f(location, value.x, value.y, value.z, value.w);
+        }
     }
 
-    void Shader::SetFloatArr(const int& location, int count, float* value)
+    void Shader::SetMatrix(const size_t nameId, const Matrix4x4& value) const
     {
-        if(location == -1)
+        const auto& uniformInfo = GetUniformInfo(nameId);
+        SetMatrixGl(uniformInfo.location, value);
+    }
+    
+    void Shader::SetMatrixGl(const int location, const Matrix4x4& value)
+    {
+        if (location != -1)
         {
-            return;
+            glUniformMatrix4fv(location, 1, GL_FALSE, value.Transpose().GetData());
         }
-        glUniform1fv(location, count, value);
+    }
+
+    void Shader::SetFloatArr(const size_t nameId, const int count, const float* value) const
+    {
+        const auto& uniformInfo = GetUniformInfo(nameId);
+        SetFloatArrGl(uniformInfo.location, count, value);
+    }
+    
+    void Shader::SetFloatArrGl(const int location, const int count, const float* value)
+    {
+        if (location != -1)
+        {
+            glUniform1fv(location, count, value);
+        }
+    }
+
+    void Shader::SetTexture(const size_t nameId, const int slot, const Texture* value) const
+    {
+        const auto& uniformInfo = GetUniformInfo(nameId);
+        SetTextureGl(uniformInfo.location, slot, value);
+    }
+    
+    void Shader::SetTextureGl(const int location, const int slot, const Texture* value)
+    {
+        if (location != -1 && value && value->isCreated)
+        {
+            SetIntGl(location, slot);
+            glActiveTexture(GL_TEXTURE0 + slot);
+            if(value->isCubeMap)
+            {
+                glBindTexture(GL_TEXTURE_CUBE_MAP, value->glTextureId);
+            }
+            else
+            {
+                glBindTexture(GL_TEXTURE_2D, value->glTextureId);
+            }
+        }
     }
 
     vector<string> Shader::LoadFileToLines(const string& realAssetPath)
@@ -334,7 +337,7 @@ namespace op
 
         auto vCharSource = vSource.c_str();
         auto fCharSource = fSource.c_str();
-        
+
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, 1, &vCharSource, nullptr);
         glCompileShader(vertexShader);
@@ -361,9 +364,9 @@ namespace op
         return result;
     }
 
-    vector<Shader::UniformInfo> Shader::LoadUniforms(const GLuint program)
+    unordered_map<size_t, Shader::UniformInfo> Shader::LoadUniforms(const GLuint program)
     {
-        vector<UniformInfo> result;
+        unordered_map<size_t, UniformInfo> result;
         
         GLint numUniforms = 0;
         glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
@@ -377,19 +380,17 @@ namespace op
             glGetActiveUniform(program, i, sizeof(name), &length, &size, &type, name);
 
             UniformInfo uniformInfo;
-            uniformInfo.index = i;
             uniformInfo.name = string(name);
+            uniformInfo.location = glGetUniformLocation(program, name);
             uniformInfo.elemNum = size;
             uniformInfo.type = type;
+            
+            if (type == GL_FLOAT && size > 1)
+            {
+                uniformInfo.name = uniformInfo.name.substr(0, uniformInfo.name.length() - 3);
+            }
 
-            if (find(result.begin(), result.end(), uniformInfo) == result.end())
-            {
-                result.push_back(uniformInfo);
-            }
-            else
-            {
-                throw runtime_error("重复的Uniform");
-            }
+            result[StringHandle(uniformInfo.name).GetHash()] = uniformInfo;
         }
 
         return result;

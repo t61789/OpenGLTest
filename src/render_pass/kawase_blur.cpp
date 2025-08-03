@@ -51,8 +51,8 @@ namespace op
 
         for (int i = 0; i < m_iteration; ++i)
         {
-            m_kawaseBlitMat->SetTextureValue("_MainTex", rt0);
-            m_kawaseBlitMat->SetFloatValue("_Iterations", static_cast<float>(i));
+            m_kawaseBlitMat->SetTextureValue(MAIN_TEX, rt0);
+            m_kawaseBlitMat->SetFloatValue(ITERATIONS, static_cast<float>(i));
 
             RenderingUtils::Blit(rt0, rt1, m_kawaseBlitMat);
 

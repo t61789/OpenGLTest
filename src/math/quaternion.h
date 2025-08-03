@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math/const.h"
+#include "const.h"
 #include "math/vec.h"
 #include "math/simd_math.h"
 

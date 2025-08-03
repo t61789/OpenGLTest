@@ -8,6 +8,7 @@
 #include "shader.h"
 #include "built_in_res.h"
 #include "image.h"
+#include "string_handle.h"
 #include "utils.h"
 
 namespace op
@@ -29,42 +30,65 @@ namespace op
         }
     }
 
-    void Material::SetIntValue(const std::string& paramName, const int value)
+    void Material::SetIntValue(const StringHandle& paramName, const int value)
     {
-        intValues[paramName] = value;
+        intValues[paramName.GetHash()] = value;
+    }
+    
+    void Material::SetBoolValue(const StringHandle& paramName, const bool value)
+    {
+        boolValues[paramName.GetHash()] = value;
+    }
+    
+    void Material::SetFloatValue(const StringHandle& paramName, const float value)
+    {
+        floatValues[paramName.GetHash()] = value;
+    }
+    
+    void Material::SetMat4Value(const StringHandle& paramName, const Matrix4x4& value)
+    {
+        mat4Values[paramName.GetHash()] = value;
+    }
+    
+    void Material::SetVector4Value(const StringHandle& paramName, const Vec4& value)
+    {
+        vec4Values[paramName.GetHash()] = value;
+    }
+    
+    void Material::SetFloatArrValue(const StringHandle& paramName, const float *value, const int count)
+    {
+        std::vector<float>* arr;
+        auto it = floatArrValues.find(paramName.GetHash());
+        if (it == floatArrValues.end())
+        {
+            arr = new std::vector<float>();
+            floatArrValues[paramName.GetHash()] = arr;
+        }
+        else
+        {
+            arr = it->second;
+        }
+        arr->resize(count);
+        std::memcpy(arr->data(), value, count * sizeof(float));
     }
 
-    void Material::SetBoolValue(const std::string& paramName, const bool value)
+    void Material::SetTextureValue(const StringHandle& paramName, Texture* value)
     {
-        boolValues[paramName] = value;
-    }
-
-    void Material::SetFloatValue(const std::string& paramName, const float value)
-    {
-        floatValues[paramName] = value;
-    }
-
-    void Material::SetMat4Value(const std::string& paramName, const Matrix4x4& value)
-    {
-        mat4Values[paramName] = value;
-    }
-
-    void Material::SetTextureValue(const std::string& paramName, Texture* value)
-    {
-        auto it = textureValues.find(paramName);
+        auto it = textureValues.find(paramName.GetHash());
         if (it != textureValues.end())
         {
-            if (it->second == value)
+            if (it->second.texture == value)
             {
                 return;
             }
             
-            DECREF(it->second);
+            DECREF(it->second.texture);
         }
-        
+
         if (value)
         {
-            textureValues[paramName] = value;
+            auto texelHandle = StringHandle(paramName.GetString() + "_TexelSize");
+            textureValues[paramName.GetHash()] = {value, texelHandle.GetHash()};
             INCREF(value);
             
             auto texelSize = Vec4(
@@ -72,70 +96,48 @@ namespace op
                 1.0f / static_cast<float>(value->height),
                 static_cast<float>(value->width),
                 static_cast<float>(value->height));
-            vec4Values[paramName + "_TexelSize"] = texelSize;
+            vec4Values[texelHandle.GetHash()] = texelSize;
         }
         else if (it != textureValues.end())
         {
-            textureValues.erase(paramName);
-            vec4Values.erase(paramName + "_TexelSize");
+            textureValues.erase(paramName.GetHash());
+            vec4Values.erase(it->second.texelNameId);
         }
     }
 
-    void Material::SetVector4Value(const std::string& paramName, const Vec4& value)
-    {
-        vec4Values[paramName] = value;
-    }
-
-    void Material::SetFloatArrValue(const std::string& paramName, const float *value, const int count)
-    {
-        std::vector<float>* arr;
-        auto it = floatArrValues.find(paramName);
-        if (it != floatArrValues.end())
-        {
-            arr = it->second;
-        }
-        else
-        {
-            arr = new std::vector<float>();
-            floatArrValues[paramName] = arr;
-        }
-        arr->resize(count);
-        std::memcpy(arr->data(), value, count * sizeof(float));
-    }
-
-    void Material::SetGlobalIntValue(const std::string& paramName, const int value)
+    void Material::SetGlobalIntValue(const StringHandle& paramName, const int value)
     {
         s_globalMaterial->SetIntValue(paramName, value);
     }
-
-    void Material::SetGlobalBoolValue(const std::string& paramName, const bool value)
+    
+    void Material::SetGlobalBoolValue(const StringHandle& paramName, const bool value)
     {
         s_globalMaterial->SetBoolValue(paramName, value);
     }
-
-    void Material::SetGlobalFloatValue(const std::string& paramName, const float value)
+    
+    void Material::SetGlobalFloatValue(const StringHandle& paramName, const float value)
     {
         s_globalMaterial->SetFloatValue(paramName, value);
     }
 
-    void Material::SetGlobalMat4Value(const std::string& paramName, const Matrix4x4& value)
+    void Material::SetGlobalMat4Value(const StringHandle& paramName, const Matrix4x4& value)
     {
         s_globalMaterial->SetMat4Value(paramName, value);
+    }
+
+    void Material::SetGlobalVector4Value(const StringHandle& paramName, const Vec4& value)
+    {
+        s_globalMaterial->SetVector4Value(paramName, value);
+    }
+
+    void Material::SetGlobalFloatArrValue(const StringHandle& paramName, const float* value, const int count)
+    {
+        s_globalMaterial->SetFloatArrValue(paramName, value, count);
     }
 
     void Material::SetGlobalTextureValue(const std::string& paramName, Texture* value)
     {
         s_globalMaterial->SetTextureValue(paramName, value);
-    }
-
-    void Material::SetGlobalVector4Value(const std::string& paramName, const Vec4& value)
-    {
-        s_globalMaterial->SetVector4Value(paramName, value);
-    }
-
-    void Material::SetGlobalFloatArrValue(const std::string& paramName, const float* value, const int count)
-    {
-        s_globalMaterial->SetFloatArrValue(paramName, value, count);
     }
 
     void Material::ClearAllGlobalValues()
@@ -152,8 +154,13 @@ namespace op
     void Material::FillParams(const Shader* targetShader) const
     {
         auto slot = 0;
-        for (const auto& uniformInfo : targetShader->uniforms)
+        for (const auto& [nameId, uniformInfo] : targetShader->uniforms)
         {
+            if (uniformInfo.location == 8)
+            {
+                auto a = 1;
+            }
+                        
             switch (uniformInfo.type)
             {
             case GL_FLOAT:
@@ -161,17 +168,16 @@ namespace op
                     if (uniformInfo.elemNum > 1)
                     {
                         std::vector<float>* fa;
-                        auto n = uniformInfo.name.substr(0, uniformInfo.name.length() - 3);
-                        if (FindParam(n, floatArrValues, s_globalMaterial->floatArrValues, fa) && !fa->empty())
+                        if (FindParam(nameId, floatArrValues, s_globalMaterial->floatArrValues, fa) && !fa->empty())
                         {
-                            targetShader->SetFloatArr(n, uniformInfo.elemNum, fa->data());
+                            Shader::SetFloatArrGl(uniformInfo.location, fa->size(), fa->data());
                         }
                     }
                     else
                     {
                         float f = 0;
-                        FindParam(uniformInfo.name, floatValues, s_globalMaterial->floatValues, f);
-                        targetShader->SetFloat(uniformInfo.name, f);
+                        FindParam(nameId, floatValues, s_globalMaterial->floatValues, f);
+                        Shader::SetFloatGl(uniformInfo.location, f);
                     }
                     break;
                 }
@@ -179,24 +185,24 @@ namespace op
             case GL_INT:
                 {
                     auto i = 0;
-                    FindParam(uniformInfo.name, intValues, s_globalMaterial->intValues, i);
-                    targetShader->SetInt(uniformInfo.name, i);
+                    FindParam(nameId, intValues, s_globalMaterial->intValues, i);
+                    Shader::SetIntGl(uniformInfo.location, i);
                     break;
                 }
                 
             case GL_BOOL:
                 {
                     auto b = false;
-                    FindParam(uniformInfo.name, boolValues, s_globalMaterial->boolValues, b);
-                    targetShader->SetBool(uniformInfo.name, b);
+                    FindParam(nameId, boolValues, s_globalMaterial->boolValues, b);
+                    Shader::SetBoolGl(uniformInfo.location, b);
                     break;
                 }
                 
             case GL_FLOAT_MAT4:
                 {
                     Matrix4x4 m;
-                    FindParam(uniformInfo.name, mat4Values, s_globalMaterial->mat4Values, m);
-                    targetShader->SetMatrix(uniformInfo.name, m);
+                    FindParam(nameId, mat4Values, s_globalMaterial->mat4Values, m);
+                    Shader::SetMatrixGl(uniformInfo.location, m);
                     break;
                 }
 
@@ -204,20 +210,20 @@ namespace op
             case GL_SAMPLER_2D_SHADOW:
             case GL_SAMPLER_2D:
                 {
-                    Texture* t = nullptr;
-                    if (!FindParam(uniformInfo.name, textureValues, s_globalMaterial->textureValues, t))
+                    MaterialTextureValue t;
+                    if (!FindParam(nameId, textureValues, s_globalMaterial->textureValues, t))
                     {
-                        t = BuiltInRes::GetInstance()->errorTex;
+                        t.texture = BuiltInRes::GetInstance()->errorTex;
                     }
-                    targetShader->SetTexture(uniformInfo.name, slot++, t);
+                    Shader::SetTextureGl(uniformInfo.location, slot++, t.texture);
                     break;
                 }
                 
             case GL_FLOAT_VEC4:
                 {
                     Vec4 v;
-                    FindParam(uniformInfo.name, vec4Values, s_globalMaterial->vec4Values, v);
-                    targetShader->SetVector(uniformInfo.name, v);
+                    FindParam(nameId, vec4Values, s_globalMaterial->vec4Values, v);
+                    Shader::SetVectorGl(uniformInfo.location, v);
                     break;
                 }
 
@@ -247,14 +253,14 @@ namespace op
         floatValues.clear();
         vec4Values.clear();
         mat4Values.clear();
-        for (const auto& pair : floatArrValues)
+        for (auto pair : floatArrValues)
         {
             delete pair.second;
         }
         floatArrValues.clear();
         for (auto pair : textureValues)
         {
-            DECREF(pair.second);
+            DECREF(pair.second.texture);
         }
         textureValues.clear();
     }

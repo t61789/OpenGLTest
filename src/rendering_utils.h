@@ -19,5 +19,8 @@ namespace op
         static void RenderEntity(const RenderContext& renderContext, const RenderComp* renderComp);
         static void RenderMesh(const RenderContext& renderContext, const Mesh* mesh, Material* mat, const Matrix4x4& m);
         static void Blit(RenderTexture* src, RenderTexture* dst, Material* material = nullptr);
+        
+    private:
+        static void CallGlDraw(const Mesh* mesh);
     };
 }

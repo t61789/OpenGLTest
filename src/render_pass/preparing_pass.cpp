@@ -8,6 +8,7 @@
 #include "objects/camera_comp.h"
 #include "objects/light_comp.h"
 #include "objects/transform_comp.h"
+#include "const.h"
 
 namespace op
 {
@@ -27,7 +28,7 @@ namespace op
             return;
         }
 
-        Material::SetGlobalVector4Value("_CameraPositionWS", Vec4(m_renderContext->camera->owner->transform->GetPosition(), 0));
+        Material::SetGlobalVector4Value(CAMERA_POSITION_WS, Vec4(m_renderContext->camera->owner->transform->GetPosition(), 0));
 
         std::vector clearColors = {
             Vec4(0.5f),
@@ -37,7 +38,7 @@ namespace op
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Clear(clearColors, 1.0f);
 
         auto viewportSize = Vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
-        Material::SetGlobalVector4Value("_ViewportSize", viewportSize);
+        Material::SetGlobalVector4Value(VIEWPORT_SIZE, viewportSize);
 
         PrepareLightInfos();
     
@@ -46,8 +47,8 @@ namespace op
             m_renderContext->scene->ambientLightColorEquator,
             m_renderContext->scene->ambientLightColorGround);
 
-        Material::SetGlobalFloatValue("_FogIntensity", m_renderContext->scene->fogIntensity);
-        Material::SetGlobalVector4Value("_FogColor", Vec4(m_renderContext->scene->fogColor, 0));
+        Material::SetGlobalFloatValue(FOG_INTENSITY, m_renderContext->scene->fogIntensity);
+        Material::SetGlobalVector4Value(FOG_COLOR, Vec4(m_renderContext->scene->fogColor, 0));
 
         m_renderContext->SetViewProjMatrix(m_renderContext->camera);
     }
@@ -87,7 +88,7 @@ namespace op
                 if (!m_renderContext->mainLight)
                 {
                     m_renderContext->mainLight = light;
-                    Material::SetGlobalVector4Value("_MainLightDirection", Vec4(-light->owner->transform->GetLocalToWorld().Forward(), 0));
+                    Material::SetGlobalVector4Value(MAIN_LIGHT_DIRECTION, Vec4(-light->owner->transform->GetLocalToWorld().Forward(), 0));
                 }
 
                 parallelLights.push_back(light);
@@ -116,10 +117,10 @@ namespace op
         auto updateBuffer = reinterpret_cast<float*>(parallelLightInfos.data());
         auto count = static_cast<int>(parallelLightInfos.size());
         Material::SetGlobalFloatArrValue(
-            "_ParallelLightInfo",
+            PARALLEL_LIGHT_INFO,
             updateBuffer,
             count * (sizeof(ParallelLightInfo) / sizeof(float)));
-        Material::SetGlobalIntValue("_ParallelLightCount", count);
+        Material::SetGlobalIntValue(PARALLEL_LIGHT_COUNT, count);
 
         struct alignas(8) PointLightInfo
         {
@@ -139,9 +140,9 @@ namespace op
         updateBuffer = reinterpret_cast<float*>(pointLightInfos.data());
         count = static_cast<int>(pointLightInfos.size());
         Material::SetGlobalFloatArrValue(
-            "_PointLightInfo",
+            POINT_LIGHT_INFO,
             updateBuffer,
             count * (sizeof(PointLightInfo) / sizeof(float)));
-        Material::SetGlobalIntValue("_PointLightCount", count);
+        Material::SetGlobalIntValue(POINT_LIGHT_COUNT, count);
     }
 }

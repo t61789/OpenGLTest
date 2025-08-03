@@ -29,7 +29,7 @@ namespace op
 
     private:
         EventHandler m_onTransformDirtyHandler = 0;
-        bool m_worldBoundsDirty = true;
+        bool m_transformDirty = true;
         Bounds m_worldBounds;
 
         void OnTransformDirty();

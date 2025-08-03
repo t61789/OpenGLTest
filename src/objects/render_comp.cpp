@@ -62,16 +62,16 @@ namespace op
 
     void RenderComp::OnTransformDirty()
     {
-        m_worldBoundsDirty = true;
+        m_transformDirty = true;
     }
 
     void RenderComp::UpdateWorldBounds()
     {
-        if (!m_worldBoundsDirty)
+        if (!m_transformDirty)
         {
             return;
         }
-        m_worldBoundsDirty = false;
+        m_transformDirty = false;
         
         auto m = owner->transform->GetLocalToWorld();
         const auto& boundsOS = mesh->bounds;

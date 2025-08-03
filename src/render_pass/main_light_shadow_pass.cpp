@@ -84,7 +84,7 @@ namespace op
         auto projMatrix = Utils::CreateOrthoProjection(range, -range, range, -range, 2 * range2, 0.05f);
         m_renderContext->SetViewProjMatrix(worldToShadowCamera, projMatrix); // TODO push
 
-        Material::SetGlobalMat4Value("_MainLightShadowVP", projMatrix * worldToShadowCamera);
+        Material::SetGlobalMat4Value(MAINLIGHT_SHADOW_VP, projMatrix * worldToShadowCamera);
 
         auto renderTarget = RenderTarget::Get(nullptr, m_mainLightShadowRt);
         renderTarget->Clear(1.0f);
