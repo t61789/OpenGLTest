@@ -156,11 +156,6 @@ namespace op
         auto slot = 0;
         for (const auto& [nameId, uniformInfo] : targetShader->uniforms)
         {
-            if (uniformInfo.location == 8)
-            {
-                auto a = 1;
-            }
-                        
             switch (uniformInfo.type)
             {
             case GL_FLOAT:
@@ -243,7 +238,7 @@ namespace op
         }
 
         shader->Use(mesh);
-        FillParams(shader);
+        FillParams(shader); // cbuffer 优化
     }
 
     void Material::Clear()

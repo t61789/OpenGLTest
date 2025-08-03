@@ -7,6 +7,7 @@
 uniform mat4 _MVP;
 uniform mat4 _ITM;
 uniform mat4 _M;
+uniform mat4 _IM;
 uniform mat4 _VP;
 uniform mat4 _IVP;
 uniform mat4 _MainLightShadowVP;
@@ -76,7 +77,7 @@ vec3 TransformObjectToWorld(vec3 positionOS)
 
 vec3 TransformObjectToWorldNormal(vec3 normalOS)
 {
-    return normalize((_ITM * vec4(normalOS, 0)).xyz);
+    return normalize((transpose(_IM) * vec4(normalOS, 0)).xyz);
 }
 
 vec4 TransformWorldToHClip(vec3 positionWS)
@@ -86,7 +87,7 @@ vec4 TransformWorldToHClip(vec3 positionWS)
 
 vec4 TransformObjectToHClip(vec3 positionOS)
 {
-    return _MVP * vec4(positionOS, 1);
+    return _VP * _M * vec4(positionOS, 1);
 }
 
 vec3 TransformScreenToWorld(vec2 screenUV)

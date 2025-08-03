@@ -50,10 +50,10 @@ namespace op
             return;
         }
 
-        RenderMesh(renderContext, mesh, material, renderComp->owner->transform->GetLocalToWorld());
+        RenderMesh(renderContext, mesh, material, renderComp->owner->transform->GetLocalToWorld(), renderComp->owner->transform->GetWorldToLocal());
     }
 
-    void RenderingUtils::RenderMesh(const RenderContext& renderContext, const Mesh* mesh, Material* mat, const Matrix4x4& m)
+    void RenderingUtils::RenderMesh(const RenderContext& renderContext, const Mesh* mesh, Material* mat, const Matrix4x4& m, const Matrix4x4& im)
     {
         ZoneScoped;
         
@@ -76,16 +76,11 @@ namespace op
         //
         // Utils::Log(Info, "vv %s", vv.ToString().c_str());
         // Utils::Log(Info, "v %s", renderContext.vMatrix0.ToString().c_str());
-        
 
-        auto mvp = renderContext.vpMatrix * m;
-        auto itm = m.Inverse().Transpose();
-        
         mesh->Use();
-        mat->SetMat4Value(MVP, mvp);
-        mat->SetMat4Value(VP, renderContext.vpMatrix);
-        mat->SetMat4Value(ITM, itm);
         mat->SetMat4Value(M, m);
+        mat->SetMat4Value(IM, im);
+        mat->SetMat4Value(VP, renderContext.vpMatrix);
         mat->Use(mesh);
         renderContext.cullModeMgr->SetCullMode(mat->cullMode);
         renderContext.blendModeMgr->SetBlendMode(mat->blendMode);
