@@ -1,5 +1,7 @@
 ﻿#include "final_blit_pass.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "imgui.h"
 
 #include "render_target.h"
@@ -32,6 +34,8 @@ namespace op
 
     void FinalBlitPass::Execute()
     {
+        ZoneScoped;
+        
         auto quad = BuiltInRes::GetInstance()->quadMesh;
         if(finalBlitMat == nullptr)
         {

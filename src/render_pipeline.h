@@ -58,6 +58,7 @@ namespace op
         void PrepareRenderContext(Scene* scene);
         bool UpdateRenderTargetsPass();
         void RenderUiPass(const RenderContext* renderContext);
+        void SwapBuffers();
         
         static void CategorizeObjects(RenderContext& renderContext);
     };

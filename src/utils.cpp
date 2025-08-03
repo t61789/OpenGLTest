@@ -6,6 +6,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include <tracy/Tracy.hpp>
+
 #include "imgui.h"
 
 #include "bounds.h"
@@ -125,6 +127,8 @@ namespace op
 
     void Utils::ClearGlError()
     {
+        ZoneScoped;
+        
         GLuint error;
         while((error = glGetError()) != GL_NO_ERROR)
         {

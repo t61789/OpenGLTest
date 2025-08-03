@@ -1,5 +1,7 @@
 ﻿#include "render_skybox_pass.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "shared_object.h"
 #include "image.h"
 #include "material.h"
@@ -39,6 +41,8 @@ namespace op
 
     void RenderSkyboxPass::Execute()
     {
+        ZoneScoped;
+        
         auto camera = m_renderContext->camera;
         if(camera == nullptr || m_sphereMesh == nullptr || m_skyboxMat == nullptr)
         {

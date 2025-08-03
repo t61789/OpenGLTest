@@ -1,5 +1,7 @@
 ﻿#include "deferred_shading_pass.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "mesh.h"
 #include "rendering_utils.h"
 #include "material.h"
@@ -39,6 +41,8 @@ namespace op
 
     void DeferredShadingPass::Execute()
     {
+        ZoneScoped;
+        
         if(m_quadMesh == nullptr || m_deferredShadingMat == nullptr)
         {
             return;

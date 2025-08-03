@@ -1,5 +1,7 @@
 ﻿#include "dual_kawase_blur.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "imgui.h"
 
 #include "render_texture.h"
@@ -31,6 +33,8 @@ namespace op
 
     void DualKawaseBlur::Execute()
     {
+        ZoneScoped;
+        
         auto shadingRt = m_renderContext->GetRt("_ShadingBufferTex");
         if (!shadingRt || m_maxIterations == 0)
         {

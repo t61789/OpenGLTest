@@ -11,6 +11,7 @@
 #include "objects/camera_comp.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <tracy/Tracy.hpp>
 
 namespace op
 {
@@ -181,7 +182,7 @@ namespace op
 
     void GameFramework::FrameEnd()
     {
-        
+        FrameMark;
     }
 
     void UpdateObject(Object* obj)
@@ -214,6 +215,8 @@ namespace op
 
     void GameFramework::Update()
     {
+        ZoneScoped;
+        
         if(GetMainScene())
         {
             UpdateObject(GetMainScene()->sceneRoot);

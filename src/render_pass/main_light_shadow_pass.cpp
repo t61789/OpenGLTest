@@ -1,5 +1,7 @@
 ﻿#include "main_light_shadow_pass.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "scene.h"
 #include "render_target.h"
 #include "material.h"
@@ -36,6 +38,8 @@ namespace op
 
     void MainLightShadowPass::Execute()
     {
+        ZoneScoped;
+        
         UpdateRt();
 
         auto camera = m_renderContext->camera;

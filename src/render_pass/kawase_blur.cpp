@@ -1,5 +1,7 @@
 ﻿#include "kawase_blur.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "imgui.h"
 
 #include "gui.h"
@@ -36,6 +38,8 @@ namespace op
 
     void KawaseBlur::Execute()
     {
+        ZoneScoped;
+        
         auto shadingRt = m_renderContext->GetRt("_ShadingBufferTex");
         auto rt0 = shadingRt;
         auto rt1 = m_renderContext->GetRt("_TempPpRt0");

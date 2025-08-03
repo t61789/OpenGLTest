@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.15)  # 确保 CMake 版本足够新
+
+add_definitions(-TRACY_ENABLE)
 	
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_SUPPRESS_REGENERATION TRUE)
@@ -19,6 +21,7 @@ find_package(imgui REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(stb REQUIRED)
 find_package(tinyxml2 REQUIRED)
+find_package(Tracy REQUIRED)
 
 include_directories(src)
 include_directories(lib/imgui)
@@ -47,5 +50,6 @@ target_link_libraries(
 		stb::stb
 		glad
 		tinyxml2::tinyxml2
+		Tracy::TracyClient
 )
 

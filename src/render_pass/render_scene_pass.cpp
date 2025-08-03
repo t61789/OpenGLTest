@@ -1,5 +1,7 @@
 ﻿#include "render_scene_pass.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "scene.h"
 #include "material.h"
 #include "render_target.h"
@@ -19,6 +21,8 @@ namespace op
 
     void RenderScenePass::Execute()
     {
+        ZoneScoped;
+        
         auto camera = m_renderContext->camera;
         auto scene = m_renderContext->scene;
         if(camera == nullptr || scene == nullptr || scene->sceneRoot == nullptr)

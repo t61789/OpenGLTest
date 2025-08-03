@@ -1,5 +1,7 @@
 ﻿#include "render_pipeline.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "render_texture.h"
 #include "gui.h"
 #include "culling_system.h"
@@ -90,6 +92,8 @@ namespace op
 
     void RenderPipeline::Render(const CameraComp* camera, Scene* scene)
     {
+        ZoneScoped;
+        
         if(!UpdateRenderTargetsPass())
         {
             throw std::runtime_error("RenderTarget创建失败");
@@ -114,8 +118,7 @@ namespace op
         RenderUiPass(m_renderContext.get());
         Utils::EndDebugGroup();
 
-        glfwSwapBuffers(m_window);
-        glfwPollEvents();
+        SwapBuffers();
         
         Utils::ClearGlError();
     }
@@ -139,6 +142,8 @@ namespace op
 
     void RenderPipeline::PrepareRenderContext(Scene* scene)
     {
+        ZoneScoped;
+        
         m_renderContext->camera = CameraComp::GetMainCamera(); // TODO 依赖于scene
         m_renderContext->scene = scene;
         m_renderContext->cullModeMgr = m_cullModeMgr.get();
@@ -165,11 +170,15 @@ namespace op
 
     void RenderPipeline::RenderUiPass(const RenderContext* context)
     {
+        ZoneScoped;
+        
         Gui::GetInstance()->Render(context);
     }
 
     void RenderPipeline::CategorizeObjects(RenderContext& renderContext)
     {
+        ZoneScoped;
+        
         // TODO 每一帧都遍历整个场景开销不菲，可以在物体退出和进入场景的时候进行更新
         renderContext.scene->GetAllObjects(renderContext.allSceneObjs);
         renderContext.allRenderObjs.clear();
@@ -196,5 +205,12 @@ namespace op
                 renderContext.cameras.push_back(cameraComp);
             }
         }
+    }
+    void RenderPipeline::SwapBuffers()
+    {
+        ZoneScoped;
+        
+        glfwSwapBuffers(m_window);
+        glfwPollEvents();
     }
 }

@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include <tracy/Tracy.hpp>
+
 #include "render_context.h"
 #include "bounds.h"
 #include "object.h"
@@ -36,6 +38,8 @@ namespace op
 
     void CullingSystem::Cull()
     {
+        ZoneScoped;
+        
         // 把visibleRenderObjs扔了，剔除allRenderObjs生成一个新的
         m_renderContext->visibleRenderObjs.clear();
     
