@@ -185,29 +185,6 @@ namespace op
         FrameMark;
     }
 
-    void UpdateObject(Object* obj)
-    {
-        if(obj != nullptr)
-        {
-            auto comps = obj->GetComps();
-            for (auto comp : comps)
-            {
-                if (!comp->IsStarted())
-                {
-                    comp->Start();
-                    comp->SetIsStarted(true);
-                }
-                
-                comp->Update();
-            }
-            
-            for (auto child : obj->children)
-            {
-                UpdateObject(child);
-            }
-        }
-    }
-
     void GameFramework::BeforeUpdate()
     {
         Gui::GetInstance()->BeforeUpdate();
@@ -216,10 +193,24 @@ namespace op
     void GameFramework::Update()
     {
         ZoneScoped;
-        
+
         if(GetMainScene())
         {
-            UpdateObject(GetMainScene()->sceneRoot);
+            auto indices = GetMainScene()->objectIndices.get();
+            auto comps = indices->GetAllComps();
+            for (const auto& [compName, compVec] : *comps)
+            {
+                for (auto comp : compVec)
+                {
+                    if (!comp->IsStarted())
+                    {
+                        comp->Start();
+                        comp->SetIsStarted(true);
+                    }
+                    
+                    comp->Update();
+                }
+            }
         }
 
         // if (scene)

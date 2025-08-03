@@ -15,6 +15,7 @@ namespace op
         std::vector<Object*>* GetAllObjects();
         void AddComp(const std::string& compName, Comp* comp);
         void RemoveComp(const std::string& compName, Comp* comp);
+        std::unordered_map<std::string, std::vector<Comp*>>* GetAllComps() { return &m_comps; }
         template <typename T>
         std::vector<T*>* GetAllComps(const std::string& compName)
         {
