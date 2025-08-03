@@ -42,11 +42,11 @@ namespace op
         CullModeMgr* cullModeMgr = nullptr;
         BlendModeMgr* blendModeMgr = nullptr;
 
-        std::vector<Object*> allSceneObjs;
+        std::vector<Object*>* allSceneObjs;
         
-        std::vector<LightComp*> lights;
-        std::vector<CameraComp*> cameras;
-        std::vector<RenderComp*> allRenderObjs;
+        std::vector<LightComp*>* lights;
+        std::vector<CameraComp*>* cameras;
+        std::vector<RenderComp*>* allRenderObjs;
         std::vector<RenderComp*> visibleRenderObjs;
 
         ~RenderContext();

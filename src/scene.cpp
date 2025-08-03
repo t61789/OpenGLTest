@@ -16,6 +16,7 @@ namespace op
 
     Scene::Scene()
     {
+        objectIndices = std::make_unique<SceneObjectIndices>();
     }
 
     Scene::~Scene()
@@ -32,12 +33,12 @@ namespace op
         {
             auto obj = Object::CreateFromJson(elem);
             
+            parent->AddChild(obj);
+            
             if(elem.contains("children"))
             {
                 LoadChildren(obj, elem["children"]);
             }
-            
-            parent->AddChild(obj);
         }
     }
 

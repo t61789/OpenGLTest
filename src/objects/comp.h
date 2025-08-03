@@ -13,6 +13,9 @@ namespace op
         bool IsStarted() const { return m_isStarted; }
         void SetIsStarted(const bool val) { m_isStarted = val; }
 
+        void SetName(const std::string& name);
+        const std::string& GetName() const { return m_name; }
+
         virtual ~Comp() = default;
 
         virtual void Awake(){}
@@ -27,5 +30,6 @@ namespace op
 
     private:
         bool m_isStarted = false;
+        std::string m_name;
     };
 }

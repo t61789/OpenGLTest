@@ -78,7 +78,7 @@ namespace op
         auto parallelLights = std::vector<LightComp*>();
         auto pointLights = std::vector<LightComp*>();
 
-        for (auto light : m_renderContext->lights)
+        for (auto light : *m_renderContext->lights)
         {
             constexpr int maxPointLights = 16;
             constexpr int maxParallelLights = 4;

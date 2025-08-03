@@ -180,31 +180,11 @@ namespace op
         ZoneScoped;
         
         // TODO 每一帧都遍历整个场景开销不菲，可以在物体退出和进入场景的时候进行更新
-        renderContext.scene->GetAllObjects(renderContext.allSceneObjs);
-        renderContext.allRenderObjs.clear();
-        renderContext.lights.clear();
-        renderContext.cameras.clear();
-        
-        for (auto obj : renderContext.allSceneObjs)
-        {
-            auto renderComp = obj->GetComp<RenderComp>("RenderComp");
-            if (renderComp)
-            {
-                renderContext.allRenderObjs.push_back(renderComp);
-            }
-
-            auto lightComp = obj->GetComp<LightComp>("LightComp");
-            if (lightComp)
-            {
-                renderContext.lights.push_back(lightComp);
-            }
-
-            auto cameraComp = obj->GetComp<CameraComp>("CameraComp");
-            if (cameraComp)
-            {
-                renderContext.cameras.push_back(cameraComp);
-            }
-        }
+        auto objectIndices = renderContext.scene->objectIndices.get();
+        renderContext.allSceneObjs = objectIndices->GetAllObjects();
+        renderContext.allRenderObjs = objectIndices->GetAllComps<RenderComp>("RenderComp");
+        renderContext.lights = objectIndices->GetAllComps<LightComp>("LightComp");
+        renderContext.cameras = objectIndices->GetAllComps<CameraComp>("CameraComp");
     }
     void RenderPipeline::SwapBuffers()
     {

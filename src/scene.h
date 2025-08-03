@@ -6,6 +6,7 @@
 #include "nlohmann/json.hpp"
 
 #include "event.h"
+#include "scene_object_indices.h"
 #include "shared_object.h"
 
 namespace op
@@ -16,6 +17,7 @@ namespace op
     {
     public:
         Object* sceneRoot = nullptr;
+        std::unique_ptr<SceneObjectIndices> objectIndices;
 
         Vec3 ambientLightColorSky = Vec3(0, 0, 0);
         Vec3 ambientLightColorEquator = Vec3(0, 0, 0);

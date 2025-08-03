@@ -43,7 +43,7 @@ namespace op
         // 把visibleRenderObjs扔了，剔除allRenderObjs生成一个新的
         m_renderContext->visibleRenderObjs.clear();
     
-        const auto& renderObjs = m_renderContext->allRenderObjs;
+        const auto& renderObjs = *m_renderContext->allRenderObjs;
         auto planes = get_frustum_planes(m_renderContext->vpMatrix);
 
         for (const auto& renderObj : renderObjs)

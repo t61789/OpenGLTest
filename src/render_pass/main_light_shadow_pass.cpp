@@ -91,7 +91,7 @@ namespace op
         renderTarget->Use();
 
         m_renderContext->replaceMaterial = m_drawShadowMat;
-        RenderingUtils::RenderScene(*m_renderContext, m_renderContext->allRenderObjs);
+        RenderingUtils::RenderScene(*m_renderContext, *m_renderContext->allRenderObjs);
         m_renderContext->replaceMaterial = nullptr;
 
         // 准备绘制参数

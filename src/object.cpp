@@ -1,5 +1,6 @@
 ﻿#include "object.h"
 
+#include "scene.h"
 #include "utils.h"
 #include "objects/camera_comp.h"
 #include "objects/light_comp.h"
@@ -71,6 +72,7 @@ namespace op
 
         child->parent = this;
         child->scene = scene;
+        scene->objectIndices->AddObject(child);
         children.push_back(child);
         INCREF(child);
     }
@@ -84,6 +86,8 @@ namespace op
         }
 
         child->parent = nullptr;
+        child->scene = nullptr;
+        scene->objectIndices->RemoveObject(child);
         children.erase(it);
         DECREF(child);
     }
@@ -136,7 +140,7 @@ namespace op
         
         if (constructors.empty())
         {
-    #define REGISTER_OBJECT(t) constructors[#t] = []() -> Comp* { return new t(); }
+    #define REGISTER_OBJECT(t) constructors[#t] = []() -> Comp* { auto result = new t(); result->SetName(#t); return result; }
 
             REGISTER_OBJECT(RenderComp);
             REGISTER_OBJECT(LightComp);
