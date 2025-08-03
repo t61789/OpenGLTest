@@ -34,10 +34,7 @@ namespace op
         m_position.worldVal = pos;
         m_position.needUpdateFromWorld = true;
 
-        if (!m_dirty)
-        {
-            SetDirty(owner);
-        }
+        SetDirty(owner);
     }
 
     Vec3 TransformComp::GetPosition()
@@ -59,10 +56,7 @@ namespace op
             return;
         }
 
-        if (!m_dirty)
-        {
-            SetDirty(owner);
-        }
+        SetDirty(owner);
 
         m_position.localVal = pos;
     }
@@ -79,10 +73,7 @@ namespace op
             return;
         }
 
-        if (!m_dirty)
-        {
-            SetDirty(owner);
-        }
+        SetDirty(owner);
 
         m_scale.localVal = scale;
     }
@@ -99,10 +90,7 @@ namespace op
             return;
         }
 
-        if (!m_dirty)
-        {
-            SetDirty(owner);
-        }
+        SetDirty(owner);
 
         m_eulerAngles.localVal = rotation.ToEuler();
         m_rotation.localVal = rotation;
@@ -120,10 +108,7 @@ namespace op
             return;
         }
 
-        if (!m_dirty)
-        {
-            SetDirty(owner);
-        }
+        SetDirty(owner);
 
         m_eulerAngles.localVal = ea;
         m_rotation.localVal = Quaternion::Euler(ea);
@@ -147,17 +132,18 @@ namespace op
     {
         if(objJson.contains("position"))
         {
-            SetPosition(objJson.at("position").get<Vec3>());
+            m_position.localVal = objJson.at("position").get<Vec3>();
         }
     
         if(objJson.contains("rotation"))
         {
-            SetEulerAngles(objJson.at("rotation").get<Vec3>());
+            m_eulerAngles.localVal = objJson.at("rotation").get<Vec3>();
+            m_rotation.localVal = Quaternion::Euler(m_eulerAngles.localVal);
         }
     
         if(objJson.contains("scale"))
         {
-            SetScale(objJson.at("scale").get<Vec3>());
+            m_scale.localVal = objJson.at("scale").get<Vec3>();
         }
     }
 
@@ -196,17 +182,23 @@ namespace op
         m_matrix.localVal = parentLocalToWorld * objectMatrix;
         m_matrix.worldVal = m_matrix.localVal.Inverse();
 
-        m_position.worldVal = m_position.localVal;
+        m_position.worldVal = {
+            m_matrix.localVal[0][3],
+            m_matrix.localVal[1][3],
+            m_matrix.localVal[2][3],
+        };
     }
 
     /// 递归地将当前物体和它的子物体都标记为dirty
     void TransformComp::SetDirty(const Object* object)
     {
-        if (!object->transform->m_dirty)
+        if (object->transform->m_dirty)
         {
-            object->transform->dirtyEvent.Invoke();
+            return;
         }
+        
         object->transform->m_dirty = true;
+        object->transform->dirtyEvent.Invoke();
     
         if (object->children.empty())
         {

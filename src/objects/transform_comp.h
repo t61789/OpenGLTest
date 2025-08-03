@@ -39,7 +39,6 @@ namespace op
         public:
             T localVal;
             T worldVal = T();
-            bool worldDirty = true;
             bool needUpdateFromWorld = false;
 
             explicit TransformCompProp(T localVal) : localVal(localVal) {}

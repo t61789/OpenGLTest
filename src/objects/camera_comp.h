@@ -21,6 +21,9 @@ namespace op
     private:
         Vec3 m_targetPosition = {};
         Vec3 m_targetRotation = {};
+
+        float m_curSpeedAdd = 0;
+        
         static std::vector<CameraComp*> s_cameras;
     };
 }

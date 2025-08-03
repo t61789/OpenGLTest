@@ -37,6 +37,7 @@ namespace op
         Vec3 up = localToWorld.Up();
 
         float moveSpeed = 6;
+        float accleration = 8;
         float rotateSpeed = 125;
         float damp = 0.07f;
 
@@ -45,7 +46,12 @@ namespace op
 
         if(gameFramework->KeyPressed(GLFW_KEY_LEFT_SHIFT))
         {
-            moveSpeed *= 3;
+            m_curSpeedAdd += deltaTime * accleration;
+            moveSpeed += m_curSpeedAdd;
+        }
+        else
+        {
+            m_curSpeedAdd = 0;
         }
 
         if(gameFramework->KeyPressed(GLFW_KEY_W))

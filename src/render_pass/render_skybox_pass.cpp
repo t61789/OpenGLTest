@@ -47,7 +47,7 @@ namespace op
 
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
     
-        auto m = Matrix4x4::TRS(camera->owner->transform->GetPosition(), Quaternion::Identity(), Vec3::One());
+        auto m = Matrix4x4::TRS(camera->owner->transform->GetWorldPosition(), Quaternion::Identity(), Vec3::One());
 
         RenderingUtils::RenderMesh(*m_renderContext, m_sphereMesh, m_skyboxMat, m);
     }
