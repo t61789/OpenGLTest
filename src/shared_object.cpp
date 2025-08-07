@@ -89,6 +89,10 @@ namespace op
         {
             m_resource[path] = obj;
         }
+        else
+        {
+            throw std::runtime_error("Resource already exists");
+        }
         obj->filePath = path;
     }
 

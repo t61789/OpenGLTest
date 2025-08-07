@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "shader.h"
 #include "utils.h"
 
 namespace op
@@ -12,12 +13,21 @@ namespace op
     public:
         BuiltInRes();
         ~BuiltInRes();
-    
+
         Mesh* quadMesh = nullptr;
         Mesh* sphereMesh = nullptr;
 
         Material* blitMat = nullptr;
 
         Image* errorTex = nullptr;
+
+        Mesh* testMesh = nullptr;
+        Shader* testShader = nullptr;
+        Material* testMaterial = nullptr;
+
+    private:
+        std::vector<Shader*> m_packedShaders;
+        
+        void LoadPackedShaders();
     };
 }

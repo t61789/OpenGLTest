@@ -7,6 +7,7 @@
 #include "culling_system.h"
 #include "cull_mode.h"
 #include "blend_mode.h"
+#include "built_in_res.h"
 #include "render_target.h"
 #include "material.h"
 #include "utils.h"
@@ -171,6 +172,9 @@ namespace op
     void RenderPipeline::RenderUiPass(const RenderContext* context)
     {
         ZoneScoped;
+
+        BuiltInRes::GetInstance()->quadMesh;
+        
         
         Gui::GetInstance()->Render(context);
     }

@@ -1,0 +1,6 @@
+project_path = 'E:\Programming\OpenGLTest'
+
+[shader_compiler]
+shader_suffix = ".shader"
+vs_entry = "VS_Main"
+ps_entry = "PS_Main"

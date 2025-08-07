@@ -22,6 +22,8 @@ find_package(nlohmann_json REQUIRED)
 find_package(stb REQUIRED)
 find_package(tinyxml2 REQUIRED)
 find_package(Tracy REQUIRED)
+find_package(spirv-cross REQUIRED)
+find_package(Boost REQUIRED)
 
 include_directories(src)
 include_directories(lib/imgui)
@@ -51,5 +53,7 @@ target_link_libraries(
 		glad
 		tinyxml2::tinyxml2
 		Tracy::TracyClient
+		spirv-cross::spirv-cross
+		boost::boost
 )
 

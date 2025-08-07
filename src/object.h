@@ -71,6 +71,7 @@ namespace op
 
             comp->owner = this;
             m_comps[compName] = comp;
+            // TODO 组件加入场景
 
             comp->LoadFromJson(compJson);
             

@@ -144,5 +144,7 @@ namespace op
         static void MergeJson(nlohmann::json& json1, const nlohmann::json& json2, bool combineArray = false);
 
         static nlohmann::json GetResourceMeta(const std::string& assetPath);
+        static std::vector<uint8_t> Base64ToBinary(const std::string& base64Str);
+        static std::vector<uint32_t> Binary8To32(const std::vector<uint8_t>& data);
     };
 }

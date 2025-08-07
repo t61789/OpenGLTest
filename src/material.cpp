@@ -343,7 +343,12 @@ namespace op
     Material* Material::CreateEmptyMaterial(const std::string& shaderPath, const std::string& name)
     {
         auto shader = Shader::LoadFromFile(shaderPath);
-        if(shader == nullptr)
+        return CreateEmptyMaterial(shader, name);
+    }
+
+    Material* Material::CreateEmptyMaterial(Shader* shader, const std::string& name)
+    {
+        if (shader == nullptr)
         {
             return nullptr;
         }

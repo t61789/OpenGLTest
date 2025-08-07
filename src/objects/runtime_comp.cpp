@@ -1,5 +1,6 @@
 ﻿#include "runtime_comp.h"
 
+#include "built_in_res.h"
 #include "material.h"
 #include "mesh.h"
 #include "object.h"
@@ -11,6 +12,7 @@ namespace op
     RuntimeComp::~RuntimeComp()
     {
         DECREF(m_groundGrid);
+        DECREF(m_testObject);
     }
 
     void RuntimeComp::Awake()
@@ -27,5 +29,16 @@ namespace op
         
         owner->AddChild(m_groundGrid);
         INCREF(m_groundGrid);
+
+
+        m_testObject = Object::Create("TestObject");
+        renderComp = m_testObject->AddOrCreateComp<RenderComp>("RenderComp");
+        renderComp->mesh = BuiltInRes::GetInstance()->testMesh;
+        INCREF_BY(renderComp->mesh, renderComp);
+        renderComp->material = BuiltInRes::GetInstance()->testMaterial;
+        INCREF_BY(renderComp->material, renderComp);
+        
+        owner->AddChild(m_testObject);
+        INCREF(m_testObject);
     }
 }

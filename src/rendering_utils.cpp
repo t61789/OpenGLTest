@@ -12,6 +12,7 @@
 #include "cull_mode.h"
 #include "blend_mode.h"
 #include "object.h"
+#include "shader.h"
 #include "objects/render_comp.h"
 #include "objects/transform_comp.h"
 
@@ -19,15 +20,15 @@ namespace op
 {
     using namespace std;
 
-    void RenderingUtils::RenderScene(const RenderContext& renderContext, const vector<RenderComp*>& renderComps)
+    void RenderingUtils::RenderScene(const RenderContext& renderContext, const vector<RenderComp*>& renderComps, unsigned int buffer)
     {
         for (auto& renderObj : renderComps)
         {
-            RenderEntity(renderContext, renderObj);
+            RenderEntity(renderContext, renderObj, buffer);
         }
     }
 
-    void RenderingUtils::RenderEntity(const RenderContext& renderContext, const RenderComp* renderComp)
+    void RenderingUtils::RenderEntity(const RenderContext& renderContext, const RenderComp* renderComp, unsigned int buffer)
     {
         if(renderComp == nullptr)
         {
@@ -49,6 +50,13 @@ namespace op
         {
             return;
         }
+
+        // if (buffer != 0)
+        // {
+        //     GLuint blockIndex = glGetUniformBlockIndex(material->shader->glShaderId, "UBO_Lit");
+        //     glUniformBlockBinding(material->shader->glShaderId, blockIndex, 0);
+        //     glBindBufferBase(GL_UNIFORM_BUFFER, 0, buffer);
+        // }
 
         RenderMesh(renderContext, mesh, material, renderComp->owner->transform->GetLocalToWorld(), renderComp->owner->transform->GetWorldToLocal());
     }

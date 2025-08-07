@@ -2,13 +2,16 @@
 
 #include <fstream>
 #include <regex>
+#include <spirv_glsl.hpp>
 #include <sstream>
 #include <unordered_set>
+#include <utility>
 
 #include "game_framework.h"
 #include "render_texture.h"
 #include "string_handle.h"
 #include "utils.h"
+#include "const.h"
 
 namespace op
 {
@@ -26,7 +29,7 @@ namespace op
         return ss.str();
     }
 
-    static void CheckShaderCompilation(const GLuint vertexShader, const string &shaderPath, const vector<string>& lines)
+    static void CheckShaderCompilation(const GLuint vertexShader, const string &shaderPath, const string& source)
     {
         int success;
         glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -39,7 +42,7 @@ namespace op
             ss << shaderPath;
             ss << "\n";
             ss << info;
-            ss << GetShaderStr(lines);
+            ss << source.c_str();
             throw runtime_error(ss.str());
         }
     }
@@ -51,6 +54,12 @@ namespace op
 
     void Shader::Use(const Mesh* mesh) const
     {
+        if (!vertexLayout.empty())
+        {
+            Use0(mesh);
+            return;
+        }
+        
         glUseProgram(glShaderId);
 
         for (int i = 0; i < VERTEX_ATTRIB_NUM; ++i)
@@ -72,6 +81,36 @@ namespace op
                 (void*)(mesh->vertexAttribOffset[i] * sizeof(float)));
             glEnableVertexAttribArray(curLayout);
         }
+
+        Utils::CheckGlError("启用Shader");
+    }
+    
+    void Shader::Use0(const Mesh* mesh) const
+    {
+        glUseProgram(glShaderId);
+
+        for (const auto& [attr, shaderVertexLayout] : vertexLayout)
+        {
+            auto it = mesh->vertexAttribInfo.find(attr);
+            if (it == mesh->vertexAttribInfo.end())
+            {
+                glDisableVertexAttribArray(shaderVertexLayout.location);
+                continue;
+            }
+
+            const auto& meshVertexLayout = it->second;
+
+            glVertexAttribPointer(
+                shaderVertexLayout.location,
+                static_cast<GLint>(VERTEX_ATTR_STRIDE[attr]),
+                GL_FLOAT,
+                GL_FALSE,
+                static_cast<GLsizei>(mesh->vertexDataStride),
+                reinterpret_cast<const void*>(meshVertexLayout.offset));
+            glEnableVertexAttribArray(shaderVertexLayout.location);
+        }
+
+        Utils::CheckGlError("启用Shader");
     }
 
     const Shader::UniformInfo& Shader::GetUniformInfo(const size_t nameId) const
@@ -335,18 +374,23 @@ namespace op
             throw runtime_error(ss.str());
         }
 
-        auto vCharSource = vSource.c_str();
-        auto fCharSource = fSource.c_str();
-
+        return LoadFromFile(vSource, fSource, glslPath);
+    }
+    
+    Shader* Shader::LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath)
+    {
+        auto vCharSource = preparedVert.c_str();
+        auto fCharSource = preparedFrag.c_str();
+        
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, 1, &vCharSource, nullptr);
         glCompileShader(vertexShader);
-        CheckShaderCompilation(vertexShader, glslPath, vertLines);
+        CheckShaderCompilation(vertexShader, glslPath, preparedVert);
 
         GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragShader, 1, &fCharSource, nullptr);
         glCompileShader(fragShader);
-        CheckShaderCompilation(fragShader, glslPath, fragLines);
+        CheckShaderCompilation(fragShader, glslPath, preparedFrag);
 
         auto glShaderId = glCreateProgram();
         glAttachShader(glShaderId, vertexShader);
@@ -356,11 +400,113 @@ namespace op
         glDeleteShader(vertexShader);
         glDeleteShader(fragShader);
 
+        Utils::CheckGlError("创建Shader");
+
         auto result = new Shader();
         result->glShaderId = glShaderId;
         result->uniforms = LoadUniforms(glShaderId);
         RegisterResource(glslPath, result);
         Utils::LogInfo("成功载入Shader " + glslPath);
+        return result;
+    }
+
+    Shader* Shader::LoadFromSpvFile(const std::string& vertPath, const std::string& fragPath)
+    {
+        spirv_cross::CompilerGLSL::Options options;
+        options.version = 310;
+        options.es = true;
+        
+        auto vertSpvData = LoadSpvFileData(Utils::GetAbsolutePath(vertPath));
+        spirv_cross::CompilerGLSL vertCompilerGlsl(std::move(vertSpvData));
+        spirv_cross::ShaderResources vertShaderResources = vertCompilerGlsl.get_shader_resources();
+        vertCompilerGlsl.set_common_options(options);
+        auto vSource = vertCompilerGlsl.compile();
+
+        std::unordered_map<VertexAttr, VertexLayoutInfo> vertexLayout;
+        for (const auto& stageInput : vertShaderResources.stage_inputs)
+        {
+            auto found = false;
+            for (const auto& [attr, attrName] : VERTEX_ATTR_NAME)
+            {
+                if (!Utils::EndsWith(stageInput.name, attrName))
+                {
+                    continue;
+                }
+
+                auto location = vertCompilerGlsl.get_decoration(stageInput.id, spv::DecorationLocation);
+
+                vertexLayout[attr] = { location };
+                found = true;
+                break;
+            }
+
+            if (!found)
+            {
+                throw runtime_error( Utils::FormatString("无法找到顶点属性 %s", stageInput.name.c_str()));
+            }
+        }
+
+        auto fragSpvData = LoadSpvFileData(Utils::GetAbsolutePath(fragPath));
+        spirv_cross::CompilerGLSL fragCompilerGlsl(std::move(fragSpvData));
+        // spirv_cross::ShaderResources fragShaderResources = fragCompilerGlsl.get_shader_resources();
+        fragCompilerGlsl.set_common_options(options);
+        auto fSource = fragCompilerGlsl.compile();
+        
+        // Utils::Log(Info, "%s ", vSource.c_str());
+        // Utils::Log(Info, "%s ", fSource.c_str());
+
+        auto result = LoadFromFile(vSource, fSource, vertPath);
+        result->vertexLayout = std::move(vertexLayout);
+
+        return result;
+    }
+    
+    Shader* Shader::LoadFromSpvFile(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path)
+    {
+        spirv_cross::CompilerGLSL::Options options;
+        options.version = 310;
+        options.es = true;
+        
+        spirv_cross::CompilerGLSL vertCompilerGlsl(std::move(vert));
+        spirv_cross::ShaderResources vertShaderResources = vertCompilerGlsl.get_shader_resources();
+        vertCompilerGlsl.set_common_options(options);
+        auto vSource = vertCompilerGlsl.compile();
+
+        std::unordered_map<VertexAttr, VertexLayoutInfo> vertexLayout;
+        for (const auto& stageInput : vertShaderResources.stage_inputs)
+        {
+            auto found = false;
+            for (const auto& [attr, attrName] : VERTEX_ATTR_NAME)
+            {
+                if (!Utils::EndsWith(stageInput.name, attrName))
+                {
+                    continue;
+                }
+
+                auto location = vertCompilerGlsl.get_decoration(stageInput.id, spv::DecorationLocation);
+
+                vertexLayout[attr] = { location };
+                found = true;
+                break;
+            }
+
+            if (!found)
+            {
+                throw runtime_error( Utils::FormatString("无法找到顶点属性 %s", stageInput.name.c_str()));
+            }
+        }
+
+        spirv_cross::CompilerGLSL fragCompilerGlsl(std::move(frag));
+        // spirv_cross::ShaderResources fragShaderResources = fragCompilerGlsl.get_shader_resources();
+        fragCompilerGlsl.set_common_options(options);
+        auto fSource = fragCompilerGlsl.compile();
+        
+        Utils::Log(Info, "%s ", vSource.c_str());
+        Utils::Log(Info, "%s ", fSource.c_str());
+
+        auto result = LoadFromFile(vSource, fSource, path);
+        result->vertexLayout = std::move(vertexLayout);
+
         return result;
     }
 
@@ -395,4 +541,27 @@ namespace op
 
         return result;
     }
+    
+    std::vector<uint32_t> Shader::LoadSpvFileData(const string& absolutePath)
+    {
+        std::ifstream file(absolutePath.c_str(), std::ios::binary);
+        if (!file)
+        {
+            throw std::runtime_error("打开 SPIR-V 文件失败");
+        }
+        
+        file.seekg(0, std::ios::end);
+        size_t size = file.tellg();
+        file.seekg(0, std::ios::beg);
+        
+        if (size % sizeof(uint32_t) != 0)
+        {
+            throw std::runtime_error("SPIR-V file 大小不正确");
+        }
+        
+        std::vector<uint32_t> spirv(size / sizeof(uint32_t));
+        file.read(reinterpret_cast<char*>(spirv.data()), size);
+        return spirv;
+    }
+
 }

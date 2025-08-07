@@ -30,12 +30,20 @@ namespace op
                 return unavailable;
             }
         };
+
+        class VertexLayoutInfo
+        {
+        public:
+            uint32_t location;
+        };
         
         GLuint glShaderId;
 
+        std::unordered_map<VertexAttr, VertexLayoutInfo> vertexLayout;
         std::unordered_map<size_t, UniformInfo> uniforms;
 
         void Use(const Mesh* mesh) const;
+        void Use0(const Mesh* mesh) const;
         const UniformInfo& GetUniformInfo(size_t nameId) const;
         bool HasParam(const size_t& nameId) const;
         
@@ -54,7 +62,10 @@ namespace op
         void SetTexture(size_t nameId, int slot, const Texture* value) const;
         static void SetTextureGl(int location, int slot, const Texture* value);
 
-        static Shader* LoadFromFile(const std::string &glslPath);
+        static Shader* LoadFromFile(const std::string& glslPath);
+        static Shader* LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath = "NotAFile");
+        static Shader* LoadFromSpvFile(const std::string& vertPath, const std::string& fragPath);
+        static Shader* LoadFromSpvFile(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path);
 
     private:
         ~Shader() override;
@@ -64,5 +75,6 @@ namespace op
         static void DivideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines);
         static void ReplaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines);
         static void AddBuiltInMarcos(std::vector<std::string>& lines, const std::vector<std::string>& marcos);
+        static std::vector<uint32_t> LoadSpvFileData(const std::string& absolutePath);
     };
 }

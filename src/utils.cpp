@@ -1,5 +1,6 @@
 ﻿#include "utils.h"
 
+#include <boost/beast/core/detail/base64.hpp>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
@@ -453,5 +454,27 @@ namespace op
         }
 
         return LoadJson(metaPath);
+    }
+
+    std::vector<uint8_t> Utils::Base64ToBinary(const std::string& base64Str)
+    {
+        std::size_t decodedSize = boost::beast::detail::base64::decoded_size(base64Str.size());
+        std::vector<uint8_t> binaryData(decodedSize);
+    
+        auto result = boost::beast::detail::base64::decode(
+            binaryData.data(), 
+            base64Str.data(), 
+            base64Str.size());
+    
+        binaryData.resize(result.first);
+        return binaryData;
+    }
+    
+    std::vector<uint32_t> Utils::Binary8To32(const std::vector<uint8_t>& data)
+    {
+        std::vector<uint32_t> result;
+        result.resize(data.size() / 4);
+        memcpy(result.data(), data.data(), data.size());
+        return result;
     }
 }

@@ -1,0 +1,2 @@
+glslang -e VS_Main -S vert -D -V "E:\Programming\OpenGLTest\assets\shaders\test.hlsl" -I"E:\Programming\OpenGLTest\assets" -o "E:\Programming\OpenGLTest\assets\shaders\vert.spv"
+glslang -e PS_Main -S frag -D -V "E:\Programming\OpenGLTest\assets\shaders\test.hlsl" -I"E:\Programming\OpenGLTest\assets" -o "E:\Programming\OpenGLTest\assets\shaders\frag.spv"

@@ -48,10 +48,10 @@ namespace op
 
         for (const auto& renderObj : renderObjs)
         {
-            if (CullOnce(renderObj->GetWorldBounds(), planes))
-            {
+            // if (CullOnce(renderObj->GetWorldBounds(), planes))
+            // {
                 m_renderContext->visibleRenderObjs.push_back(renderObj);
-            }
+            // }
         }
     }
 

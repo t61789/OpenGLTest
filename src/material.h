@@ -57,6 +57,7 @@ namespace op
 
         static Material* LoadFromFile(const std::string& path);
         static Material* CreateEmptyMaterial(const std::string& shaderPath, const std::string& name = "Unnamed Material");
+        static Material* CreateEmptyMaterial(Shader* shader, const std::string& name = "Unnamed Material");
 
         static void SetGlobalIntValue(const StringHandle& paramName, int value);
         static void SetGlobalBoolValue(const StringHandle& paramName, bool value);

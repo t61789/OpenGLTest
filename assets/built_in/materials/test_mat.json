@@ -1,0 +1,4 @@
+{
+    "shader": "shaders/lit.glsl",
+    "cullMode": "None"
+}

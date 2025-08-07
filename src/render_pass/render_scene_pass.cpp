@@ -12,6 +12,17 @@ namespace op
 {
     RenderScenePass::RenderScenePass(RenderContext* renderContext) : RenderPass(renderContext)
     {
+        ZoneScoped;
+        
+        // glGenBuffers(1, &m_buffer);
+        // glBindBuffer(GL_UNIFORM_BUFFER, m_buffer);
+        // float data[8] = {1,2,3,4,5,6,7,8};
+        // glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 8, data, GL_STATIC_DRAW);
+    }
+
+    RenderScenePass::~RenderScenePass()
+    {
+        // glDeleteBuffers(1, &m_buffer);
     }
 
     std::string RenderScenePass::GetName()
@@ -21,19 +32,17 @@ namespace op
 
     void RenderScenePass::Execute()
     {
-        ZoneScoped;
-        
         auto camera = m_renderContext->camera;
         auto scene = m_renderContext->scene;
         if(camera == nullptr || scene == nullptr || scene->sceneRoot == nullptr)
         {
             return;
         }
-
+        
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
 
         Material::SetGlobalFloatValue(EXPOSURE_MULTIPLIER, scene->tonemappingExposureMultiplier);
     
-        RenderingUtils::RenderScene(*m_renderContext, m_renderContext->visibleRenderObjs);
+        RenderingUtils::RenderScene(*m_renderContext, m_renderContext->visibleRenderObjs, m_buffer);
     }
 }
