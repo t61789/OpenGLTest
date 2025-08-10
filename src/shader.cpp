@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <regex>
-#include <spirv_glsl.hpp>
 #include <sstream>
 #include <unordered_set>
 #include <utility>
@@ -12,44 +11,19 @@
 #include "string_handle.h"
 #include "utils.h"
 #include "const.h"
+#include "game_resource.h"
 
 namespace op
 {
     using namespace std;
-        
-    static string GetShaderStr(const vector<string>& lines)
-    {
-        stringstream ss;
-        for (int i = 0; i < lines.size(); ++i)
-        {
-            ss << to_string(i + 1) << ":  ";
-            ss << lines[i];
-            ss << "\n";
-        }
-        return ss.str();
-    }
 
-    static void CheckShaderCompilation(const GLuint vertexShader, const string &shaderPath, const string& source)
-    {
-        int success;
-        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-        if(!success)
-        {
-            char info[512];
-            glGetShaderInfoLog(vertexShader, 512, nullptr, info);
-            stringstream ss;
-            ss << "ERROR>> Shader compilation failed:\n";
-            ss << shaderPath;
-            ss << "\n";
-            ss << info;
-            ss << source.c_str();
-            throw runtime_error(ss.str());
-        }
-    }
-    // TODO 判断参数的类型，类型不对不设置或者报错
     Shader::~Shader()
     {
         glDeleteProgram(glShaderId);
+        for (const auto& [nameId, cbufferLayout] : cbuffers)
+        {
+            DECREF(cbufferLayout);
+        }
     }
 
     void Shader::Use(const Mesh* mesh) const
@@ -410,102 +384,47 @@ namespace op
         return result;
     }
 
-    Shader* Shader::LoadFromSpvFile(const std::string& vertPath, const std::string& fragPath)
+    Shader* Shader::LoadFromSpvBase64(const std::string& vert, const std::string& frag, const std::string& path)
     {
-        spirv_cross::CompilerGLSL::Options options;
-        options.version = 310;
-        options.es = true;
-        
-        auto vertSpvData = LoadSpvFileData(Utils::GetAbsolutePath(vertPath));
-        spirv_cross::CompilerGLSL vertCompilerGlsl(std::move(vertSpvData));
-        spirv_cross::ShaderResources vertShaderResources = vertCompilerGlsl.get_shader_resources();
-        vertCompilerGlsl.set_common_options(options);
-        auto vSource = vertCompilerGlsl.compile();
+        auto vertStr = Utils::Binary8To32(Utils::Base64ToBinary(vert));
+        auto fragStr = Utils::Binary8To32(Utils::Base64ToBinary(frag));
 
-        std::unordered_map<VertexAttr, VertexLayoutInfo> vertexLayout;
-        for (const auto& stageInput : vertShaderResources.stage_inputs)
-        {
-            auto found = false;
-            for (const auto& [attr, attrName] : VERTEX_ATTR_NAME)
-            {
-                if (!Utils::EndsWith(stageInput.name, attrName))
-                {
-                    continue;
-                }
-
-                auto location = vertCompilerGlsl.get_decoration(stageInput.id, spv::DecorationLocation);
-
-                vertexLayout[attr] = { location };
-                found = true;
-                break;
-            }
-
-            if (!found)
-            {
-                throw runtime_error( Utils::FormatString("无法找到顶点属性 %s", stageInput.name.c_str()));
-            }
-        }
-
-        auto fragSpvData = LoadSpvFileData(Utils::GetAbsolutePath(fragPath));
-        spirv_cross::CompilerGLSL fragCompilerGlsl(std::move(fragSpvData));
-        // spirv_cross::ShaderResources fragShaderResources = fragCompilerGlsl.get_shader_resources();
-        fragCompilerGlsl.set_common_options(options);
-        auto fSource = fragCompilerGlsl.compile();
-        
-        // Utils::Log(Info, "%s ", vSource.c_str());
-        // Utils::Log(Info, "%s ", fSource.c_str());
-
-        auto result = LoadFromFile(vSource, fSource, vertPath);
-        result->vertexLayout = std::move(vertexLayout);
-
-        return result;
+        return LoadFromSpvBinary(std::move(vertStr), std::move(fragStr), path);
     }
-    
-    Shader* Shader::LoadFromSpvFile(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path)
+
+    Shader* Shader::LoadFromSpvBinary(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path)
     {
         spirv_cross::CompilerGLSL::Options options;
         options.version = 310;
         options.es = true;
         
         spirv_cross::CompilerGLSL vertCompilerGlsl(std::move(vert));
-        spirv_cross::ShaderResources vertShaderResources = vertCompilerGlsl.get_shader_resources();
         vertCompilerGlsl.set_common_options(options);
+        CombineSeparateTextures(vertCompilerGlsl);
         auto vSource = vertCompilerGlsl.compile();
-
-        std::unordered_map<VertexAttr, VertexLayoutInfo> vertexLayout;
-        for (const auto& stageInput : vertShaderResources.stage_inputs)
-        {
-            auto found = false;
-            for (const auto& [attr, attrName] : VERTEX_ATTR_NAME)
-            {
-                if (!Utils::EndsWith(stageInput.name, attrName))
-                {
-                    continue;
-                }
-
-                auto location = vertCompilerGlsl.get_decoration(stageInput.id, spv::DecorationLocation);
-
-                vertexLayout[attr] = { location };
-                found = true;
-                break;
-            }
-
-            if (!found)
-            {
-                throw runtime_error( Utils::FormatString("无法找到顶点属性 %s", stageInput.name.c_str()));
-            }
-        }
-
-        spirv_cross::CompilerGLSL fragCompilerGlsl(std::move(frag));
-        // spirv_cross::ShaderResources fragShaderResources = fragCompilerGlsl.get_shader_resources();
-        fragCompilerGlsl.set_common_options(options);
-        auto fSource = fragCompilerGlsl.compile();
+        spirv_cross::ShaderResources vertShaderResources = vertCompilerGlsl.get_shader_resources();
         
+        spirv_cross::CompilerGLSL fragCompilerGlsl(std::move(frag));
+        fragCompilerGlsl.set_common_options(options);
+        CombineSeparateTextures(fragCompilerGlsl);
+        auto fSource = fragCompilerGlsl.compile();
+        spirv_cross::ShaderResources fragShaderResources = fragCompilerGlsl.get_shader_resources();
+        
+        auto result = LoadFromFile(vSource, fSource, path);
+
+        // Load VertexLayout
+        result->LoadVertexLayout(vertCompilerGlsl, vertShaderResources);
+
+        // Load CBuffer
+        result->LoadCBuffer(vertCompilerGlsl, vertShaderResources);
+        result->LoadCBuffer(fragCompilerGlsl, fragShaderResources);
+
+        // Load Textures
+        result->LoadTextures(vertCompilerGlsl, vertShaderResources);
+        result->LoadTextures(fragCompilerGlsl, fragShaderResources);
+
         Utils::Log(Info, "%s ", vSource.c_str());
         Utils::Log(Info, "%s ", fSource.c_str());
-
-        auto result = LoadFromFile(vSource, fSource, path);
-        result->vertexLayout = std::move(vertexLayout);
 
         return result;
     }
@@ -529,14 +448,14 @@ namespace op
             uniformInfo.name = string(name);
             uniformInfo.location = glGetUniformLocation(program, name);
             uniformInfo.elemNum = size;
-            uniformInfo.type = type;
+            uniformInfo.type = static_cast<int>(type);
             
             if (type == GL_FLOAT && size > 1)
             {
                 uniformInfo.name = uniformInfo.name.substr(0, uniformInfo.name.length() - 3);
             }
 
-            result[StringHandle(uniformInfo.name).GetHash()] = uniformInfo;
+            result[StringHandle(uniformInfo.name).Hash()] = uniformInfo;
         }
 
         return result;
@@ -560,8 +479,144 @@ namespace op
         }
         
         std::vector<uint32_t> spirv(size / sizeof(uint32_t));
-        file.read(reinterpret_cast<char*>(spirv.data()), size);
+        file.read(reinterpret_cast<char*>(spirv.data()), static_cast<std::streamsize>(size));
         return spirv;
     }
 
+    void Shader::LoadVertexLayout(const spirv_cross::CompilerGLSL& vertCompiler, const spirv_cross::ShaderResources& vertResources)
+    {
+        for (const auto& stageInput : vertResources.stage_inputs)
+        {
+            auto found = false;
+            for (const auto& [attr, attrName] : VERTEX_ATTR_NAME)
+            {
+                if (!Utils::EndsWith(stageInput.name, attrName))
+                {
+                    continue;
+                }
+
+                auto location = vertCompiler.get_decoration(stageInput.id, spv::DecorationLocation);
+
+                vertexLayout[attr] = { location };
+                found = true;
+                break;
+            }
+
+            if (!found)
+            {
+                throw runtime_error( Utils::FormatString("无法找到顶点属性 %s", stageInput.name.c_str()));
+            }
+        }
+    }
+
+    void Shader::LoadCBuffer(
+        const spirv_cross::CompilerGLSL& compiler,
+        const spirv_cross::ShaderResources& resources)
+    {
+        for (const auto& uniformBuffer : resources.uniform_buffers)
+        {
+            // 是内置cbuffer的话就加载到GameResource中
+            if (TryCreatePredefinedCBuffer(compiler, uniformBuffer))
+            {
+                continue;
+            }
+
+            // 没加载过就加载，由当前Shader持有这个cbuffer
+            auto uniformBufferNameId = StringHandle(uniformBuffer.name).Hash();
+            if (cbuffers.find(uniformBufferNameId) != cbuffers.end())
+            {
+                continue;
+            }
+
+            auto cbuffer = new CBufferLayout(compiler, uniformBuffer);
+            cbuffers[uniformBufferNameId] = cbuffer;
+            INCREF(cbuffer);
+        }
+    }
+
+    void Shader::LoadTextures(
+        const spirv_cross::CompilerGLSL& compiler,
+        const spirv_cross::ShaderResources& resources)
+    {
+        for (const auto& image : resources.sampled_images)
+        {
+            const auto& type = compiler.get_type(image.type_id);
+
+            if (type.basetype != spirv_cross::SPIRType::SampledImage)
+            {
+                continue;
+            }
+
+            GLuint textureType;
+            if (type.image.dim == spv::Dim2D)
+            {
+                textureType = GL_TEXTURE_2D;
+            }
+            else if (type.image.dim != spv::DimCube)
+            {
+                textureType = GL_TEXTURE_CUBE_MAP;
+            }
+            else
+            {
+                throw std::runtime_error("不支持的纹理类型");
+            }
+
+            uint32_t location = glGetUniformLocation(glShaderId, image.name.c_str());
+            textures[StringHandle(image.name).Hash()] = { textureType, location };
+        }
+    }
+
+    bool Shader::TryCreatePredefinedCBuffer(
+        const spirv_cross::CompilerGLSL& compiler,
+        const spirv_cross::Resource& uniformBuffer)
+    {
+        auto uniformBufferNameId = StringHandle(uniformBuffer.name).Hash();
+        if (auto predefinedMaterial = GameResource::GetInstance()->GetPredefinedMaterial(uniformBufferNameId))
+        {
+            if (!predefinedMaterial->HasCBuffer())
+            {
+                predefinedMaterial->CreateCBuffer(new CBufferLayout(compiler, uniformBuffer));
+            }
+            
+            return true;
+        }
+
+        return false;
+    }
+
+    void Shader::CombineSeparateTextures(spirv_cross::CompilerGLSL& compiler)
+    {
+        auto resources = compiler.get_shader_resources();
+        std::unordered_map<uint32_t, std::string> previousName;
+        for (auto& image : resources.separate_images)
+        {
+            previousName[image.id] = image.name;
+        }
+        
+        compiler.build_combined_image_samplers();
+        
+        resources = compiler.get_shader_resources();
+        for (auto& image : compiler.get_combined_image_samplers())
+        {
+            compiler.set_name(image.combined_id, previousName[image.image_id]);
+        }
+    }
+
+    void Shader::CheckShaderCompilation(const GLuint vertexShader, const string &shaderPath, const string& source)
+    {
+        int success;
+        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+        if(!success)
+        {
+            char info[512];
+            glGetShaderInfoLog(vertexShader, 512, nullptr, info);
+            stringstream ss;
+            ss << "ERROR>> Shader compilation failed:\n";
+            ss << shaderPath;
+            ss << "\n";
+            ss << info;
+            ss << source.c_str();
+            throw runtime_error(ss.str());
+        }
+    }
 }

@@ -7,12 +7,11 @@
 
 namespace op
 {
-    std::unordered_map<std::string, SharedObject*> SharedObject::m_resource;
+    std::unordered_map<StringHandle, SharedObject*> SharedObject::m_resource;
     std::vector<SharedObject*> SharedObject::m_count;
 
     SharedObject::SharedObject()
     {
-        filePath = "NotAFile";
         m_count.push_back(this);
     }
 
@@ -29,12 +28,6 @@ namespace op
 
     void SharedObject::IncRef(const std::string& key)
     {
-        // auto obj = dynamic_cast<Object*>(this);
-        // if (obj && obj->name == std::string("GroundGrid"))
-        // {
-        //     Utils::LogInfo("asdasd");
-        // }
-        
         if (m_reference.find(key) == m_reference.end())
         {
             m_reference[key] = 1;
@@ -64,7 +57,7 @@ namespace op
         {
             return;
         }
-        assert(it != m_reference.end() && Utils::FormatString("DecRef时，key不存在，物体 %s，类型 %s, key %s", filePath.c_str(), typeid(*this).name(), key.c_str()).c_str());
+        assert(it != m_reference.end() && Utils::FormatString("DecRef时，key不存在，物体 %s，类型 %s, key %s", filePath.CStr(), typeid(*this).name(), key.c_str()).c_str());
         
         auto val = it->second - 1;
         if (val <= 0)
@@ -82,7 +75,7 @@ namespace op
         }
     }
 
-    void SharedObject::RegisterResource(const std::string& path, SharedObject* obj)
+    void SharedObject::RegisterResource(const StringHandle& path, SharedObject* obj)
     {
         auto it = m_resource.find(path);
         if (it == m_resource.end())
@@ -96,12 +89,12 @@ namespace op
         obj->filePath = path;
     }
 
-    void SharedObject::UnRegisterResource(const std::string& path)
+    void SharedObject::UnRegisterResource(const StringHandle& path)
     {
         m_resource.erase(path);
     }
 
-    bool SharedObject::TryGetResource(const std::string& path, SharedObject*& obj)
+    bool SharedObject::TryGetResource(const StringHandle& path, SharedObject*& obj)
     {
         auto it = m_resource.find(path);
         if (it == m_resource.end())

@@ -17,7 +17,7 @@ namespace op
     public:
         static void RenderScene(const RenderContext& renderContext, const std::vector<RenderComp*>& renderComps, unsigned int buffer);
         static void RenderEntity(const RenderContext& renderContext, const RenderComp* renderComp, unsigned int buffer);
-        static void RenderMesh(const RenderContext& renderContext, const Mesh* mesh, Material* mat, const Matrix4x4& m, const Matrix4x4& im = Matrix4x4::Identity());
+        static void RenderMesh(const RenderContext& renderContext, const Mesh* mesh, Material* mat, const Matrix4x4& m, const Matrix4x4& im = Matrix4x4::Identity(), MaterialNew* matNew = nullptr);
         static void Blit(RenderTexture* src, RenderTexture* dst, Material* material = nullptr);
         
     private:

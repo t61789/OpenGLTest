@@ -3,6 +3,7 @@
 #include "render_texture.h"
 #include "shared_object.h"
 #include "game_framework.h"
+#include "game_resource.h"
 #include "utils.h"
 
 namespace op
@@ -327,7 +328,7 @@ namespace op
         }
 
         result->name = desc.name;
-        result->m_lastUseFrame = Time::GetInstance()->frame;
+        result->m_lastUseFrame = GameResource::GetInstance()->time.frame;
         if (result->m_dirty)
         {
             result->RebindAttachments();
@@ -369,7 +370,7 @@ namespace op
 
     void RenderTarget::ClearUnusedRenderTargets()
     {
-        int curFrame = Time::GetInstance()->frame;
+        int curFrame = GameResource::GetInstance()->time.frame;
         if (curFrame - m_lastClearFrame < m_renderTargetTimeout)
         {
             return;

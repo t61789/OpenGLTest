@@ -48,6 +48,12 @@ namespace op
         return (fs::current_path() / relativePath).generic_string();
     }
 
+    bool Utils::AssetExists(const std::string& path)
+    {
+        auto absPath = GetAbsolutePath(path);
+        return fs::exists(absPath);
+    }
+
     std::string Utils::GetCurrentTimeFormatted()
     {
         // 获取当前时间点

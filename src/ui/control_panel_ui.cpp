@@ -8,6 +8,7 @@
 #include "object.h"
 #include "scene.h"
 #include "game_framework.h"
+#include "game_resource.h"
 #include "objects/transform_comp.h"
 
 namespace op
@@ -128,7 +129,7 @@ namespace op
     {
         if (ImGui::CollapsingHeader("Application Info"))
         {
-            auto deltaTime = Time::GetInstance()->deltaTime;
+            auto deltaTime = GameResource::GetInstance()->time.deltaTime;
             ImGui::Text(std::string("FPS: " + Utils::ToString(1 / deltaTime, 2)).c_str());
         }
     }

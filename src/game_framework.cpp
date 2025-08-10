@@ -13,6 +13,8 @@
 #include "imgui_impl_opengl3.h"
 #include <tracy/Tracy.hpp>
 
+#include "game_resource.h"
+
 namespace op
 {
     static bool InitGl()
@@ -173,15 +175,17 @@ namespace op
     {
         Gui::GetInstance()->BeginFrame();
 
-        auto time = Time::GetInstance();
-        time->frame += 1;
+        auto& time = GameResource::GetInstance()->time;
         auto curFrameTime = static_cast<float>(glfwGetTime());
-        time->deltaTime = max(curFrameTime - time->time, 0.000001f);
-        time->time = curFrameTime;
+        time.frame += 1;
+        time.deltaTime = max(curFrameTime - time.time, 0.000001f);
+        time.time = curFrameTime;
     }
 
     void GameFramework::FrameEnd()
     {
+        GameResource::GetInstance()->onFrameEnd.Invoke();
+        
         FrameMark;
     }
 
@@ -262,8 +266,8 @@ namespace op
 
     void GameFramework::InitGame()
     {
-        m_time = std::make_unique<Time>();
         m_gui = std::make_unique<Gui>();
+        m_gameResource = std::make_unique<GameResource>();
         m_builtInRes = std::make_unique<BuiltInRes>();
         m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
         // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");

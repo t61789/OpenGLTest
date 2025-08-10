@@ -32,37 +32,37 @@ namespace op
 
     void Material::SetIntValue(const StringHandle& paramName, const int value)
     {
-        intValues[paramName.GetHash()] = value;
+        intValues[paramName.Hash()] = value;
     }
     
     void Material::SetBoolValue(const StringHandle& paramName, const bool value)
     {
-        boolValues[paramName.GetHash()] = value;
+        boolValues[paramName.Hash()] = value;
     }
     
     void Material::SetFloatValue(const StringHandle& paramName, const float value)
     {
-        floatValues[paramName.GetHash()] = value;
+        floatValues[paramName.Hash()] = value;
     }
     
     void Material::SetMat4Value(const StringHandle& paramName, const Matrix4x4& value)
     {
-        mat4Values[paramName.GetHash()] = value;
+        mat4Values[paramName.Hash()] = value;
     }
     
     void Material::SetVector4Value(const StringHandle& paramName, const Vec4& value)
     {
-        vec4Values[paramName.GetHash()] = value;
+        vec4Values[paramName.Hash()] = value;
     }
     
     void Material::SetFloatArrValue(const StringHandle& paramName, const float *value, const int count)
     {
         std::vector<float>* arr;
-        auto it = floatArrValues.find(paramName.GetHash());
+        auto it = floatArrValues.find(paramName.Hash());
         if (it == floatArrValues.end())
         {
             arr = new std::vector<float>();
-            floatArrValues[paramName.GetHash()] = arr;
+            floatArrValues[paramName.Hash()] = arr;
         }
         else
         {
@@ -74,7 +74,7 @@ namespace op
 
     void Material::SetTextureValue(const StringHandle& paramName, Texture* value)
     {
-        auto it = textureValues.find(paramName.GetHash());
+        auto it = textureValues.find(paramName.Hash());
         if (it != textureValues.end())
         {
             if (it->second.texture == value)
@@ -87,8 +87,8 @@ namespace op
 
         if (value)
         {
-            auto texelHandle = StringHandle(paramName.GetString() + "_TexelSize");
-            textureValues[paramName.GetHash()] = {value, texelHandle.GetHash()};
+            auto texelHandle = StringHandle(paramName.Str() + "_TexelSize");
+            textureValues[paramName.Hash()] = {value, texelHandle.Hash()};
             INCREF(value);
             
             auto texelSize = Vec4(
@@ -96,11 +96,11 @@ namespace op
                 1.0f / static_cast<float>(value->height),
                 static_cast<float>(value->width),
                 static_cast<float>(value->height));
-            vec4Values[texelHandle.GetHash()] = texelSize;
+            vec4Values[texelHandle.Hash()] = texelSize;
         }
         else if (it != textureValues.end())
         {
-            textureValues.erase(paramName.GetHash());
+            textureValues.erase(paramName.Hash());
             vec4Values.erase(it->second.texelNameId);
         }
     }

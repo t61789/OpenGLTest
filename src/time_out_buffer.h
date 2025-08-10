@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game_resource.h"
 #include "utils.h"
 
 namespace op
@@ -15,7 +16,7 @@ namespace op
         
         V GetOrAdd(const K& key)
         {
-            auto curFrame = Time::GetInstance()->frame;
+            auto curFrame = GameResource::GetInstance()->time.frame;
             
             auto it = m_map.find(key);
             if (it != m_map.end())
@@ -37,7 +38,7 @@ namespace op
         
         void Set(K key, V value)
         {
-            auto curFrame = Time::GetInstance()->frame;
+            auto curFrame = GameResource::GetInstance()->time.frame;
             
             Elem elem;
             elem.value = value;
@@ -61,7 +62,7 @@ namespace op
 
         void ClearTimeOut()
         {
-            auto curFrame = Time::GetInstance()->frame;
+            auto curFrame = GameResource::GetInstance()->time.frame;
             if (curFrame - m_prevClearFrame < 10)
             {
                 return;

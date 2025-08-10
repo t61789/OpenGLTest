@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <string>
 
+#include "const.h"
+
 namespace op
 {
     #define INCREF(obj) obj->IncRef(std::string(typeid(this).name()))
@@ -13,7 +15,7 @@ namespace op
     class SharedObject
     {
     public:
-        std::string filePath;
+        StringHandle filePath = NOT_A_FILE;
         
         SharedObject();
         virtual ~SharedObject();
@@ -23,14 +25,14 @@ namespace op
         void DecRef();
         void DecRef(const std::string& key);
 
-        static void RegisterResource(const std::string& path, SharedObject* obj);
-        static void UnRegisterResource(const std::string& path);
-        static bool TryGetResource(const std::string& path, SharedObject*& obj);
+        static void RegisterResource(const StringHandle& path, SharedObject* obj);
+        static void UnRegisterResource(const StringHandle& path);
+        static bool TryGetResource(const StringHandle& path, SharedObject*& obj);
         
         static std::vector<SharedObject*> m_count;
 
     private:
         std::unordered_map<std::string, int> m_reference;
-        static std::unordered_map<std::string, SharedObject*> m_resource;
+        static std::unordered_map<StringHandle, SharedObject*> m_resource;
     };
 }

@@ -5,6 +5,7 @@
 
 #include "utils.h"
 #include "game_framework.h"
+#include "game_resource.h"
 #include "transform_comp.h"
 
 namespace op
@@ -42,7 +43,7 @@ namespace op
         float damp = 0.07f;
 
         GameFramework* gameFramework = GameFramework::GetInstance();
-        auto deltaTime = Time::GetInstance()->deltaTime;
+        auto deltaTime = GameResource::GetInstance()->time.deltaTime;
 
         if(gameFramework->KeyPressed(GLFW_KEY_LEFT_SHIFT))
         {

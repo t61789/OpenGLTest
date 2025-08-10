@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "shader.h"
 #include "utils.h"
+#include "material_new.h"
 
 namespace op
 {
@@ -24,6 +25,7 @@ namespace op
         Mesh* testMesh = nullptr;
         Shader* testShader = nullptr;
         Material* testMaterial = nullptr;
+        MaterialNew* testMaterialNew = nullptr;
 
     private:
         std::vector<Shader*> m_packedShaders;

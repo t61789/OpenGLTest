@@ -1,6 +1,7 @@
 ﻿#include "runtime_comp.h"
 
 #include "built_in_res.h"
+#include "image.h"
 #include "material.h"
 #include "mesh.h"
 #include "object.h"
@@ -37,6 +38,10 @@ namespace op
         INCREF_BY(renderComp->mesh, renderComp);
         renderComp->material = BuiltInRes::GetInstance()->testMaterial;
         INCREF_BY(renderComp->material, renderComp);
+        
+        renderComp->materialNew = BuiltInRes::GetInstance()->testMaterialNew;
+        renderComp->materialNew->Set(MAIN_TEX, Image::LoadFromFile("built_in/texture/skybox/back.png", ImageDescriptor::GetDefault()));
+        INCREF_BY(renderComp->materialNew, renderComp);
         
         owner->AddChild(m_testObject);
         INCREF(m_testObject);

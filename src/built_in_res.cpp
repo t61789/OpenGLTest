@@ -32,6 +32,10 @@ namespace op
         testMaterial = Material::CreateEmptyMaterial(testShader, "TestMaterial");
         testMaterial->cullMode = CullMode::None;
         INCREF(testMaterial);
+
+        testMaterialNew = new MaterialNew();
+        INCREF(testMaterialNew);
+        testMaterialNew->SetShader(testShader);
     }
 
     BuiltInRes::~BuiltInRes()
@@ -48,6 +52,7 @@ namespace op
         DECREF(testMesh);
         DECREF(testShader);
         DECREF(testMaterial);
+        DECREF(testMaterialNew);
     }
 
     void BuiltInRes::LoadPackedShaders()
@@ -61,10 +66,11 @@ namespace op
 
         for (auto& [path, shaderStr] : json.items())
         {
-            auto vertStr = Utils::Binary8To32(Utils::Base64ToBinary(shaderStr["vert"].get<std::string>()));
-            auto fragStr = Utils::Binary8To32(Utils::Base64ToBinary(shaderStr["frag"].get<std::string>()));
-
-            auto shader = Shader::LoadFromSpvFile(vertStr, fragStr, path);
+            auto shader = Shader::LoadFromSpvBase64(
+                shaderStr["vert"].get<std::string>(),
+                shaderStr["frag"].get<std::string>(),
+                path);
+            
             m_packedShaders.push_back(shader);
             INCREF(shader);
         }

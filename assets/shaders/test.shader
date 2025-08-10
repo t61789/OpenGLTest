@@ -12,6 +12,11 @@ struct VSOutput
     float2 uv : TEXCOORD0;
 };
 
+cbuffer _Global : register(b0)
+{
+    float4 _Albedo;
+};
+
 
 #include "shaders/sss.hlsl"
 
@@ -19,18 +24,13 @@ VSOutput VS_Main(VSInput input)
 {
     VSOutput output;
 
-    output.positionCS = float4(input.positionOS.xy, 0.0f, 1.0f);
+    output.positionCS = float4(input.positionOS.xy, _Albedo.z, 1.0f);
     output.uv = input.uv0;
 
     return output;
 }
 
-cbuffer TestBuffer
-{
-    float4 _Albedo;
-};
-
-cbuffer TestBuffer1
+cbuffer PerObjectCBuffer : register(b1)
 {
     float4 _Albedo1;
 };
@@ -43,10 +43,15 @@ struct PSOutput
     // 可以继续添加更多目标...
 };
 
+Texture2D _MainTex;
+SamplerState _MainTexSampler;
+Texture2D _MainTex0;
+SamplerState _MainTex0Sampler;
+
 PSOutput PS_Main(VSOutput input) : SV_TARGET
 {
     PSOutput output;
-    output.Target0 = _Albedo; // 红色
+    output.Target0 = _Albedo * _MainTex.Sample(_MainTexSampler, input.uv); // 红色
     output.Target1 = _Albedo1; // 绿色
     output.Target2 = float4(0.0f, 0.0f, 1.0f, 1.0f); // 蓝色
 

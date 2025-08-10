@@ -1,10 +1,12 @@
 ﻿#pragma once
 
 #include <string>
+#include <spirv_glsl.hpp>
 
 #include "shared_object.h"
 #include "mesh.h"
 #include "texture.h"
+#include "render/cbuffer.h"
 
 namespace op
 {
@@ -31,9 +33,32 @@ namespace op
             }
         };
 
-        class VertexLayoutInfo
+        class UniformBlockMemberInfo
         {
         public:
+            StringHandle name;
+            size_t size;
+            uint32_t offset;
+            size_t blockNameId;
+        };
+
+        class UniformBlockInfo
+        {
+        public:
+            StringHandle name;
+            uint32_t binding;
+            size_t size;
+            std::vector<size_t> uniforms;
+        };
+
+        struct VertexLayoutInfo
+        {
+            uint32_t location;
+        };
+
+        struct TextureInfo
+        {
+            GLuint type;
             uint32_t location;
         };
         
@@ -41,6 +66,11 @@ namespace op
 
         std::unordered_map<VertexAttr, VertexLayoutInfo> vertexLayout;
         std::unordered_map<size_t, UniformInfo> uniforms;
+        std::unordered_map<size_t, UniformBlockInfo> uniformBlocks;
+        std::unordered_map<size_t, UniformBlockMemberInfo> uniformMembers;
+
+        std::unordered_map<size_t, TextureInfo> textures;
+        std::unordered_map<size_t, CBufferLayout*> cbuffers;
 
         void Use(const Mesh* mesh) const;
         void Use0(const Mesh* mesh) const;
@@ -63,12 +93,16 @@ namespace op
         static void SetTextureGl(int location, int slot, const Texture* value);
 
         static Shader* LoadFromFile(const std::string& glslPath);
-        static Shader* LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath = "NotAFile");
-        static Shader* LoadFromSpvFile(const std::string& vertPath, const std::string& fragPath);
-        static Shader* LoadFromSpvFile(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path);
+        static Shader* LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath = NOT_A_FILE);
+        static Shader* LoadFromSpvBase64(const std::string& vert, const std::string& frag, const std::string& path = NOT_A_FILE);
+        static Shader* LoadFromSpvBinary(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path = NOT_A_FILE);
 
     private:
         ~Shader() override;
+
+        void LoadVertexLayout(const spirv_cross::CompilerGLSL& vertCompiler, const spirv_cross::ShaderResources& vertResources);
+        void LoadCBuffer(const spirv_cross::CompilerGLSL& compiler, const spirv_cross::ShaderResources& resources);
+        void LoadTextures(const spirv_cross::CompilerGLSL& compiler, const spirv_cross::ShaderResources& resources);
 
         static std::unordered_map<size_t, UniformInfo> LoadUniforms(GLuint program);
         static std::vector<std::string> LoadFileToLines(const std::string& realAssetPath);
@@ -76,5 +110,8 @@ namespace op
         static void ReplaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines);
         static void AddBuiltInMarcos(std::vector<std::string>& lines, const std::vector<std::string>& marcos);
         static std::vector<uint32_t> LoadSpvFileData(const std::string& absolutePath);
+        static bool TryCreatePredefinedCBuffer(const spirv_cross::CompilerGLSL& compiler, const spirv_cross::Resource& uniformBuffer);
+        static void CombineSeparateTextures(spirv_cross::CompilerGLSL& compiler);
+        static void CheckShaderCompilation(GLuint vertexShader, const std::string &shaderPath, const std::string& source);
     };
 }

@@ -1,6 +1,7 @@
 ﻿#include "image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "built_in_res.h"
 #include "utils.h"
 #include "stb_image.h"
 
@@ -37,6 +38,11 @@ namespace op
             {
                 return dynamic_cast<Image*>(result);
             }
+        }
+
+        if (!Utils::AssetExists(path))
+        {
+            return BuiltInRes::GetInstance()->errorTex;
         }
 
         stbi_set_flip_vertically_on_load(desc.needFlipVertical);

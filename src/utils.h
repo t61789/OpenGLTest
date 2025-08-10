@@ -9,6 +9,8 @@
 
 #include "event.h"
 
+#include "string_handle.h"
+
 #include "math/math.h"
 
 namespace op
@@ -53,7 +55,7 @@ namespace op
         inline static T* m_instance = nullptr;
     };
 
-    class Time : public Singleton<Time>
+    class Time
     {
     public:
         int frame = -1;
@@ -69,7 +71,8 @@ namespace op
         
         static std::vector<std::string> ToDirectories(const std::string& path);
         static std::string GetAbsolutePath(const std::string& relativePath);
-        
+        static bool AssetExists(const std::string& path);
+
         template<typename Base, typename T>
         static bool InstanceOf(const T* ptr)
         {
