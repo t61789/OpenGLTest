@@ -25,7 +25,7 @@ namespace op
     {
         auto globalMaterial = GameResource::GetInstance()->GetPredefinedMaterial(GLOBAL_CBUFFER.Hash());
         globalMaterial->Set(ALBEDO, Vec4(1, 0, 0, 1));
-        globalMaterial->Use();
+        globalMaterial->Use(nullptr, &renderContext);
         
         for (auto& renderObj : renderComps)
         {
@@ -92,12 +92,12 @@ namespace op
 
         auto perObjectMaterial = GameResource::GetInstance()->GetPredefinedMaterial(PER_OBJECT_CBUFFER.Hash());
         perObjectMaterial->Set(ALBEDO_1, Vec4(0, 0, 1, 1));
-        perObjectMaterial->Use();
+        perObjectMaterial->Use(nullptr, &renderContext);
         
         mesh->Use();
         if (matNew)
         {
-            matNew->Use(mesh);
+            matNew->Use(mesh, &renderContext);
             renderContext.cullModeMgr->SetCullMode(matNew->cullMode);
             renderContext.blendModeMgr->SetBlendMode(matNew->blendMode);
         }

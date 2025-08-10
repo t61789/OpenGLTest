@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "math/math.h"
+#include "render/texture_binding_mgr.h"
 
 namespace op
 {
@@ -41,6 +42,7 @@ namespace op
         Scene* scene = nullptr;
         CullModeMgr* cullModeMgr = nullptr;
         BlendModeMgr* blendModeMgr = nullptr;
+        TextureBindingMgr* textureBindingMgr = nullptr;
 
         std::vector<Object*>* allSceneObjs;
         

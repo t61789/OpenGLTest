@@ -34,6 +34,7 @@ namespace op
         m_renderContext = std::make_unique<RenderContext>();
         m_cullModeMgr = std::make_unique<CullModeMgr>();
         m_blendModeMgr = std::make_unique<BlendModeMgr>();
+        m_textureBindingMgr = std::make_unique<TextureBindingMgr>();
         m_cullingSystem = std::make_unique<CullingSystem>(m_renderContext.get());
 
         m_gBuffer0Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex");
@@ -149,6 +150,7 @@ namespace op
         m_renderContext->scene = scene;
         m_renderContext->cullModeMgr = m_cullModeMgr.get();
         m_renderContext->blendModeMgr = m_blendModeMgr.get();
+        m_renderContext->textureBindingMgr = m_textureBindingMgr.get();
         m_renderContext->mainLightShadowSize = mainLightShadowTexSize;
         m_renderContext->screenWidth = m_screenWidth;
         m_renderContext->screenHeight = m_screenHeight;

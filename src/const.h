@@ -11,7 +11,8 @@ namespace op
     #define DEG2RAD 0.0174532925f
     #define RAD2DEG 57.2957795f
     #define EPSILON 1e-6
-
+    #define TEXTURE_SLOT_LIMIT 12
+    
     #define SHADER_PARAM(KEY, VALUE) static auto KEY = StringHandle(#VALUE)
 
     SHADER_PARAM(GLOBAL_CBUFFER, _Global);

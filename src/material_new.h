@@ -5,6 +5,7 @@
 
 #include "blend_mode.h"
 #include "cull_mode.h"
+#include "render_context.h"
 #include "shader.h"
 #include "shared_object.h"
 #include "math/vec.h"
@@ -21,7 +22,7 @@ namespace op
         explicit MaterialNew();
         ~MaterialNew() override;
 
-        void Use(const Mesh* mesh = nullptr);
+        void Use(const Mesh* mesh = nullptr, const RenderContext* renderContext = nullptr);
 
         inline void Set(const StringHandle& name, float value);
         inline void Set(const StringHandle& name, const Vec4& value);
@@ -84,7 +85,7 @@ namespace op
         void SyncCBuffer(bool force = false);
         void BindUbo();
         void SetAllValuesDirty();
-        void ApplyTextures();
+        void ApplyTextures(const RenderContext* renderContext = nullptr);
 
         void OnFrameEnd();
 

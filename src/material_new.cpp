@@ -30,16 +30,16 @@ namespace op
         }
     }
 
-    void MaterialNew::Use(const Mesh* mesh)
+    void MaterialNew::Use(const Mesh* mesh, const RenderContext* renderContext)
     {
         if (mesh)
         {
             m_shader->Use(mesh);
         }
 
-        if (m_shader)
+        if (m_shader && renderContext)
         {
-            ApplyTextures();
+            ApplyTextures(renderContext);
         }
         
         if (HasCBuffer())
@@ -210,13 +210,24 @@ namespace op
         }
     }
 
-    void MaterialNew::ApplyTextures()
+    void MaterialNew::ApplyTextures(const RenderContext* renderContext)
     {
-        // TODO 之前绑定过就不绑了
-        int slot = 0;
+        std::vector<Texture*> needBindingTextures;
+        std::vector<size_t> needBindingTexturesNameId;
+        needBindingTextures.reserve(m_textures.size());
         for (auto& [nameId, texture] : m_textures)
         {
-            m_shader->SetTexture(nameId, slot++, texture);
+            if (m_shader->textures.find(nameId) != m_shader->textures.end())
+            {
+                needBindingTextures.push_back(texture);
+                needBindingTexturesNameId.push_back(nameId);
+            }
+        }
+
+        auto bindingInfos = renderContext->textureBindingMgr->BindTextures(needBindingTextures);
+        for (size_t i = 0; i < bindingInfos.size(); i++)
+        {
+            m_shader->SetInt(needBindingTexturesNameId[i], bindingInfos[i].slot);
         }
     }
 
