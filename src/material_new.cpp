@@ -5,6 +5,8 @@
 
 namespace op
 {
+    MaterialNew* MaterialNew::s_globalMat = nullptr;
+    
     MaterialNew::MaterialNew()
     {
         m_onFrameEndHandler = GameResource::GetInstance()->onFrameEnd.Add(this, &MaterialNew::OnFrameEnd);
@@ -101,7 +103,7 @@ namespace op
         Shader* shader = nullptr;
         for (const auto& elem : json.items())
         {
-            const auto& elemKey = elem.key();
+            const auto& elemKey = StringHandle(elem.key());
             const auto& elemValue = elem.value();
             
             if (elemKey == "shader")
@@ -214,10 +216,11 @@ namespace op
     {
         std::vector<Texture*> needBindingTextures;
         std::vector<size_t> needBindingTexturesNameId;
-        needBindingTextures.reserve(m_textures.size());
-        for (auto& [nameId, texture] : m_textures)
+        needBindingTextures.reserve(m_shader->textures.size());
+        needBindingTexturesNameId.reserve(m_shader->textures.size());
+        for (auto& [nameId, textureInfo] : m_shader->textures)
         {
-            if (m_shader->textures.find(nameId) != m_shader->textures.end())
+            if (auto texture = GetTexture(nameId))
             {
                 needBindingTextures.push_back(texture);
                 needBindingTexturesNameId.push_back(nameId);
@@ -227,7 +230,7 @@ namespace op
         auto bindingInfos = renderContext->textureBindingMgr->BindTextures(needBindingTextures);
         for (size_t i = 0; i < bindingInfos.size(); i++)
         {
-            m_shader->SetInt(needBindingTexturesNameId[i], bindingInfos[i].slot);
+            m_shader->SetVal(needBindingTexturesNameId[i], bindingInfos[i].slot);
         }
     }
 

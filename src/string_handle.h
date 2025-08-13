@@ -24,6 +24,10 @@ namespace op
 
         bool operator!=(const std::string& other) const { return m_str != other; }
 
+        operator size_t() const { return m_hash; }
+
+        operator const std::string&() const { return m_str; }
+
     private:
         std::string m_str;
         size_t m_hash;

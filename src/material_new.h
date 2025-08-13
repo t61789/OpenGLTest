@@ -24,20 +24,23 @@ namespace op
 
         void Use(const Mesh* mesh = nullptr, const RenderContext* renderContext = nullptr);
 
-        inline void Set(const StringHandle& name, float value);
-        inline void Set(const StringHandle& name, const Vec4& value);
-        inline void Set(const StringHandle& name, const Matrix4x4& value);
-        inline void Set(const StringHandle& name, Texture* value);
+        inline void Set(size_t nameId, float value);
+        inline void Set(size_t nameId, const Vec4& value);
+        inline void Set(size_t nameId, const Matrix4x4& value);
+        inline void Set(size_t nameId, Texture* value);
         
-        inline float GetFloat(const StringHandle& name);
-        inline Vec4 GetVec4(const StringHandle& name);
-        inline Matrix4x4 GetMatrix4x4(const StringHandle& name);
+        inline float GetFloat(size_t nameId);
+        inline Vec4 GetVec4(size_t nameId);
+        inline Matrix4x4 GetMatrix4x4(size_t nameId);
+        inline Texture* GetTexture(size_t nameId);
 
         void SetShader(Shader* shader);
         void CreateCBuffer(CBufferLayout* cbufferLayout);
         bool HasCBuffer() { return m_cbuffer != nullptr; }
 
         static MaterialNew* LoadFromFile(const std::string& path);
+        inline static MaterialNew* GetGlobalMat();
+        inline static void ReleaseGlobalMat();
         
     private:
 
@@ -82,6 +85,8 @@ namespace op
         Shader* m_shader = nullptr;
         CBuffer* m_cbuffer = nullptr;
 
+        static MaterialNew* s_globalMat;
+
         void SyncCBuffer(bool force = false);
         void BindUbo();
         void SetAllValuesDirty();
@@ -102,24 +107,24 @@ namespace op
         void* Get(size_t nameId, std::unordered_map<size_t, Ft> MaterialNew::* dataField);
     };
     
-    inline void MaterialNew::Set(const StringHandle& name, const float value)
+    inline void MaterialNew::Set(const size_t nameId, const float value)
     {
-        Set(name.Hash(), &Value4::f, &MaterialNew::m_v4Values, value);
+        Set(nameId, &Value4::f, &MaterialNew::m_v4Values, value);
     }
 
-    inline void MaterialNew::Set(const StringHandle& name, const Vec4& value)
+    inline void MaterialNew::Set(const size_t nameId, const Vec4& value)
     {
-        Set(name.Hash(), &Value16::v4, &MaterialNew::m_v16Values, value);
+        Set(nameId, &Value16::v4, &MaterialNew::m_v16Values, value);
     }
 
-    inline void MaterialNew::Set(const StringHandle& name, const Matrix4x4& value)
+    inline void MaterialNew::Set(const size_t nameId, const Matrix4x4& value)
     {
-        Set(name.Hash(), &Value64::m4, &MaterialNew::m_v64Values, value);
+        Set(nameId, &Value64::m4, &MaterialNew::m_v64Values, value);
     }
     
-    inline void MaterialNew::Set(const StringHandle& name, Texture* value)
+    inline void MaterialNew::Set(const size_t nameId, Texture* value)
     {
-        auto it = m_textures.find(name.Hash());
+        auto it = m_textures.find(nameId);
         if (it != m_textures.end())
         {
             if (it->second == value)
@@ -136,23 +141,40 @@ namespace op
             }
         }
         
-        m_textures[name.Hash()] = value;
+        m_textures[nameId] = value;
         INCREF(value);
     }
-
-    inline float MaterialNew::GetFloat(const StringHandle& name)
+    
+    inline float MaterialNew::GetFloat(const size_t nameId)
     {
-        return Get(name.Hash(), &Value4::f, &MaterialNew::m_v4Values);
+        return Get(nameId, &Value4::f, &MaterialNew::m_v4Values);
     }
 
-    inline Vec4 MaterialNew::GetVec4(const StringHandle& name)
+    inline Vec4 MaterialNew::GetVec4(const size_t nameId)
     {
-        return Get(name.Hash(), &Value16::v4, &MaterialNew::m_v16Values);
+        return Get(nameId, &Value16::v4, &MaterialNew::m_v16Values);
     }
 
-    inline Matrix4x4 MaterialNew::GetMatrix4x4(const StringHandle& name)
+    inline Matrix4x4 MaterialNew::GetMatrix4x4(const size_t nameId)
     {
-        return Get(name.Hash(), &Value64::m4, &MaterialNew::m_v64Values);
+        return Get(nameId, &Value64::m4, &MaterialNew::m_v64Values);
+    }
+
+    inline Texture* MaterialNew::GetTexture(const size_t nameId)
+    {
+        auto it = m_textures.find(nameId);
+        if (it != m_textures.end())
+        {
+            return it->second;
+        }
+
+        auto globalMat = GetGlobalMat();
+        if (this == globalMat)
+        {
+            return nullptr;
+        }
+
+        return globalMat->GetTexture(nameId);
     }
 
     template <typename T>
@@ -186,7 +208,7 @@ namespace op
             ValueInfo valueInfo;
             valueInfo.size = size;
             
-            m_valueInfos[nameId] = std::move(valueInfo);
+            m_valueInfos[nameId] = valueInfo;
             return;
         }
 
@@ -243,5 +265,21 @@ namespace op
         }
 
         return nullptr;
+    }
+
+    MaterialNew* MaterialNew::GetGlobalMat()
+    {
+        if (!s_globalMat)
+        {
+            s_globalMat = new MaterialNew();
+        }
+
+        return s_globalMat;
+    }
+    
+    void MaterialNew::ReleaseGlobalMat()
+    {
+        delete s_globalMat;
+        s_globalMat = nullptr;
     }
 }

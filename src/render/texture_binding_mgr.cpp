@@ -43,7 +43,7 @@ namespace op
             }
         }
 
-        auto slot = 5;
+        auto slot = 5; // TODO 临时使用5，避免和旧材质重复
         for (auto& needBindingInfo : needBindingInfos)
         {
             if (needBindingInfo.slot != -1 || !needBindingInfo.texture || !needBindingInfo.texture->isCreated)

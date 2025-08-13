@@ -21,25 +21,7 @@ using namespace op;
 static void ReleaseStaticRes()
 {
     Material::ReleaseStaticRes();
-}
-
-std::vector<uint32_t> read_spirv_file(const char* filename) {
-    std::ifstream file(filename, std::ios::binary);
-    if (!file) {
-        throw std::runtime_error("Failed to open SPIR-V file");
-    }
-    
-    file.seekg(0, std::ios::end);
-    size_t size = file.tellg();
-    file.seekg(0, std::ios::beg);
-    
-    if (size % sizeof(uint32_t) != 0) {
-        throw std::runtime_error("Invalid SPIR-V file size");
-    }
-    
-    std::vector<uint32_t> spirv(size / sizeof(uint32_t));
-    file.read(reinterpret_cast<char*>(spirv.data()), size);
-    return spirv;
+    MaterialNew::ReleaseGlobalMat();
 }
 
 int main(int argc, char* argv[])
