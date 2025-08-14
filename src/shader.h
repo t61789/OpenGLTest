@@ -26,6 +26,7 @@ namespace op
             {
                 int intVal = 0;
                 float floatVal;
+                Vec4 vec4Val;
             };
 
             static const UniformInfo& GetUnavailable()
@@ -136,6 +137,14 @@ namespace op
     {
         static auto field = &UniformInfo::floatVal;
         static std::function glSetValue = [](const int location, const float v) { glUniform1f(location, v); };
+        SetVal(nameId, value, field, glSetValue);
+    }
+    
+    template <>
+    inline void Shader::SetVal<Vec4>(const size_t nameId, const Vec4 value)
+    {
+        static auto field = &UniformInfo::vec4Val;
+        static std::function glSetValue = [](const int location, const Vec4 v) { glUniform4f(location, v.x, v.y, v.z, v.w); };
         SetVal(nameId, value, field, glSetValue);
     }
 

@@ -103,6 +103,11 @@ namespace op
             return Vec4(result);
         }
 
+        bool RudeCmp(const Matrix4x4& other) const
+        {
+            return memcmp(m_data, other.m_data, sizeof(float) * 16) == 0;
+        }
+
         [[nodiscard]] Matrix4x4 Transpose() const
         {
             return {

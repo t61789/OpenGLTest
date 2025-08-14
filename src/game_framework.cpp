@@ -271,8 +271,8 @@ namespace op
         m_builtInRes = std::make_unique<BuiltInRes>();
         m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
         // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
-        // m_scene = Scene::LoadScene("scenes/test_scene/test_scene.json");
-        m_scene = Scene::LoadScene("scenes/ImportTest/scene.json");
+        m_scene = Scene::LoadScene("scenes/test_scene/test_scene.json");
+        // m_scene = Scene::LoadScene("scenes/ImportTest/scene.json");
         // m_scene = Scene::LoadScene("scenes/Scene_A/scene.json");
         // m_scene = Scene::LoadScene("scenes/HDRP_template/scene.json");
         INCREF(m_scene);

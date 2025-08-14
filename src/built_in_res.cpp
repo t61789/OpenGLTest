@@ -21,6 +21,9 @@ namespace op
         blitMat = Material::CreateEmptyMaterial("shaders/blit.glsl");
         INCREF(blitMat);
 
+        blitMatNew = MaterialNew::LoadFromFile("built_in/materials/blit_mat.json");
+        INCREF(blitMatNew);
+
         auto desc = ImageDescriptor::GetDefault();
         errorTex = Image::LoadFromFile("built_in/texture/error.png", desc);
         INCREF(errorTex);
@@ -48,6 +51,7 @@ namespace op
         DECREF(quadMesh);
         DECREF(sphereMesh);
         DECREF(blitMat);
+        DECREF(blitMatNew);
         DECREF(errorTex);
         DECREF(testMesh);
         DECREF(testShader);

@@ -431,6 +431,11 @@ namespace op
             return std::fabs(x - other.x) < EPSILON && std::fabs(y - other.y) < EPSILON && std::fabs(z - other.z) < EPSILON && std::fabs(w - other.w) < EPSILON;
         }
         
+        bool operator!=(const Vec4& other) const
+        {
+            return !(*this == other);
+        }
+        
         Vec4 operator-() const
         {
             return {-x, -y, -z, -w};

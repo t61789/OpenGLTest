@@ -30,13 +30,26 @@ namespace op
         {
             DECREF(material);
         }
+
+        if (materialNew)
+        {
+            DECREF(materialNew);
+        }
     }
 
     void RenderComp::LoadFromJson(const nlohmann::json& objJson)
     {
         if(objJson.contains("mesh"))
         {
-            mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
+            auto meshPath = objJson["mesh"].get<std::string>();
+            if (meshPath.find("beast") != std::string::npos)
+            {
+                mesh = Mesh::LoadFromFile0(meshPath);
+            }
+            else
+            {
+                mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
+            }
             if (mesh)
             {
                 INCREF(mesh);
@@ -45,10 +58,22 @@ namespace op
 
         if(objJson.contains("material"))
         {
-            material = Material::LoadFromFile(objJson["material"].get<std::string>());
-            if (material)
+            auto matPath = objJson["material"].get<std::string>();
+            if (matPath.find("lit_mat") != std::string::npos)
             {
-                INCREF(material);
+                materialNew = MaterialNew::LoadFromFile(matPath); // TODO new material
+                if (materialNew)
+                {
+                    INCREF(materialNew);
+                }
+            }
+            else
+            {
+                material = Material::LoadFromFile(matPath);
+                if (material)
+                {
+                    INCREF(material);
+                }
             }
         }
     }

@@ -13,7 +13,6 @@ namespace op
     RuntimeComp::~RuntimeComp()
     {
         DECREF(m_groundGrid);
-        DECREF(m_testObject);
     }
 
     void RuntimeComp::Awake()
@@ -30,20 +29,5 @@ namespace op
         
         owner->AddChild(m_groundGrid);
         INCREF(m_groundGrid);
-
-
-        m_testObject = Object::Create("TestObject");
-        renderComp = m_testObject->AddOrCreateComp<RenderComp>("RenderComp");
-        renderComp->mesh = BuiltInRes::GetInstance()->testMesh;
-        INCREF_BY(renderComp->mesh, renderComp);
-        renderComp->material = BuiltInRes::GetInstance()->testMaterial;
-        INCREF_BY(renderComp->material, renderComp);
-        
-        renderComp->materialNew = BuiltInRes::GetInstance()->testMaterialNew;
-        renderComp->materialNew->Set(MAIN_TEX, Image::LoadFromFile("built_in/texture/skybox/back.png", ImageDescriptor::GetDefault()));
-        INCREF_BY(renderComp->materialNew, renderComp);
-        
-        owner->AddChild(m_testObject);
-        INCREF(m_testObject);
     }
 }

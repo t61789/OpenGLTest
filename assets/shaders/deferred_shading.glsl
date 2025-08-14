@@ -48,7 +48,7 @@ void main()
     if(pixelType == PIXEL_TYPE_LIT)
     {
         finalColor = LitWithLights(normalWS, positionWS, albedo, 0.8, 0.0);
-        //finalColor = normalWS;
+        // finalColor = normalWS;
         // finalColor = albedo;
         // finalColor = vec3(mod(abs(positionWS.xz), 1.0), 0.0);
     }

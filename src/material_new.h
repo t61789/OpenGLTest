@@ -99,7 +99,7 @@ namespace op
         template <typename T>
         void SetInfo(size_t nameId);
         template <typename Ft, typename T>
-        void Set(size_t nameId, T Ft::* unionField, std::unordered_map<size_t, Ft> MaterialNew::* dataField, T value);
+        void Set(size_t nameId, T Ft::* unionField, std::unordered_map<size_t, Ft> MaterialNew::* dataField, const T& value);
         template <typename Ft, typename T>
         T Get(size_t nameId, T Ft::* unionField, std::unordered_map<size_t, Ft> MaterialNew::* dataField);
         void* Get(size_t nameId, uint32_t dataSize);
@@ -119,7 +119,13 @@ namespace op
 
     inline void MaterialNew::Set(const size_t nameId, const Matrix4x4& value)
     {
-        Set(nameId, &Value64::m4, &MaterialNew::m_v64Values, value);
+        SetInfo<Matrix4x4>(nameId);
+        auto& dstValue = m_v64Values[nameId];
+        if (!dstValue.m4.RudeCmp(value))
+        {
+            dstValue.m4 = value;
+            m_dirtyValues.insert(nameId);
+        }
     }
     
     inline void MaterialNew::Set(const size_t nameId, Texture* value)
@@ -219,14 +225,16 @@ namespace op
     }
 
     template <typename Ft, typename T>
-    void MaterialNew::Set(size_t nameId, T Ft::* unionField, std::unordered_map<size_t, Ft> MaterialNew::* dataField, T value)
+    void MaterialNew::Set(size_t nameId, T Ft::* unionField, std::unordered_map<size_t, Ft> MaterialNew::* dataField, const T& value)
     {
         SetInfo<T>(nameId);
         auto& values = this->*dataField;
         auto& dstValue = values[nameId];
-        dstValue.*unionField = value;
-
-        m_dirtyValues.insert(nameId);
+        if (dstValue.*unionField != value)
+        {
+            dstValue.*unionField = value;
+            m_dirtyValues.insert(nameId);
+        }
     }
 
     template <typename Ft, typename T>

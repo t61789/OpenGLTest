@@ -441,7 +441,7 @@ namespace op
 
     void Mesh::CalcVertexAttrOffset(std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo)
     {
-        uint32_t curOffset = 0;
+        size_t curOffset = 0;
         for (uint8_t i = 0; i < static_cast<uint8_t>(VertexAttr::COUNT); ++i)
         {
             auto attr = static_cast<VertexAttr>(i);

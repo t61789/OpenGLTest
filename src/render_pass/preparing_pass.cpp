@@ -99,7 +99,7 @@ namespace op
             }
         }
 
-        struct alignas(8) ParallelLightInfo
+        struct alignas(16) ParallelLightInfo
         {
             Vec4 param0; // x: dir.x, y: dir.y, z: dir.z, w: dummy
             Vec4 param1; // x: color.x, y: color.y, z: color.z, w: dummy
@@ -122,7 +122,7 @@ namespace op
             count * (sizeof(ParallelLightInfo) / sizeof(float)));
         Material::SetGlobalIntValue(PARALLEL_LIGHT_COUNT, count);
 
-        struct alignas(8) PointLightInfo
+        struct alignas(16) PointLightInfo
         {
             Vec4 param0; // x: pos.x, y: pos.y, z: pos.z, w: radius
             Vec4 param1; // x: color.x, y: color.y, z: color.z, w: dummy

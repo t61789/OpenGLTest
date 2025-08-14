@@ -23,9 +23,12 @@ namespace op
 
     void RenderingUtils::RenderScene(const RenderContext& renderContext, const vector<RenderComp*>& renderComps, unsigned int buffer)
     {
-        auto globalMaterial = GameResource::GetInstance()->GetPredefinedMaterial(GLOBAL_CBUFFER.Hash());
-        globalMaterial->Set(ALBEDO, Vec4(1, 0, 0, 1));
+        auto globalMaterial = GameResource::GetInstance()->GetPredefinedMaterial(GLOBAL_CBUFFER);
         globalMaterial->Use(nullptr, &renderContext);
+
+        auto perViewMaterial = GameResource::GetInstance()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+        perViewMaterial->Set(VP, renderContext.vpMatrix);
+        perViewMaterial->Use(nullptr, &renderContext);
         
         for (auto& renderObj : renderComps)
         {
@@ -51,7 +54,7 @@ namespace op
             material = renderComp->material;
         }
         
-        if(mesh == nullptr || material == nullptr)
+        if(mesh == nullptr)
         {
             return;
         }
@@ -91,7 +94,8 @@ namespace op
         // Utils::Log(Info, "v %s", renderContext.vMatrix0.ToString().c_str());
 
         auto perObjectMaterial = GameResource::GetInstance()->GetPredefinedMaterial(PER_OBJECT_CBUFFER.Hash());
-        perObjectMaterial->Set(ALBEDO_1, Vec4(0, 0, 1, 1));
+        perObjectMaterial->Set(M, m);
+        perObjectMaterial->Set(IM, im);
         perObjectMaterial->Use(nullptr, &renderContext);
         
         mesh->Use();
@@ -136,6 +140,19 @@ namespace op
         RenderTarget::Get(dst, nullptr)->Use();
         quad->Use();
         blitMat->Use(quad);
+        glDrawElements(GL_TRIANGLES, quad->indicesCount, GL_UNSIGNED_INT, nullptr);
+    }
+
+    void RenderingUtils::Blit0(RenderTexture* src, RenderTexture* dst, const RenderContext& rc, MaterialNew* material)
+    {
+        MaterialNew* blitMat = material ? material : BuiltInRes::GetInstance()->blitMatNew;
+        Mesh* quad = BuiltInRes::GetInstance()->quadMesh;
+        
+        RenderTarget::Get(dst, nullptr)->Use();
+        if (src) { blitMat->Set(MAIN_TEX, src); }
+        
+        blitMat->Use(quad, &rc);
+        
         glDrawElements(GL_TRIANGLES, quad->indicesCount, GL_UNSIGNED_INT, nullptr);
     }
 

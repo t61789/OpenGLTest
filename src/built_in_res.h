@@ -19,6 +19,7 @@ namespace op
         Mesh* sphereMesh = nullptr;
 
         Material* blitMat = nullptr;
+        MaterialNew* blitMatNew = nullptr;
 
         Image* errorTex = nullptr;
 

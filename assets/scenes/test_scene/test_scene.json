@@ -123,7 +123,7 @@
                 {
                     "name": "RenderComp",
                     "mesh": "meshes/beast.obj",
-                    "material": "materials/standard_mat.json"
+                    "material": "materials/lit_mat.json"
                 }
             ],
             "children": [

@@ -16,6 +16,7 @@ namespace op
     #define SHADER_PARAM(KEY, VALUE) static auto KEY = StringHandle(#VALUE)
 
     SHADER_PARAM(GLOBAL_CBUFFER, _Global);
+    SHADER_PARAM(PER_VIEW_CBUFFER, PerViewCBuffer);
     SHADER_PARAM(PER_OBJECT_CBUFFER, PerObjectCBuffer);
     SHADER_PARAM(PER_MATERIAL_CBUFFER, PerMaterialCBuffer);
 
@@ -84,6 +85,7 @@ namespace op
 
     inline std::unordered_set PREDEFINED_MATERIALS = {
         GLOBAL_CBUFFER.Hash(),
+        PER_VIEW_CBUFFER.Hash(),
         PER_OBJECT_CBUFFER.Hash()
     };
 }

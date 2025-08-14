@@ -12,7 +12,5 @@ namespace op
 
     private:
         Object* m_groundGrid = nullptr;
-
-        Object* m_testObject = nullptr;
     };
 }
