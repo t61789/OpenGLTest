@@ -1,13 +1,11 @@
 ﻿#pragma once
 #include "shader.h"
 #include "utils.h"
-#include "material_new.h"
+#include "material.h"
 
 namespace op
 {
-    class Material;
     class Mesh;
-    class Image;
 
     class BuiltInRes : public Singleton<BuiltInRes>
     {
@@ -18,15 +16,17 @@ namespace op
         Mesh* quadMesh = nullptr;
         Mesh* sphereMesh = nullptr;
 
-        Material* blitMat = nullptr;
-        MaterialNew* blitMatNew = nullptr;
+        Material* blitMatNew = nullptr;
 
-        Image* errorTex = nullptr;
+        Texture* errorTex = nullptr;
+        Texture* whiteTex = nullptr;
+        Texture* blackTex = nullptr;
+        Texture* missTex = nullptr;
 
-        Mesh* testMesh = nullptr;
         Shader* testShader = nullptr;
-        Material* testMaterial = nullptr;
-        MaterialNew* testMaterialNew = nullptr;
+        Material* testMaterialNew = nullptr;
+
+        std::vector<Material*> predefinedMaterials;
 
     private:
         std::vector<Shader*> m_packedShaders;

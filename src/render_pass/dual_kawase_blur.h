@@ -20,8 +20,8 @@ namespace op
         int m_blurSize = 3;
         float m_threshold = 0.97f;
     
-        Material* m_downsampleMat = nullptr;
-        Material* m_upsampleMat = nullptr;
+        // Material* m_downsampleMat = nullptr;
+        // Material* m_upsampleMat = nullptr;
         std::vector<RenderTexture*> m_blurTextures;
 
         void UpdateRt(const RenderTexture* shadingRt);

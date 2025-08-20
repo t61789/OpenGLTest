@@ -1,7 +1,9 @@
 ﻿#include "render_context.h"
 
-#include "utils.h"
 #include "material.h"
+#include "game_resource.h"
+#include "utils.h"
+
 #include "render_texture.h"
 #include "shared_object.h"
 #include "objects/camera_comp.h"
@@ -26,7 +28,7 @@ namespace op
         auto viewMatrix = cameraLocalToWorld.Inverse();
 
         auto aspect = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
-        auto projectionMatrix = Utils::CreateProjection(cam->fov, aspect, cam->nearClip, cam->farClip);
+        auto projectionMatrix = create_projection(cam->fov, aspect, cam->nearClip, cam->farClip);
 
         SetViewProjMatrix(viewMatrix, projectionMatrix);
     }
@@ -36,8 +38,9 @@ namespace op
         vMatrix = view;
         pMatrix = proj;
         vpMatrix = proj * view;
-        Material::SetGlobalMat4Value(VP, vpMatrix);
-        Material::SetGlobalMat4Value(IVP, vpMatrix.Inverse());
+        
+        auto perViewMaterial = GameResource::Ins()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+        perViewMaterial->Set(VP, vpMatrix);
     }
 
     void RenderContext::RegisterRt(RenderTexture* rt)

@@ -44,7 +44,7 @@ namespace op
 
         bool TryGetParam(size_t nameId, CBufferParam** result);
         void StartSync();
-        void Sync(const SyncInfo& syncInfo);
+        void Sync(void* srcData, size_t dstOffset, size_t dstSize);
         void EndSync();
         void Use();
     };

@@ -5,11 +5,9 @@
 #include "render_texture.h"
 #include "gui.h"
 #include "culling_system.h"
-#include "cull_mode.h"
-#include "blend_mode.h"
 #include "built_in_res.h"
 #include "render_target.h"
-#include "material.h"
+
 #include "utils.h"
 #include "scene.h"
 #include "indirect_lighting.h"
@@ -30,10 +28,8 @@ namespace op
     {
         m_window = window;
         SetScreenSize(width, height);
-
+        
         m_renderContext = std::make_unique<RenderContext>();
-        m_cullModeMgr = std::make_unique<CullModeMgr>();
-        m_blendModeMgr = std::make_unique<BlendModeMgr>();
         m_textureBindingMgr = std::make_unique<TextureBindingMgr>();
         m_cullingSystem = std::make_unique<CullingSystem>(m_renderContext.get());
 
@@ -49,9 +45,11 @@ namespace op
         m_gBufferDepthTex = new RenderTexture(width, height, DepthStencil, Point, Clamp, "_GBufferDepthTex");
         INCREF(m_gBufferDepthTex);
         m_renderContext->RegisterRt(m_gBufferDepthTex);
-        Material::SetGlobalTextureValue("_GBuffer0Tex", m_gBuffer0Tex);
-        Material::SetGlobalTextureValue("_GBuffer1Tex", m_gBuffer1Tex);
-        Material::SetGlobalTextureValue("_GBuffer2Tex", m_gBuffer2Tex);
+
+        auto globalCbuffer = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
+        globalCbuffer->Set(GBUFFER_0_TEX, m_gBuffer0Tex);
+        globalCbuffer->Set(GBUFFER_1_TEX, m_gBuffer1Tex);
+        globalCbuffer->Set(GBUFFER_2_TEX, m_gBuffer2Tex);
         
         m_gBufferDesc = std::make_unique<RenderTargetDesc>();
         m_gBufferDesc->SetColorAttachment(0, m_gBuffer0Tex);
@@ -83,7 +81,6 @@ namespace op
         DECREF(m_gBufferDepthTex);
 
         RenderTarget::ClearAllCache();
-        Material::ClearAllGlobalValues();
     }
 
     void RenderPipeline::SetScreenSize(const int width, const int height)
@@ -98,7 +95,7 @@ namespace op
         
         if(!UpdateRenderTargetsPass())
         {
-            throw std::runtime_error("RenderTarget创建失败");
+            THROW_ERROR("RenderTarget创建失败")
         }
 
         if (m_preDrawnScene != scene)
@@ -111,18 +108,18 @@ namespace op
         
         for (auto pass : m_passes)
         {
-            Utils::BeginDebugGroup(pass->GetName());
+            begin_debug_group(pass->GetName().c_str());
             pass->Execute();
-            Utils::EndDebugGroup();
+            end_debug_group();
         }
         
-        Utils::BeginDebugGroup("Draw UI");
+        begin_debug_group("Draw UI");
         RenderUiPass(m_renderContext.get());
-        Utils::EndDebugGroup();
+        end_debug_group();
+
+        GL_CHECK_ERROR(帧绘制结束)
 
         SwapBuffers();
-        
-        Utils::ClearGlError();
     }
 
     void RenderPipeline::GetViewProjMatrix(Matrix4x4& view, Matrix4x4& proj)
@@ -148,8 +145,6 @@ namespace op
         
         m_renderContext->camera = CameraComp::GetMainCamera(); // TODO 依赖于scene
         m_renderContext->scene = scene;
-        m_renderContext->cullModeMgr = m_cullModeMgr.get();
-        m_renderContext->blendModeMgr = m_blendModeMgr.get();
         m_renderContext->textureBindingMgr = m_textureBindingMgr.get();
         m_renderContext->mainLightShadowSize = mainLightShadowTexSize;
         m_renderContext->screenWidth = m_screenWidth;
@@ -175,10 +170,7 @@ namespace op
     {
         ZoneScoped;
 
-        BuiltInRes::GetInstance()->quadMesh;
-        
-        
-        Gui::GetInstance()->Render(context);
+        Gui::Ins()->Render(context);
     }
 
     void RenderPipeline::CategorizeObjects(RenderContext& renderContext)

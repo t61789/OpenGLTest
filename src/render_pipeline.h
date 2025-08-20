@@ -8,14 +8,13 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "objects/render_comp.h"
+#include "render/render_state.h"
 
 namespace op
 {
     class Object;
     class CameraComp;
     class Scene;
-    class CullModeMgr;
-    class BlendModeMgr;
     class RenderTargetDesc;
     class RenderContext;
     class CullingSystem;
@@ -39,8 +38,6 @@ namespace op
         int m_screenHeight;
 
         GLFWwindow* m_window = nullptr;
-        std::unique_ptr<CullModeMgr> m_cullModeMgr = nullptr;
-        std::unique_ptr<BlendModeMgr> m_blendModeMgr = nullptr;
         std::unique_ptr<TextureBindingMgr> m_textureBindingMgr = nullptr;
         std::unique_ptr<RenderTargetDesc> m_gBufferDesc = nullptr;
         std::unique_ptr<RenderContext> m_renderContext = nullptr;

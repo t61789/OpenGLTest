@@ -16,7 +16,7 @@ namespace op
         {
         public:
             bool enabled = false;
-            size_t offset = 0;
+            uintptr_t offset = 0;
         };
         
         std::string name = "Unnamed Mesh";
@@ -35,22 +35,8 @@ namespace op
 
         ~Mesh() override;
         
-        void Use() const;
-        
         static Mesh* LoadFromFile(const std::string& modelPath);
-        static Mesh* CreateMesh(
-            const Bounds& bounds,
-            const float* position,
-            const float* normal,
-            const float* uv0,
-            const float* color,
-            const unsigned int* indices,
-            uint32_t verticesCount,
-            uint32_t indicesCount,
-            const std::string& name = "Unnamed Mesh"
-        );
         
-        static Mesh* LoadFromFile0(const std::string& modelPath);
 
     private:
         static std::unique_ptr<Assimp::Importer> ImportFile(const std::string& modelPath);

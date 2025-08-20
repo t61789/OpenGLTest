@@ -13,14 +13,16 @@ namespace op
         }
     }
 
-    std::vector<TextureBindingMgr::BindingInfo> TextureBindingMgr::BindTextures(const std::vector<Texture*>& textures)
+    const std::vector<TextureBindingMgr::BindingInfo>& TextureBindingMgr::BindTextures(const std::vector<Texture*>& textures)
     {
         for (auto& slot : m_slots)
         {
             slot.hasBound = false;
         }
 
-        auto needBindingInfos = std::vector<BindingInfo>(textures.size());
+        static std::vector<BindingInfo> needBindingInfos;
+        needBindingInfos.clear();
+        needBindingInfos.resize(textures.size());
         for (size_t i = 0; i < textures.size(); i++)
         {
             auto texture = textures[i];
@@ -75,6 +77,7 @@ namespace op
             }
             // 添加当前texture，并配置slot
             m_boundTextures[needBindingInfo.texture] = slot;
+            m_slots[slot].texture = needBindingInfo.texture;
             needBindingInfo.slot = slot;
             slot++;
         }

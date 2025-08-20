@@ -5,7 +5,7 @@
 #include "bounds.h"
 #include "comp.h"
 #include "event.h"
-#include "material_new.h"
+#include "material.h"
 
 namespace op
 {
@@ -17,7 +17,6 @@ namespace op
     public:
         Mesh* mesh = nullptr;
         Material* material = nullptr;
-        MaterialNew* materialNew = nullptr;
     
         void Awake() override;
 

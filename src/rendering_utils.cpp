@@ -5,12 +5,10 @@
 #include "render_target.h"
 #include "render_texture.h"
 #include "mesh.h"
-#include "material.h"
+
 #include "utils.h"
 #include "render_context.h"
 #include "built_in_res.h"
-#include "cull_mode.h"
-#include "blend_mode.h"
 #include "game_resource.h"
 #include "object.h"
 #include "shader.h"
@@ -21,139 +19,89 @@ namespace op
 {
     using namespace std;
 
-    void RenderingUtils::RenderScene(const RenderContext& renderContext, const vector<RenderComp*>& renderComps, unsigned int buffer)
+    void RenderingUtils::RenderScene(const vector<RenderComp*>& renderComps)
     {
-        auto globalMaterial = GameResource::GetInstance()->GetPredefinedMaterial(GLOBAL_CBUFFER);
-        globalMaterial->Use(nullptr, &renderContext);
-
-        auto perViewMaterial = GameResource::GetInstance()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
-        perViewMaterial->Set(VP, renderContext.vpMatrix);
-        perViewMaterial->Use(nullptr, &renderContext);
-        
         for (auto& renderObj : renderComps)
         {
-            RenderEntity(renderContext, renderObj, buffer);
+            RenderEntity(renderObj);
         }
     }
 
-    void RenderingUtils::RenderEntity(const RenderContext& renderContext, const RenderComp* renderComp, unsigned int buffer)
+    void RenderingUtils::RenderEntity(const RenderComp* renderComp)
     {
         if(renderComp == nullptr)
         {
             return;
         }
 
+        auto rc = RenderContext::Ins();
         Mesh* mesh = renderComp->mesh;
-        Material* material;
-        if(renderContext.replaceMaterial != nullptr)
-        {
-            material = renderContext.replaceMaterial;
-        }
-        else
-        {
-            material = renderComp->material;
-        }
         
         if(mesh == nullptr)
         {
             return;
         }
 
-        // if (buffer != 0)
-        // {
-        //     GLuint blockIndex = glGetUniformBlockIndex(material->shader->glShaderId, "UBO_Lit");
-        //     glUniformBlockBinding(material->shader->glShaderId, blockIndex, 0);
-        //     glBindBufferBase(GL_UNIFORM_BUFFER, 0, buffer);
-        // }
-
-        RenderMesh(renderContext, mesh, material, renderComp->owner->transform->GetLocalToWorld(), renderComp->owner->transform->GetWorldToLocal(), renderComp->materialNew);
+        RenderMesh(mesh, renderComp->material, renderComp->owner->transform->GetLocalToWorld(), renderComp->owner->transform->GetWorldToLocal());
     }
 
-    void RenderingUtils::RenderMesh(const RenderContext& renderContext, const Mesh* mesh, Material* mat, const Matrix4x4& m, const Matrix4x4& im, MaterialNew* matNew)
+    void RenderingUtils::RenderMesh(Mesh* mesh, Material* mat, const Matrix4x4& m, const Matrix4x4& im)
     {
         ZoneScoped;
         
-        // auto mm = Matrix4x4(
-        //     0.01f, 0, 0, 0,
-        //     0, 0.01f, 0, 0,
-        //     0, 0, 0.01f, 0,
-        //     0, 0, 0, 1);
-        // auto mm = Matrix4x4(
-        //     1, 0, 0, 0,
-        //     0, 1, 0, 0,
-        //     0, 0, 1, 0,
-        //     0, 0, 0, 1);
-
-        // auto vv = Matrix4x4(
-        //     1, 0, 0, 0,
-        //     0, 1, 0, 0,
-        //     0, 0, -1, -10,
-        //     0, 0, 0, 1).Inverse();
-        //
-        // Utils::Log(Info, "vv %s", vv.ToString().c_str());
-        // Utils::Log(Info, "v %s", renderContext.vMatrix0.ToString().c_str());
-
-        auto perObjectMaterial = GameResource::GetInstance()->GetPredefinedMaterial(PER_OBJECT_CBUFFER.Hash());
+        auto perObjectMaterial = GameResource::Ins()->GetPredefinedMaterial(PER_OBJECT_CBUFFER.Hash());
         perObjectMaterial->Set(M, m);
         perObjectMaterial->Set(IM, im);
-        perObjectMaterial->Use(nullptr, &renderContext);
         
-        mesh->Use();
-        if (matNew)
-        {
-            matNew->Use(mesh, &renderContext);
-            renderContext.cullModeMgr->SetCullMode(matNew->cullMode);
-            renderContext.blendModeMgr->SetBlendMode(matNew->blendMode);
-        }
-        else
-        {
-            mat->SetMat4Value(M, m);
-            mat->SetMat4Value(IM, im);
-            mat->SetMat4Value(VP, renderContext.vpMatrix);
-            mat->Use(mesh);
-            renderContext.cullModeMgr->SetCullMode(mat->cullMode);
-            renderContext.blendModeMgr->SetBlendMode(mat->blendMode);
-        }
-
+        BindDrawResources(mat->GetShader(), mesh, mat);
         CallGlDraw(mesh);
     }
 
     void RenderingUtils::Blit(RenderTexture* src, RenderTexture* dst, Material* material)
     {
-        auto quad = BuiltInRes::GetInstance()->quadMesh;
-        
-        Material* blitMat;
-        if (material)
-        {
-            blitMat = material;
-        }
-        else
-        {
-            blitMat = BuiltInRes::GetInstance()->blitMat;
-        }
-        
-        if (src)
-        {
-            blitMat->SetTextureValue(MAIN_TEX, src);
-        }
-
-        RenderTarget::Get(dst, nullptr)->Use();
-        quad->Use();
-        blitMat->Use(quad);
-        glDrawElements(GL_TRIANGLES, quad->indicesCount, GL_UNSIGNED_INT, nullptr);
-    }
-
-    void RenderingUtils::Blit0(RenderTexture* src, RenderTexture* dst, const RenderContext& rc, MaterialNew* material)
-    {
-        MaterialNew* blitMat = material ? material : BuiltInRes::GetInstance()->blitMatNew;
-        Mesh* quad = BuiltInRes::GetInstance()->quadMesh;
+        Material* blitMat = material ? material : BuiltInRes::Ins()->blitMatNew;
+        Mesh* quad = BuiltInRes::Ins()->quadMesh;
         
         RenderTarget::Get(dst, nullptr)->Use();
         if (src) { blitMat->Set(MAIN_TEX, src); }
         
-        blitMat->Use(quad, &rc);
+        BindDrawResources(blitMat->GetShader(), quad, blitMat);
+        CallGlDraw(quad);
+    }
+
+    void RenderingUtils::ApplyTextures(Material* material, Shader* shader)
+    {
+        if (shader->textures.empty())
+        {
+            return;
+        }
         
-        glDrawElements(GL_TRIANGLES, quad->indicesCount, GL_UNSIGNED_INT, nullptr);
+        static std::vector<Texture*> needBindingTextures;
+        static std::vector<size_t> needBindingTexturesNameId;
+        needBindingTextures.clear();
+        needBindingTexturesNameId.clear();
+        needBindingTextures.reserve(shader->textures.size());
+        needBindingTexturesNameId.reserve(shader->textures.size());
+        for (auto& [nameId, textureInfo] : shader->textures)
+        {
+            if (auto texture = material->GetTexture(nameId))
+            {
+                needBindingTextures.push_back(texture);
+            }
+            else
+            {
+                needBindingTextures.push_back(BuiltInRes::Ins()->missTex);
+            }
+            needBindingTexturesNameId.push_back(nameId);
+        }
+
+        auto rc = RenderContext::Ins();
+        const auto& bindingInfos = rc->textureBindingMgr->BindTextures(needBindingTextures);
+        for (size_t i = 0; i < bindingInfos.size(); i++)
+        {
+            shader->SetVal(needBindingTexturesNameId[i], bindingInfos[i].slot);
+        }
+        GL_CHECK_ERROR(ApplyTexture)
     }
 
     void RenderingUtils::CallGlDraw(const Mesh* mesh)
@@ -161,5 +109,41 @@ namespace op
         ZoneScoped;
         
         glDrawElements(GL_TRIANGLES, static_cast<GLint>(mesh->indicesCount), GL_UNSIGNED_INT, nullptr);
+    }
+
+    void RenderingUtils::BindDrawResources(Shader* shader, Mesh* mesh, Material* material)
+    {
+        // Bind Shader
+        auto rs = RenderState::Ins();
+        rs->SetShader(shader->glShaderId);
+        
+        auto gMat = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
+        auto vMat = GameResource::Ins()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+        auto oMat = GameResource::Ins()->GetPredefinedMaterial(PER_OBJECT_CBUFFER);
+        // if (rs->SetShader(shader->glShaderId))
+        // {
+            gMat->UseCBuffer();
+            vMat->UseCBuffer();
+            oMat->UseCBuffer();
+        // }
+        GL_CHECK_ERROR(BindPredefinedCBuffers)
+
+
+        // Bind Vertex Attrib
+        rs->SetVertexArray(mesh->vao);
+        rs->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+
+        
+        // Bind Textures
+        ApplyTextures(material, shader);
+
+        
+        // Bind CBuffer
+        material->UseCBuffer();
+
+        
+        // Set Render State
+        rs->SetCullMode(material->cullMode);
+        rs->SetBlendMode(material->blendMode);
     }
 }

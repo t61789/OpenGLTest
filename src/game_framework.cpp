@@ -12,6 +12,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <tracy/Tracy.hpp>
+#include "GLFW/glfw3.h"
 
 #include "game_resource.h"
 
@@ -41,12 +42,13 @@ namespace op
 
     GameFramework::GameFramework()
     {
-        m_setFrameBufferSizeHandler = Utils::s_setFrameBufferSizeEvent.Add(this, &GameFramework::OnSetFrameBufferSize);
+        m_gameResource = std::make_unique<GameResource>();
+        m_onFrameBufferResizeHandler = GameResource::Ins()->onFrameBufferResize.Add(this, &GameFramework::OnSetFrameBufferResize); // TODO resize
     }
 
     GameFramework::~GameFramework()
     {
-        Utils::s_setFrameBufferSizeEvent.Remove(m_setFrameBufferSizeHandler);
+        GameResource::Ins()->onFrameBufferResize.Remove(m_onFrameBufferResizeHandler);
 
         ReleaseGame();
     }
@@ -141,7 +143,7 @@ namespace op
             m_window,
             [](GLFWwindow* window, const int width, const int height)
             {
-                Utils::s_setFrameBufferSizeEvent.Invoke(window, width, height);
+                GameResource::Ins()->onFrameBufferResize.Invoke(window, width, height);
             });
 
         return true;
@@ -173,9 +175,9 @@ namespace op
 
     void GameFramework::FrameBegin()
     {
-        Gui::GetInstance()->BeginFrame();
+        Gui::Ins()->BeginFrame();
 
-        auto& time = GameResource::GetInstance()->time;
+        auto& time = GameResource::Ins()->time;
         auto curFrameTime = static_cast<float>(glfwGetTime());
         time.frame += 1;
         time.deltaTime = max(curFrameTime - time.time, 0.000001f);
@@ -184,14 +186,14 @@ namespace op
 
     void GameFramework::FrameEnd()
     {
-        GameResource::GetInstance()->onFrameEnd.Invoke();
+        GameResource::Ins()->onFrameEnd.Invoke();
         
         FrameMark;
     }
 
     void GameFramework::BeforeUpdate()
     {
-        Gui::GetInstance()->BeforeUpdate();
+        Gui::Ins()->BeforeUpdate();
     }
 
     void GameFramework::Update()
@@ -250,13 +252,13 @@ namespace op
         }
         else
         {
-            Gui::GetInstance()->Render(nullptr);
+            Gui::Ins()->Render(nullptr);
             std::cout << "未找到可用摄像机\n";
             Sleep(16);
         }
     }
 
-    void GameFramework::OnSetFrameBufferSize(GLFWwindow* window, const int width, const int height)
+    void GameFramework::OnSetFrameBufferResize(GLFWwindow* window, const int width, const int height)
     {
         m_screenWidth = width;
         m_screenHeight = height;
@@ -267,7 +269,7 @@ namespace op
     void GameFramework::InitGame()
     {
         m_gui = std::make_unique<Gui>();
-        m_gameResource = std::make_unique<GameResource>();
+        m_renderState = std::make_unique<RenderState>();
         m_builtInRes = std::make_unique<BuiltInRes>();
         m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
         // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");

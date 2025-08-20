@@ -188,7 +188,12 @@ namespace op
             return result;
         }
 
-        const float* GetData() const
+        float* GetData()
+        {
+            return m_data;
+        }
+        
+        const float* GetReadOnlyData() const
         {
             return m_data;
         }

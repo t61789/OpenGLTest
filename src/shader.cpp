@@ -26,67 +26,6 @@ namespace op
         }
     }
 
-    void Shader::Use(const Mesh* mesh) const
-    {
-        if (!vertexLayout.empty())
-        {
-            Use0(mesh);
-            return;
-        }
-        
-        glUseProgram(glShaderId);
-
-        for (int i = 0; i < VERTEX_ATTRIB_NUM; ++i)
-        {
-            int curLayout = glGetAttribLocation(glShaderId, VERTEX_ATTRIB_NAMES[i]);
-            bool existInShader = curLayout != -1;
-            bool existInMesh = mesh->vertexAttribEnabled[i];
-            if(!existInShader || !existInMesh)
-            {
-                continue;
-            }
-
-            glVertexAttribPointer(
-                curLayout,
-                VERTEX_ATTRIB_FLOAT_COUNT[i],
-                GL_FLOAT,
-                GL_FALSE,
-                sizeof(float) * mesh->vertexDataFloatNum,
-                (void*)(mesh->vertexAttribOffset[i] * sizeof(float)));
-            glEnableVertexAttribArray(curLayout);
-        }
-
-        Utils::CheckGlError("启用Shader");
-    }
-    
-    void Shader::Use0(const Mesh* mesh) const
-    {
-        glUseProgram(glShaderId);
-
-        for (const auto& [attr, shaderVertexLayout] : vertexLayout)
-        {
-            auto it = mesh->vertexAttribInfo.find(attr);
-            if (it == mesh->vertexAttribInfo.end())
-            {
-                glDisableVertexAttribArray(shaderVertexLayout.location);
-                continue;
-            }
-
-            const auto& meshVertexLayout = it->second;
-
-            glVertexAttribPointer(
-                shaderVertexLayout.location,
-                static_cast<GLint>(VERTEX_ATTR_STRIDE[attr]),
-                GL_FLOAT,
-                GL_FALSE,
-                static_cast<GLsizei>(mesh->vertexDataStride),
-                reinterpret_cast<const void*>(meshVertexLayout.offset));
-            glEnableVertexAttribArray(shaderVertexLayout.location);
-        }
-
-        Utils::CheckGlError("启用Shader");
-    }
-
     const Shader::UniformInfo& Shader::GetUniformInfo(const size_t nameId) const
     {
         auto it = uniforms.find(nameId);
@@ -211,144 +150,17 @@ namespace op
         }
     }
 
-    vector<string> Shader::LoadFileToLines(const string& realAssetPath)
-    {
-        ifstream fs;
-        fs.exceptions(ifstream::failbit | ifstream::badbit);
-        stringstream ss;
-        try
-        {
-            fs.open(realAssetPath);
-            ss << fs.rdbuf();
-        }
-        catch(exception&)
-        {
-            Utils::LogError("读取文件失败：" + realAssetPath);
-            throw;
-        }
-        fs.close();
-        
-        vector<string> lines;
-        string line;
-        while(getline(ss, line, '\n'))
-        {
-            lines.push_back(line);
-        }
-
-        return lines;
-    }
-
-    void Shader::DivideGlsl(const vector<string>& lines, vector<string>& vertLines, vector<string>& fragLines)
-    {
-        int divideIndex[2];
-        int curIndex = 0;
-        for (int i = 0; i < lines.size(); ++i)
-        {
-            if(lines[i].find("#version") != string::npos)
-            {
-                divideIndex[curIndex] = i;
-                curIndex ++;
-                if(curIndex == 2)
-                {
-                    break;
-                }
-            }
-        }
-
-        if(curIndex != 2)
-        {
-            throw runtime_error("GLSL文件需求两个#version，但只找到" + to_string(curIndex) + "个");
-        }
-
-        for(int i = divideIndex[0]; i < divideIndex[1]; ++i)
-        {
-            vertLines.push_back(lines[i]);
-        }
-        
-        for(int i = divideIndex[1]; i < lines.size(); ++i)
-        {
-            fragLines.push_back(lines[i]);
-        }
-    }
-
-    void Shader::ReplaceIncludes(const string& curFilePath, vector<string>& lines)
-    {
-        unordered_set<string> hasInclude;
-        hasInclude.insert(curFilePath);
-        for (int i = 0; i < lines.size(); ++i)
-        {
-            // 如果当前行不是include就继续找
-            auto line = lines[i];
-            regex pattern("^\\s*#include\\s+\"([^\"]+)\"\\s*$");
-            smatch matches;
-            if(!regex_match(line, matches, pattern))
-            {
-                continue;
-            }
-
-            // 当前行是include
-            auto includePath = matches[1].str();
-            lines.erase(lines.begin() + i);
-            if(hasInclude.find(includePath) != hasInclude.end())
-            {
-                // 这个文件已经include过了
-                i--;
-                continue;
-            }
-            hasInclude.insert(includePath);
-            auto includeLines = LoadFileToLines(Utils::GetAbsolutePath(includePath));
-            lines.insert(lines.begin() + i, includeLines.begin(), includeLines.end());
-            i--;
-        }
-    }
-
-    void Shader::AddBuiltInMarcos(std::vector<std::string>& lines, const std::vector<std::string>& marcos)
-    {
-        for (const auto& marco : marcos)
-        {
-            std::stringstream ss;
-            ss << "#define " << marco;
-            lines.insert(lines.begin() + 1, ss.str());
-        }
-    }
-
-    Shader* Shader::LoadFromFile(const string& glslPath)
+    Shader* Shader::LoadFromFile(const string& path)
     {
         {
             SharedObject* result;
-            if(TryGetResource(glslPath, result))
+            if(TryGetResource(path, result))
             {
                 return dynamic_cast<Shader*>(result);
             }
         }
 
-        string vSource, fSource;
-        vector<string> glslLines = LoadFileToLines(Utils::GetAbsolutePath(glslPath));
-        vector<string> vertLines;
-        vector<string> fragLines;
-
-        DivideGlsl(glslLines, vertLines, fragLines);
-        
-        try
-        {
-            ReplaceIncludes(glslPath, vertLines);
-            AddBuiltInMarcos(vertLines, { "VERT_SHADER" });
-            
-            ReplaceIncludes(glslPath, fragLines);
-            AddBuiltInMarcos(fragLines, { "FRAG_SHADER" });
-
-            vSource = Utils::JoinStrings(vertLines, "\n");
-            fSource = Utils::JoinStrings(fragLines, "\n");
-        }
-        catch (exception &e)
-        {
-            stringstream ss;
-            ss << Utils::FormatLog(Error, glslPath) << "\n";
-            ss << Utils::FormatLog(Error, "访问shader文件失败") << e.what();
-            throw runtime_error(ss.str());
-        }
-
-        return LoadFromFile(vSource, fSource, glslPath);
+        THROW_ERROR("Shader未在pack中找到：%s", path.c_str())
     }
     
     Shader* Shader::LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath)
@@ -374,13 +186,13 @@ namespace op
         glDeleteShader(vertexShader);
         glDeleteShader(fragShader);
 
-        Utils::CheckGlError("创建Shader");
+        GL_CHECK_ERROR(创建Shader)
 
         auto result = new Shader();
         result->glShaderId = glShaderId;
         result->uniforms = LoadUniforms(glShaderId);
         RegisterResource(glslPath, result);
-        Utils::LogInfo("成功载入Shader " + glslPath);
+        log_info("成功载入Shader " + glslPath);
         return result;
     }
 
@@ -423,8 +235,11 @@ namespace op
         result->LoadTextures(vertCompilerGlsl, vertShaderResources);
         result->LoadTextures(fragCompilerGlsl, fragShaderResources);
 
-        Utils::Log(Info, "%s ", vSource.c_str());
-        Utils::Log(Info, "%s ", fSource.c_str());
+        if (path.find("skybox") != std::string::npos)
+        {
+            log_info(vSource);
+            log_info(fSource);
+        }
 
         return result;
     }
@@ -466,7 +281,7 @@ namespace op
         std::ifstream file(absolutePath.c_str(), std::ios::binary);
         if (!file)
         {
-            throw std::runtime_error("打开 SPIR-V 文件失败");
+            THROW_ERROR("打开 SPIR-V 文件失败")
         }
         
         file.seekg(0, std::ios::end);
@@ -475,7 +290,7 @@ namespace op
         
         if (size % sizeof(uint32_t) != 0)
         {
-            throw std::runtime_error("SPIR-V file 大小不正确");
+            THROW_ERROR("SPIR-V file 大小不正确")
         }
         
         std::vector<uint32_t> spirv(size / sizeof(uint32_t));
@@ -490,7 +305,7 @@ namespace op
             auto found = false;
             for (const auto& [attr, attrName] : VERTEX_ATTR_NAME)
             {
-                if (!Utils::EndsWith(stageInput.name, attrName))
+                if (!ends_with(stageInput.name, attrName))
                 {
                     continue;
                 }
@@ -504,7 +319,7 @@ namespace op
 
             if (!found)
             {
-                throw runtime_error( Utils::FormatString("无法找到顶点属性 %s", stageInput.name.c_str()));
+                throw runtime_error(format_string("无法找到顶点属性 %s", stageInput.name.c_str()));
             }
         }
     }
@@ -552,13 +367,13 @@ namespace op
             {
                 textureType = GL_TEXTURE_2D;
             }
-            else if (type.image.dim != spv::DimCube)
+            else if (type.image.dim == spv::DimCube)
             {
                 textureType = GL_TEXTURE_CUBE_MAP;
             }
             else
             {
-                throw std::runtime_error("不支持的纹理类型");
+                THROW_ERROR("不支持的纹理类型")
             }
 
             uint32_t location = glGetUniformLocation(glShaderId, image.name.c_str());
@@ -571,7 +386,7 @@ namespace op
         const spirv_cross::Resource& uniformBuffer)
     {
         auto uniformBufferNameId = StringHandle(uniformBuffer.name).Hash();
-        if (auto predefinedMaterial = GameResource::GetInstance()->GetPredefinedMaterial(uniformBufferNameId))
+        if (auto predefinedMaterial = GameResource::Ins()->GetPredefinedMaterial(uniformBufferNameId))
         {
             if (!predefinedMaterial->HasCBuffer())
             {

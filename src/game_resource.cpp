@@ -1,28 +1,24 @@
 #include "game_resource.h"
 #include "const.h"
+#include "shared_object.h"
 
 namespace op
 {
     GameResource::GameResource()
     {
-        for (const auto& nameId : PREDEFINED_MATERIALS)
-        {
-            auto mat = new MaterialNew();
-            INCREF(mat);
-            
-            m_predefinedMaterials[nameId] = mat;
-        }
     }
 
     GameResource::~GameResource()
     {
-        for (auto& [nameId, mat] : m_predefinedMaterials)
-        {
-            DECREF(mat);
-        }
+        
     }
 
-    MaterialNew* GameResource::GetPredefinedMaterial(const size_t nameId)
+    void GameResource::SubmitPredefinedMaterial(const size_t nameId, Material* material)
+    {
+        m_predefinedMaterials[nameId] = material;
+    }
+
+    Material* GameResource::GetPredefinedMaterial(const size_t nameId)
     {
         auto it = m_predefinedMaterials.find(nameId);
         if (it != m_predefinedMaterials.end())

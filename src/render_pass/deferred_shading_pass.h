@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "material.h"
 #include "render_pass.h"
 
 namespace op
@@ -19,7 +20,6 @@ namespace op
         RenderTexture* m_shadingRt = nullptr;
         RenderTexture* m_tempPpRt0 = nullptr;
         RenderTexture* m_tempPpRt1 = nullptr;
-        Mesh* m_quadMesh = nullptr;
         Material* m_deferredShadingMat = nullptr;
     };
 }

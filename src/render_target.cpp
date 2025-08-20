@@ -260,12 +260,12 @@ namespace op
             }
             else if(width != rt->width || height != rt->height)
             {
-                throw std::runtime_error("绑定Attachments时出错，RenderTexture[" + rt->desc.name + "]的尺寸不一致");
+                THROW_ERROR("绑定Attachments时出错，RenderTexture[%s]的尺寸不一致", rt->desc.name.c_str())
             }
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
-        Utils::CheckGlError("绑定FrameBuffer");
+        GL_CHECK_ERROR(绑定FrameBuffer)
 
         // 绑定color attachment
         for (auto colorAttachment : m_colorAttachments)
@@ -276,7 +276,7 @@ namespace op
                 GL_TEXTURE_2D,
                 colorAttachment->renderTexture->glTextureId,
                 0);
-            Utils::CheckGlError("指定FrameBuffer附件");
+            GL_CHECK_ERROR(指定FrameBuffer附件)
         }
 
         // 绑定depth attachment
@@ -328,7 +328,7 @@ namespace op
         }
 
         result->name = desc.name;
-        result->m_lastUseFrame = GameResource::GetInstance()->time.frame;
+        result->m_lastUseFrame = GameResource::Ins()->time.frame;
         if (result->m_dirty)
         {
             result->RebindAttachments();
@@ -348,7 +348,7 @@ namespace op
         auto frameBufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if(frameBufferStatus != GL_FRAMEBUFFER_COMPLETE)
         {
-            throw std::runtime_error("FrameBufferAttachment绑定失败：" + std::to_string(frameBufferStatus));
+            THROW_ERROR("FrameBufferAttachment绑定失败：%s", std::to_string(frameBufferStatus).c_str())
         }
     }
 
@@ -370,7 +370,7 @@ namespace op
 
     void RenderTarget::ClearUnusedRenderTargets()
     {
-        int curFrame = GameResource::GetInstance()->time.frame;
+        int curFrame = GameResource::Ins()->time.frame;
         if (curFrame - m_lastClearFrame < m_renderTargetTimeout)
         {
             return;

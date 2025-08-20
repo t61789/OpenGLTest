@@ -3,7 +3,7 @@
 #include <tracy/Tracy.hpp>
 
 #include "scene.h"
-#include "material.h"
+
 #include "render_target.h"
 #include "rendering_utils.h"
 #include "objects/light_comp.h"
@@ -41,8 +41,8 @@ namespace op
         
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
 
-        Material::SetGlobalFloatValue(EXPOSURE_MULTIPLIER, scene->tonemappingExposureMultiplier);
+        GET_GLOBAL_CBUFFER->Set(EXPOSURE_MULTIPLIER, scene->tonemappingExposureMultiplier); // TODO
     
-        RenderingUtils::RenderScene(*m_renderContext, m_renderContext->visibleRenderObjs, m_buffer);
+        RenderingUtils::RenderScene(m_renderContext->visibleRenderObjs);
     }
 }

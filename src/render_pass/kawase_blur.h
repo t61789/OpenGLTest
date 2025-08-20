@@ -22,6 +22,6 @@ namespace op
     private:
         int m_iteration = 2;
     
-        Material* m_kawaseBlitMat = nullptr;
+        // Material* m_kawaseBlitMat = nullptr;
     };
 }

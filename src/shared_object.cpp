@@ -57,7 +57,7 @@ namespace op
         {
             return;
         }
-        assert(it != m_reference.end() && Utils::FormatString("DecRef时，key不存在，物体 %s，类型 %s, key %s", filePath.CStr(), typeid(*this).name(), key.c_str()).c_str());
+        assert(it != m_reference.end() && format_string("DecRef时，key不存在，物体 %s，类型 %s, key %s", filePath.CStr(), typeid(*this).name(), key.c_str()).c_str());
         
         auto val = it->second - 1;
         if (val <= 0)
@@ -84,7 +84,7 @@ namespace op
         }
         else
         {
-            throw std::runtime_error("Resource already exists");
+            THROW_ERROR("Resource already exists")
         }
         obj->filePath = path;
     }

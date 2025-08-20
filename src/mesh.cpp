@@ -7,6 +7,8 @@
 #include "assimp\postprocess.h"
 #include <fstream>
 
+#include "render_context.h"
+
 namespace op
 {
     static void CopyDataTo(
@@ -31,91 +33,6 @@ namespace op
         }
     }
 
-    Mesh* Mesh::CreateMesh(
-        const Bounds& bounds,
-        const float* position,
-        const float* normal,
-        const float* uv0,
-        const float* color,
-        const unsigned int* indices,
-        const uint32_t verticesCount,
-        const uint32_t indicesCount,
-        const std::string& name)
-    {
-        const float* vertexAttribSource[] = {
-            position,
-            normal,
-            uv0,
-            color
-        };
-
-        // 根据是否提供了对应属性数组的指针来计算顶点数据的步长
-        // 并记录每一个属性在一个步长中的偏移值
-        constexpr auto vertexAttribNum = std::size(vertexAttribSource);
-        auto vertexDataFloatNum = 0;
-        bool vertexAttribEnabled[vertexAttribNum];
-        int vertexAttribOffset[vertexAttribNum] = {};
-        for (int i = 0; i < vertexAttribNum; ++i)
-        {
-            vertexAttribEnabled[i] = vertexAttribSource[i] != nullptr;
-            if(vertexAttribEnabled[i])
-            {
-                vertexAttribOffset[i] = vertexDataFloatNum;
-                vertexDataFloatNum += VERTEX_ATTRIB_FLOAT_COUNT[i];
-            }
-        }
-        int vertexDataSumSize = vertexDataFloatNum * verticesCount;
-
-        // 将多个独立存储属性的数组合并成一个属性交叉的顶点数据数组
-        auto data = new float[vertexDataSumSize];
-        for (int i = 0; i < vertexAttribNum; ++i)
-        {
-            if(vertexAttribEnabled[i])
-            {
-                CopyDataTo(
-                    vertexAttribSource[i],
-                    data,
-                    vertexAttribOffset[i],
-                    VERTEX_ATTRIB_FLOAT_COUNT[i],
-                    verticesCount,
-                    vertexDataFloatNum);
-            }
-        }
-
-        // 将顶点数据传入OpenGL中
-        GLuint VAO, VBO, EBO;
-        
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
-
-        glBindVertexArray(VAO);
-        
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexDataSumSize * sizeof(float)), data, GL_STATIC_DRAW);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indicesCount * sizeof(int)), indices, GL_STATIC_DRAW);
-        
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        
-        delete[] data;
-
-        auto result = new Mesh();
-        result->bounds = bounds;
-        result->vao = VAO;
-        result->vbo = VBO;
-        result->ebo = EBO;
-        result->vertexDataFloatNum = vertexDataFloatNum;
-        result->vertexCount = verticesCount;
-        result->indicesCount = indicesCount;
-        result->name = name;
-        std::memcpy(&result->vertexAttribEnabled, &vertexAttribEnabled, sizeof(vertexAttribEnabled));
-        std::memcpy(&result->vertexAttribOffset, &vertexAttribOffset, sizeof(vertexAttribOffset));
-        return result;
-    }
-
     Mesh::~Mesh()
     {
         glDeleteVertexArrays(1, &vao);
@@ -124,131 +41,6 @@ namespace op
     }
 
     Mesh* Mesh::LoadFromFile(const std::string& modelPath)
-    {
-        {
-            SharedObject* result;
-            if(TryGetResource(modelPath, result))
-            {
-                return dynamic_cast<Mesh*>(result);
-            }
-        }
-        
-        float init_scale;
-        bool flip_winding_order;
-        GetMeshLoadConfig(modelPath, init_scale, flip_winding_order);
-        
-        Assimp::Importer importer;
-        importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, init_scale);
-
-        unsigned int pFlags = 
-            aiProcess_Triangulate |
-            aiProcess_GenSmoothNormals |
-            aiProcess_GlobalScale;
-
-        if (flip_winding_order)
-        {
-            pFlags |= aiProcess_FlipWindingOrder;
-        }
-        
-        const aiScene *scene = importer.ReadFile(Utils::GetAbsolutePath(modelPath).c_str(), pFlags);
-        
-        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-        {
-            throw std::runtime_error(std::string("ERROR>> Load model failed: ") + importer.GetErrorString());
-        }
-
-        auto mesh = scene->mMeshes[0];
-        auto verticesCount = mesh->mNumVertices;
-
-        // Load positionOS
-        auto boundsMin = Vec3(std::numeric_limits<float>::max());
-        auto boundsMax = Vec3(std::numeric_limits<float>::min());
-        std::vector<float> positionOSContainer;
-        for (uint32_t i = 0; i < verticesCount; ++i)
-        {
-            auto x = mesh->mVertices[i].x;
-            auto y = mesh->mVertices[i].y;
-            auto z = mesh->mVertices[i].z;
-            
-            boundsMin.x = std::min(boundsMin.x, x);
-            boundsMin.y = std::min(boundsMin.y, y);
-            boundsMin.z = std::min(boundsMin.z, z);
-            boundsMax.x = std::max(boundsMax.x, x);
-            boundsMax.y = std::max(boundsMax.y, y);
-            boundsMax.z = std::max(boundsMax.z, z);
-            
-            positionOSContainer.push_back(x);
-            positionOSContainer.push_back(y);
-            positionOSContainer.push_back(z);
-        }
-        auto positionOSData = positionOSContainer.data();
-
-        // Load normalOS
-        float* normalOSData = nullptr;
-        std::vector<float> normalsContainer;
-        if(mesh->mNormals)
-        {
-            for (uint32_t i = 0; i < verticesCount; ++i)
-            {
-                normalsContainer.push_back(mesh->mNormals[i].x);
-                normalsContainer.push_back(mesh->mNormals[i].y);
-                normalsContainer.push_back(mesh->mNormals[i].z);
-            }
-            normalOSData = normalsContainer.data();
-        }
-
-        // Load UV0
-        float* uv0Data = nullptr;
-        std::vector<float> uv0Container;
-        if(mesh->HasTextureCoords(0))
-        {
-            for (uint32_t i = 0; i < verticesCount; ++i)
-            {
-                uv0Container.push_back(mesh->mTextureCoords[0][i].x);
-                uv0Container.push_back(mesh->mTextureCoords[0][i].y);
-            }
-            uv0Data = uv0Container.data();
-        }
-
-        // Load indices
-        std::vector<unsigned int> indicesContainer;
-        for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
-        {
-            auto face = mesh->mFaces[i];
-            // std::string a;
-            for (uint32_t j = 0; j < face.mNumIndices; ++j)
-            {
-                indicesContainer.push_back(face.mIndices[j]);
-                // a += " " + std::to_string(face.mIndices[j]);
-            }
-            // Utils::LogInfo(a);
-        }
-        auto indicesData = indicesContainer.data();
-        auto indicesCount = static_cast<uint32_t>(indicesContainer.size());
-
-        auto bounds = Bounds((boundsMax + boundsMin) * 0.5f, (boundsMax - boundsMin) * 0.5f);
-        bounds.extents = max(bounds.extents, Vec3(0.01f));
-
-        auto result = CreateMesh(
-            bounds,
-            positionOSData,
-            normalOSData,
-            uv0Data,
-            nullptr,
-            indicesData,
-            verticesCount,
-            indicesCount,
-            modelPath);
-        RegisterResource(modelPath, result);
-        auto msg = "成功载入Mesh " + modelPath + "\n";
-        msg += "\t顶点数量 " + std::to_string(verticesCount) + "\n";
-        msg += "\t三角形数量 " + std::to_string(indicesCount / 3) + "\n";
-        msg += "\t包围盒 c:" + bounds.center.ToString() + " e:" + bounds.extents.ToString();
-        Utils::LogInfo(msg);
-        return result;
-    }
-    
-    Mesh* Mesh::LoadFromFile0(const std::string& modelPath)
     {
         {
             SharedObject* result;
@@ -289,7 +81,7 @@ namespace op
             vertexData.push_back(positionOS.x);
             vertexData.push_back(positionOS.y);
             vertexData.push_back(positionOS.z);
-            if (VERTEX_ATTR_STRIDE[VertexAttr::POSITION_OS] > 3)
+            if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::POSITION_OS)->stride > 3)
             {
                 vertexData.push_back(1.0f);
             }
@@ -300,7 +92,7 @@ namespace op
                 vertexData.push_back(mesh->mNormals[i].x);
                 vertexData.push_back(mesh->mNormals[i].y);
                 vertexData.push_back(mesh->mNormals[i].z);
-                if (VERTEX_ATTR_STRIDE[VertexAttr::NORMAL_OS] > 3)
+                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::NORMAL_OS)->stride > 3)
                 {
                     vertexData.push_back(0.0f);
                 }
@@ -312,7 +104,7 @@ namespace op
                 vertexData.push_back(mesh->mTangents[i].x);
                 vertexData.push_back(mesh->mTangents[i].y);
                 vertexData.push_back(mesh->mTangents[i].z);
-                if (VERTEX_ATTR_STRIDE[VertexAttr::TANGENT_OS] > 3)
+                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::TANGENT_OS)->stride > 3)
                 {
                     vertexData.push_back(1.0f);
                 }
@@ -329,7 +121,7 @@ namespace op
                 
                 vertexData.push_back(mesh->mTextureCoords[j][i].x);
                 vertexData.push_back(mesh->mTextureCoords[j][i].y);
-                if (VERTEX_ATTR_STRIDE[uvAttr[j]] > 2)
+                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, uvAttr[j])->stride > 3)
                 {
                     vertexData.push_back(0.0f);
                 }
@@ -359,16 +151,8 @@ namespace op
             modelPath);
         RegisterResource(modelPath, result);
         
-        Utils::LogInfo("成功载入Mesh: %s", modelPath.c_str());
+        log_info("成功载入Mesh: %s", modelPath.c_str());
         return result;
-    }
-
-    void Mesh::Use() const
-    {
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-        Utils::CheckGlError("启用Mesh");
     }
 
     std::unique_ptr<Assimp::Importer> Mesh::ImportFile(const std::string& modelPath)
@@ -394,7 +178,7 @@ namespace op
         
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
-            throw std::runtime_error(std::string("ERROR>> Load model failed: ") + importer->GetErrorString());
+            THROW_ERROR("Load model failed: %s", importer->GetErrorString())
         }
 
         return importer;
@@ -408,6 +192,8 @@ namespace op
         const uint32_t vertexCount,
         const std::string& name)
     {
+        auto vertexDataStride = static_cast<int>(vertexData.size() / vertexCount * sizeof(float));
+        
         // 将顶点数据传入OpenGL中
         GLuint vao, vbo, ebo;
         
@@ -415,16 +201,47 @@ namespace op
         glGenBuffers(1, &vbo);
         glGenBuffers(1, &ebo);
 
+        auto renderState = RenderState::Ins();
+        // renderState->SetVertexArray(vao);
         glBindVertexArray(vao);
         
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        renderState->BindBuffer(GL_ARRAY_BUFFER, vbo);
+        // glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexData.size() * sizeof(float)), vertexData.data(), GL_STATIC_DRAW);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+
+        renderState->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indices.size() * sizeof(int)), indices.data(), GL_STATIC_DRAW);
+
+        for (auto& [attr, attrInfo] : vertexAttribInfo)
+        {
+            auto slot = find_index(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, attr);
+            auto& attrDefine = VERTEX_ATTR_DEFINES[slot];
+            if (attrInfo.enabled)
+            {
+                glEnableVertexAttribArray(slot);
+                glVertexAttribPointer(
+                    slot,
+                    attrDefine.stride,
+                    GL_FLOAT,
+                    GL_FALSE,
+                    vertexDataStride,
+                    reinterpret_cast<const void*>(attrInfo.offset));
+            }
+            else
+            {
+                glDisableVertexAttribArray(slot);
+            }
+        }
         
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // // renderState->SetVertexArray(GL_NONE);
+        // glBindVertexArray(GL_NONE);
+        // // renderState->BindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+        // glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
+
+        GL_CHECK_ERROR(传输Mesh数据)
         
         auto result = new Mesh();
         result->bounds = bounds;
@@ -432,7 +249,7 @@ namespace op
         result->vbo = vbo;
         result->ebo = ebo;
         result->vertexCount = vertexCount;
-        result->vertexDataStride = static_cast<int>(vertexData.size() / vertexCount * sizeof(float));
+        result->vertexDataStride = vertexDataStride;
         result->indicesCount = static_cast<int>(indices.size());
         result->name = name;
         result->vertexAttribInfo = vertexAttribInfo;

@@ -1,4 +1,4 @@
 {
-	"shader":"shaders/skybox_shader.glsl",
+	"shader":"shaders/skybox.shader",
 	"cullMode":"Front"
 }

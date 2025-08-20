@@ -18,7 +18,7 @@ namespace op
         
         TextureBindingMgr();
 
-        std::vector<BindingInfo> BindTextures(const std::vector<Texture*>& textures);
+        const std::vector<BindingInfo>& BindTextures(const std::vector<Texture*>& textures);
 
     private:
         struct Slot

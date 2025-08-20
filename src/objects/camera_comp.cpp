@@ -42,8 +42,8 @@ namespace op
         float rotateSpeed = 125;
         float damp = 0.07f;
 
-        GameFramework* gameFramework = GameFramework::GetInstance();
-        auto deltaTime = GameResource::GetInstance()->time.deltaTime;
+        GameFramework* gameFramework = GameFramework::Ins();
+        auto deltaTime = GameResource::Ins()->time.deltaTime;
 
         if(gameFramework->KeyPressed(GLFW_KEY_LEFT_SHIFT))
         {

@@ -7,6 +7,8 @@
 
 namespace op
 {
+    #define THROW_ERROR(msg, ...) throw std::runtime_error(format_log(Error, msg, __VA_ARGS__));
+    
     #define PI 3.1415926535f
     #define DEG2RAD 0.0174532925f
     #define RAD2DEG 57.2957795f
@@ -42,6 +44,12 @@ namespace op
     SHADER_PARAM(THRESHOLD, _THRESHOLD);
     SHADER_PARAM(SHC, _Shc);
     SHADER_PARAM(MAIN_TEX, _MainTex);
+    SHADER_PARAM(GBUFFER_0_TEX, _GBuffer0Tex);
+    SHADER_PARAM(GBUFFER_1_TEX, _GBuffer1Tex);
+    SHADER_PARAM(GBUFFER_2_TEX, _GBuffer2Tex);
+    SHADER_PARAM(SHADING_BUFFER_TEX, _ShadingBufferTex);
+    SHADER_PARAM(SKYBOX_TEX, _SkyboxTex);
+    SHADER_PARAM(MAIN_LIGHT_SHADOW_MAP_TEX, _MainLightShadowMapTex);
     SHADER_PARAM(EXPOSURE_MULTIPLIER, _ExposureMultiplier);
     SHADER_PARAM(MAINLIGHT_SHADOW_VP, _MainLightShadowVP);
     SHADER_PARAM(ITERATIONS, _Iterations);
@@ -63,6 +71,22 @@ namespace op
         UV0,
         UV1,
         COUNT
+    };
+
+    struct VertexAttrDefine
+    {
+        VertexAttr attr;
+        uint32_t stride;
+        StringHandle name;
+    };
+
+    inline std::vector<VertexAttrDefine> VERTEX_ATTR_DEFINES =
+    {
+        {VertexAttr::POSITION_OS, 4, "positionOS"},
+        {VertexAttr::NORMAL_OS, 4, "normalOS"},
+        {VertexAttr::TANGENT_OS, 4, "tangentOS"},
+        {VertexAttr::UV0, 2, "uv0"},
+        {VertexAttr::UV1, 2, "uv1"},
     };
 
     inline std::unordered_map<VertexAttr, uint32_t> VERTEX_ATTR_STRIDE =

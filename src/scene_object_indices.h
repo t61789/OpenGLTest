@@ -4,6 +4,7 @@
 
 #include "object.h"
 #include "objects/comp.h"
+#include "utils.h"
 
 namespace op
 {
@@ -21,7 +22,7 @@ namespace op
         {
             if (m_comps.find(compName) == m_comps.end())
             {
-                throw std::runtime_error("Comp not found");
+                THROW_ERROR("Comp not found")
             }
 
             return reinterpret_cast<std::vector<T*>*>(&m_comps[compName]);

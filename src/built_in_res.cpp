@@ -4,45 +4,57 @@
 #include <sstream>
 
 #include "mesh.h"
-#include "material.h"
+
 #include "image.h"
 
 namespace op
 {
     BuiltInRes::BuiltInRes()
     {
+        for (const auto& nameId : PREDEFINED_MATERIALS)
+        {
+            auto mat = new Material();
+            INCREF(mat);
+
+            GameResource::Ins()->SubmitPredefinedMaterial(nameId, mat);
+            predefinedMaterials.push_back(mat);
+        }
+
         LoadPackedShaders();
         
-        quadMesh = Mesh::LoadFromFile("meshes/quad.obj");
+        quadMesh = Mesh::LoadFromFile("built_in/meshes/quad.obj");
         INCREF(quadMesh);
         sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
         INCREF(sphereMesh);
 
-        blitMat = Material::CreateEmptyMaterial("shaders/blit.glsl");
-        INCREF(blitMat);
-
-        blitMatNew = MaterialNew::LoadFromFile("built_in/materials/blit_mat.json");
+        blitMatNew = Material::LoadFromFile("built_in/materials/blit_mat.json");
         INCREF(blitMatNew);
 
         auto desc = ImageDescriptor::GetDefault();
         errorTex = Image::LoadFromFile("built_in/texture/error.png", desc);
         INCREF(errorTex);
+        whiteTex = Image::LoadFromFile("built_in/texture/white.png", desc);
+        INCREF(whiteTex);
+        blackTex = Image::LoadFromFile("built_in/texture/black.png", desc);
+        INCREF(blackTex);
+        missTex = Image::LoadFromFile("built_in/texture/miss.png", desc);
+        INCREF(missTex);
 
-        testMesh = Mesh::LoadFromFile0("built_in/meshes/quad.obj");
-        INCREF(testMesh);
         testShader = Shader::LoadFromFile("shaders/test.shader");
         INCREF(testShader);
-        testMaterial = Material::CreateEmptyMaterial(testShader, "TestMaterial");
-        testMaterial->cullMode = CullMode::None;
-        INCREF(testMaterial);
 
-        testMaterialNew = new MaterialNew();
+        testMaterialNew = new Material();
         INCREF(testMaterialNew);
-        testMaterialNew->SetShader(testShader);
+        testMaterialNew->BindShader(testShader);
     }
 
     BuiltInRes::~BuiltInRes()
     {
+        for (auto mat : predefinedMaterials)
+        {
+            DECREF(mat);
+        }
+        
         for (auto shader : m_packedShaders)
         {
             DECREF(shader);
@@ -50,23 +62,18 @@ namespace op
         
         DECREF(quadMesh);
         DECREF(sphereMesh);
-        DECREF(blitMat);
         DECREF(blitMatNew);
         DECREF(errorTex);
-        DECREF(testMesh);
+        DECREF(whiteTex);
+        DECREF(blackTex);
         DECREF(testShader);
-        DECREF(testMaterial);
         DECREF(testMaterialNew);
     }
 
     void BuiltInRes::LoadPackedShaders()
     {
         auto shaderPackPath = "shaders.pack";
-        
-        auto s = std::ifstream(Utils::GetAbsolutePath(shaderPackPath));
-        nlohmann::json json;
-        s >> json;
-        s.close();
+        auto json = Utils::LoadJson(shaderPackPath);
 
         for (auto& [path, shaderStr] : json.items())
         {

@@ -4,14 +4,15 @@
 #include <vector>
 #include <unordered_map>
 
+#include "utils.h"
 #include "math/math.h"
+#include "render/render_state.h"
 #include "render/texture_binding_mgr.h"
 
 namespace op
 {
     class CullModeMgr;
     class BlendModeMgr;
-    class Material;
     class RenderTargetDesc;
     class RenderTexture;
     class Scene;
@@ -20,7 +21,7 @@ namespace op
     class RenderComp;
     class LightComp;
 
-    class RenderContext
+    class RenderContext : public Singleton<RenderContext>
     {
     public:
         int screenWidth = 0;
@@ -32,7 +33,6 @@ namespace op
         Matrix4x4 pMatrix;
         Matrix4x4 vpMatrix;
         Vec3 cameraPositionWS;
-        Material* replaceMaterial = nullptr;
 
         LightComp* mainLight = nullptr;
 

@@ -90,7 +90,7 @@ namespace op
             glFormat,
             glType,
             0);
-        Utils::CheckGlError("创建纹理");
+        GL_CHECK_ERROR(创建纹理)
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrapModeToGLWrapMode[desc.wrapMode]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrapModeToGLWrapMode[desc.wrapMode]);

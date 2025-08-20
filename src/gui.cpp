@@ -55,12 +55,12 @@ namespace op
         auto width = renderContext->screenWidth;
         auto height = renderContext->screenHeight;
         
-        RenderPipeline::GetInstance()->GetScreenSize(width, height);
+        RenderPipeline::Ins()->GetScreenSize(width, height);
         auto screenSize = Vec2(static_cast<float>(width), static_cast<float>(height));
         
-        Utils::DebugDrawLine(Vec3::Zero(), Vec3::Right(), view, proj, screenSize, IM_COL32(255, 0, 0, 255));
-        Utils::DebugDrawLine(Vec3::Zero(), Vec3::Up(), view, proj, screenSize, IM_COL32(0, 255, 0, 255));
-        Utils::DebugDrawLine(Vec3::Zero(), Vec3::Forward(), view, proj, screenSize, IM_COL32(0, 0, 255, 255));
+        DebugDrawLine(Vec3::Zero(), Vec3::Right(), view, proj, screenSize, IM_COL32(255, 0, 0, 255));
+        DebugDrawLine(Vec3::Zero(), Vec3::Up(), view, proj, screenSize, IM_COL32(0, 255, 0, 255));
+        DebugDrawLine(Vec3::Zero(), Vec3::Forward(), view, proj, screenSize, IM_COL32(0, 0, 255, 255));
     }
 
     void Gui::DrawBounds(const RenderContext* renderContext)
@@ -78,11 +78,83 @@ namespace op
         auto screenSize = Vec2(static_cast<float>(width), static_cast<float>(height));
         for (auto const& renderComp : renderContext->visibleRenderObjs)
         {
-            Utils::DebugDrawCube(
+            DebugDrawCube(
                 renderComp->GetWorldBounds(),
                 view,
                 proj,
                 screenSize);
+        }
+    }
+    
+    // 封装的绘制线条函数
+    void Gui::DebugDrawLine(const Vec3& worldStart, const Vec3& worldEnd, 
+                       const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, 
+                       const Vec2& screenSize, 
+                       ImU32 color, float thickness)
+    {
+        auto drawList = ImGui::GetBackgroundDrawList();
+        
+        // 转换世界坐标到屏幕坐标
+        auto screenStart = world_to_screen(worldStart, viewMatrix, projMatrix, screenSize);
+        auto screenEnd = world_to_screen(worldEnd, viewMatrix, projMatrix, screenSize);
+
+        if(screenStart.z < 0 || screenEnd.z < 0)
+        {
+            return;
+        }
+
+        float x0 = screenStart.x, y0 = screenStart.y, x1 = screenEnd.x, y1 = screenEnd.y;
+
+        auto inScreen = cohen_sutherland_clip(x0, y0, x1, y1, 0, 0, screenSize.x, screenSize.y);
+        if(!inScreen)
+        {
+            return;
+        }
+
+        // 使用 ImGui 的绘图 API 绘制线条
+        drawList->AddLine(ImVec2(x0, y0), ImVec2(x1, y1), color, thickness);
+    }
+
+    void Gui::DebugDrawCube(
+        const Bounds& bounds,
+        const Matrix4x4& viewMatrix,
+        const Matrix4x4& projMatrix,
+        const Vec2& screenSize,
+        ImU32 color,
+        float thickness)
+    {
+        // 计算八个顶点
+        std::array<Vec3, 8> vertices =
+        {
+            bounds.center + Vec3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
+            bounds.center + Vec3( bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
+            bounds.center + Vec3( bounds.extents.x,  bounds.extents.y, -bounds.extents.z),
+            bounds.center + Vec3(-bounds.extents.x,  bounds.extents.y, -bounds.extents.z),
+            bounds.center + Vec3(-bounds.extents.x, -bounds.extents.y,  bounds.extents.z),
+            bounds.center + Vec3( bounds.extents.x, -bounds.extents.y,  bounds.extents.z),
+            bounds.center + Vec3( bounds.extents.x,  bounds.extents.y,  bounds.extents.z),
+            bounds.center + Vec3(-bounds.extents.x,  bounds.extents.y,  bounds.extents.z)
+        };
+
+        // 定义12条边 [11]()
+        const std::array<std::pair<int, int>, 12> edges =
+        {{
+            {0,1}, {1,2}, {2,3}, {3,0}, // 底面 
+            {4,5}, {5,6}, {6,7}, {7,4}, // 顶面
+            {0,4}, {1,5}, {2,6}, {3,7}  // 侧面连接 
+        }};
+
+        // 绘制所有边
+        for (const auto& [start, end] : edges)
+        {
+            DebugDrawLine(
+                vertices[start],
+                vertices[end],
+                viewMatrix,
+                projMatrix,
+                screenSize,
+                color,
+                thickness);
         }
     }
 

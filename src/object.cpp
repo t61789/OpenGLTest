@@ -103,7 +103,7 @@ namespace op
             curObj = curObj->parent;
         }
 
-        return Utils::JoinStrings(std::vector<std::string>(path.rbegin(), path.rend()), "/");
+        return join(path, "/");
     }
 
     bool Object::HasComp(const std::string& compName)

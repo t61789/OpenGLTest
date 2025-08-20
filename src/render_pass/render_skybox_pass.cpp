@@ -4,7 +4,7 @@
 
 #include "shared_object.h"
 #include "image.h"
-#include "material.h"
+
 #include "mesh.h"
 #include "render_target.h"
 #include "rendering_utils.h"
@@ -20,9 +20,9 @@ namespace op
         desc.needFlipVertical = false;
         m_skyboxCubeTexture = Image::LoadCubeFromFile("built_in/texture/skybox", "png", desc);
         INCREF(m_skyboxCubeTexture);
-        Material::SetGlobalTextureValue("_SkyboxTex", m_skyboxCubeTexture);
         m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
         INCREF(m_sphereMesh);
+        GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER)->Set(SKYBOX_TEX, m_skyboxCubeTexture);
         m_skyboxMat = Material::LoadFromFile("materials/skybox_mat.json");
         INCREF(m_skyboxMat);
     }
@@ -53,6 +53,6 @@ namespace op
     
         auto m = Matrix4x4::TRS(camera->owner->transform->GetWorldPosition(), Quaternion::Identity(), Vec3::One());
 
-        RenderingUtils::RenderMesh(*m_renderContext, m_sphereMesh, m_skyboxMat, m);
+        RenderingUtils::RenderMesh(m_sphereMesh, m_skyboxMat, m, Matrix4x4::Identity());
     }
 }

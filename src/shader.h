@@ -75,8 +75,6 @@ namespace op
         std::unordered_map<size_t, TextureInfo> textures;
         std::unordered_map<size_t, CBufferLayout*> cbuffers;
 
-        void Use(const Mesh* mesh) const;
-        void Use0(const Mesh* mesh) const;
         const UniformInfo& GetUniformInfo(size_t nameId) const;
         bool HasParam(const size_t& nameId) const;
         
@@ -98,7 +96,7 @@ namespace op
         template <typename T>
         void SetVal(size_t nameId, T value);
 
-        static Shader* LoadFromFile(const std::string& glslPath);
+        static Shader* LoadFromFile(const std::string& path);
         static Shader* LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath = NOT_A_FILE);
         static Shader* LoadFromSpvBase64(const std::string& vert, const std::string& frag, const std::string& path = NOT_A_FILE);
         static Shader* LoadFromSpvBinary(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path = NOT_A_FILE);
@@ -114,10 +112,6 @@ namespace op
         void SetVal(size_t nameId, T value, T UniformInfo::* valueField, const std::function<void(int, T)>& glSetValue);
 
         static std::unordered_map<size_t, UniformInfo> LoadUniforms(GLuint program);
-        static std::vector<std::string> LoadFileToLines(const std::string& realAssetPath);
-        static void DivideGlsl(const std::vector<std::string>& lines, std::vector<std::string>& vertLines, std::vector<std::string>& fragLines);
-        static void ReplaceIncludes(const std::string& curFilePath, std::vector<std::string>& lines);
-        static void AddBuiltInMarcos(std::vector<std::string>& lines, const std::vector<std::string>& marcos);
         static std::vector<uint32_t> LoadSpvFileData(const std::string& absolutePath);
         static bool TryCreatePredefinedCBuffer(const spirv_cross::CompilerGLSL& compiler, const spirv_cross::Resource& uniformBuffer);
         static void CombineSeparateTextures(spirv_cross::CompilerGLSL& compiler);

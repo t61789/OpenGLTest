@@ -141,7 +141,7 @@
                         {
                             "name": "RenderComp",
                             "mesh": "meshes/smooth_cube.obj",
-                            "material": "materials/standard_mat.json"
+                            "material": "materials/lit_mat.json"
                         }
                     ]
                 }
@@ -171,7 +171,7 @@
                 {
                     "name": "RenderComp",
                     "mesh": "meshes/quad.obj",
-                    "material": "materials/standard_mat.json"
+                    "material": "materials/lit_mat.json"
                 }
             ]
         }

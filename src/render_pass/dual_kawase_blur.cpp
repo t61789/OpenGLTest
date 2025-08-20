@@ -5,25 +5,25 @@
 #include "imgui.h"
 
 #include "render_texture.h"
-#include "material.h"
+
 #include "rendering_utils.h"
 
 namespace op
 {
     DualKawaseBlur::DualKawaseBlur(RenderContext* renderContext) : RenderPass(renderContext)
     {
-        m_downsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_downsample.glsl");
-        INCREF(m_downsampleMat);
-        m_upsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_upsample.glsl");
-        INCREF(m_upsampleMat);
+        // m_downsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_downsample.glsl"); // TODO
+        // INCREF(m_downsampleMat);
+        // m_upsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_upsample.glsl");
+        // INCREF(m_upsampleMat);
     }
 
     DualKawaseBlur::~DualKawaseBlur()
     {
         ReleaseRt();
 
-        DECREF(m_downsampleMat);
-        DECREF(m_upsampleMat);
+        // DECREF(m_downsampleMat);
+        // DECREF(m_upsampleMat); // TODO
     }
 
     std::string DualKawaseBlur::GetName()
@@ -44,8 +44,8 @@ namespace op
 
         UpdateRt(shadingRt);
 
-        m_downsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize));
-        m_upsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize));
+        // m_downsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize)); // TODO
+        // m_upsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize));
 
         for (int i = 0; i < m_blurTextures.size(); ++i)
         {
@@ -54,16 +54,16 @@ namespace op
             if (i == 0)
             {
                 from = shadingRt;
-                m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 1);
-                m_downsampleMat->SetFloatValue(THRESHOLD, m_threshold);
+                // m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 1);
+                // m_downsampleMat->SetFloatValue(THRESHOLD, m_threshold); TODO
             }
             else
             {
                 from = m_blurTextures[i - 1];
-                m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 0);
+                // m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 0);
             }
 
-            RenderingUtils::Blit(from, to, m_downsampleMat);
+            // RenderingUtils::Blit(from, to, m_downsampleMat); TODO
         }
 
         for (int i = static_cast<int>(m_blurTextures.size()) - 1; i > 0; --i)
@@ -71,7 +71,7 @@ namespace op
             auto from = m_blurTextures[i];
             auto to = m_blurTextures[i - 1];
         
-            RenderingUtils::Blit(from, to, m_upsampleMat);
+            // RenderingUtils::Blit(from, to, m_upsampleMat); TODO
         
             // glEnable(GL_BLEND);
             // glBlendFunc(GL_ONE, GL_ONE);
@@ -82,7 +82,7 @@ namespace op
     
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
-        RenderingUtils::Blit(m_blurTextures.front(), shadingRt);
+        // RenderingUtils::Blit(m_blurTextures.front(), shadingRt); // TODO
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_BLEND);
     }

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "material.h"
 #include "render_pass.h"
 
 namespace op

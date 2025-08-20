@@ -4,6 +4,7 @@
 
 #include "scene.h"
 #include "render_target.h"
+
 #include "material.h"
 #include "render_texture.h"
 #include "shared_object.h"
@@ -17,8 +18,8 @@ namespace op
 {
     MainLightShadowPass::MainLightShadowPass(RenderContext* renderContext) : RenderPass(renderContext)
     {
-        m_drawShadowMat = Material::CreateEmptyMaterial("shaders/draw_shadow.glsl");
-        INCREF(m_drawShadowMat);
+        // m_drawShadowMat = MaterialNew::CreateFromShader("shaders/draw_shadow."); // TODO
+        // INCREF(m_drawShadowMat);
     }
 
     MainLightShadowPass::~MainLightShadowPass()
@@ -28,7 +29,7 @@ namespace op
             m_renderContext->UnRegisterRt(m_mainLightShadowRt);
             DECREF(m_mainLightShadowRt);
         }
-        DECREF(m_drawShadowMat);
+        // DECREF(m_drawShadowMat);
     }
 
     std::string MainLightShadowPass::GetName()
@@ -81,18 +82,18 @@ namespace op
         shadowCameraToWorld[2][3] = shadowCameraPositionWS.z;
         worldToShadowCamera = shadowCameraToWorld.Inverse();
     
-        auto projMatrix = Utils::CreateOrthoProjection(range, -range, range, -range, 2 * range2, 0.05f);
+        auto projMatrix = create_ortho_projection(range, -range, range, -range, 2 * range2, 0.05f);
         m_renderContext->SetViewProjMatrix(worldToShadowCamera, projMatrix); // TODO push
 
-        Material::SetGlobalMat4Value(MAINLIGHT_SHADOW_VP, projMatrix * worldToShadowCamera);
+        GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER)->Set(MAINLIGHT_SHADOW_VP, projMatrix * worldToShadowCamera); // TODO
 
         auto renderTarget = RenderTarget::Get(nullptr, m_mainLightShadowRt);
         renderTarget->Clear(1.0f);
         renderTarget->Use();
 
-        m_renderContext->replaceMaterial = m_drawShadowMat;
-        RenderingUtils::RenderScene(*m_renderContext, *m_renderContext->allRenderObjs, 0);
-        m_renderContext->replaceMaterial = nullptr;
+        // m_renderContext->replaceMaterial = m_drawShadowMat; // TODO
+        RenderingUtils::RenderScene(*m_renderContext->allRenderObjs);
+        // m_renderContext->replaceMaterial = nullptr; TODO
 
         // 准备绘制参数
         m_renderContext->SetViewProjMatrix(camera);
@@ -112,7 +113,7 @@ namespace op
                     "_MainLightShadowMapTex"));
             INCREF(m_mainLightShadowRt);
             m_renderContext->RegisterRt(m_mainLightShadowRt);
-            Material::SetGlobalTextureValue("_MainLightShadowMapTex", m_mainLightShadowRt);
+            GET_GLOBAL_CBUFFER->Set(MAIN_LIGHT_SHADOW_MAP_TEX, m_mainLightShadowRt); // TODO
         }
         m_mainLightShadowRt->Resize(m_renderContext->mainLightShadowSize, m_renderContext->mainLightShadowSize);
     }

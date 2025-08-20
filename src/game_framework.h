@@ -31,6 +31,7 @@ namespace op
         GLFWwindow* m_window = nullptr;
 
         std::unique_ptr<Gui> m_gui = nullptr;
+        std::unique_ptr<RenderState> m_renderState = nullptr;
         std::unique_ptr<BuiltInRes> m_builtInRes = nullptr;
         std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
         std::unique_ptr<GameResource> m_gameResource = nullptr;
@@ -38,7 +39,7 @@ namespace op
         int m_screenWidth = 1600;
         int m_screenHeight = 900;
 
-        EventHandler m_setFrameBufferSizeHandler = 0;
+        EventHandler m_onFrameBufferResizeHandler = 0;
 
         Scene* m_scene = nullptr;
 
@@ -53,6 +54,6 @@ namespace op
         void BeforeUpdate();
         void Update();
         void Render() const;
-        void OnSetFrameBufferSize(GLFWwindow* window, int width, int height);
+        void OnSetFrameBufferResize(GLFWwindow* window, int width, int height);
     };
 }

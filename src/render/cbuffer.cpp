@@ -1,5 +1,6 @@
 #include "cbuffer.h"
 
+#include "render_context.h"
 #include "utils.h"
 
 namespace op
@@ -36,11 +37,12 @@ namespace op
         INCREF(this->layout);
         
         glGenBuffers(1, &glUbo);
-        glBindBuffer(GL_UNIFORM_BUFFER, glUbo);
+        auto renderState = RenderState::Ins();
+        renderState->BindBuffer(GL_UNIFORM_BUFFER, glUbo);
         glBufferData(GL_UNIFORM_BUFFER, static_cast<GLsizei>(layout->size), nullptr, layout->glUsage);
-        glBindBuffer(GL_UNIFORM_BUFFER, GL_NONE);
+        renderState->BindBuffer(GL_UNIFORM_BUFFER, GL_NONE);
 
-        Utils::CheckGlError("创建CBuffer");
+        GL_CHECK_ERROR(创建CBuffer)
     }
 
     CBuffer::~CBuffer()
@@ -67,21 +69,21 @@ namespace op
 
     void CBuffer::StartSync()
     {
-        glBindBuffer(GL_UNIFORM_BUFFER, glUbo);
+        RenderState::Ins()->BindBuffer(GL_UNIFORM_BUFFER, glUbo);
     }
 
-    void CBuffer::Sync(const SyncInfo& syncInfo)
+    void CBuffer::Sync(void* srcData, size_t dstOffset, size_t dstSize)
     {
-        glBufferSubData(GL_UNIFORM_BUFFER, syncInfo.dstParam->offset, static_cast<GLsizei>(syncInfo.dstParam->size), syncInfo.srcData);
+        glBufferSubData(GL_UNIFORM_BUFFER, dstOffset, static_cast<GLsizei>(dstSize), srcData);
     }
 
     void CBuffer::EndSync()
     {
-        glBindBuffer(GL_UNIFORM_BUFFER, GL_NONE);
+        RenderState::Ins()->BindBuffer(GL_UNIFORM_BUFFER, GL_NONE);
     }
 
     void CBuffer::Use()
     {
-        glBindBufferBase(GL_UNIFORM_BUFFER, layout->binding, glUbo);
+        RenderState::Ins()->BindBufferBase(layout->binding, GL_UNIFORM_BUFFER, glUbo);
     }
 }

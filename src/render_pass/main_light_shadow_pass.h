@@ -6,8 +6,6 @@ namespace op
     class MainLightShadowPass : public RenderPass
     {
     public:
-        Material* m_drawShadowMat = nullptr;
-
         explicit MainLightShadowPass(RenderContext* renderContext);
         ~MainLightShadowPass() override;
         std::string GetName() override;

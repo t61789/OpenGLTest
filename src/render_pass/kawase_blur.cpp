@@ -6,7 +6,7 @@
 
 #include "gui.h"
 #include "render_texture.h"
-#include "material.h"
+
 #include "rendering_utils.h"
 
 namespace op
@@ -21,14 +21,14 @@ namespace op
             Clamp));
         INCREF(rt);
 
-        m_kawaseBlitMat = Material::CreateEmptyMaterial("shaders/kawase_blit.glsl");
-        INCREF(m_kawaseBlitMat);
+        // m_kawaseBlitMat = Material::CreateEmptyMaterial("shaders/kawase_blit.glsl");
+        // INCREF(m_kawaseBlitMat); TODO
     }
 
     KawaseBlur::~KawaseBlur()
     {
         DECREF(rt);
-        DECREF(m_kawaseBlitMat);
+        // DECREF(m_kawaseBlitMat);
     }
 
     std::string KawaseBlur::GetName()
@@ -51,10 +51,10 @@ namespace op
 
         for (int i = 0; i < m_iteration; ++i)
         {
-            m_kawaseBlitMat->SetTextureValue(MAIN_TEX, rt0);
-            m_kawaseBlitMat->SetFloatValue(ITERATIONS, static_cast<float>(i));
+            // m_kawaseBlitMat->SetTextureValue(MAIN_TEX, rt0);
+            // m_kawaseBlitMat->SetFloatValue(ITERATIONS, static_cast<float>(i)); // TODO
 
-            RenderingUtils::Blit(rt0, rt1, m_kawaseBlitMat);
+            // RenderingUtils::Blit(rt0, rt1, m_kawaseBlitMat); // TODO
 
             auto temp = rt0;
             rt0 = rt1;
@@ -63,7 +63,7 @@ namespace op
 
         if (m_iteration % 2)
         {
-            RenderingUtils::Blit(rt0, shadingRt, nullptr);
+            // RenderingUtils::Blit(rt0, shadingRt, nullptr); // TODO
         }
     }
 

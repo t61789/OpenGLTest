@@ -1,7 +1,7 @@
 ﻿#include "render_comp.h"
 
 #include "mesh.h"
-#include "material.h"
+
 #include "object.h"
 #include "transform_comp.h"
 
@@ -31,9 +31,9 @@ namespace op
             DECREF(material);
         }
 
-        if (materialNew)
+        if (material)
         {
-            DECREF(materialNew);
+            DECREF(material);
         }
     }
 
@@ -42,14 +42,7 @@ namespace op
         if(objJson.contains("mesh"))
         {
             auto meshPath = objJson["mesh"].get<std::string>();
-            if (meshPath.find("beast") != std::string::npos)
-            {
-                mesh = Mesh::LoadFromFile0(meshPath);
-            }
-            else
-            {
-                mesh = Mesh::LoadFromFile(objJson["mesh"].get<std::string>());
-            }
+            mesh = Mesh::LoadFromFile(meshPath);
             if (mesh)
             {
                 INCREF(mesh);
@@ -59,21 +52,10 @@ namespace op
         if(objJson.contains("material"))
         {
             auto matPath = objJson["material"].get<std::string>();
-            if (matPath.find("lit_mat") != std::string::npos)
+            material = Material::LoadFromFile(matPath);
+            if (material)
             {
-                materialNew = MaterialNew::LoadFromFile(matPath); // TODO new material
-                if (materialNew)
-                {
-                    INCREF(materialNew);
-                }
-            }
-            else
-            {
-                material = Material::LoadFromFile(matPath);
-                if (material)
-                {
-                    INCREF(material);
-                }
+                INCREF(material);
             }
         }
     }

@@ -1,5 +1,7 @@
 ﻿#include "indirect_lighting.h"
 
+
+#include "game_resource.h"
 #include "material.h"
 #include "utils.h"
 
@@ -37,7 +39,7 @@ namespace op
 
         s_gradientAmbientColor = cur;
         auto shc = CalcShc(sky, equator, ground);
-        Material::SetGlobalFloatArrValue(SHC, shc.GetData(), 27);
+        GET_GLOBAL_CBUFFER->Set(SHC, shc.GetData(), 27); // TODO
     }
 
     Shc IndirectLighting::CalcShc(const Vec3& sky, const Vec3& equator, const Vec3& ground)

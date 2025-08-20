@@ -17,12 +17,12 @@ namespace op
 
     ControlPanelUi::UiProxy::UiProxy()
     {
-        m_drawConsoleUiHandler = GetInstance()->m_drawConsoleUiEvent.Add(this, &UiProxy::DrawConsoleUi);
+        m_drawConsoleUiHandler = Ins()->m_drawConsoleUiEvent.Add(this, &UiProxy::DrawConsoleUi);
     }
 
     ControlPanelUi::UiProxy::~UiProxy()
     {
-        GetInstance()->m_drawConsoleUiEvent.Remove(m_drawConsoleUiHandler);
+        Ins()->m_drawConsoleUiEvent.Remove(m_drawConsoleUiHandler);
     }
 
     ControlPanelUi::~ControlPanelUi()
@@ -46,7 +46,7 @@ namespace op
 
     void ControlPanelUi::DrawSceneInfo()
     {
-        auto scene = GameFramework::GetInstance()->GetMainScene();
+        auto scene = GameFramework::Ins()->GetMainScene();
         if (!scene)
         {
             return;
@@ -129,8 +129,8 @@ namespace op
     {
         if (ImGui::CollapsingHeader("Application Info"))
         {
-            auto deltaTime = GameResource::GetInstance()->time.deltaTime;
-            ImGui::Text(std::string("FPS: " + Utils::ToString(1 / deltaTime, 2)).c_str());
+            auto deltaTime = GameResource::Ins()->time.deltaTime;
+            ImGui::Text(std::string("FPS: " + to_string(1 / deltaTime, 2)).c_str());
         }
     }
 

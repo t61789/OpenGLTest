@@ -5,7 +5,6 @@
 #include "imgui.h"
 
 #include "render_target.h"
-#include "material.h"
 #include "built_in_res.h"
 #include "rendering_utils.h"
 
@@ -13,7 +12,7 @@ namespace op
 {
     FinalBlitPass::FinalBlitPass(RenderContext* renderContext) : RenderPass(renderContext)
     {
-        finalBlitMat = Material::CreateEmptyMaterial("shaders/final_blit.glsl");
+        finalBlitMat = Material::CreateFromShader("shaders/final_blit.shader");
         INCREF(finalBlitMat);
         auto desc = ImageDescriptor::GetDefault();
         desc.needFlipVertical = false;
@@ -36,7 +35,6 @@ namespace op
     {
         ZoneScoped;
         
-        auto quad = BuiltInRes::GetInstance()->quadMesh;
         if(finalBlitMat == nullptr)
         {
             return;
@@ -45,11 +43,13 @@ namespace op
         RenderTarget::ClearFrameBuffer(0, Vec4::Zero(), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         RenderTarget::UseScreenTarget();
 
-        finalBlitMat->SetFloatValue(MIN_LUMINANCE, m_minLuminance);
-        finalBlitMat->SetFloatValue(MAX_LUMINANCE, m_maxLuminance);
+        finalBlitMat->Set(MIN_LUMINANCE, m_minLuminance);
+        finalBlitMat->Set(MAX_LUMINANCE, m_maxLuminance);
+        finalBlitMat->Set(LUT_TEX, lutTexture);
 
-        finalBlitMat->SetTextureValue(LUT_TEX, lutTexture);
-        RenderingUtils::RenderMesh(*m_renderContext, quad, finalBlitMat, Matrix4x4::Identity());
+        auto quad = BuiltInRes::Ins()->quadMesh;
+        
+        RenderingUtils::RenderMesh(quad, finalBlitMat, Matrix4x4::Identity());
     }
 
     void FinalBlitPass::DrawConsoleUi()

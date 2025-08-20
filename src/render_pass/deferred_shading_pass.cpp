@@ -2,9 +2,10 @@
 
 #include <tracy/Tracy.hpp>
 
+#include "built_in_res.h"
 #include "mesh.h"
 #include "rendering_utils.h"
-#include "material.h"
+
 #include "render_texture.h"
 #include "render_target.h"
 
@@ -12,15 +13,14 @@ namespace op
 {
     DeferredShadingPass::DeferredShadingPass(RenderContext* renderContext) : RenderPass(renderContext)
     {
-        m_quadMesh = Mesh::LoadFromFile("meshes/quad.obj");
-        INCREF(m_quadMesh);
-        m_deferredShadingMat = Material::CreateEmptyMaterial("shaders/deferred_shading.glsl");
+        auto shader = Shader::LoadFromFile("shaders/deferred_shading.shader");
+        m_deferredShadingMat = new Material();
+        m_deferredShadingMat->BindShader(shader);
         INCREF(m_deferredShadingMat);
     }
 
     DeferredShadingPass::~DeferredShadingPass()
     {
-        DECREF(m_quadMesh);
         DECREF(m_deferredShadingMat);
     
         if (m_shadingRt)
@@ -43,7 +43,7 @@ namespace op
     {
         ZoneScoped;
         
-        if(m_quadMesh == nullptr || m_deferredShadingMat == nullptr)
+        if(m_deferredShadingMat == nullptr)
         {
             return;
         }
@@ -52,7 +52,8 @@ namespace op
     
         RenderTarget::Get(m_shadingRt, nullptr)->Use();
 
-        RenderingUtils::RenderMesh(*m_renderContext, m_quadMesh, m_deferredShadingMat, Matrix4x4::Identity());
+        auto quadMesh = BuiltInRes::Ins()->quadMesh;
+        RenderingUtils::RenderMesh(quadMesh, m_deferredShadingMat, Matrix4x4::Identity(), Matrix4x4::Identity());
     }
 
     void DeferredShadingPass::UpdateRt()
@@ -69,7 +70,7 @@ namespace op
             m_shadingRt = new RenderTexture(desc);
             INCREF(m_shadingRt);
             m_renderContext->RegisterRt(m_shadingRt);
-            Material::SetGlobalTextureValue("_ShadingBufferTex", m_shadingRt);
+            GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER)->Set(SHADING_BUFFER_TEX, m_shadingRt);
 
             desc.name = "_TempPpRt0";
             m_tempPpRt0 = new RenderTexture(desc);

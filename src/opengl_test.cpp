@@ -5,7 +5,7 @@
 
 #include "utils.h"
 #include "shared_object.h"
-#include "material.h"
+
 #include "game_framework.h"
 #include "string_handle.h"
 #include "math/matrix4x4.h"
@@ -20,51 +20,89 @@ using namespace op;
 
 static void ReleaseStaticRes()
 {
-    Material::ReleaseStaticRes();
-    MaterialNew::ReleaseGlobalMat();
+    
 }
+
+// static float GetFloatRandom()
+// {
+//     return static_cast<float>(std::rand()) / RAND_MAX;
+// }
+//
+// static std::vector<float> GetRandomFloats()
+// {
+//     std::vector<float> result;
+//     for (size_t i = 0; i < 64; i++)
+//     {
+//         float f = GetFloatRandom();
+//         result.push_back(f);
+//     }
+//
+//     return result;
+// }
+//
+// static int GetRandCount()
+// {
+//     auto r = GetFloatRandom();
+//     r *= 4;
+//     if (r > 3)
+//     {
+//         return GetFloatRandom() * 36 + 36;
+//     }
+//     else if (r > 2)
+//     {
+//         return 16;
+//     }
+//     else if (r > 1)
+//     {
+//         return 4;
+//     }
+//     return 1;
+// }
+//
+// struct CommonBuffer
+// {
+//     int index = -1;
+//     float data;
+// };
 
 int main(int argc, char* argv[])
 {
-    // auto spirvBinary = read_spirv_file("shaders/vert.spv");
-    //
-    // spirv_cross::CompilerGLSL glsl(std::move(spirvBinary));
-    // spirv_cross::ShaderResources resources = glsl.get_shader_resources();
-    //
-    // for (auto& resource : resources.uniform_buffers)
+    // // std::unordered_map<int, CommonBuffer> commonBuffer;
+    // // for (int i = 0; i < 16; ++i)
+    // // {
+    // //     commonBuffer[i] = { i, GetFloatRandom() };
+    // // }
+    // std::vector<CommonBuffer> commonBuffer;
+    // for (int i = 0; i < 16; ++i)
     // {
-    //     auto type = glsl.get_type(resource.base_type_id);
-    //
-    //     for (unsigned i = 0; i < type.member_types.size(); i++)
-    //     {
-    //         unsigned set = glsl.get_decoration(resource.id, spv::DecorationDescriptorSet);
-    //         unsigned binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
-    //         unsigned location = glsl.get_decoration(resource.id, spv::DecorationLocation);
-    //         auto& memberType = glsl.get_type(type.member_types[i]);
-    //         auto& memberName = glsl.get_member_name(resource.base_type_id, i);
-    //         auto offset = glsl.type_struct_member_offset(type, i);
-    //         printf("Image %s at set = %u, binding = %u, location = %u, offset = %u\n", memberName.c_str(), set, binding, location, offset);
-    //     }
-    //
-    //
-    //     // // Modify the decoration to prepare it for GLSL.
-    //     // glsl.unset_decoration(resource.id, spv::DecorationDescriptorSet);
-    //     //
-    //     // // Some arbitrary remapping if we want.
-    //     // glsl.set_decoration(resource.id, spv::DecorationBinding, set * 16 + binding);
+    //     commonBuffer.push_back({i, GetFloatRandom()});
+    //     // commonBuffer[i] = { i, GetFloatRandom() };
     // }
     //
-    // // Set some options.
-    // spirv_cross::CompilerGLSL::Options options;
-    // options.version = 310;
-    // options.es = true;
-    // glsl.set_common_options(options);
+    // auto ended = commonBuffer.end();
+    // size_t sum = 0;
+    // auto finded = 0;
+    // for (int j = 0; j < 10000; ++j)
+    // {
+    //     auto start = std::chrono::high_resolution_clock::now();
+    //     for (int i = 0; i < 10000; ++i)
+    //     {
+    //         // auto it = commonBuffer.find(-i);
+    //         // if (it != ended)
+    //         // {
+    //         //     finded ++;
+    //         // }
+    //         auto ff = find(commonBuffer, &CommonBuffer::index, -i);
+    //         if (ff)
+    //         {
+    //             finded ++;
+    //         }
+    //     }
+    //     auto end = std::chrono::high_resolution_clock::now();
+    //     sum += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+    // }
     //
-    // // Compile to GLSL, ready to give to GL driver.
-    // std::string source = glsl.compile();
-    //
-    // Utils::Log(Info, "%s", source.c_str());
-    //
+    // std::cout << "Time taken: " << sum / 10000.0f << "ms\n";
     // return 0;
     
     auto gf = new GameFramework();
@@ -88,7 +126,7 @@ int main(int argc, char* argv[])
     
     if (!SharedObject::m_count.empty())
     {
-        Utils::LogWarning("SharedObject未完全释放");
+        log_warning("SharedObject未完全释放");
     }
     
     return 0;

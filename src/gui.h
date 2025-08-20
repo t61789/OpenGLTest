@@ -20,6 +20,8 @@ namespace op
         static Vec3 SliderFloat3(const std::string& label, Vec3 input, float v_min, float v_max, const std::string& format = "%.2f");
         static Vec3 InputFloat3(const std::string& label, Vec3 input, const std::string& format = "%.2f");
         static Vec3 DragFloat3(const std::string& label, Vec3 input, float speed = 1, const std::string& format = "%.2f");
+        static void DebugDrawLine(const Vec3& worldStart, const Vec3& worldEnd, const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, const Vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
+        static void DebugDrawCube(const Bounds& bounds, const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, const Vec2& screenSize, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
 
     private:
         std::unique_ptr<ControlPanelUi> m_controlPanelUi = nullptr;

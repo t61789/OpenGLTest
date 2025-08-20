@@ -3,12 +3,13 @@
 #include "gui.h"
 #include "indirect_lighting.h"
 #include "render_target.h"
-#include "material.h"
+
 #include "scene.h"
 #include "objects/camera_comp.h"
 #include "objects/light_comp.h"
 #include "objects/transform_comp.h"
 #include "const.h"
+#include "material.h"
 
 namespace op
 {
@@ -28,7 +29,9 @@ namespace op
             return;
         }
 
-        Material::SetGlobalVector4Value(CAMERA_POSITION_WS, Vec4(m_renderContext->camera->owner->transform->GetPosition(), 0));
+        auto perViewCBuffer = GameResource::Ins()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+
+        perViewCBuffer->Set(CAMERA_POSITION_WS, Vec4(m_renderContext->camera->owner->transform->GetPosition(), 0));
 
         std::vector clearColors = {
             Vec4(0.5f),
@@ -38,7 +41,7 @@ namespace op
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Clear(clearColors, 1.0f);
 
         auto viewportSize = Vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
-        Material::SetGlobalVector4Value(VIEWPORT_SIZE, viewportSize);
+        perViewCBuffer->Set(VIEWPORT_SIZE, viewportSize);
 
         PrepareLightInfos();
     
@@ -47,8 +50,9 @@ namespace op
             m_renderContext->scene->ambientLightColorEquator,
             m_renderContext->scene->ambientLightColorGround);
 
-        Material::SetGlobalFloatValue(FOG_INTENSITY, m_renderContext->scene->fogIntensity);
-        Material::SetGlobalVector4Value(FOG_COLOR, Vec4(m_renderContext->scene->fogColor, 0));
+        auto globalCBuffer = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
+        globalCBuffer->Set(FOG_INTENSITY, m_renderContext->scene->fogIntensity);
+        globalCBuffer->Set(FOG_COLOR, Vec4(m_renderContext->scene->fogColor, 0));
 
         m_renderContext->SetViewProjMatrix(m_renderContext->camera);
     }
@@ -79,6 +83,8 @@ namespace op
         auto parallelLights = std::vector<LightComp*>();
         auto pointLights = std::vector<LightComp*>();
 
+        auto globalCBuffer = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
+
         for (auto light : *m_renderContext->lights)
         {
             constexpr int maxPointLights = 16;
@@ -88,7 +94,7 @@ namespace op
                 if (!m_renderContext->mainLight)
                 {
                     m_renderContext->mainLight = light;
-                    Material::SetGlobalVector4Value(MAIN_LIGHT_DIRECTION, Vec4(-light->owner->transform->GetLocalToWorld().Forward(), 0));
+                    globalCBuffer->Set(MAIN_LIGHT_DIRECTION, Vec4(-light->owner->transform->GetLocalToWorld().Forward(), 0));
                 }
 
                 parallelLights.push_back(light);
@@ -116,11 +122,11 @@ namespace op
         }
         auto updateBuffer = reinterpret_cast<float*>(parallelLightInfos.data());
         auto count = static_cast<int>(parallelLightInfos.size());
-        Material::SetGlobalFloatArrValue(
+        globalCBuffer->Set(
             PARALLEL_LIGHT_INFO,
             updateBuffer,
             count * (sizeof(ParallelLightInfo) / sizeof(float)));
-        Material::SetGlobalIntValue(PARALLEL_LIGHT_COUNT, count);
+        globalCBuffer->Set(PARALLEL_LIGHT_COUNT, count);
 
         struct alignas(16) PointLightInfo
         {
@@ -139,10 +145,10 @@ namespace op
         }
         updateBuffer = reinterpret_cast<float*>(pointLightInfos.data());
         count = static_cast<int>(pointLightInfos.size());
-        Material::SetGlobalFloatArrValue(
+        globalCBuffer->Set(
             POINT_LIGHT_INFO,
             updateBuffer,
             count * (sizeof(PointLightInfo) / sizeof(float)));
-        Material::SetGlobalIntValue(POINT_LIGHT_COUNT, count);
+        globalCBuffer->Set(POINT_LIGHT_COUNT, count);
     }
 }

@@ -3,8 +3,8 @@ sys.path.append("E:/Programming/PythonLib")
 import utils
 import os
 import base64
-import tomllib
 import json
+import common
 from pathlib import Path
 
 class ShaderCompiler:
@@ -20,11 +20,14 @@ class ShaderCompiler:
         self.shader_suffix = config["shader_compiler"]["shader_suffix"]
         self.vs_entry = config["shader_compiler"]["vs_entry"]
         self.ps_entry = config["shader_compiler"]["ps_entry"]
+        
+        self.new_console = False
 
         
     def start(self):
         shader_pack = {}
-        
+
+        utils.log_info(f"[green]开始编译着色器[/]")
         shaders = self.shader_dir.rglob(f"*{self.shader_suffix}")
         for shader_path in shaders:
             utils.log_info(f"编译vert：{shader_path}")
@@ -34,7 +37,7 @@ class ShaderCompiler:
             
             if not vert_spv_str or not frag_spv_str:
                 utils.log_error("编译失败，可以查看相关输出")
-                return
+                return False
             
             relative_shader_path = shader_path.relative_to(self.assets_dir)
             shader_pack[str(relative_shader_path).replace("\\", "/")] = {
@@ -44,6 +47,8 @@ class ShaderCompiler:
             
         with open(self.shader_pack_path, "w") as f:
             json.dump(shader_pack, f, indent=4)
+            
+        return True
 
             
     def compile(self, entry, stage, shader_path):
@@ -55,13 +60,18 @@ class ShaderCompiler:
         def print_stdout(msg):
             if msg == str(shader_path):
                 return
-            print(msg)
-        
+            utils.log_info(msg)
+            
+        def print_stderr(msg):
+            if msg == str(shader_path):
+                return
+            utils.log_error(msg)
+
         succeed = utils.execute_cmd(
             cmd,
             str(self.assets_dir),
             on_stdout=print_stdout,
-            on_stderr=print
+            on_stderr=print_stderr
         )
         
         if not succeed:
@@ -73,5 +83,10 @@ class ShaderCompiler:
         self.temp_spv_path.unlink()
             
         return base64_str
-        
+    
+if __name__ == "__main__":
+    config = common.load_config()
+    result = ShaderCompiler(config).start()
+    if not result:
+        input()
         
