@@ -66,6 +66,7 @@ namespace op
         DECREF(errorTex);
         DECREF(whiteTex);
         DECREF(blackTex);
+        DECREF(missTex);
         DECREF(testShader);
         DECREF(testMaterialNew);
     }

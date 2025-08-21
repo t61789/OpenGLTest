@@ -2,6 +2,7 @@
 #include <string>
 
 #include "render_context.h"
+#include "render/per_object_buffer.h"
 
 namespace op
 {
@@ -17,5 +18,6 @@ namespace op
 
     protected:
         RenderContext* m_renderContext = nullptr;
+        PerObjectStruct m_submitBuffer;
     };
 }

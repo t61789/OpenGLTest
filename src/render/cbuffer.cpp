@@ -70,9 +70,9 @@ namespace op
         GetRS()->BindBuffer(GL_UNIFORM_BUFFER, glUbo);
     }
 
-    void CBuffer::Sync(void* srcData, size_t dstOffset, size_t dstSize)
+    void CBuffer::Sync(const void* srcData, const size_t dstOffset, const size_t dstSize)
     {
-        glBufferSubData(GL_UNIFORM_BUFFER, dstOffset, static_cast<GLsizei>(dstSize), srcData);
+        glBufferSubData(GL_UNIFORM_BUFFER, static_cast<GLintptr>(dstOffset), static_cast<GLsizei>(dstSize), srcData);
     }
 
     void CBuffer::EndSync()

@@ -19,5 +19,6 @@ namespace op
         Image* m_skyboxCubeTexture = nullptr;
         Mesh* m_sphereMesh = nullptr;
         Material* m_skyboxMat = nullptr;
+        uint32_t m_objectIndex = ~0u;
     };
 }

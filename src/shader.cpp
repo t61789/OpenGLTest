@@ -235,7 +235,7 @@ namespace op
         result->LoadTextures(vertCompilerGlsl, vertShaderResources);
         result->LoadTextures(fragCompilerGlsl, fragShaderResources);
 
-        if (path.find("skybox") != std::string::npos)
+        // if (path.find("skybox") != std::string::npos)
         {
             log_info(vSource);
             log_info(fSource);
@@ -386,6 +386,11 @@ namespace op
         const spirv_cross::Resource& uniformBuffer)
     {
         auto uniformBufferNameId = StringHandle(uniformBuffer.name).Hash();
+        if (uniformBufferNameId == StringHandle("ObjectIndexCBuffer")) // TODO
+        {
+            return true;
+        }
+        
         if (auto predefinedMaterial = GetGR()->GetPredefinedMaterial(uniformBufferNameId))
         {
             if (!predefinedMaterial->HasCBuffer())

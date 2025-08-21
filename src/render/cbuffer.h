@@ -23,7 +23,8 @@ namespace op
         GLint glUsage = GL_DYNAMIC_DRAW;
 
         std::unordered_map<size_t, CBufferParam> params;
-        
+
+        CBufferLayout() = default;
         CBufferLayout(const spirv_cross::CompilerGLSL& compiler, const spirv_cross::Resource& uniformBuffer, GLint usage = GL_DYNAMIC_DRAW);
     };
 
@@ -44,7 +45,7 @@ namespace op
 
         bool TryGetParam(size_t nameId, CBufferParam** result);
         void StartSync();
-        void Sync(void* srcData, size_t dstOffset, size_t dstSize);
+        void Sync(const void* srcData, size_t dstOffset, size_t dstSize);
         void EndSync();
         void Use();
     };

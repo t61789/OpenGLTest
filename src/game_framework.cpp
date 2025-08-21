@@ -42,7 +42,7 @@ namespace op
 
     GameFramework::GameFramework()
     {
-        m_gameResource = std::make_unique<GameResource>();
+        m_gameResource = new GameResource();
         m_onFrameBufferResizeHandler = GetGR()->onFrameBufferResize.Add(this, &GameFramework::OnSetFrameBufferResize); // TODO resize
     }
 
@@ -51,6 +51,8 @@ namespace op
         GetGR()->onFrameBufferResize.Remove(m_onFrameBufferResizeHandler);
 
         ReleaseGame();
+
+        delete m_gameResource;
     }
 
     bool GameFramework::Init()
@@ -268,12 +270,12 @@ namespace op
 
     void GameFramework::InitGame()
     {
-        m_gui = std::make_unique<Gui>();
-        m_renderState = std::make_unique<RenderState>();
-        m_perObjectBuffer = std::make_unique<PerObjectBuffer>();
-        m_gameResource->perObjectBuffer = m_perObjectBuffer.get();
-        m_builtInRes = std::make_unique<BuiltInRes>();
-        m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
+        m_gui = new Gui();
+        m_renderState = new RenderState();
+        m_perObjectBuffer = new PerObjectBuffer();
+        m_gameResource->perObjectBuffer = m_perObjectBuffer;
+        m_builtInRes = new BuiltInRes();
+        m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
         // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
         m_scene = Scene::LoadScene("scenes/test_scene/test_scene.json");
         // m_scene = Scene::LoadScene("scenes/ImportTest/scene.json");
@@ -288,5 +290,10 @@ namespace op
         {
             DECREF(m_scene);
         }
+
+        delete m_renderPipeline;
+        delete m_builtInRes;
+        delete m_perObjectBuffer;
+        delete m_renderState;
     }
 }

@@ -8,25 +8,15 @@ PSInput VS_Main(VSInput input)
     output.positionCS.z = output.positionCS.w - 0.00001f;
     output.positionSS = output.positionCS;
     output.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz);
+    // output.normalWS = input.normalOS.xyz;
 
     return output;
 }
-
-struct ObjectMatrix
-{
-    float4x4 objectToWorld;
-    float4x4 worldToObject;
-};
-
-int _ObjectIndex;
-
-StructuredBuffer<ObjectMatrix> _ObjectMatrices : register(t2);
 
 PSOutput PS_Main(PSInput input) : SV_TARGET
 {
     float3 normalWS = normalize(input.normalWS);
     float3 col = SampleSkybox(normalWS).rgb;
-    col *= _ObjectMatrices[_ObjectIndex].objectToWorld[0].xyz; // Assuming the first object matrix is the skybox
 
     PSOutput output;
     output.Target0 = WriteGBuffer0(col, PIXEL_TYPE_SKYBOX);

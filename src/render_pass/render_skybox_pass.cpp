@@ -25,10 +25,13 @@ namespace op
         GET_GLOBAL_CBUFFER->Set(SKYBOX_TEX, m_skyboxCubeTexture);
         m_skyboxMat = Material::LoadFromFile("materials/skybox_mat.json");
         INCREF(m_skyboxMat);
+        m_objectIndex = GetGR()->perObjectBuffer->BindObject();
     }
 
     RenderSkyboxPass::~RenderSkyboxPass()
     {
+        GetGR()->perObjectBuffer->UnbindObject(m_objectIndex);
+        
         DECREF(m_skyboxCubeTexture);
         DECREF(m_sphereMesh);
         DECREF(m_skyboxMat);
@@ -51,13 +54,16 @@ namespace op
 
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
     
-        auto m = Matrix4x4::TRS(camera->owner->transform->GetWorldPosition(), Quaternion::Identity(), Vec3::One());
+        m_submitBuffer.localToWorld = Matrix4x4::TRS(camera->owner->transform->GetWorldPosition(), Quaternion::Identity(), Vec3::One());
+        m_submitBuffer.worldToLocal = m_submitBuffer.localToWorld.Inverse();
+        GetGR()->perObjectBuffer->SubmitData(m_objectIndex, &m_submitBuffer);
 
         RenderingUtils::RenderMesh({
             m_sphereMesh,
             m_skyboxMat,
-            &m,
-            &Matrix4x4::Identity()
+            &Matrix4x4::Identity(),
+            &Matrix4x4::Identity(),
+            m_objectIndex
         });
     }
 }

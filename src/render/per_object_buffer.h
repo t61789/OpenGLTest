@@ -1,4 +1,5 @@
 #pragma once
+#include "cbuffer.h"
 #include "structured_buffer.h"
 #include "math/matrix4x4.h"
 
@@ -19,7 +20,7 @@ namespace op
         void UnbindObject(uint32_t index);
         void Expand();
         void SubmitData(uint32_t index, const PerObjectStruct* data);
-        void Use();
+        void Use(std::optional<uint32_t> index);
 
     private:
         struct ObjectInfo
@@ -32,5 +33,8 @@ namespace op
         StructuredBuffer* m_buffer;
         std::vector<ObjectInfo> m_objectInfos;
         std::vector<uint32_t> m_dirtyObjects;
+
+        CBuffer* m_objectIndexBuffer;
+        uint32_t m_objectIndexSubmitBuffer[4];
     };
 }

@@ -9,11 +9,25 @@ namespace op
         m_buffer = new StructuredBuffer(sizeof(PerObjectStruct), PER_OBJECT_BUFFER_INIT_CAPACITY, PER_OBJECT_BUFFER_BINDING_SLOT);
         INCREF(m_buffer);
         m_objectInfos.resize(PER_OBJECT_BUFFER_INIT_CAPACITY);
+
+        auto layout = new CBufferLayout();
+        layout->name = StringHandle("ObjectIndexCBuffer");
+        layout->size = 16;
+        layout->binding = 3;
+        layout->glUsage = GL_STREAM_DRAW;
+        auto paramName = StringHandle("_ObjectIndex");
+        layout->params = {
+            {paramName.Hash(), {paramName, 16, 0, layout->name.Hash()}}
+        };
+
+        m_objectIndexBuffer = new CBuffer(layout);
+        INCREF(m_objectIndexBuffer);
     }
 
     PerObjectBuffer::~PerObjectBuffer()
     {
         DECREF(m_buffer);
+        DECREF(m_objectIndexBuffer);
     }
 
     uint32_t PerObjectBuffer::BindObject()
@@ -59,7 +73,7 @@ namespace op
         m_objectInfos[index].data = data;
     }
 
-    void PerObjectBuffer::Use()
+    void PerObjectBuffer::Use(const std::optional<uint32_t> index)
     {
         if (!m_dirtyObjects.empty())
         {
@@ -76,5 +90,15 @@ namespace op
         }
 
         m_buffer->Use();
+
+        if (index.has_value())
+        {
+            m_objectIndexSubmitBuffer[0] = index.value();
+            m_objectIndexBuffer->StartSync();
+            m_objectIndexBuffer->Sync(m_objectIndexSubmitBuffer, 0, sizeof(m_objectIndexSubmitBuffer));
+            m_objectIndexBuffer->Use();
+
+            GL_CHECK_ERROR(asdasd)
+        }
     }
 }

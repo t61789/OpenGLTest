@@ -33,11 +33,6 @@ namespace op
         {
             DECREF(material);
         }
-
-        if (material)
-        {
-            DECREF(material);
-        }
     }
 
     void RenderComp::LoadFromJson(const nlohmann::json& objJson)
@@ -84,6 +79,7 @@ namespace op
         m_transformDirty = false;
 
         UpdateWorldBounds();
+        UpdatePerObjectBuffer();
     }
 
     void RenderComp::UpdateWorldBounds()

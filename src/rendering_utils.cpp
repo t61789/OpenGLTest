@@ -125,16 +125,16 @@ namespace op
         // Bind Predefined CBuffers
         auto gMat = GET_GLOBAL_CBUFFER;
         auto vMat = GetGR()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
-        auto oMat = GetGR()->GetPredefinedMaterial(PER_OBJECT_CBUFFER);
-        if (renderParam.localToWorld) { oMat->Set(M, *renderParam.localToWorld);}
-        if (renderParam.worldToLocal) { oMat->Set(IM, *renderParam.worldToLocal);}
+        // auto oMat = GetGR()->GetPredefinedMaterial(PER_OBJECT_CBUFFER);
+        // if (renderParam.localToWorld) { oMat->Set(M, *renderParam.localToWorld);}
+        // if (renderParam.worldToLocal) { oMat->Set(IM, *renderParam.worldToLocal);}
         gMat->UseCBuffer();
         vMat->UseCBuffer();
-        oMat->UseCBuffer();
+        // oMat->UseCBuffer();
         if (renderParam.objectIndex.has_value())
         {
-            GetGR()->perObjectBuffer->Use();
-            shader->SetInt(OBJECT_INDEX, static_cast<int>(renderParam.objectIndex.value()));
+            GetGR()->perObjectBuffer->Use(renderParam.objectIndex);
+            // shader->SetInt(OBJECT_INDEX, static_cast<int>(renderParam.objectIndex.value()));
         }
         GL_CHECK_ERROR(BindPredefinedCBuffers)
 

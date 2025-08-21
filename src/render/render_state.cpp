@@ -168,9 +168,6 @@ namespace op
         {
             return false;
         }
-
-        glBufferInfo->dirty = false;
-        glBufferInfo->buffer = buffer; // BindBufferBase会把BindBuffer绑定的buffer给一起设置了
         glBufferBaseInfo->dirty = false;
         glBufferBaseInfo->buffer = buffer;
 

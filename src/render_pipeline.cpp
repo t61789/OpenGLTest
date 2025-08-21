@@ -58,7 +58,7 @@ namespace op
         m_gBufferDesc->SetDepthAttachment(m_gBufferDepthTex, true);
 
         m_passes.push_back(new PreparingPass(m_renderContext.get())); // TODO 改成shared_ptr
-        m_passes.push_back(new MainLightShadowPass(m_renderContext.get()));
+        // m_passes.push_back(new MainLightShadowPass(m_renderContext.get()));
         m_passes.push_back(new RenderSkyboxPass(m_renderContext.get()));
         m_passes.push_back(new RenderScenePass(m_renderContext.get()));
         m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
