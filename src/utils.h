@@ -189,6 +189,12 @@ namespace op
 
         return i;
     }
+
+    template <typename T>
+    static bool exists(std::vector<T>& vec, const T& obj)
+    {
+        return std::find(vec.begin(), vec.end(), obj) != vec.end();
+    }
     
     #define GL_CHECK_ERROR(position) { auto errors = read_gl_error(); if (!errors.empty()) { throw_gl_error(errors, #position); }}
     #define GL_CLEAR_ERROR { GLuint error; while((error = glGetError()) != GL_NO_ERROR) {}}
@@ -287,6 +293,17 @@ namespace op
     static bool is_vec4(const nlohmann::json& jsonValue)
     {
         return is_vec(jsonValue, 4);
+    }
+
+    template <typename T>
+    static T* aligned_malloc(const size_t size, const size_t alignment)
+    {
+        return static_cast<T*>(_aligned_malloc(size, alignment));
+    }
+
+    static void aligned_free(void* ptr)
+    {
+        _aligned_free(ptr);
     }
 
     template<typename T>

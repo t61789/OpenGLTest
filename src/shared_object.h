@@ -20,8 +20,8 @@ namespace op
         SharedObject();
         virtual ~SharedObject();
 
-        void IncRef();
-        void IncRef(const std::string& key);
+        SharedObject* IncRef();
+        SharedObject* IncRef(const std::string& key);
         void DecRef();
         void DecRef(const std::string& key);
 

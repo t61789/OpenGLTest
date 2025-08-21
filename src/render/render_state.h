@@ -45,19 +45,34 @@ namespace op
         void SetAllDirty();
         
     private:
+        struct GlBufferBaseInfo
+        {
+            bool dirty = true;
+            uint32_t slot = ~0u;
+            uint32_t buffer = ~0u;
+
+            explicit GlBufferBaseInfo(const uint32_t slot)
+            {
+                this->slot = slot;   
+            }
+        };
+
         struct GlBufferInfo
         {
             bool dirty = true;
             uint32_t target = ~0u;
             uint32_t buffer = ~0u;
-        };
+            std::vector<GlBufferBaseInfo> baseInfo;
 
-        struct GlBufferBaseInfo
-        {
-            bool dirty = true;
-            uint32_t target = ~0u;
-            uint32_t slot = ~0u;
-            uint32_t buffer = ~0u;
+            explicit GlBufferInfo(const uint32_t target)
+            {
+                this->target = target;
+                this->baseInfo.reserve(MAX_SUPPORT_SLOTS);
+                for (uint32_t i = 0; i < MAX_SUPPORT_SLOTS; ++i)
+                {
+                    this->baseInfo.emplace_back(i);
+                }
+            }
         };
 
         struct GlShaderInfo
@@ -77,9 +92,16 @@ namespace op
 
         GlShaderInfo m_glShader;
         GlVertexArrayInfo m_glVertexArray;
-        GlBufferInfo m_glBuffer;
-        std::vector<GlBufferBaseInfo> m_glBufferBase;
+
+        std::vector<GlBufferInfo> m_glBuffers;
 
         EventHandler m_onFrameEndHandler;
+
+        GlBufferInfo* GetBufferInfo(uint32_t target);
     };
+
+    static RenderState* GetRS()
+    {
+        return RenderState::Ins();
+    }
 }

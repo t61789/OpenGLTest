@@ -83,9 +83,9 @@ namespace op
         worldToShadowCamera = shadowCameraToWorld.Inverse();
     
         auto projMatrix = create_ortho_projection(range, -range, range, -range, 2 * range2, 0.05f);
-        m_renderContext->SetViewProjMatrix(worldToShadowCamera, projMatrix); // TODO push
+        m_renderContext->SetViewProjMatrix(worldToShadowCamera, projMatrix, shadowCameraPositionWS); // TODO push
 
-        GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER)->Set(MAINLIGHT_SHADOW_VP, projMatrix * worldToShadowCamera); // TODO
+        GET_GLOBAL_CBUFFER->Set(MAINLIGHT_SHADOW_VP, projMatrix * worldToShadowCamera); // TODO
 
         auto renderTarget = RenderTarget::Get(nullptr, m_mainLightShadowRt);
         renderTarget->Clear(1.0f);

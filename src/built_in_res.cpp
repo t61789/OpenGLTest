@@ -16,7 +16,7 @@ namespace op
             auto mat = new Material();
             INCREF(mat);
 
-            GameResource::Ins()->SubmitPredefinedMaterial(nameId, mat);
+            GetGR()->SubmitPredefinedMaterial(nameId, mat);
             predefinedMaterials.push_back(mat);
         }
 

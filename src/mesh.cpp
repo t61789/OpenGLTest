@@ -201,17 +201,12 @@ namespace op
         glGenBuffers(1, &vbo);
         glGenBuffers(1, &ebo);
 
-        auto renderState = RenderState::Ins();
-        // renderState->SetVertexArray(vao);
-        glBindVertexArray(vao);
-        
+        GetRS()->SetVertexArray(vao);
 
-        renderState->BindBuffer(GL_ARRAY_BUFFER, vbo);
-        // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        GetRS()->BindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexData.size() * sizeof(float)), vertexData.data(), GL_STATIC_DRAW);
 
-        renderState->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        GetRS()->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indices.size() * sizeof(int)), indices.data(), GL_STATIC_DRAW);
 
         for (auto& [attr, attrInfo] : vertexAttribInfo)

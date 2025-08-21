@@ -22,7 +22,7 @@ namespace op
         INCREF(m_skyboxCubeTexture);
         m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
         INCREF(m_sphereMesh);
-        GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER)->Set(SKYBOX_TEX, m_skyboxCubeTexture);
+        GET_GLOBAL_CBUFFER->Set(SKYBOX_TEX, m_skyboxCubeTexture);
         m_skyboxMat = Material::LoadFromFile("materials/skybox_mat.json");
         INCREF(m_skyboxMat);
     }
@@ -53,6 +53,11 @@ namespace op
     
         auto m = Matrix4x4::TRS(camera->owner->transform->GetWorldPosition(), Quaternion::Identity(), Vec3::One());
 
-        RenderingUtils::RenderMesh(m_sphereMesh, m_skyboxMat, m, Matrix4x4::Identity());
+        RenderingUtils::RenderMesh({
+            m_sphereMesh,
+            m_skyboxMat,
+            &m,
+            &Matrix4x4::Identity()
+        });
     }
 }

@@ -386,7 +386,7 @@ namespace op
         const spirv_cross::Resource& uniformBuffer)
     {
         auto uniformBufferNameId = StringHandle(uniformBuffer.name).Hash();
-        if (auto predefinedMaterial = GameResource::Ins()->GetPredefinedMaterial(uniformBufferNameId))
+        if (auto predefinedMaterial = GetGR()->GetPredefinedMaterial(uniformBufferNameId))
         {
             if (!predefinedMaterial->HasCBuffer())
             {

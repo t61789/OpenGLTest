@@ -3,6 +3,8 @@
 #include "utils.h"
 #include "material.h"
 
+#define BUILT_IN_RES (BuiltInRes::Ins())
+
 namespace op
 {
     class Mesh;

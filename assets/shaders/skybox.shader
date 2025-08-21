@@ -18,13 +18,15 @@ struct ObjectMatrix
     float4x4 worldToObject;
 };
 
-StructuredBuffer<ObjectMatrix> _ObjectMatrices;
+int _ObjectIndex;
+
+StructuredBuffer<ObjectMatrix> _ObjectMatrices : register(t2);
 
 PSOutput PS_Main(PSInput input) : SV_TARGET
 {
     float3 normalWS = normalize(input.normalWS);
     float3 col = SampleSkybox(normalWS).rgb;
-    col *= _ObjectMatrices[0].objectToWorld[0].xyz; // Assuming the first object matrix is the skybox
+    col *= _ObjectMatrices[_ObjectIndex].objectToWorld[0].xyz; // Assuming the first object matrix is the skybox
 
     PSOutput output;
     output.Target0 = WriteGBuffer0(col, PIXEL_TYPE_SKYBOX);

@@ -14,14 +14,23 @@ namespace op
     class RenderingUtils
     {
     public:
+        struct RenderParam
+        {
+            Mesh* mesh = nullptr;
+            Material* material = nullptr;
+            const Matrix4x4* localToWorld = nullptr;
+            const Matrix4x4* worldToLocal = nullptr;
+            std::optional<uint32_t> objectIndex = std::nullopt;
+        };
+        
         static void RenderScene(const std::vector<RenderComp*>& renderComps);
         static void RenderEntity(const RenderComp* renderComp);
-        static void RenderMesh(Mesh* mesh, Material* mat, const Matrix4x4& m, const Matrix4x4& im = Matrix4x4::Identity());
+        static void RenderMesh(const RenderParam& renderParam);
         static void Blit(RenderTexture* src, RenderTexture* dst, Material* material = nullptr);
         
     private:
         static void ApplyTextures(Material* material, Shader* shader);
         static void CallGlDraw(const Mesh* mesh);
-        static void BindDrawResources(Shader* shader, Mesh* mesh, Material* material);
+        static void BindDrawResources(const RenderParam& renderParam);
     };
 }

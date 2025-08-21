@@ -34,39 +34,41 @@ namespace op
             return;
         }
 
-        auto rc = RenderContext::Ins();
         Mesh* mesh = renderComp->mesh;
-        
         if(mesh == nullptr)
         {
             return;
         }
 
-        RenderMesh(mesh, renderComp->material, renderComp->owner->transform->GetLocalToWorld(), renderComp->owner->transform->GetWorldToLocal());
+        RenderMesh({
+            mesh,
+            renderComp->material,
+            &renderComp->owner->transform->GetLocalToWorld(),
+            &renderComp->owner->transform->GetWorldToLocal(),
+            renderComp->GetObjectIndex()
+        });
     }
 
-    void RenderingUtils::RenderMesh(Mesh* mesh, Material* mat, const Matrix4x4& m, const Matrix4x4& im)
+    void RenderingUtils::RenderMesh(const RenderParam& renderParam)
     {
         ZoneScoped;
         
-        auto perObjectMaterial = GameResource::Ins()->GetPredefinedMaterial(PER_OBJECT_CBUFFER.Hash());
-        perObjectMaterial->Set(M, m);
-        perObjectMaterial->Set(IM, im);
-        
-        BindDrawResources(mat->GetShader(), mesh, mat);
-        CallGlDraw(mesh);
+        BindDrawResources(renderParam);
+        CallGlDraw(renderParam.mesh);
     }
 
     void RenderingUtils::Blit(RenderTexture* src, RenderTexture* dst, Material* material)
     {
-        Material* blitMat = material ? material : BuiltInRes::Ins()->blitMatNew;
-        Mesh* quad = BuiltInRes::Ins()->quadMesh;
+        Material* blitMat = material ? material : BUILT_IN_RES->blitMatNew;
+        Mesh* quad = BUILT_IN_RES->quadMesh;
         
         RenderTarget::Get(dst, nullptr)->Use();
         if (src) { blitMat->Set(MAIN_TEX, src); }
-        
-        BindDrawResources(blitMat->GetShader(), quad, blitMat);
-        CallGlDraw(quad);
+
+        RenderMesh({
+            quad,
+            blitMat
+        });
     }
 
     void RenderingUtils::ApplyTextures(Material* material, Shader* shader)
@@ -90,13 +92,12 @@ namespace op
             }
             else
             {
-                needBindingTextures.push_back(BuiltInRes::Ins()->missTex);
+                needBindingTextures.push_back(BUILT_IN_RES->missTex);
             }
             needBindingTexturesNameId.push_back(nameId);
         }
 
-        auto rc = RenderContext::Ins();
-        const auto& bindingInfos = rc->textureBindingMgr->BindTextures(needBindingTextures);
+        const auto& bindingInfos = GetRC()->textureBindingMgr->BindTextures(needBindingTextures);
         for (size_t i = 0; i < bindingInfos.size(); i++)
         {
             shader->SetVal(needBindingTexturesNameId[i], bindingInfos[i].slot);
@@ -111,27 +112,36 @@ namespace op
         glDrawElements(GL_TRIANGLES, static_cast<GLint>(mesh->indicesCount), GL_UNSIGNED_INT, nullptr);
     }
 
-    void RenderingUtils::BindDrawResources(Shader* shader, Mesh* mesh, Material* material)
+    void RenderingUtils::BindDrawResources(const RenderParam& renderParam)
     {
-        // Bind Shader
-        auto rs = RenderState::Ins();
-        rs->SetShader(shader->glShaderId);
+        auto shader = renderParam.material->GetShader();
+        auto mesh = renderParam.mesh;
+        auto material = renderParam.material;
         
-        auto gMat = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
-        auto vMat = GameResource::Ins()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
-        auto oMat = GameResource::Ins()->GetPredefinedMaterial(PER_OBJECT_CBUFFER);
-        // if (rs->SetShader(shader->glShaderId))
-        // {
-            gMat->UseCBuffer();
-            vMat->UseCBuffer();
-            oMat->UseCBuffer();
-        // }
+        // Bind Shader
+        GetRS()->SetShader(shader->glShaderId);
+        GL_CHECK_ERROR(BindPredefinedCBuffers)
+
+        // Bind Predefined CBuffers
+        auto gMat = GET_GLOBAL_CBUFFER;
+        auto vMat = GetGR()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+        auto oMat = GetGR()->GetPredefinedMaterial(PER_OBJECT_CBUFFER);
+        if (renderParam.localToWorld) { oMat->Set(M, *renderParam.localToWorld);}
+        if (renderParam.worldToLocal) { oMat->Set(IM, *renderParam.worldToLocal);}
+        gMat->UseCBuffer();
+        vMat->UseCBuffer();
+        oMat->UseCBuffer();
+        if (renderParam.objectIndex.has_value())
+        {
+            GetGR()->perObjectBuffer->Use();
+            shader->SetInt(OBJECT_INDEX, static_cast<int>(renderParam.objectIndex.value()));
+        }
         GL_CHECK_ERROR(BindPredefinedCBuffers)
 
 
         // Bind Vertex Attrib
-        rs->SetVertexArray(mesh->vao);
-        rs->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+        GetRS()->SetVertexArray(mesh->vao);
+        GetRS()->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
 
         
         // Bind Textures
@@ -143,7 +153,7 @@ namespace op
 
         
         // Set Render State
-        rs->SetCullMode(material->cullMode);
-        rs->SetBlendMode(material->blendMode);
+        GetRS()->SetCullMode(material->cullMode);
+        GetRS()->SetBlendMode(material->blendMode);
     }
 }

@@ -7,6 +7,7 @@ struct GLFWwindow;
 namespace op
 {
     class Material;
+    class PerObjectBuffer;
     
     class GameResource : public Singleton<GameResource>
     {
@@ -14,6 +15,7 @@ namespace op
         Time time;
         Event<> onFrameEnd;
         Event<GLFWwindow*, int, int> onFrameBufferResize;
+        PerObjectBuffer* perObjectBuffer;
 
         GameResource();
         ~GameResource();
@@ -24,4 +26,9 @@ namespace op
     private:
         std::unordered_map<size_t, Material*> m_predefinedMaterials;
     };
+
+    static GameResource* GetGR()
+    {
+        return GameResource::Ins();
+    }
 }

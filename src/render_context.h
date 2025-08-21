@@ -55,6 +55,7 @@ namespace op
 
         void SetViewProjMatrix(const CameraComp* cam);
         void SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj);
+        void SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj, const Vec3& cameraPos);
 
         void RegisterRt(RenderTexture* rt);
         void UnRegisterRt(const RenderTexture* rt);
@@ -63,5 +64,10 @@ namespace op
     private:
         std::unordered_map<std::string, RenderTexture*> m_rts;
     };
+
+    static RenderContext* GetRC()
+    {
+        return RenderContext::Ins();
+    }
 }
 

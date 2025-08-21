@@ -1,5 +1,7 @@
 #include "structured_buffer.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "render_context.h"
 #include "utils.h"
 
@@ -10,7 +12,7 @@ namespace op
         m_binding = binding;
         m_stride = stride;
         m_count = count;
-        m_data = new uint8_t[stride * count];
+        m_data = aligned_malloc<uint8_t>(stride * count, 16);
         memset(m_data, 0, stride * count);
 
         CreateBuffer(m_stride * m_count);
@@ -21,14 +23,14 @@ namespace op
 
     StructuredBuffer::~StructuredBuffer()
     {
-        delete[] m_data;
+        aligned_free(m_data);
         glDeleteBuffers(1, &m_glBuffer);
     }
     
     void StructuredBuffer::Use()
     {
         SyncData();
-        RenderState::Ins()->BindBufferBase(GL_SHADER_STORAGE_BUFFER, m_binding, m_glBuffer);
+        GetRS()->BindBufferBase(m_binding, GL_SHADER_STORAGE_BUFFER, m_glBuffer);
     }
 
     void StructuredBuffer::SetData(const uint32_t index, const void* data)
@@ -46,12 +48,12 @@ namespace op
         }
 
         // 创建新的缓冲区，把旧缓冲区里的数据拷贝过去
-        auto newData = new uint8_t[m_stride * count];
+        auto newData = aligned_malloc<uint8_t>(m_stride * count, 16);
         memcpy(newData, m_data, m_stride * m_count);
 
         // 删除旧的缓冲区和Buffer
         glDeleteBuffers(1, &m_glBuffer);
-        delete[] m_data;
+        aligned_free(m_data);
 
         // 创建新的Buffer，并同步数据
         m_count = count;
@@ -67,6 +69,8 @@ namespace op
             return;
         }
 
+        ZoneScopedN("Sync Data To SSBO");
+
         // 超过70%的脏数据，则强制同步
         if (static_cast<float>(m_dirty.size()) / static_cast<float>(m_count) > 0.7f)
         {
@@ -74,7 +78,7 @@ namespace op
             return;
         }
 
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_glBuffer);
+        GetRS()->BindBuffer(GL_SHADER_STORAGE_BUFFER, m_glBuffer);
         auto dstPtr = static_cast<uint8_t*>(glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY));
 
         uint32_t start = ~0u;
@@ -109,16 +113,14 @@ namespace op
         }
 
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, GL_NONE);
 
         m_dirty.clear();
     }
 
     void StructuredBuffer::SyncDataForce()
-    { 
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_glBuffer);
+    {
+        GetRS()->BindBuffer(GL_SHADER_STORAGE_BUFFER, m_glBuffer);
         glBufferData(GL_SHADER_STORAGE_BUFFER, m_stride * m_count, m_data, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, GL_NONE);
 
         m_dirty.clear();
     }
@@ -126,8 +128,7 @@ namespace op
     void StructuredBuffer::CreateBuffer(const uint32_t size)
     {
         glGenBuffers(1, &m_glBuffer);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_glBuffer);
+        GetRS()->BindBuffer(GL_SHADER_STORAGE_BUFFER, m_glBuffer);
         glBufferData(GL_SHADER_STORAGE_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, GL_NONE);
     }
 }

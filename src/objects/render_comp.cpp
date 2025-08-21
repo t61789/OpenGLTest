@@ -4,6 +4,7 @@
 
 #include "object.h"
 #include "transform_comp.h"
+#include "render/per_object_buffer.h"
 
 namespace op
 {
@@ -14,11 +15,13 @@ namespace op
 
     void RenderComp::Start()
     {
-        
+        m_perObjectBufferIndex = GetGR()->perObjectBuffer->BindObject();
     }
 
     void RenderComp::OnDestroy()
     {
+        GetGR()->perObjectBuffer->UnbindObject(m_perObjectBufferIndex);
+        
         owner->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
         
         if (mesh)
@@ -62,7 +65,7 @@ namespace op
 
     const Bounds& RenderComp::GetWorldBounds()
     {
-        UpdateWorldBounds();
+        UpdateTransform();
 
         return m_worldBounds;
     }
@@ -72,14 +75,19 @@ namespace op
         m_transformDirty = true;
     }
 
-    void RenderComp::UpdateWorldBounds()
+    void RenderComp::UpdateTransform()
     {
         if (!m_transformDirty)
         {
             return;
         }
         m_transformDirty = false;
-        
+
+        UpdateWorldBounds();
+    }
+
+    void RenderComp::UpdateWorldBounds()
+    {
         auto m = owner->transform->GetLocalToWorld();
         const auto& boundsOS = mesh->bounds;
         auto centerWS = Vec3(m * Vec4(boundsOS.center, 1));
@@ -90,5 +98,13 @@ namespace op
         };
 
         m_worldBounds = {centerWS, extentsWS};
+    }
+
+    void RenderComp::UpdatePerObjectBuffer()
+    {
+        m_submitBuffer.localToWorld = owner->transform->GetLocalToWorld();
+        m_submitBuffer.worldToLocal = owner->transform->GetWorldToLocal();
+
+        GetGR()->perObjectBuffer->SubmitData(m_perObjectBufferIndex, &m_submitBuffer);
     }
 }

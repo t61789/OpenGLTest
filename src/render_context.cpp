@@ -30,17 +30,30 @@ namespace op
         auto aspect = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
         auto projectionMatrix = create_projection(cam->fov, aspect, cam->nearClip, cam->farClip);
 
-        SetViewProjMatrix(viewMatrix, projectionMatrix);
+        SetViewProjMatrix(viewMatrix, projectionMatrix, cam->owner->transform->GetPosition());
     }
 
     void RenderContext::SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj)
+    {
+        auto invV = view.Inverse();
+        Vec3 cameraPos = {
+            invV[0][3],
+            invV[1][3],
+            invV[2][3]
+        };
+
+        SetViewProjMatrix(view, proj, cameraPos);
+    }
+
+    void RenderContext::SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj, const Vec3& cameraPos)
     {
         vMatrix = view;
         pMatrix = proj;
         vpMatrix = proj * view;
         
-        auto perViewMaterial = GameResource::Ins()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+        auto perViewMaterial = GetGR()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
         perViewMaterial->Set(VP, vpMatrix);
+        perViewMaterial->Set(CAMERA_POSITION_WS, Vec4(cameraPos, 0.0f));
     }
 
     void RenderContext::RegisterRt(RenderTexture* rt)

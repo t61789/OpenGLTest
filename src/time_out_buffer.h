@@ -16,7 +16,7 @@ namespace op
         
         V GetOrAdd(const K& key)
         {
-            auto curFrame = GameResource::Ins()->time.frame;
+            auto curFrame = GetGR()->time.frame;
             
             auto it = m_map.find(key);
             if (it != m_map.end())
@@ -38,7 +38,7 @@ namespace op
         
         void Set(K key, V value)
         {
-            auto curFrame = GameResource::Ins()->time.frame;
+            auto curFrame = GetGR()->time.frame;
             
             Elem elem;
             elem.value = value;
@@ -62,7 +62,7 @@ namespace op
 
         void ClearTimeOut()
         {
-            auto curFrame = GameResource::Ins()->time.frame;
+            auto curFrame = GetGR()->time.frame;
             if (curFrame - m_prevClearFrame < 10)
             {
                 return;

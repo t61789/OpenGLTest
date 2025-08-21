@@ -20,13 +20,13 @@ namespace op
         m_count.erase(std::remove(m_count.begin(), m_count.end(), this), m_count.end());
     }
 
-    void SharedObject::IncRef()
+    SharedObject* SharedObject::IncRef()
     {
         static std::string defaultKey = "DefaultKey";
-        IncRef(defaultKey);
+        return IncRef(defaultKey);
     }
 
-    void SharedObject::IncRef(const std::string& key)
+    SharedObject* SharedObject::IncRef(const std::string& key)
     {
         if (m_reference.find(key) == m_reference.end())
         {
@@ -36,6 +36,8 @@ namespace op
         {
             m_reference[key]++;
         }
+
+        return this;
     }
 
     void SharedObject::DecRef()

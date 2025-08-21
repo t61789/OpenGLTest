@@ -38,7 +38,7 @@ namespace op
         inline bool GetFloatArr(size_t nameId, float* dst, const uint32_t& count);
 
         void BindShader(Shader* shader);
-        Shader* GetShader() { return m_shader; }
+        Shader* GetShader() const { return m_shader; }
         void CreateCBuffer(CBufferLayout* cbufferLayout);
         bool HasCBuffer() { return m_cbuffer != nullptr; }
         void UseCBuffer();
@@ -164,7 +164,7 @@ namespace op
             return *textureData;
         }
 
-        auto globalMat = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
+        auto globalMat = GET_GLOBAL_CBUFFER;
         if (globalMat != this)
         {
             return globalMat->GetTexture(nameId);

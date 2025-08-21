@@ -52,8 +52,13 @@ namespace op
     
         RenderTarget::Get(m_shadingRt, nullptr)->Use();
 
-        auto quadMesh = BuiltInRes::Ins()->quadMesh;
-        RenderingUtils::RenderMesh(quadMesh, m_deferredShadingMat, Matrix4x4::Identity(), Matrix4x4::Identity());
+        auto quadMesh = BUILT_IN_RES->quadMesh;
+        RenderingUtils::RenderMesh({
+            quadMesh,
+            m_deferredShadingMat,
+            &Matrix4x4::Identity(),
+            &Matrix4x4::Identity()
+        });
     }
 
     void DeferredShadingPass::UpdateRt()
@@ -70,7 +75,7 @@ namespace op
             m_shadingRt = new RenderTexture(desc);
             INCREF(m_shadingRt);
             m_renderContext->RegisterRt(m_shadingRt);
-            GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER)->Set(SHADING_BUFFER_TEX, m_shadingRt);
+            GET_GLOBAL_CBUFFER->Set(SHADING_BUFFER_TEX, m_shadingRt);
 
             desc.name = "_TempPpRt0";
             m_tempPpRt0 = new RenderTexture(desc);

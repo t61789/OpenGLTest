@@ -328,7 +328,7 @@ namespace op
         }
 
         result->name = desc.name;
-        result->m_lastUseFrame = GameResource::Ins()->time.frame;
+        result->m_lastUseFrame = GetGR()->time.frame;
         if (result->m_dirty)
         {
             result->RebindAttachments();
@@ -370,7 +370,7 @@ namespace op
 
     void RenderTarget::ClearUnusedRenderTargets()
     {
-        int curFrame = GameResource::Ins()->time.frame;
+        int curFrame = GetGR()->time.frame;
         if (curFrame - m_lastClearFrame < m_renderTargetTimeout)
         {
             return;

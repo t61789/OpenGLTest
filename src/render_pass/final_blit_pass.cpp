@@ -47,9 +47,14 @@ namespace op
         finalBlitMat->Set(MAX_LUMINANCE, m_maxLuminance);
         finalBlitMat->Set(LUT_TEX, lutTexture);
 
-        auto quad = BuiltInRes::Ins()->quadMesh;
+        auto quad = BUILT_IN_RES->quadMesh;
         
-        RenderingUtils::RenderMesh(quad, finalBlitMat, Matrix4x4::Identity());
+        RenderingUtils::RenderMesh({
+            quad,
+            finalBlitMat,
+            &Matrix4x4::Identity(),
+            &Matrix4x4::Identity(),
+        });
     }
 
     void FinalBlitPass::DrawConsoleUi()

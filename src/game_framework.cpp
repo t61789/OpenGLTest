@@ -43,12 +43,12 @@ namespace op
     GameFramework::GameFramework()
     {
         m_gameResource = std::make_unique<GameResource>();
-        m_onFrameBufferResizeHandler = GameResource::Ins()->onFrameBufferResize.Add(this, &GameFramework::OnSetFrameBufferResize); // TODO resize
+        m_onFrameBufferResizeHandler = GetGR()->onFrameBufferResize.Add(this, &GameFramework::OnSetFrameBufferResize); // TODO resize
     }
 
     GameFramework::~GameFramework()
     {
-        GameResource::Ins()->onFrameBufferResize.Remove(m_onFrameBufferResizeHandler);
+        GetGR()->onFrameBufferResize.Remove(m_onFrameBufferResizeHandler);
 
         ReleaseGame();
     }
@@ -143,7 +143,7 @@ namespace op
             m_window,
             [](GLFWwindow* window, const int width, const int height)
             {
-                GameResource::Ins()->onFrameBufferResize.Invoke(window, width, height);
+                GetGR()->onFrameBufferResize.Invoke(window, width, height);
             });
 
         return true;
@@ -177,7 +177,7 @@ namespace op
     {
         Gui::Ins()->BeginFrame();
 
-        auto& time = GameResource::Ins()->time;
+        auto& time = GetGR()->time;
         auto curFrameTime = static_cast<float>(glfwGetTime());
         time.frame += 1;
         time.deltaTime = max(curFrameTime - time.time, 0.000001f);
@@ -186,7 +186,7 @@ namespace op
 
     void GameFramework::FrameEnd()
     {
-        GameResource::Ins()->onFrameEnd.Invoke();
+        GetGR()->onFrameEnd.Invoke();
         
         FrameMark;
     }
@@ -270,6 +270,8 @@ namespace op
     {
         m_gui = std::make_unique<Gui>();
         m_renderState = std::make_unique<RenderState>();
+        m_perObjectBuffer = std::make_unique<PerObjectBuffer>();
+        m_gameResource->perObjectBuffer = m_perObjectBuffer.get();
         m_builtInRes = std::make_unique<BuiltInRes>();
         m_renderPipeline = std::make_unique<RenderPipeline>(m_screenWidth, m_screenHeight, m_window);
         // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");

@@ -10,18 +10,12 @@ namespace op
         glDisable(GL_CULL_FACE);
         glDisable(GL_BLEND);
 
-        m_glBufferBase.resize(12);
-        for (uint32_t i = 0; i < m_glBufferBase.size(); ++i)
-        {
-            m_glBufferBase[i].slot = i;
-        }
-
-        m_onFrameEndHandler = GameResource::Ins()->onFrameEnd.Add(this, &RenderState::SetAllDirty);
+        m_onFrameEndHandler = GetGR()->onFrameEnd.Add(this, &RenderState::SetAllDirty);
     }
 
     RenderState::~RenderState()
     {
-        GameResource::Ins()->onFrameEnd.Remove(m_onFrameEndHandler);
+        GetGR()->onFrameEnd.Remove(m_onFrameEndHandler);
         
         glDisable(GL_CULL_FACE);
         glDisable(GL_BLEND);
@@ -151,36 +145,38 @@ namespace op
 
     bool RenderState::BindBuffer(const uint32_t target, const uint32_t buffer)
     {
-        if (!m_glBuffer.dirty && m_glBuffer.target == target && m_glBuffer.buffer == buffer)
+        auto glBufferInfo = GetBufferInfo(target);
+        if (!glBufferInfo->dirty && glBufferInfo->buffer == buffer)
         {
             return false;
         }
-        m_glBuffer.dirty = false;
-        m_glBuffer.target = target;
-        m_glBuffer.buffer = buffer;
-
-        GL_CLEAR_ERROR
+        glBufferInfo->dirty = false;
+        glBufferInfo->buffer = buffer;
 
         glBindBuffer(target, buffer);
         
         GL_CHECK_ERROR(绑定Buffer)
-
+        
         return true;
     }
 
     bool RenderState::BindBufferBase(const uint32_t slot, const uint32_t target, const uint32_t buffer)
     {
-        auto& info = m_glBufferBase[slot];
-        if (!info.dirty && info.target == target && info.buffer == buffer)
+        auto glBufferInfo = GetBufferInfo(target);
+        auto glBufferBaseInfo = &glBufferInfo->baseInfo[slot];
+        if (!glBufferBaseInfo->dirty && glBufferBaseInfo->buffer == buffer)
         {
             return false;
         }
 
-        info.dirty = false;
-        info.target = target;
-        info.buffer = buffer;
-        
+        glBufferInfo->dirty = false;
+        glBufferInfo->buffer = buffer; // BindBufferBase会把BindBuffer绑定的buffer给一起设置了
+        glBufferBaseInfo->dirty = false;
+        glBufferBaseInfo->buffer = buffer;
+
         glBindBufferBase(target, slot, buffer);
+        
+        GL_CHECK_ERROR(绑定BufferBase)
         
         return true;
     }
@@ -189,10 +185,26 @@ namespace op
     {
         m_glShader.dirty = true;
         m_glVertexArray.dirty = true;
-        m_glBuffer.dirty = true;
-        for (auto& info : m_glBufferBase)
+        for (auto& bufferInfo : m_glBuffers)
         {
-            info.dirty = true;
+            bufferInfo.dirty = true;
+            for (auto& bufferBaseInfo : bufferInfo.baseInfo)
+            {
+                bufferBaseInfo.dirty = true;
+            }
         }
+    }
+
+    RenderState::GlBufferInfo* RenderState::GetBufferInfo(const uint32_t target)
+    {
+        auto glBufferInfo = find(m_glBuffers, &GlBufferInfo::target, target);
+        if (!glBufferInfo)
+        {
+            m_glBuffers.emplace_back(target);
+            glBufferInfo = &m_glBuffers.back();
+            glBufferInfo->target = target;
+        }
+
+        return glBufferInfo;
     }
 }

@@ -46,7 +46,7 @@ namespace op
         INCREF(m_gBufferDepthTex);
         m_renderContext->RegisterRt(m_gBufferDepthTex);
 
-        auto globalCbuffer = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
+        auto globalCbuffer = GET_GLOBAL_CBUFFER;
         globalCbuffer->Set(GBUFFER_0_TEX, m_gBuffer0Tex);
         globalCbuffer->Set(GBUFFER_1_TEX, m_gBuffer1Tex);
         globalCbuffer->Set(GBUFFER_2_TEX, m_gBuffer2Tex);

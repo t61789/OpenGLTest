@@ -32,6 +32,7 @@ namespace op
 
         std::unique_ptr<Gui> m_gui = nullptr;
         std::unique_ptr<RenderState> m_renderState = nullptr;
+        std::unique_ptr<PerObjectBuffer> m_perObjectBuffer = nullptr;
         std::unique_ptr<BuiltInRes> m_builtInRes = nullptr;
         std::unique_ptr<RenderPipeline> m_renderPipeline = nullptr;
         std::unique_ptr<GameResource> m_gameResource = nullptr;

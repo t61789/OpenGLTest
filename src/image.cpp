@@ -42,7 +42,7 @@ namespace op
 
         if (!Utils::AssetExists(path))
         {
-            return dynamic_cast<Image*>(BuiltInRes::Ins()->errorTex);
+            return dynamic_cast<Image*>(BUILT_IN_RES->errorTex);
         }
 
         stbi_set_flip_vertically_on_load(desc.needFlipVertical);

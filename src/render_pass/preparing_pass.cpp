@@ -10,6 +10,7 @@
 #include "objects/transform_comp.h"
 #include "const.h"
 #include "material.h"
+#include "objects/render_comp.h"
 
 namespace op
 {
@@ -29,9 +30,15 @@ namespace op
             return;
         }
 
-        auto perViewCBuffer = GameResource::Ins()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+        auto viewportSize = Vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
+        auto perViewCBuffer = GetGR()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+        perViewCBuffer->Set(VIEWPORT_SIZE, viewportSize);
 
-        perViewCBuffer->Set(CAMERA_POSITION_WS, Vec4(m_renderContext->camera->owner->transform->GetPosition(), 0));
+        // 把需要渲染的objs的矩阵都上传一下
+        for (auto renderComp : m_renderContext->visibleRenderObjs)
+        {
+            renderComp->UpdateTransform();
+        }
 
         std::vector clearColors = {
             Vec4(0.5f),
@@ -40,9 +47,6 @@ namespace op
         };
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Clear(clearColors, 1.0f);
 
-        auto viewportSize = Vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
-        perViewCBuffer->Set(VIEWPORT_SIZE, viewportSize);
-
         PrepareLightInfos();
     
         IndirectLighting::SetGradientAmbientColor(
@@ -50,7 +54,7 @@ namespace op
             m_renderContext->scene->ambientLightColorEquator,
             m_renderContext->scene->ambientLightColorGround);
 
-        auto globalCBuffer = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
+        auto globalCBuffer = GET_GLOBAL_CBUFFER;
         globalCBuffer->Set(FOG_INTENSITY, m_renderContext->scene->fogIntensity);
         globalCBuffer->Set(FOG_COLOR, Vec4(m_renderContext->scene->fogColor, 0));
 
@@ -83,7 +87,7 @@ namespace op
         auto parallelLights = std::vector<LightComp*>();
         auto pointLights = std::vector<LightComp*>();
 
-        auto globalCBuffer = GameResource::Ins()->GetPredefinedMaterial(GLOBAL_CBUFFER);
+        auto globalCBuffer = GET_GLOBAL_CBUFFER;
 
         for (auto light : *m_renderContext->lights)
         {

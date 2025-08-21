@@ -129,7 +129,7 @@ namespace op
     {
         if (ImGui::CollapsingHeader("Application Info"))
         {
-            auto deltaTime = GameResource::Ins()->time.deltaTime;
+            auto deltaTime = GetGR()->time.deltaTime;
             ImGui::Text(std::string("FPS: " + to_string(1 / deltaTime, 2)).c_str());
         }
     }
