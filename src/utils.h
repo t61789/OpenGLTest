@@ -306,6 +306,21 @@ namespace op
         _aligned_free(ptr);
     }
 
+    static std::string replace(const std::string& original, const std::string& toReplace, const std::string& replacement)
+    {
+        std::string result = original;
+        size_t pos = 0;
+    
+        // 循环查找并替换所有匹配的子字符串
+        while ((pos = result.find(toReplace, pos)) != std::string::npos)
+        {
+            result.replace(pos, toReplace.length(), replacement);
+            pos += replacement.length(); // 移动位置到替换后的字符串之后
+        }
+    
+        return result;
+    }
+
     template<typename T>
     class Singleton
     {

@@ -37,7 +37,7 @@ namespace op
         static BlendMode BlendModeFromStr(const std::string& str);
 
         bool SetShader(GLuint shader);
-        bool SetVertexArray(GLuint vao);
+        bool BindVertexArray(GLuint vao);
 
         bool BindBuffer(uint32_t target, uint32_t buffer);
         bool BindBufferBase(uint32_t slot, uint32_t target, uint32_t buffer);

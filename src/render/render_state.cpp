@@ -129,7 +129,7 @@ namespace op
         return true;
     }
 
-    bool RenderState::SetVertexArray(const GLuint vao)
+    bool RenderState::BindVertexArray(const GLuint vao)
     {
         if (!m_glVertexArray.dirty && m_glVertexArray.vao == vao)
         {

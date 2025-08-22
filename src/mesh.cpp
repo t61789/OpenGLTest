@@ -201,7 +201,7 @@ namespace op
         glGenBuffers(1, &vbo);
         glGenBuffers(1, &ebo);
 
-        GetRS()->SetVertexArray(vao);
+        GetRS()->BindVertexArray(vao);
 
         GetRS()->BindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexData.size() * sizeof(float)), vertexData.data(), GL_STATIC_DRAW);

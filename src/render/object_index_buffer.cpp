@@ -12,7 +12,7 @@ namespace op
 
         auto paramName = StringHandle("index");
         layout->params = {
-            {paramName.Hash(), {paramName, sizeof(uint32_t), 0, layout.name.Hash()}}
+            {paramName.Hash(), {paramName, sizeof(uint32_t), 0, layout->name.Hash()}}
         };
 
         m_buffer = new CBuffer(layout);

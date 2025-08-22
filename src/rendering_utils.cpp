@@ -140,7 +140,7 @@ namespace op
 
 
         // Bind Vertex Attrib
-        GetRS()->SetVertexArray(mesh->vao);
+        GetRS()->BindVertexArray(mesh->vao);
         GetRS()->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
 
         

@@ -21,6 +21,7 @@
 #include "render_pass/preparing_pass.h"
 #include "render_pass/render_scene_pass.h"
 #include "render_pass/render_skybox_pass.h"
+#include "render_pass/test_draw_pass.h"
 
 namespace op
 {
@@ -61,6 +62,7 @@ namespace op
         // m_passes.push_back(new MainLightShadowPass(m_renderContext.get()));
         m_passes.push_back(new RenderSkyboxPass(m_renderContext.get()));
         m_passes.push_back(new RenderScenePass(m_renderContext.get()));
+        m_passes.push_back(new TestDrawPass(m_renderContext.get()));
         m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
         // m_passes.push_back(new KawaseBlur());
         // m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));

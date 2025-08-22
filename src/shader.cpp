@@ -207,8 +207,7 @@ namespace op
     Shader* Shader::LoadFromSpvBinary(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path)
     {
         spirv_cross::CompilerGLSL::Options options;
-        options.version = 310;
-        options.es = true;
+        options.version = 460;
         
         spirv_cross::CompilerGLSL vertCompilerGlsl(std::move(vert));
         vertCompilerGlsl.set_common_options(options);
@@ -235,7 +234,7 @@ namespace op
         result->LoadTextures(vertCompilerGlsl, vertShaderResources);
         result->LoadTextures(fragCompilerGlsl, fragShaderResources);
 
-        // if (path.find("skybox") != std::string::npos)
+        if (path.find("indirect_test") != std::string::npos)
         {
             log_info(vSource);
             log_info(fSource);
