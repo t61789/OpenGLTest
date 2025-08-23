@@ -8,8 +8,8 @@ namespace op
     class CameraComp : public Comp
     {
     public:
-        CameraComp();
-        ~CameraComp() override;
+        void Awake() override;
+        void OnDestroy() override;
         void Start() override;
         void Update() override;
         float fov = 45.0f;

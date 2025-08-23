@@ -24,7 +24,7 @@ namespace op
 
     void BatchRenderUnit::RegisterMesh(Mesh* mesh)
     {
-        mesh->
+        // mesh->
     }
 
     void BatchRenderUnit::RecreateResource()

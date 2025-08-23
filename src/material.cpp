@@ -84,19 +84,19 @@ namespace op
             const auto& elemKey = StringHandle(elem.key());
             const auto& elemValue = elem.value();
             
-            if (elemKey == "shader")
+            if (elemKey.Str() == "shader")
             {
                 shader = Shader::LoadFromFile(elemValue.get<std::string>());
                 continue;
             }
 
-            if (elemKey == "cullMode")
+            if (elemKey.Str() == "cullMode")
             {
                 result->cullMode = RenderState::CullModeFromStr(elemValue.get<std::string>());
                 continue;
             }
 
-            if (elemKey == "blendMode")
+            if (elemKey.Str() == "blendMode")
             {
                 result->blendMode = RenderState::BlendModeFromStr(elemValue.get<std::string>());
                 continue;

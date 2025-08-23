@@ -2,8 +2,17 @@
 
 namespace op
 {
-    void Comp::SetName(const std::string& name)
+    void Comp::SetEnable(const bool enable)
     {
-        m_name = name;
+        if (enable && !m_enable)
+        {
+            m_enable = true;
+            OnEnable();
+        }
+        else if (!enable && m_enable)
+        {
+            m_enable = false;
+            OnDisable();
+        }
     }
 }

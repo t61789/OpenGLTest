@@ -98,7 +98,7 @@ namespace op
                 if (!m_renderContext->mainLight)
                 {
                     m_renderContext->mainLight = light;
-                    globalCBuffer->Set(MAIN_LIGHT_DIRECTION, Vec4(-light->owner->transform->GetLocalToWorld().Forward(), 0));
+                    globalCBuffer->Set(MAIN_LIGHT_DIRECTION, Vec4(-light->GetOwner()->transform->GetLocalToWorld().Forward(), 0));
                 }
 
                 parallelLights.push_back(light);
@@ -120,7 +120,7 @@ namespace op
         for (auto light : parallelLights)
         {
             parallelLightInfos.push_back({
-                Vec4(-light->owner->transform->GetLocalToWorld().Forward(), 0),
+                Vec4(-light->GetOwner()->transform->GetLocalToWorld().Forward(), 0),
                 Vec4(light->GetColor(), 0)
             });
         }
@@ -143,7 +143,7 @@ namespace op
         for (auto light : pointLights)
         {
             pointLightInfos.push_back({
-                Vec4(light->owner->transform->GetPosition(), light->radius),
+                Vec4(light->GetOwner()->transform->GetPosition(), light->radius),
                 Vec4(light->GetColor(), 0)
             });
         }

@@ -182,9 +182,9 @@ namespace op
         // TODO 每一帧都遍历整个场景开销不菲，可以在物体退出和进入场景的时候进行更新
         auto objectIndices = renderContext.scene->objectIndices.get();
         renderContext.allSceneObjs = objectIndices->GetAllObjects();
-        renderContext.allRenderObjs = objectIndices->GetAllComps<RenderComp>("RenderComp");
-        renderContext.lights = objectIndices->GetAllComps<LightComp>("LightComp");
-        renderContext.cameras = objectIndices->GetAllComps<CameraComp>("CameraComp");
+        renderContext.allRenderObjs = objectIndices->GetAllComps<RenderComp>(RENDER_COMP);
+        renderContext.lights = objectIndices->GetAllComps<LightComp>(LIGHT_COMP);
+        renderContext.cameras = objectIndices->GetAllComps<CameraComp>(CAMERA_COMP);
     }
     void RenderPipeline::SwapBuffers()
     {

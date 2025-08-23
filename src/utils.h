@@ -144,6 +144,20 @@ namespace op
         return nullptr;
     }
     
+    template <typename V>
+    static V* find(std::vector<V*>& vec, const StringHandle V::* keyField, const size_t key)
+    {
+        for (auto& v : vec)
+        {
+            if (v->*keyField == key)
+            {
+                return v;
+            }
+        }
+
+        return nullptr;
+    }
+    
     template <typename K, typename V>
     static int find_index(std::vector<V>& vec, const K V::* keyField, const K& key)
     {

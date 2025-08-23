@@ -14,25 +14,25 @@ namespace op
 
     vector<CameraComp*> CameraComp::s_cameras;
 
-    CameraComp::CameraComp()
+    void CameraComp::Awake()
     {
         s_cameras.push_back(this);
     }
 
-    CameraComp::~CameraComp()
+    void CameraComp::OnDestroy()
     {
         s_cameras.erase(remove(s_cameras.begin(), s_cameras.end(), this), s_cameras.end());
     }
 
     void CameraComp::Start()
     {
-        m_targetPosition = owner->transform->GetWorldPosition();
-        m_targetRotation = owner->transform->GetEulerAngles();
+        m_targetPosition = GetOwner()->transform->GetWorldPosition();
+        m_targetRotation = GetOwner()->transform->GetEulerAngles();
     }
 
     void CameraComp::Update()
     {
-        Matrix4x4 localToWorld = owner->transform->GetLocalToWorld();
+        Matrix4x4 localToWorld = GetOwner()->transform->GetLocalToWorld();
         Vec3 forward = localToWorld.Forward();
         Vec3 right = localToWorld.Right();
         Vec3 up = localToWorld.Up();
@@ -85,7 +85,7 @@ namespace op
             m_targetPosition -= up * deltaTime * moveSpeed;
         }
 
-        owner->transform->SetWorldPosition(lerp(owner->transform->GetWorldPosition(), m_targetPosition, damp));
+        GetOwner()->transform->SetWorldPosition(lerp(GetOwner()->transform->GetWorldPosition(), m_targetPosition, damp));
     
         if(gameFramework->KeyPressed(GLFW_KEY_UP))
         {
@@ -107,8 +107,8 @@ namespace op
             m_targetRotation.y += deltaTime * rotateSpeed;
         }
 
-        auto r = slerp(owner->transform->GetRotation(), Quaternion::Euler(m_targetRotation), damp);
-        owner->transform->SetRotation(r);
+        auto r = slerp(GetOwner()->transform->GetRotation(), Quaternion::Euler(m_targetRotation), damp);
+        GetOwner()->transform->SetRotation(r);
     }
 
     void CameraComp::LoadFromJson(const nlohmann::json& objJson)

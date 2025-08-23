@@ -43,8 +43,8 @@ namespace op
         RenderMesh({
             mesh,
             renderComp->material,
-            &renderComp->owner->transform->GetLocalToWorld(),
-            &renderComp->owner->transform->GetWorldToLocal(),
+            &renderComp->GetOwner()->transform->GetLocalToWorld(),
+            &renderComp->GetOwner()->transform->GetWorldToLocal(),
             renderComp->GetObjectIndex()
         });
     }

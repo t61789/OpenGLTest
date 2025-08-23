@@ -54,7 +54,7 @@ namespace op
 
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
     
-        m_submitBuffer.localToWorld = Matrix4x4::TRS(camera->owner->transform->GetWorldPosition(), Quaternion::Identity(), Vec3::One());
+        m_submitBuffer.localToWorld = Matrix4x4::TRS(camera->GetOwner()->transform->GetWorldPosition(), Quaternion::Identity(), Vec3::One());
         m_submitBuffer.worldToLocal = m_submitBuffer.localToWorld.Inverse();
         GetGR()->perObjectBuffer->SubmitData(m_objectIndex, &m_submitBuffer);
 

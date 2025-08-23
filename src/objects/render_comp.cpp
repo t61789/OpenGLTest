@@ -10,19 +10,23 @@ namespace op
 {
     void RenderComp::Awake()
     {
-        m_onTransformDirtyHandler = owner->transform->dirtyEvent.Add(this, &RenderComp::OnTransformDirty);
+        m_perObjectBufferIndex = GetGR()->perObjectBuffer->BindObject();
     }
 
     void RenderComp::Start()
     {
-        m_perObjectBufferIndex = GetGR()->perObjectBuffer->BindObject();
+        m_onTransformDirtyHandler = GetOwner()->transform->dirtyEvent.Add(this, &RenderComp::OnTransformDirty);
+        OnTransformDirty();
     }
 
     void RenderComp::OnDestroy()
     {
         GetGR()->perObjectBuffer->UnbindObject(m_perObjectBufferIndex);
-        
-        owner->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
+
+        if (m_onTransformDirtyHandler)
+        {
+            GetOwner()->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
+        }
         
         if (mesh)
         {
@@ -84,7 +88,7 @@ namespace op
 
     void RenderComp::UpdateWorldBounds()
     {
-        auto m = owner->transform->GetLocalToWorld();
+        auto m = GetOwner()->transform->GetLocalToWorld();
         const auto& boundsOS = mesh->bounds;
         auto centerWS = Vec3(m * Vec4(boundsOS.center, 1));
         Vec3 extentsWS = {
@@ -98,8 +102,8 @@ namespace op
 
     void RenderComp::UpdatePerObjectBuffer()
     {
-        m_submitBuffer.localToWorld = owner->transform->GetLocalToWorld();
-        m_submitBuffer.worldToLocal = owner->transform->GetWorldToLocal();
+        m_submitBuffer.localToWorld = GetOwner()->transform->GetLocalToWorld();
+        m_submitBuffer.worldToLocal = GetOwner()->transform->GetWorldToLocal();
 
         GetGR()->perObjectBuffer->SubmitData(m_perObjectBufferIndex, &m_submitBuffer);
     }

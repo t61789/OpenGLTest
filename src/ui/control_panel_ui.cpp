@@ -66,7 +66,7 @@ namespace op
 
     void ControlPanelUi::DrawHierarchy(Object* obj)
     {
-        ImGui::TextUnformatted(obj->name.c_str());
+        ImGui::TextUnformatted(obj->name.CStr());
         ImGui::SameLine();
         auto pathInScene = obj->GetPathInScene();
         if (ImGui::Button(("pick##" + pathInScene).c_str()))
@@ -112,7 +112,7 @@ namespace op
         
         if (obj)
         {
-            ImGui::TextUnformatted(obj->name.c_str());
+            ImGui::TextUnformatted(obj->name.CStr());
             obj->transform->SetPosition(Gui::DragFloat3("position", obj->transform->GetPosition(), 0.02f));
             obj->transform->SetScale(Gui::DragFloat3("scale", obj->transform->GetScale(), 0.02f));
             obj->transform->SetEulerAngles(Gui::DragFloat3("rotation", obj->transform->GetEulerAngles(), 1.0f));

@@ -21,7 +21,7 @@ namespace op
 
     void RenderContext::SetViewProjMatrix(const CameraComp* cam)
     {
-        auto cameraLocalToWorld = cam->owner->transform->GetLocalToWorld();
+        auto cameraLocalToWorld = cam->GetOwner()->transform->GetLocalToWorld();
         cameraLocalToWorld[0][2] = -cameraLocalToWorld[0][2];
         cameraLocalToWorld[1][2] = -cameraLocalToWorld[1][2];
         cameraLocalToWorld[2][2] = -cameraLocalToWorld[2][2];
@@ -30,7 +30,7 @@ namespace op
         auto aspect = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
         auto projectionMatrix = create_projection(cam->fov, aspect, cam->nearClip, cam->farClip);
 
-        SetViewProjMatrix(viewMatrix, projectionMatrix, cam->owner->transform->GetPosition());
+        SetViewProjMatrix(viewMatrix, projectionMatrix, cam->GetOwner()->transform->GetPosition());
     }
 
     void RenderContext::SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj)

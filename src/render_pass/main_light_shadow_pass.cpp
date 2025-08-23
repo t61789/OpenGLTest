@@ -53,7 +53,7 @@ namespace op
         auto lightDirection = -Vec3::One().Normalize();
         if (m_renderContext->mainLight)
         {
-            lightDirection = m_renderContext->mainLight->owner->transform->GetLocalToWorld().Forward().Normalize();
+            lightDirection = m_renderContext->mainLight->GetOwner()->transform->GetLocalToWorld().Forward().Normalize();
         }
 
         constexpr float range = 30;
@@ -70,7 +70,7 @@ namespace op
             0, 0, 0, 1);
         auto worldToShadowCamera = shadowCameraToWorld.Inverse();
         // 希望以摄像机为中心，但是先把摄像机位置转到阴影空间，然后对齐每个纹素，避免阴影光栅化时闪烁
-        auto cameraPositionVS = worldToShadowCamera * Vec4(camera->owner->transform->GetPosition(), 1);
+        auto cameraPositionVS = worldToShadowCamera * Vec4(camera->GetOwner()->transform->GetPosition(), 1);
         cameraPositionVS.x = std::floor(cameraPositionVS.x / distancePerTexel) * distancePerTexel;
         cameraPositionVS.y = std::floor(cameraPositionVS.y / distancePerTexel) * distancePerTexel;
         auto alignedCameraPositionWS = (shadowCameraToWorld * cameraPositionVS).ToVec3();

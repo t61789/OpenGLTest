@@ -10,25 +10,17 @@
 
 namespace op
 {
-    Object* Object::Create()
+    Object* Object::Create(const StringHandle& name)
     {
-        return Create("Unnamed object", nlohmann::json::object());
-    }
-
-    Object* Object::Create(const std::string& name)
-    {
-        return Create(name, nlohmann::json::object());
+        auto result = new Object();
+        result->name = name;
+        result->LoadFromJson(nlohmann::json::object());
+        return result;
     }
     
     Object* Object::CreateFromJson(const nlohmann::json& objJson)
     {
-        return Create("Unnamed object", objJson);
-    }
-    
-    Object* Object::Create(const std::string& name, const nlohmann::json& objJson)
-    {
         auto result = new Object();
-        result->name = name;
         result->LoadFromJson(objJson);
         return result;
     }
@@ -42,12 +34,12 @@ namespace op
         
         for (const auto& comp : m_comps)
         {
-            comp.second->OnDestroy();
+            comp->OnDestroy();
         }
 
-        for (const auto& comp : m_comps)
+        for (auto comp : m_comps)
         {
-            delete comp.second;
+            delete comp;
         }
     }
 
@@ -71,8 +63,10 @@ namespace op
         }
 
         child->parent = this;
-        child->scene = scene;
-        scene->objectIndices->AddObject(child);
+        if (scene)
+        {
+            scene->objectIndices->AddObject(child);
+        }
         children.push_back(child);
         INCREF(child);
     }
@@ -86,8 +80,10 @@ namespace op
         }
 
         child->parent = nullptr;
-        child->scene = nullptr;
-        scene->objectIndices->RemoveObject(child);
+        if (scene)
+        {
+            scene->objectIndices->RemoveObject(child);
+        }
         children.erase(it);
         DECREF(child);
     }
@@ -106,58 +102,41 @@ namespace op
         return join(path, "/");
     }
 
-    bool Object::HasComp(const std::string& compName)
+    bool Object::HasComp(const string_hash compNameId)
     {
-        return m_comps.find(compName) != m_comps.end();
+        return GetComp(compNameId) != nullptr;
     }
 
-    Comp* Object::GetComp(const std::string& compName)
+    Comp* Object::GetComp(const string_hash compNameId)
     {
-        Comp* result = nullptr;
-        auto it = m_comps.find(compName);
-        if (it != m_comps.end())
-        {
-            result = it->second;
-        }
-
-        return result;
+        return find(m_comps, &Comp::m_name, compNameId);
     }
 
-    std::vector<Comp*> Object::GetComps()
+    const std::vector<Comp*>& Object::GetComps()
     {
-        auto result = std::vector<Comp*>();
-        result.reserve(m_comps.size());
-        for (auto& pair : m_comps)
-        {
-            result.push_back(pair.second);
-        }
-        return result;
+        return m_comps;
     }
 
-    std::function<Comp*()> Object::GetConstructor(const std::string& name)
+    const std::function<Comp*()>& Object::GetCompConstructor(const string_hash& compNameId)
     {
-        static std::unordered_map<std::string, std::function<Comp*()>> constructors;
-        
-        if (constructors.empty())
-        {
-    #define REGISTER_OBJECT(t) constructors[#t] = []() -> Comp* { auto result = new t(); result->SetName(#t); return result; }
+        #define REGISTER_COMP(t) {StringHandle(#t), ([]() -> Comp* { auto result = new t(); result->SetName(StringHandle(#t)); return result; })}
+        static std::unordered_map<string_hash, std::function<Comp*()>> constructors = {
+            REGISTER_COMP(RenderComp),
+            REGISTER_COMP(TransformComp),
+            REGISTER_COMP(CameraComp),
+            REGISTER_COMP(LightComp),
+            REGISTER_COMP(RuntimeComp),
+        };
+        #undef REGISTER_COMP
 
-            REGISTER_OBJECT(RenderComp);
-            REGISTER_OBJECT(LightComp);
-            REGISTER_OBJECT(CameraComp);
-            REGISTER_OBJECT(TransformComp);
-            REGISTER_OBJECT(RuntimeComp);
-            
-    #undef REGISTER_OBJECT
-        }
-
-        auto it = constructors.find(name);
+        auto it = constructors.find(compNameId);
         if (it != constructors.end())
         {
             return it->second;
         }
 
-        return []() -> Comp* { return nullptr; };
+        static std::function nullConstructor = []() -> Comp* { return nullptr; };
+        return nullConstructor;
     }
 
     std::vector<nlohmann::json> Object::GetPresetCompJsons()
@@ -201,14 +180,36 @@ namespace op
         for (auto& compJson : compJsons)
         {
             auto compName = compJson["name"].get<std::string>();
-            auto comp = GetConstructor(compName);
-            assert(comp);
-            if (!comp)
-            {
-                continue;
-            }
-
-            AddOrCreateComp(compName, compJson);
+            AddOrCreateComp(StringHandle(compName), compJson);
         }
+    }
+    
+    Comp* Object::AddOrCreateComp(const size_t compNameId, const nlohmann::json& compJson)
+    {
+        auto comp = GetComp<Comp>(compNameId);
+        if (comp)
+        {
+            return comp;
+        }
+
+        comp = GetCompConstructor(compNameId)();
+        if (!comp)
+        {
+            return nullptr;
+        }
+
+        comp->m_owner = this;
+        m_comps.push_back(comp);
+        if (scene)
+        {
+            scene->objectIndices->AddComp(comp->GetName(), comp);
+            comp->SetScene(scene);
+        }
+
+        comp->LoadFromJson(compJson);
+
+        comp->Awake();
+
+        return comp;
     }
 }

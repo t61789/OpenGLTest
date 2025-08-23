@@ -9,7 +9,7 @@ namespace op
 
     void TransformComp::Awake()
     {
-        owner->transform = this;
+        GetOwner()->transform = this;
     }
 
     Vec3 TransformComp::GetWorldPosition()
@@ -34,7 +34,7 @@ namespace op
         m_position.worldVal = pos;
         m_position.needUpdateFromWorld = true;
 
-        SetDirty(owner);
+        SetDirty(GetOwner());
     }
 
     Vec3 TransformComp::GetPosition()
@@ -56,7 +56,7 @@ namespace op
             return;
         }
 
-        SetDirty(owner);
+        SetDirty(GetOwner());
 
         m_position.localVal = pos;
     }
@@ -73,7 +73,7 @@ namespace op
             return;
         }
 
-        SetDirty(owner);
+        SetDirty(GetOwner());
 
         m_scale.localVal = scale;
     }
@@ -90,7 +90,7 @@ namespace op
             return;
         }
 
-        SetDirty(owner);
+        SetDirty(GetOwner());
 
         m_eulerAngles.localVal = rotation.ToEuler();
         m_rotation.localVal = rotation;
@@ -108,7 +108,7 @@ namespace op
             return;
         }
 
-        SetDirty(owner);
+        SetDirty(GetOwner());
 
         m_eulerAngles.localVal = ea;
         m_rotation.localVal = Quaternion::Euler(ea);
@@ -156,13 +156,13 @@ namespace op
         m_dirty = false;
         
         Matrix4x4 parentLocalToWorld;
-        if (owner->parent)
+        if (GetOwner()->parent)
         {
             // 如果parent还是dirty的话，GetLocalToWorld会继续往上递归地UpdateMatrix
-            parentLocalToWorld = owner->parent->transform->GetLocalToWorld();
+            parentLocalToWorld = GetOwner()->parent->transform->GetLocalToWorld();
             if (m_position.needUpdateFromWorld)
             {
-                auto& parentWorldToLocal = owner->parent->transform->GetWorldToLocal();
+                auto& parentWorldToLocal = GetOwner()->parent->transform->GetWorldToLocal();
                 m_position.localVal = (parentWorldToLocal * Vec4(m_position.worldVal, 1.0f)).ToVec3();
                 m_position.needUpdateFromWorld = false;
             }

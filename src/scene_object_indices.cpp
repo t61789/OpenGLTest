@@ -2,8 +2,14 @@
 
 namespace op
 {
+    SceneObjectIndices::SceneObjectIndices(Scene* scene)
+    {
+        this->scene = scene;
+    }
+
     void SceneObjectIndices::AddObject(Object* obj)
     {
+        obj->scene = scene;
         m_objects.push_back(obj);
         for (auto comp : obj->GetComps())
         {
@@ -13,6 +19,7 @@ namespace op
 
     void SceneObjectIndices::RemoveObject(Object* obj)
     {
+        obj->scene = nullptr;
         m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), obj), m_objects.end());
         for (auto comp : obj->GetComps())
         {
@@ -25,23 +32,27 @@ namespace op
         return &m_objects;
     }
 
-    void SceneObjectIndices::AddComp(const std::string& compName, Comp* comp)
+    void SceneObjectIndices::AddComp(const string_hash& compNameId, Comp* comp)
     {
-        if (m_comps.find(compName) == m_comps.end())
+        comp->SetScene(scene);
+        
+        if (m_comps.find(compNameId) == m_comps.end())
         {
-            m_comps[compName] = std::vector<Comp*>();
+            m_comps[compNameId] = std::vector<Comp*>();
         }
 
-        m_comps[compName].push_back(comp);
+        m_comps[compNameId].push_back(comp);
     }
 
-    void SceneObjectIndices::RemoveComp(const std::string& compName, Comp* comp)
+    void SceneObjectIndices::RemoveComp(const string_hash& compNameId, Comp* comp)
     {
-        if (m_comps.find(compName) == m_comps.end())
+        comp->SetScene(nullptr);
+        
+        if (m_comps.find(compNameId) == m_comps.end())
         {
             return;
         }
 
-        m_comps[compName].erase(std::remove(m_comps[compName].begin(), m_comps[compName].end(), comp), m_comps[compName].end());
+        m_comps[compNameId].erase(std::remove(m_comps[compNameId].begin(), m_comps[compNameId].end(), comp), m_comps[compNameId].end());
     }
 }

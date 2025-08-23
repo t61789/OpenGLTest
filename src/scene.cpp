@@ -1,7 +1,6 @@
 ﻿#include "scene.h"
 
 #include <fstream>
-#include <iostream>
 #include <filesystem>
 
 #include "utils.h"
@@ -16,7 +15,7 @@ namespace op
 
     Scene::Scene()
     {
-        objectIndices = std::make_unique<SceneObjectIndices>();
+        objectIndices = std::make_unique<SceneObjectIndices>(this);
     }
 
     Scene::~Scene()
@@ -96,7 +95,7 @@ namespace op
             rootObj->scene = scene;
             INCREF_BY(rootObj, scene);
             scene->sceneRoot = rootObj;
-            scene->sceneRoot->AddOrCreateComp<RuntimeComp>("RuntimeComp");
+            scene->sceneRoot->AddOrCreateComp<RuntimeComp>(RUNTIME_COMP);
             
             LoadChildren(rootObj, json["root"]);
         }

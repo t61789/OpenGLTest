@@ -3,11 +3,14 @@
 
 namespace op
 {
+    typedef size_t string_hash;
+    
     class StringHandle
     {
     public:
         StringHandle() = default;
         
+        StringHandle(const char* str);
         StringHandle(const std::string& str);
 
         size_t Hash() const { return m_hash; }
@@ -17,10 +20,10 @@ namespace op
         const char* CStr() const { return m_str.c_str(); }
 
         bool operator==(const StringHandle& other) const { return m_hash == other.m_hash; }
+        
+        bool operator==(const std::string& other) const { return m_str == other; }
 
         bool operator!=(const StringHandle& other) const { return m_hash != other.m_hash; }
-
-        bool operator==(const std::string& other) const { return m_str == other; }
 
         bool operator!=(const std::string& other) const { return m_str != other; }
 
