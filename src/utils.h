@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <random>
+#include <cstddef>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -319,6 +321,27 @@ namespace op
         }
     
         return result;
+    }
+
+    template <typename T, typename K>
+    static void sort(std::vector<T>& vec, K T::* key)
+    {
+        std::sort(vec.begin(), vec.end(), [key](const T& a, const T& b) { return a.*key < b.*key; });
+    }
+
+    template <typename T, typename K>
+    static T& max_element(std::vector<T>& vec, K T::* key)
+    {
+        return *std::max_element(vec.begin(), vec.end(), [key](const T& a, const T& b) { return a.*key < b.*key; });
+    }
+    
+    static size_t get_random_size_t()
+    {
+        static std::random_device rd;
+        static std::mt19937_64 gen(rd()); // 使用64位引擎，因为size_t可能是64位
+        static std::uniform_int_distribution<size_t> dis;
+    
+        return dis(gen);
     }
 
     template<typename T>
