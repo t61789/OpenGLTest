@@ -106,13 +106,13 @@ namespace op
         }
         else if (*textureData)
         {
-            DECREF(*textureData);
+            DECREF(*textureData)
         }
 
         *textureData = value;
         if (value)
         {
-            INCREF(value);
+            INCREF(value)
         }
     }
 

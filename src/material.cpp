@@ -10,17 +10,17 @@ namespace op
     {
         if (m_shader)
         {
-            DECREF(m_shader);
+            DECREF(m_shader)
         }
 
         if (m_cbuffer)
         {
-            DECREF(m_cbuffer);
+            DECREF(m_cbuffer)
         }
 
         for (auto& [nameId, texture] : m_textures)
         {
-            DECREF(texture);
+            DECREF(texture)
         }
 
         for (auto& valueInfo : m_values)
@@ -37,7 +37,7 @@ namespace op
         }
 
         m_shader = shader;
-        INCREF(m_shader);
+        INCREF(m_shader)
 
         if (shader->cbuffers.empty())
         {
@@ -60,7 +60,7 @@ namespace op
         }
 
         m_cbuffer = new CBuffer(cbufferLayout);
-        INCREF(m_cbuffer);
+        INCREF(m_cbuffer)
 
         SyncCBuffer(true);
     }

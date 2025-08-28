@@ -22,7 +22,7 @@ namespace op
     {
         if (sceneRoot)
         {
-            DECREF(sceneRoot);
+            DECREF(sceneRoot)
         }
     }
 
@@ -93,7 +93,7 @@ namespace op
         {
             auto rootObj = Object::Create("Scene Root");
             rootObj->scene = scene;
-            INCREF_BY(rootObj, scene);
+            INCREF_BY(rootObj, scene)
             scene->sceneRoot = rootObj;
             scene->sceneRoot->AddOrCreateComp<RuntimeComp>(RUNTIME_COMP);
             

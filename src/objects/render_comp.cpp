@@ -40,7 +40,7 @@ namespace op
             mesh = Mesh::LoadFromFile(meshPath);
             if (mesh)
             {
-                INCREF(mesh);
+                INCREF(mesh)
             }
         }
 
@@ -50,7 +50,7 @@ namespace op
             material = Material::LoadFromFile(matPath);
             if (material)
             {
-                INCREF(material);
+                INCREF(material)
             }
         }
     }

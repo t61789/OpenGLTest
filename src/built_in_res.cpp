@@ -14,7 +14,7 @@ namespace op
         for (const auto& nameId : PREDEFINED_MATERIALS)
         {
             auto mat = new Material();
-            INCREF(mat);
+            INCREF(mat)
 
             GetGR()->SubmitPredefinedMaterial(nameId, mat);
             predefinedMaterials.push_back(mat);
@@ -23,43 +23,43 @@ namespace op
         LoadPackedShaders();
         
         quadMesh = Mesh::LoadFromFile("built_in/meshes/quad.obj");
-        INCREF(quadMesh);
+        INCREF(quadMesh)
         sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
-        INCREF(sphereMesh);
+        INCREF(sphereMesh)
 
         blitMatNew = Material::LoadFromFile("built_in/materials/blit_mat.json");
-        INCREF(blitMatNew);
+        INCREF(blitMatNew)
 
         auto desc = ImageDescriptor::GetDefault();
         errorTex = Image::LoadFromFile("built_in/texture/error.png", desc);
-        INCREF(errorTex);
+        INCREF(errorTex)
         whiteTex = Image::LoadFromFile("built_in/texture/white.png", desc);
-        INCREF(whiteTex);
+        INCREF(whiteTex)
         blackTex = Image::LoadFromFile("built_in/texture/black.png", desc);
-        INCREF(blackTex);
+        INCREF(blackTex)
         missTex = Image::LoadFromFile("built_in/texture/miss.png", desc);
-        INCREF(missTex);
+        INCREF(missTex)
     }
 
     BuiltInRes::~BuiltInRes()
     {
         for (auto mat : predefinedMaterials)
         {
-            DECREF(mat);
+            DECREF(mat)
         }
         
         for (auto shader : m_packedShaders)
         {
-            DECREF(shader);
+            DECREF(shader)
         }
         
-        DECREF(quadMesh);
-        DECREF(sphereMesh);
-        DECREF(blitMatNew);
-        DECREF(errorTex);
-        DECREF(whiteTex);
-        DECREF(blackTex);
-        DECREF(missTex);
+        DECREF(quadMesh)
+        DECREF(sphereMesh)
+        DECREF(blitMatNew)
+        DECREF(errorTex)
+        DECREF(whiteTex)
+        DECREF(blackTex)
+        DECREF(missTex)
     }
 
     void BuiltInRes::LoadPackedShaders()
@@ -75,7 +75,7 @@ namespace op
                 path);
             
             m_packedShaders.push_back(shader);
-            INCREF(shader);
+            INCREF(shader)
         }
     }
 }

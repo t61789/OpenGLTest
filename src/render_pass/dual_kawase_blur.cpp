@@ -13,17 +13,17 @@ namespace op
     DualKawaseBlur::DualKawaseBlur(RenderContext* renderContext) : RenderPass(renderContext)
     {
         // m_downsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_downsample.glsl"); // TODO
-        // INCREF(m_downsampleMat);
+        // INCREF(m_downsampleMat)
         // m_upsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_upsample.glsl");
-        // INCREF(m_upsampleMat);
+        // INCREF(m_upsampleMat)
     }
 
     DualKawaseBlur::~DualKawaseBlur()
     {
         ReleaseRt();
 
-        // DECREF(m_downsampleMat);
-        // DECREF(m_upsampleMat); // TODO
+        // DECREF(m_downsampleMat)
+        // DECREF(m_upsampleMat) // TODO
     }
 
     std::string DualKawaseBlur::GetName()
@@ -120,7 +120,7 @@ namespace op
             desc.width = curWidth;
             desc.height = curHeight;
             m_blurTextures.push_back(new RenderTexture(desc));
-            INCREF(m_blurTextures.back());
+            INCREF(m_blurTextures.back())
 
             curWidth >>= 1;
             curHeight >>= 1;
@@ -131,7 +131,7 @@ namespace op
     {
         for (auto& rt : m_blurTextures)
         {
-            DECREF(rt);
+            DECREF(rt)
         }
 
         m_blurTextures.clear();

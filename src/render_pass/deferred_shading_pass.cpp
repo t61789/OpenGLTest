@@ -16,21 +16,21 @@ namespace op
         auto shader = Shader::LoadFromFile("shaders/deferred_shading.shader");
         m_deferredShadingMat = new Material();
         m_deferredShadingMat->BindShader(shader);
-        INCREF(m_deferredShadingMat);
+        INCREF(m_deferredShadingMat)
     }
 
     DeferredShadingPass::~DeferredShadingPass()
     {
-        DECREF(m_deferredShadingMat);
+        DECREF(m_deferredShadingMat)
     
         if (m_shadingRt)
         {
             m_renderContext->UnRegisterRt(m_shadingRt);
-            DECREF(m_shadingRt);
+            DECREF(m_shadingRt)
             m_renderContext->UnRegisterRt(m_tempPpRt0);
-            DECREF(m_tempPpRt0);
+            DECREF(m_tempPpRt0)
             m_renderContext->UnRegisterRt(m_tempPpRt1);
-            DECREF(m_tempPpRt1);
+            DECREF(m_tempPpRt1)
         }
     }
 
@@ -73,18 +73,18 @@ namespace op
                 Clamp,
                 "_ShadingBufferTex");
             m_shadingRt = new RenderTexture(desc);
-            INCREF(m_shadingRt);
+            INCREF(m_shadingRt)
             m_renderContext->RegisterRt(m_shadingRt);
             GET_GLOBAL_CBUFFER->Set(SHADING_BUFFER_TEX, m_shadingRt);
 
             desc.name = "_TempPpRt0";
             m_tempPpRt0 = new RenderTexture(desc);
-            INCREF(m_tempPpRt0);
+            INCREF(m_tempPpRt0)
             m_renderContext->RegisterRt(m_tempPpRt0);
             desc.name = "_TempPpRt1";
         
             m_tempPpRt1 = new RenderTexture(desc);
-            INCREF(m_tempPpRt1);
+            INCREF(m_tempPpRt1)
             m_renderContext->RegisterRt(m_tempPpRt1);
         }
         m_shadingRt->Resize(m_renderContext->screenWidth, m_renderContext->screenHeight);

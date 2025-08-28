@@ -19,12 +19,12 @@ namespace op
         auto desc = ImageDescriptor::GetDefault();
         desc.needFlipVertical = false;
         m_skyboxCubeTexture = Image::LoadCubeFromFile("built_in/texture/skybox", "png", desc);
-        INCREF(m_skyboxCubeTexture);
+        INCREF(m_skyboxCubeTexture)
         m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
-        INCREF(m_sphereMesh);
+        INCREF(m_sphereMesh)
         GET_GLOBAL_CBUFFER->Set(SKYBOX_TEX, m_skyboxCubeTexture);
         m_skyboxMat = Material::LoadFromFile("materials/skybox_mat.json");
-        INCREF(m_skyboxMat);
+        INCREF(m_skyboxMat)
         m_objectIndex = GetGR()->perObjectBuffer->BindObject();
     }
 
@@ -32,9 +32,9 @@ namespace op
     {
         GetGR()->perObjectBuffer->UnbindObject(m_objectIndex);
         
-        DECREF(m_skyboxCubeTexture);
-        DECREF(m_sphereMesh);
-        DECREF(m_skyboxMat);
+        DECREF(m_skyboxCubeTexture)
+        DECREF(m_sphereMesh)
+        DECREF(m_skyboxMat)
     }
 
     std::string RenderSkyboxPass::GetName()

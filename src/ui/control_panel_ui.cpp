@@ -29,7 +29,7 @@ namespace op
     {
         if (m_selected)
         {
-            DECREF(m_selected);
+            DECREF(m_selected)
         }
     }
 
@@ -75,11 +75,11 @@ namespace op
             {
                 if (m_selected)
                 {
-                    DECREF(m_selected);
+                    DECREF(m_selected)
                 }
 
                 m_selected = obj;
-                INCREF(m_selected);
+                INCREF(m_selected)
             }
         }
 

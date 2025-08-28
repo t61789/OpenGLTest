@@ -15,7 +15,7 @@ namespace op
     {
         for (auto it : m_rts)
         {
-            DECREF(it.second);
+            DECREF(it.second)
         }
     }
 
@@ -61,10 +61,10 @@ namespace op
         auto it = m_rts.find(rt->desc.name);
         if (it != m_rts.end())
         {
-            DECREF(it->second);
+            DECREF(it->second)
         }
         m_rts[rt->desc.name] = rt;
-        INCREF(rt);
+        INCREF(rt)
     }
 
     void RenderContext::UnRegisterRt(const RenderTexture* rt)
@@ -72,7 +72,7 @@ namespace op
         auto it = m_rts.find(rt->desc.name);
         if (it != m_rts.end())
         {
-            DECREF(it->second);
+            DECREF(it->second)
             m_rts.erase(it);
         }
     }

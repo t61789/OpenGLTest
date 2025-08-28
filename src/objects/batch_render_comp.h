@@ -14,6 +14,8 @@ namespace op
     class BatchRenderComp : public Comp
     {
     public:
+        ~BatchRenderComp() override;
+        
         Mesh* GetMesh() const { return m_mesh;}
         Material* GetMaterial() const { return m_material;}
         void OnEnable() override;

@@ -19,7 +19,7 @@ namespace op
     MainLightShadowPass::MainLightShadowPass(RenderContext* renderContext) : RenderPass(renderContext)
     {
         // m_drawShadowMat = MaterialNew::CreateFromShader("shaders/draw_shadow."); // TODO
-        // INCREF(m_drawShadowMat);
+        // INCREF(m_drawShadowMat)
     }
 
     MainLightShadowPass::~MainLightShadowPass()
@@ -27,9 +27,9 @@ namespace op
         if (m_mainLightShadowRt)
         {
             m_renderContext->UnRegisterRt(m_mainLightShadowRt);
-            DECREF(m_mainLightShadowRt);
+            DECREF(m_mainLightShadowRt)
         }
-        // DECREF(m_drawShadowMat);
+        // DECREF(m_drawShadowMat)
     }
 
     std::string MainLightShadowPass::GetName()
@@ -111,7 +111,7 @@ namespace op
                     Point,
                     Clamp,
                     "_MainLightShadowMapTex"));
-            INCREF(m_mainLightShadowRt);
+            INCREF(m_mainLightShadowRt)
             m_renderContext->RegisterRt(m_mainLightShadowRt);
             GET_GLOBAL_CBUFFER->Set(MAIN_LIGHT_SHADOW_MAP_TEX, m_mainLightShadowRt); // TODO
         }

@@ -7,7 +7,7 @@ namespace op
     PerObjectBuffer::PerObjectBuffer()
     {
         m_buffer = new StructuredBuffer(sizeof(PerObjectStruct), PER_OBJECT_BUFFER_INIT_CAPACITY, PER_OBJECT_BUFFER_BINDING_SLOT);
-        INCREF(m_buffer);
+        INCREF(m_buffer)
         m_objectInfos.resize(PER_OBJECT_BUFFER_INIT_CAPACITY);
 
         auto layout = new CBufferLayout();
@@ -21,13 +21,13 @@ namespace op
         };
 
         m_objectIndexBuffer = new CBuffer(layout);
-        INCREF(m_objectIndexBuffer);
+        INCREF(m_objectIndexBuffer)
     }
 
     PerObjectBuffer::~PerObjectBuffer()
     {
-        DECREF(m_buffer);
-        DECREF(m_objectIndexBuffer);
+        DECREF(m_buffer)
+        DECREF(m_objectIndexBuffer)
     }
 
     uint32_t PerObjectBuffer::BindObject()

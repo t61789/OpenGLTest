@@ -30,7 +30,7 @@ namespace op
     {
         for (auto child : children)
         {
-            DECREF(child);
+            DECREF(child)
         }
         
         for (const auto& comp : m_comps)
@@ -69,7 +69,7 @@ namespace op
             scene->objectIndices->AddObject(child);
         }
         children.push_back(child);
-        INCREF(child);
+        INCREF(child)
     }
 
     void Object::RemoveChild(Object* child)
@@ -86,7 +86,7 @@ namespace op
             scene->objectIndices->RemoveObject(child);
         }
         children.erase(it);
-        DECREF(child);
+        DECREF(child)
     }
 
     std::string Object::GetPathInScene() const

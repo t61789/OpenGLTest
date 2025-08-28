@@ -26,12 +26,12 @@ namespace op
 
         for (auto mesh : m_delayAddMeshes)
         {
-            DECREF(mesh);
+            DECREF(mesh)
         }
 
         for (auto mesh : m_meshes)
         {
-            DECREF(mesh.mesh);
+            DECREF(mesh.mesh)
         }
     }
 
@@ -49,7 +49,7 @@ namespace op
     void BatchMesh::RegisterMesh(Mesh* mesh)
     {
         m_delayAddMeshes.push_back(mesh);
-        INCREF(mesh);
+        INCREF(mesh)
     }
 
     void BatchMesh::GetMeshInfo(Mesh* mesh, uint32_t& vertexOffset, uint32_t& vertexSize, uint32_t& indexOffset, uint32_t& indexSize)
@@ -80,12 +80,12 @@ namespace op
         {
             if (!find(m_meshes, &MeshInfo::mesh, mesh) && !exists(needAddMeshes, mesh))
             {
-                INCREF(mesh);
+                INCREF(mesh)
                 needAddMeshes.push_back(mesh);
                 addVertexDataSize += MAX_VERTEX_ATTR_STRIDE_F * mesh->vertexCount * sizeof(float);
                 addIndexDataSize += mesh->indicesCount * sizeof(uint32_t);
             }
-            DECREF(mesh);
+            DECREF(mesh)
         }
         m_delayAddMeshes.clear();
 

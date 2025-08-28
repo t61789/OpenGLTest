@@ -34,7 +34,7 @@ namespace op
     CBuffer::CBuffer(CBufferLayout* layout)
     {
         this->layout = layout;
-        INCREF(this->layout);
+        INCREF(this->layout)
         
         glGenBuffers(1, &glUbo);
         GetRS()->BindBuffer(GL_UNIFORM_BUFFER, glUbo);
@@ -47,7 +47,7 @@ namespace op
     {
         glDeleteBuffers(1, &glUbo);
 
-        DECREF(this->layout);
+        DECREF(this->layout)
     }
 
     bool CBuffer::TryGetParam(const size_t nameId, CBufferParam** result)

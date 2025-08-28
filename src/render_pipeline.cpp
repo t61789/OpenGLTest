@@ -36,16 +36,16 @@ namespace op
         m_cullingSystem = std::make_unique<CullingSystem>(m_renderContext.get());
 
         m_gBuffer0Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer0Tex");
-        INCREF(m_gBuffer0Tex);
+        INCREF(m_gBuffer0Tex)
         m_renderContext->RegisterRt(m_gBuffer0Tex);
         m_gBuffer1Tex = new RenderTexture(width, height, RGBAHdr, Point, Clamp, "_GBuffer1Tex");
-        INCREF(m_gBuffer1Tex);
+        INCREF(m_gBuffer1Tex)
         m_renderContext->RegisterRt(m_gBuffer1Tex);
         m_gBuffer2Tex = new RenderTexture(width, height, DepthTex, Point, Clamp, "_GBuffer2Tex");
-        INCREF(m_gBuffer2Tex);
+        INCREF(m_gBuffer2Tex)
         m_renderContext->RegisterRt(m_gBuffer2Tex);
         m_gBufferDepthTex = new RenderTexture(width, height, DepthStencil, Point, Clamp, "_GBufferDepthTex");
-        INCREF(m_gBufferDepthTex);
+        INCREF(m_gBufferDepthTex)
         m_renderContext->RegisterRt(m_gBufferDepthTex);
 
         auto globalCbuffer = GET_GLOBAL_CBUFFER;
@@ -79,10 +79,10 @@ namespace op
         }
         m_passes.clear();
 
-        DECREF(m_gBuffer0Tex);
-        DECREF(m_gBuffer1Tex);
-        DECREF(m_gBuffer2Tex);
-        DECREF(m_gBufferDepthTex);
+        DECREF(m_gBuffer0Tex)
+        DECREF(m_gBuffer1Tex)
+        DECREF(m_gBuffer2Tex)
+        DECREF(m_gBufferDepthTex)
 
         RenderTarget::ClearAllCache();
     }

@@ -8,6 +8,12 @@
 
 namespace op
 {
+    BatchRenderComp::~BatchRenderComp()
+    {
+        DECREF(m_mesh)
+        DECREF(m_material)
+    }
+
     void BatchRenderComp::OnEnable()
     {
         m_onTransformDirtyHandler = GetOwner()->transform->dirtyEvent.Add(this, &BatchRenderComp::OnTransformDirty);

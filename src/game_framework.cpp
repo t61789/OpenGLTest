@@ -224,13 +224,13 @@ namespace op
 
         // if (scene)
         // {
-        //     DECREF(scene);
+        //     DECREF(scene)
         //     scene = nullptr;
         // }
         // else
         // {
         //     scene = Scene::LoadScene("scenes/test_scene.json");
-        //     INCREF(scene);
+        //     INCREF(scene)
         // }
         //
         // if (m_renderPipeline)

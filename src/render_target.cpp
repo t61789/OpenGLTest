@@ -167,7 +167,7 @@ namespace op
         for (auto colorAttachment : desc.colorAttachments)
         {
             rta = new RenderTargetAttachment(colorAttachment->attachmentType, colorAttachment->renderTexture);
-            INCREF(rta->renderTexture);
+            INCREF(rta->renderTexture)
             rta->renderTexture->onResize->Add(this, &RenderTarget::SetDirty, m_resizeHandler);
             m_colorAttachments.push_back(rta);
         }
@@ -177,7 +177,7 @@ namespace op
         {
             rta = new RenderTargetAttachment(desc.depthAttachment->attachmentType, desc.depthAttachment->renderTexture);
             rta->renderTexture->onResize->Add(this, &RenderTarget::SetDirty, m_resizeHandler);
-            INCREF(rta->renderTexture);
+            INCREF(rta->renderTexture)
         }
         m_depthAttachment = rta;
     }
@@ -187,14 +187,14 @@ namespace op
         for (auto colorAttachment : m_colorAttachments)
         {
             colorAttachment->renderTexture->onResize->Remove(m_resizeHandler);
-            DECREF(colorAttachment->renderTexture);
+            DECREF(colorAttachment->renderTexture)
             delete colorAttachment;
         }
 
         if (m_depthAttachment)
         {
             m_depthAttachment->renderTexture->onResize->Remove(m_resizeHandler);
-            DECREF(m_depthAttachment->renderTexture);
+            DECREF(m_depthAttachment->renderTexture)
             delete m_depthAttachment;
         }
     }

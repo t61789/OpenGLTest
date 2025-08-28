@@ -22,7 +22,7 @@ namespace op
         glDeleteProgram(glShaderId);
         for (const auto& [nameId, cbufferLayout] : cbuffers)
         {
-            DECREF(cbufferLayout);
+            DECREF(cbufferLayout)
         }
     }
 
@@ -344,7 +344,7 @@ namespace op
 
             auto cbuffer = new CBufferLayout(compiler, uniformBuffer);
             cbuffers[uniformBufferNameId] = cbuffer;
-            INCREF(cbuffer);
+            INCREF(cbuffer)
         }
     }
 

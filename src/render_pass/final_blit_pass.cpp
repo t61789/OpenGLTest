@@ -13,17 +13,17 @@ namespace op
     FinalBlitPass::FinalBlitPass(RenderContext* renderContext) : RenderPass(renderContext)
     {
         finalBlitMat = Material::CreateFromShader("shaders/final_blit.shader");
-        INCREF(finalBlitMat);
+        INCREF(finalBlitMat)
         auto desc = ImageDescriptor::GetDefault();
         desc.needFlipVertical = false;
         lutTexture = Image::LoadFromFile("textures/testLut.png", desc);
-        INCREF(lutTexture);
+        INCREF(lutTexture)
     }
 
     FinalBlitPass::~FinalBlitPass()
     {
-        DECREF(finalBlitMat);
-        DECREF(lutTexture);
+        DECREF(finalBlitMat)
+        DECREF(lutTexture)
     }
 
     std::string FinalBlitPass::GetName()

@@ -19,16 +19,16 @@ namespace op
             RenderTextureFormat::RGBA,
             Bilinear,
             Clamp));
-        INCREF(rt);
+        INCREF(rt)
 
         // m_kawaseBlitMat = Material::CreateEmptyMaterial("shaders/kawase_blit.glsl");
-        // INCREF(m_kawaseBlitMat); TODO
+        // INCREF(m_kawaseBlitMat) TODO
     }
 
     KawaseBlur::~KawaseBlur()
     {
-        DECREF(rt);
-        // DECREF(m_kawaseBlitMat);
+        DECREF(rt)
+        // DECREF(m_kawaseBlitMat)
     }
 
     std::string KawaseBlur::GetName()
