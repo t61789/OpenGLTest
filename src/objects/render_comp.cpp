@@ -28,15 +28,8 @@ namespace op
             GetOwner()->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
         }
         
-        if (mesh)
-        {
-            DECREF(mesh);
-        }
-
-        if (material)
-        {
-            DECREF(material);
-        }
+        DECREF(mesh)
+        DECREF(material)
     }
 
     void RenderComp::LoadFromJson(const nlohmann::json& objJson)

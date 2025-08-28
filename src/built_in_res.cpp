@@ -39,13 +39,6 @@ namespace op
         INCREF(blackTex);
         missTex = Image::LoadFromFile("built_in/texture/miss.png", desc);
         INCREF(missTex);
-
-        testShader = Shader::LoadFromFile("shaders/test.shader");
-        INCREF(testShader);
-
-        testMaterialNew = new Material();
-        INCREF(testMaterialNew);
-        testMaterialNew->BindShader(testShader);
     }
 
     BuiltInRes::~BuiltInRes()
@@ -67,8 +60,6 @@ namespace op
         DECREF(whiteTex);
         DECREF(blackTex);
         DECREF(missTex);
-        DECREF(testShader);
-        DECREF(testMaterialNew);
     }
 
     void BuiltInRes::LoadPackedShaders()

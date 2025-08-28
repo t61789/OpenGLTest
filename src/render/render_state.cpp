@@ -138,6 +138,12 @@ namespace op
         m_glVertexArray.dirty = false;
         m_glVertexArray.vao = vao;
 
+        if (vao == GL_NONE)
+        {
+            GetBufferInfo(GL_ARRAY_BUFFER)->buffer = GL_NONE;
+            GetBufferInfo(GL_ELEMENT_ARRAY_BUFFER)->buffer = GL_NONE;
+        }
+
         glBindVertexArray(vao);
 
         return true;
@@ -160,7 +166,14 @@ namespace op
         return true;
     }
 
-    bool RenderState::BindBufferBase(const uint32_t slot, const uint32_t target, const uint32_t buffer)
+    int RenderState::GetBuffer(const uint32_t target)
+    {
+        int result;
+        glGetIntegerv(target, &result);
+        return result;
+    }
+
+    bool RenderState::BindBufferBase(const uint32_t target, const uint32_t slot, const uint32_t buffer)
     {
         auto glBufferInfo = GetBufferInfo(target);
         auto glBufferBaseInfo = &glBufferInfo->baseInfo[slot];

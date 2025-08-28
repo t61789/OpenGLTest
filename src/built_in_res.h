@@ -25,9 +25,6 @@ namespace op
         Texture* blackTex = nullptr;
         Texture* missTex = nullptr;
 
-        Shader* testShader = nullptr;
-        Material* testMaterialNew = nullptr;
-
         std::vector<Material*> predefinedMaterials;
 
     private:

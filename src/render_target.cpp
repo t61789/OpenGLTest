@@ -260,7 +260,7 @@ namespace op
             }
             else if(width != rt->width || height != rt->height)
             {
-                THROW_ERROR("绑定Attachments时出错，RenderTexture[%s]的尺寸不一致", rt->desc.name.c_str())
+                THROW_ERRORF("绑定Attachments时出错，RenderTexture[%s]的尺寸不一致", rt->desc.name.c_str())
             }
         }
 
@@ -348,7 +348,7 @@ namespace op
         auto frameBufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if(frameBufferStatus != GL_FRAMEBUFFER_COMPLETE)
         {
-            THROW_ERROR("FrameBufferAttachment绑定失败：%s", std::to_string(frameBufferStatus).c_str())
+            THROW_ERRORF("FrameBufferAttachment绑定失败：%s", std::to_string(frameBufferStatus).c_str())
         }
     }
 

@@ -214,6 +214,7 @@ namespace op
                     {
                         comp->Start();
                         comp->SetIsStarted(true);
+                        comp->SetEnable(true);
                     }
                     
                     comp->Update();

@@ -7,7 +7,8 @@
 
 namespace op
 {
-    #define THROW_ERROR(msg, ...) throw std::runtime_error(format_log(Error, msg, __VA_ARGS__));
+    #define THROW_ERROR(msg) throw std::runtime_error(format_log(Error, msg));
+    #define THROW_ERRORF(msg, ...) throw std::runtime_error(format_log(Error, msg, __VA_ARGS__));
     
     #define PI 3.1415926535f
     #define DEG2RAD 0.0174532925f
@@ -88,7 +89,7 @@ namespace op
     struct VertexAttrDefine
     {
         VertexAttr attr;
-        uint32_t stride;
+        uint32_t strideF;
         StringHandle name;
     };
 
@@ -100,6 +101,8 @@ namespace op
         {VertexAttr::UV0, 2, "uv0"},
         {VertexAttr::UV1, 2, "uv1"},
     };
+    
+    static constexpr uint32_t MAX_VERTEX_ATTR_STRIDE_F = 16;
 
     inline std::unordered_map<VertexAttr, uint32_t> VERTEX_ATTR_STRIDE =
     {

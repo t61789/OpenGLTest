@@ -2,6 +2,8 @@
 
 #include <tracy/Tracy.hpp>
 
+#include "game_resource.h"
+#include "material.h"
 #include "scene.h"
 
 #include "render_target.h"

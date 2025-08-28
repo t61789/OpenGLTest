@@ -13,6 +13,7 @@
 #include "indirect_lighting.h"
 #include "objects/light_comp.h"
 #include "objects/camera_comp.h"
+#include "render_pass/batch_render_pass.h"
 #include "render_pass/deferred_shading_pass.h"
 #include "render_pass/final_blit_pass.h"
 #include "render_pass/kawase_blur.h"
@@ -61,8 +62,9 @@ namespace op
         m_passes.push_back(new PreparingPass(m_renderContext.get())); // TODO 改成shared_ptr
         // m_passes.push_back(new MainLightShadowPass(m_renderContext.get()));
         m_passes.push_back(new RenderSkyboxPass(m_renderContext.get()));
+        m_passes.push_back(new BatchRenderPass(m_renderContext.get()));
         m_passes.push_back(new RenderScenePass(m_renderContext.get()));
-        m_passes.push_back(new TestDrawPass(m_renderContext.get()));
+        // m_passes.push_back(new TestDrawPass(m_renderContext.get()));
         m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
         // m_passes.push_back(new KawaseBlur());
         // m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));

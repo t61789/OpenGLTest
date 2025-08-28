@@ -54,7 +54,7 @@ namespace op
             data = stbi_load(Utils::GetAbsolutePath(path).c_str(), &width, &height, &nChannels, 0);
             if(!data)
             {
-                THROW_ERROR("ERROR>> Failed to load texture: " + std::string(path))
+                THROW_ERRORF("ERROR>> Failed to load texture: " + std::string(path))
             }
         }
         catch(std::exception)
@@ -128,7 +128,7 @@ namespace op
                 if(!data)
                 {
                     stbi_image_free(data);
-                    THROW_ERROR("Failed to load texture: %s", path.c_str())
+                    THROW_ERRORF("Failed to load texture: %s", path.c_str())
                 }
                 
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

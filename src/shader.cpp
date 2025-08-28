@@ -160,7 +160,7 @@ namespace op
             }
         }
 
-        THROW_ERROR("Shader未在pack中找到：%s", path.c_str())
+        THROW_ERRORF("Shader未在pack中找到：%s", path.c_str())
     }
     
     Shader* Shader::LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath)

@@ -372,7 +372,7 @@ namespace op
         {
             if (m_instance)
             {
-                THROW_ERROR("Singleton instance already exists! type ", std::string(typeid(T).name()).c_str())
+                THROW_ERRORF("Singleton instance already exists! type %s", std::string(typeid(T).name()).c_str())
             }
 
             m_instance = static_cast<T*>(this);

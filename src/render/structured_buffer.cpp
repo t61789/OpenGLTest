@@ -30,7 +30,7 @@ namespace op
     void StructuredBuffer::Use()
     {
         SyncData();
-        GetRS()->BindBufferBase(m_binding, GL_SHADER_STORAGE_BUFFER, m_glBuffer);
+        GetRS()->BindBufferBase(GL_SHADER_STORAGE_BUFFER, m_binding, m_glBuffer);
     }
 
     void StructuredBuffer::SetData(const uint32_t index, const void* data)

@@ -1,15 +1,18 @@
 ﻿#pragma once
-
+#include <optional>
 #include <vector>
 
-#include "objects/render_comp.h"
 
 namespace op
 {
+    class RenderComp;
     class RenderContext;
     class RenderTexture;
     class Entity;
     class Mesh;
+    class Material;
+    class Matrix4x4;
+    class Shader;
 
     class RenderingUtils
     {
@@ -27,10 +30,10 @@ namespace op
         static void RenderEntity(const RenderComp* renderComp);
         static void RenderMesh(const RenderParam& renderParam);
         static void Blit(RenderTexture* src, RenderTexture* dst, Material* material = nullptr);
+        static void BindDrawResources(const RenderParam& renderParam);
         
     private:
         static void ApplyTextures(Material* material, Shader* shader);
         static void CallGlDraw(const Mesh* mesh);
-        static void BindDrawResources(const RenderParam& renderParam);
     };
 }

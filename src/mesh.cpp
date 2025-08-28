@@ -81,7 +81,7 @@ namespace op
             vertexData.push_back(positionOS.x);
             vertexData.push_back(positionOS.y);
             vertexData.push_back(positionOS.z);
-            if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::POSITION_OS)->stride > 3)
+            if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::POSITION_OS)->strideF > 3)
             {
                 vertexData.push_back(1.0f);
             }
@@ -92,7 +92,7 @@ namespace op
                 vertexData.push_back(mesh->mNormals[i].x);
                 vertexData.push_back(mesh->mNormals[i].y);
                 vertexData.push_back(mesh->mNormals[i].z);
-                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::NORMAL_OS)->stride > 3)
+                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::NORMAL_OS)->strideF > 3)
                 {
                     vertexData.push_back(0.0f);
                 }
@@ -104,7 +104,7 @@ namespace op
                 vertexData.push_back(mesh->mTangents[i].x);
                 vertexData.push_back(mesh->mTangents[i].y);
                 vertexData.push_back(mesh->mTangents[i].z);
-                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::TANGENT_OS)->stride > 3)
+                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, VertexAttr::TANGENT_OS)->strideF > 3)
                 {
                     vertexData.push_back(1.0f);
                 }
@@ -121,7 +121,7 @@ namespace op
                 
                 vertexData.push_back(mesh->mTextureCoords[j][i].x);
                 vertexData.push_back(mesh->mTextureCoords[j][i].y);
-                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, uvAttr[j])->stride > 3)
+                if (find(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, uvAttr[j])->strideF > 3)
                 {
                     vertexData.push_back(0.0f);
                 }
@@ -185,9 +185,9 @@ namespace op
     }
     
     Mesh* Mesh::CreateMesh(
-        const std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo,
-        const std::vector<float>& vertexData,
-        const std::vector<uint32_t>& indices,
+        std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo,
+        std::vector<float>& vertexData,
+        std::vector<uint32_t>& indices,
         const Bounds& bounds,
         const uint32_t vertexCount,
         const std::string& name)
@@ -218,23 +218,17 @@ namespace op
                 glEnableVertexAttribArray(slot);
                 glVertexAttribPointer(
                     slot,
-                    attrDefine.stride,
+                    attrDefine.strideF,
                     GL_FLOAT,
                     GL_FALSE,
                     vertexDataStride,
-                    reinterpret_cast<const void*>(attrInfo.offset));
+                    reinterpret_cast<const void*>(attrInfo.offsetB));
             }
             else
             {
                 glDisableVertexAttribArray(slot);
             }
         }
-        
-        // // renderState->SetVertexArray(GL_NONE);
-        // glBindVertexArray(GL_NONE);
-        // // renderState->BindBuffer(GL_ARRAY_BUFFER, GL_NONE);
-        // glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
-        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
 
         GL_CHECK_ERROR(传输Mesh数据)
         
@@ -244,10 +238,12 @@ namespace op
         result->vbo = vbo;
         result->ebo = ebo;
         result->vertexCount = vertexCount;
-        result->vertexDataStride = vertexDataStride;
+        result->vertexDataStrideB = vertexDataStride;
         result->indicesCount = static_cast<int>(indices.size());
         result->name = name;
-        result->vertexAttribInfo = vertexAttribInfo;
+        result->vertexAttribInfo = std::move(vertexAttribInfo);
+        result->m_vertexData = std::move(vertexData);
+        result->m_indexData = std::move(indices);
         return result;
     }
 
@@ -262,7 +258,7 @@ namespace op
                 continue;
             }
 
-            vertexAttribInfo[attr].offset = curOffset * sizeof(float);
+            vertexAttribInfo[attr].offsetB = curOffset * sizeof(float);
             curOffset += VERTEX_ATTR_STRIDE[attr];
         }
     }

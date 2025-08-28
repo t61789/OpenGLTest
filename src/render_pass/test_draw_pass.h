@@ -13,8 +13,8 @@ namespace op
         void Execute() override;
 
     private:
-        GLuint m_vbo;
         GLuint m_vao;
+        GLuint m_vbo;
         GLuint m_ebo;
 
         GLuint m_indirectBuffer;

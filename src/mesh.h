@@ -16,7 +16,7 @@ namespace op
         {
         public:
             bool enabled = false;
-            uintptr_t offset = 0;
+            uintptr_t offsetB = 0;
         };
         
         std::string name = "Unnamed Mesh";
@@ -31,20 +31,25 @@ namespace op
         int vertexAttribOffset[VERTEX_ATTRIB_NUM];
 
         std::unordered_map<VertexAttr, VertexAttrInfo> vertexAttribInfo;
-        uint32_t vertexDataStride;
+        uint32_t vertexDataStrideB;
 
         ~Mesh() override;
+
+        const std::vector<float>& GetVertexData() const { return m_vertexData;}
+        const std::vector<uint32_t>& GetIndexData() const { return m_indexData;}
         
         static Mesh* LoadFromFile(const std::string& modelPath);
-        
 
     private:
+        std::vector<float> m_vertexData;
+        std::vector<uint32_t> m_indexData;
+        
         static std::unique_ptr<Assimp::Importer> ImportFile(const std::string& modelPath);
         static void GetMeshLoadConfig(const std::string& modelPath, float& initScale, bool& flipWindingOrder);
         static Mesh* CreateMesh(
-            const std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo,
-            const std::vector<float>& vertexData,
-            const std::vector<uint32_t>& indices,
+            std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo,
+            std::vector<float>& vertexData,
+            std::vector<uint32_t>& indices,
             const Bounds& bounds,
             uint32_t vertexCount,
             const std::string& name = "Unnamed Mesh");

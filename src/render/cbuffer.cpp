@@ -82,6 +82,6 @@ namespace op
 
     void CBuffer::Use()
     {
-        GetRS()->BindBufferBase(layout->binding, GL_UNIFORM_BUFFER, glUbo);
+        GetRS()->BindBufferBase(GL_UNIFORM_BUFFER, layout->binding, glUbo);
     }
 }

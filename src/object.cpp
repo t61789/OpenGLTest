@@ -2,6 +2,7 @@
 
 #include "scene.h"
 #include "utils.h"
+#include "objects/batch_render_comp.h"
 #include "objects/camera_comp.h"
 #include "objects/light_comp.h"
 #include "objects/render_comp.h"
@@ -126,6 +127,7 @@ namespace op
             REGISTER_COMP(CameraComp),
             REGISTER_COMP(LightComp),
             REGISTER_COMP(RuntimeComp),
+            REGISTER_COMP(BatchRenderComp),
         };
         #undef REGISTER_COMP
 

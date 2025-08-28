@@ -212,7 +212,7 @@ namespace op
 
         if (valueInfo->byteCount != byteCount)
         {
-            THROW_ERROR("获取参数类型不匹配，材质中：%u，期望：%u", valueInfo->byteCount, byteCount)
+            THROW_ERRORF("获取参数类型不匹配，材质中：%u，期望：%u", valueInfo->byteCount, byteCount)
         }
 
         memcpy(dst, valueInfo->data, byteCount);

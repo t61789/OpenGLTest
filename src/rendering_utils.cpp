@@ -14,6 +14,7 @@
 #include "shader.h"
 #include "objects/render_comp.h"
 #include "objects/transform_comp.h"
+#include "objects/render_comp.h"
 
 namespace op
 {
@@ -140,8 +141,11 @@ namespace op
 
 
         // Bind Vertex Attrib
-        GetRS()->BindVertexArray(mesh->vao);
-        GetRS()->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+        if (mesh)
+        {
+            GetRS()->BindVertexArray(mesh->vao);
+            GetRS()->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+        }
 
         
         // Bind Textures

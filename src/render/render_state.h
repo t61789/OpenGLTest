@@ -40,9 +40,11 @@ namespace op
         bool BindVertexArray(GLuint vao);
 
         bool BindBuffer(uint32_t target, uint32_t buffer);
-        bool BindBufferBase(uint32_t slot, uint32_t target, uint32_t buffer);
+        bool BindBufferBase(uint32_t target, uint32_t slot, uint32_t buffer);
 
         void SetAllDirty();
+        
+        static int GetBuffer(uint32_t target);
         
     private:
         struct GlBufferBaseInfo

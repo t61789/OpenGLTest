@@ -56,11 +56,9 @@ namespace op
 
         GetRS()->BindVertexArray(m_vao);
         GetRS()->BindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        auto aa = sizeof(vertices);
         glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(vertices)), vertices, GL_STATIC_DRAW);
         GetRS()->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(indices)), indices, GL_STATIC_DRAW);
-        GL_CHECK_ERROR(456)
 
         glEnableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
@@ -68,8 +66,6 @@ namespace op
         glEnableVertexAttribArray(3);
         glDisableVertexAttribArray(4);
 
-        GL_CHECK_ERROR(123)
-        
         glVertexAttribPointer(
             0,
             4,
@@ -78,8 +74,6 @@ namespace op
             sizeof(Vertex),
             reinterpret_cast<const void*>(0));
 
-        GL_CHECK_ERROR(33)
-        
         glVertexAttribPointer(
             3,
             2,
