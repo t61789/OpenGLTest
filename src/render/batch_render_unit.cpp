@@ -18,8 +18,8 @@ namespace op
 
     BatchRenderUnit::~BatchRenderUnit()
     {
-        glDeleteBuffers(1, &m_glCmdBuffer);
-        glDeleteBuffers(1, &m_glMatrixIndicesBuffer);
+        GetRS()->DeleteBuffer(GL_DRAW_INDIRECT_BUFFER, m_glCmdBuffer);
+        GetRS()->DeleteBuffer(GL_SHADER_STORAGE_BUFFER, m_glMatrixIndicesBuffer);
     }
 
     void BatchRenderUnit::BindComp(BatchRenderComp* comp)

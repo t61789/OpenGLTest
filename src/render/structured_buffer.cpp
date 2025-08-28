@@ -24,7 +24,7 @@ namespace op
     StructuredBuffer::~StructuredBuffer()
     {
         aligned_free(m_data);
-        glDeleteBuffers(1, &m_glBuffer);
+        GetRS()->DeleteBuffer(GL_SHADER_STORAGE_BUFFER, m_glBuffer);
     }
     
     void StructuredBuffer::Use()
@@ -52,7 +52,7 @@ namespace op
         memcpy(newData, m_data, m_stride * m_count);
 
         // 删除旧的缓冲区和Buffer
-        glDeleteBuffers(1, &m_glBuffer);
+        GetRS()->DeleteBuffer(GL_SHADER_STORAGE_BUFFER, m_glBuffer);
         aligned_free(m_data);
 
         // 创建新的Buffer，并同步数据

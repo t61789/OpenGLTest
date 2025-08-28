@@ -45,7 +45,7 @@ namespace op
 
     CBuffer::~CBuffer()
     {
-        glDeleteBuffers(1, &glUbo);
+        GetRS()->DeleteBuffer(GL_UNIFORM_BUFFER, glUbo);
 
         DECREF(this->layout)
     }

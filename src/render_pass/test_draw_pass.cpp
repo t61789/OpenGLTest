@@ -98,9 +98,9 @@ namespace op
     TestDrawPass::~TestDrawPass()
     {
         glDeleteVertexArrays(1, &m_vao);
-        glDeleteBuffers(1, &m_vbo);
-        glDeleteBuffers(1, &m_ebo);
-        glDeleteBuffers(1, &m_indirectBuffer);
+        GetRS()->DeleteBuffer(GL_ARRAY_BUFFER, m_vbo);
+        GetRS()->DeleteBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+        GetRS()->DeleteBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectBuffer);
     }
 
     std::string TestDrawPass::GetName()
@@ -112,7 +112,7 @@ namespace op
     {
         RenderTarget::Get(*m_renderContext->gBufferDesc)->Use();
         
-        GetRS()->SetShader(m_shader->glShaderId);
+        GetRS()->BindShader(m_shader->glShaderId);
         GetGR()->GetPredefinedMaterial(GLOBAL_CBUFFER)->UseCBuffer();
         GetGR()->GetPredefinedMaterial(PER_VIEW_CBUFFER)->UseCBuffer();
         GetRS()->BindVertexArray(m_vao);

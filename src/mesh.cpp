@@ -36,8 +36,8 @@ namespace op
     Mesh::~Mesh()
     {
         glDeleteVertexArrays(1, &vao);
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ebo);
+        GetRS()->DeleteBuffer(GL_ARRAY_BUFFER, vbo);
+        GetRS()->DeleteBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     }
 
     Mesh* Mesh::LoadFromFile(const std::string& modelPath)

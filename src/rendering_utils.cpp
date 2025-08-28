@@ -120,7 +120,7 @@ namespace op
         auto material = renderParam.material;
         
         // Bind Shader
-        GetRS()->SetShader(shader->glShaderId);
+        GetRS()->BindShader(shader->glShaderId);
         GL_CHECK_ERROR(BindPredefinedCBuffers)
 
         // Bind Predefined CBuffers
@@ -144,8 +144,8 @@ namespace op
         if (mesh)
         {
             GetRS()->BindVertexArray(mesh->vao);
-            GetRS()->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
         }
+        GetRS()->CheckGlStateMachine();
 
         
         // Bind Textures

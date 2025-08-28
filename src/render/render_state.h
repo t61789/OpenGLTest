@@ -36,22 +36,31 @@ namespace op
         BlendMode GetBlendMode() { return m_blendMode; }
         static BlendMode BlendModeFromStr(const std::string& str);
 
-        bool SetShader(GLuint shader);
+        uint32_t GetShader();
+        uint32_t GetVertexArray();
+        uint32_t GetBuffer(uint32_t target);
+        uint32_t GetBufferBase(uint32_t target, uint32_t slot);
+        
+        bool BindShader(GLuint shader);
         bool BindVertexArray(GLuint vao);
-
         bool BindBuffer(uint32_t target, uint32_t buffer);
         bool BindBufferBase(uint32_t target, uint32_t slot, uint32_t buffer);
+        bool DeleteBuffer(uint32_t target, uint32_t buffer);
 
         void SetAllDirty();
-        
-        static int GetBuffer(uint32_t target);
-        
+        void CheckGlStateMachine();
+
+        static uint32_t GetGlShader();
+        static uint32_t GetGlVertexArray();
+        static uint32_t GetGlBuffer(uint32_t target);
+        static uint32_t GetGlBufferBase(uint32_t target, uint32_t slot);
+
     private:
         struct GlBufferBaseInfo
         {
             bool dirty = true;
-            uint32_t slot = ~0u;
-            uint32_t buffer = ~0u;
+            uint32_t slot = GL_NONE;
+            uint32_t buffer = GL_NONE;
 
             explicit GlBufferBaseInfo(const uint32_t slot)
             {
@@ -62,8 +71,8 @@ namespace op
         struct GlBufferInfo
         {
             bool dirty = true;
-            uint32_t target = ~0u;
-            uint32_t buffer = ~0u;
+            uint32_t target = GL_NONE;
+            uint32_t buffer = GL_NONE;
             std::vector<GlBufferBaseInfo> baseInfo;
 
             explicit GlBufferInfo(const uint32_t target)

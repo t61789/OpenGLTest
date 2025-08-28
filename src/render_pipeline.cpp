@@ -64,7 +64,7 @@ namespace op
         m_passes.push_back(new RenderSkyboxPass(m_renderContext.get()));
         m_passes.push_back(new BatchRenderPass(m_renderContext.get()));
         m_passes.push_back(new RenderScenePass(m_renderContext.get()));
-        // m_passes.push_back(new TestDrawPass(m_renderContext.get()));
+        m_passes.push_back(new TestDrawPass(m_renderContext.get()));
         m_passes.push_back(new DeferredShadingPass(m_renderContext.get()));
         // m_passes.push_back(new KawaseBlur());
         // m_passes.push_back(new DualKawaseBlur(m_renderContext.get()));
@@ -115,7 +115,10 @@ namespace op
             begin_debug_group(pass->GetName().c_str());
             pass->Execute();
             end_debug_group();
+
         }
+        
+        GetRS()->CheckGlStateMachine();
         
         begin_debug_group("Draw UI");
         RenderUiPass(m_renderContext.get());

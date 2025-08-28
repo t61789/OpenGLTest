@@ -21,8 +21,8 @@ namespace op
     BatchMesh::~BatchMesh()
     {
         glDeleteVertexArrays(1, &m_vao);
-        glDeleteBuffers(1, &m_vbo);
-        glDeleteBuffers(1, &m_ebo);
+        GetRS()->DeleteBuffer(GL_ARRAY_BUFFER, m_vbo);
+        GetRS()->DeleteBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
 
         for (auto mesh : m_delayAddMeshes)
         {
@@ -111,7 +111,7 @@ namespace op
     {
         if (glBuffer != GL_NONE)
         {
-            glDeleteBuffers(1, &glBuffer);
+            GetRS()->DeleteBuffer(glTarget, glBuffer);
         }
 
         GetRS()->BindVertexArray(m_vao);
@@ -136,6 +136,8 @@ namespace op
                 offset += attr.strideF * sizeof(float);
             }
         }
+        
+        GL_CHECK_ERROR(重新创建GL缓冲区)
     }
 
     ManagedBlockId BatchMesh::AddDataToLocal(const void* src, const uint32_t size, ManagedBuffer* dstBuffer)
@@ -169,6 +171,8 @@ namespace op
         GetRS()->BindVertexArray(GL_NONE);
         GetRS()->BindBuffer(glTarget, glBufferId);
         glBufferSubData(glTarget, blockOffset, blockSize, localBuffer->Data() + blockOffset);
+
+        GL_CHECK_ERROR(同步顶点数据到GL)
     }
 
     const std::vector<float>& BatchMesh::GetCompleteVertexData(Mesh* mesh)
