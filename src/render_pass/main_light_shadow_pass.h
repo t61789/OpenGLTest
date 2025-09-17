@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "render_pass.h"
+#include "i_render_pass.h"
 
 namespace op
 {
-    class MainLightShadowPass : public RenderPass
+    class MainLightShadowPass : public IRenderPass
     {
     public:
         explicit MainLightShadowPass(RenderContext* renderContext);

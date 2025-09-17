@@ -1,15 +1,12 @@
 ﻿#pragma once
 
-#include "functional"
-#include "game_resource.h"
-
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "render_pipeline.h"
 #include "utils.h"
 
 namespace op
 {
+    class RenderPipeline;
+    class GlState;
+    class GameResource;
     class BuiltInRes;
     class Scene;
     class Gui;
@@ -31,8 +28,6 @@ namespace op
         GLFWwindow* m_window = nullptr;
 
         Gui* m_gui = nullptr;
-        RenderState* m_renderState = nullptr;
-        PerObjectBuffer* m_perObjectBuffer = nullptr;
         BuiltInRes* m_builtInRes = nullptr;
         RenderPipeline* m_renderPipeline = nullptr;
         GameResource* m_gameResource = nullptr;
@@ -42,7 +37,7 @@ namespace op
 
         EventHandler m_onFrameBufferResizeHandler = 0;
 
-        Scene* m_scene = nullptr;
+        sp<Scene> m_scene = nullptr;
 
         void InitGame();
         void ReleaseGame();

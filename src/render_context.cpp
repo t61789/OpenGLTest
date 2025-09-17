@@ -2,23 +2,14 @@
 
 #include "material.h"
 #include "game_resource.h"
-#include "utils.h"
 
 #include "render_texture.h"
-#include "shared_object.h"
 #include "objects/camera_comp.h"
 #include "objects/transform_comp.h"
+#include "render/render_target_pool.h"
 
 namespace op
 {
-    RenderContext::~RenderContext()
-    {
-        for (auto it : m_rts)
-        {
-            DECREF(it.second)
-        }
-    }
-
     void RenderContext::SetViewProjMatrix(const CameraComp* cam)
     {
         auto cameraLocalToWorld = cam->GetOwner()->transform->GetLocalToWorld();
@@ -51,39 +42,20 @@ namespace op
         pMatrix = proj;
         vpMatrix = proj * view;
         
-        auto perViewMaterial = GetGR()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
-        perViewMaterial->Set(VP, vpMatrix);
-        perViewMaterial->Set(CAMERA_POSITION_WS, Vec4(cameraPos, 0.0f));
+        auto perViewCbuffer = GetPerViewCbuffer();
+        perViewCbuffer->Set(VP, vpMatrix);
+        perViewCbuffer->Set(CAMERA_POSITION_WS, Vec4(cameraPos, 0.0f));
     }
 
-    void RenderContext::RegisterRt(RenderTexture* rt)
+    UsingRenderTarget RenderContext::UsingGBufferRenderTarget()
     {
-        auto it = m_rts.find(rt->desc.name);
-        if (it != m_rts.end())
+        static vecsp<RenderTexture> rts;
+        rts.clear();
+        for (auto& rt : gBufferTextures)
         {
-            DECREF(it->second)
+            rts.push_back(rt.lock());
         }
-        m_rts[rt->desc.name] = rt;
-        INCREF(rt)
-    }
-
-    void RenderContext::UnRegisterRt(const RenderTexture* rt)
-    {
-        auto it = m_rts.find(rt->desc.name);
-        if (it != m_rts.end())
-        {
-            DECREF(it->second)
-            m_rts.erase(it);
-        }
-    }
-
-    RenderTexture* RenderContext::GetRt(const std::string& name)
-    {
-        auto it = m_rts.find(name);
-        if (it != m_rts.end())
-        {
-            return it->second;
-        }
-        return nullptr;
+        
+        return UsingRenderTarget(rts);
     }
 }

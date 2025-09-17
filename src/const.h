@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -9,6 +10,61 @@ namespace op
 {
     #define THROW_ERROR(msg) throw std::runtime_error(format_log(Error, msg));
     #define THROW_ERRORF(msg, ...) throw std::runtime_error(format_log(Error, msg, __VA_ARGS__));
+
+    template <typename T>
+    using up = std::unique_ptr<T>;
+    template <typename T>
+    using wp = std::weak_ptr<T>;
+    template <typename T>
+    using sp = std::shared_ptr<T>;
+    template <typename T>
+    using cr = const T&;
+    template <typename T>
+    using vec = std::vector<T>;
+    template <typename T>
+    using vecsp = std::vector<sp<T>>;
+    template <typename T>
+    using vecwp = std::vector<wp<T>>;
+    template <typename T>
+    using vecpt = std::vector<T*>;
+    template <typename T>
+    using cvec = const vec<T>;
+    template <typename T>
+    using crvec = cr<vec<T>>;
+    template <typename T>
+    using crvecsp = cr<vecsp<T>>;
+    template <typename T>
+    using crvecwp = cr<vecwp<T>>;
+    template <typename T>
+    using crvecpt = cr<vecpt<T>>;
+    template <typename K, typename V>
+    using umap = std::unordered_map<K, V>;
+    template <typename K, typename V>
+    using crumap = cr<umap<K, V>>;
+    template <typename T>
+    using crsp = const std::shared_ptr<T>&;
+    template <typename T>
+    using crwp = cr<wp<T>>;
+    template <typename T>
+    using cpt = const T*;
+    template <typename T>
+    using c = const T;
+    using cstr = const char*;
+    template <typename T, size_t N>
+    using arr = std::array<T, N>;
+    using str = std::string;
+    using crstr = cr<std::string>;
+    
+    template <typename T, typename... Args>
+    std::unique_ptr<T> mup(Args&&... args)
+    {
+        return std::make_unique<T>(std::forward<Args>(args)...);
+    }
+    template <typename T, typename... Args>
+    std::shared_ptr<T> msp(Args&&... args)
+    {
+        return std::make_shared<T>(std::forward<Args>(args)...);
+    }
     
     #define PI 3.1415926535f
     #define DEG2RAD 0.0174532925f
@@ -20,7 +76,6 @@ namespace op
 
     STRING_HANDLE(GLOBAL_CBUFFER, _Global)
     STRING_HANDLE(PER_VIEW_CBUFFER, PerViewCBuffer)
-    STRING_HANDLE(PER_OBJECT_CBUFFER, PerObjectCBuffer)
     STRING_HANDLE(PER_MATERIAL_CBUFFER, PerMaterialCBuffer)
 
     STRING_HANDLE(MIN_LUMINANCE, _MinLuminance)
@@ -65,6 +120,8 @@ namespace op
     STRING_HANDLE(RENDER_COMP, RenderComp)
     STRING_HANDLE(LIGHT_COMP, LightComp)
     STRING_HANDLE(CAMERA_COMP, CameraComp)
+    
+    static constexpr bool ENABLE_GL_CHECK_ERROR = true;
 
     inline std::string NOT_A_FILE = "NOT_A_FILE";
 
@@ -89,17 +146,19 @@ namespace op
     struct VertexAttrDefine
     {
         VertexAttr attr;
+        uint32_t index;
         uint32_t strideF;
+        uint32_t offsetF;
         StringHandle name;
     };
 
     inline std::vector<VertexAttrDefine> VERTEX_ATTR_DEFINES =
     {
-        {VertexAttr::POSITION_OS, 4, "positionOS"},
-        {VertexAttr::NORMAL_OS, 4, "normalOS"},
-        {VertexAttr::TANGENT_OS, 4, "tangentOS"},
-        {VertexAttr::UV0, 2, "uv0"},
-        {VertexAttr::UV1, 2, "uv1"},
+        {VertexAttr::POSITION_OS, static_cast<uint32_t>(VertexAttr::POSITION_OS), 4, 0, "positionOS"},
+        {VertexAttr::NORMAL_OS, static_cast<uint32_t>(VertexAttr::NORMAL_OS), 4, 4, "normalOS"},
+        {VertexAttr::TANGENT_OS, static_cast<uint32_t>(VertexAttr::TANGENT_OS), 4, 8, "tangentOS"},
+        {VertexAttr::UV0, static_cast<uint32_t>(VertexAttr::UV0), 2, 12, "uv0"},
+        {VertexAttr::UV1, static_cast<uint32_t>(VertexAttr::UV1), 2, 14, "uv1"},
     };
     
     static constexpr uint32_t MAX_VERTEX_ATTR_STRIDE_F = 16;
@@ -125,6 +184,5 @@ namespace op
     inline std::unordered_set PREDEFINED_MATERIALS = {
         GLOBAL_CBUFFER.Hash(),
         PER_VIEW_CBUFFER.Hash(),
-        PER_OBJECT_CBUFFER.Hash()
     };
 }

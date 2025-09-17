@@ -1,159 +1,159 @@
-﻿#include "dual_kawase_blur.h"
-
-#include <tracy/Tracy.hpp>
-
-#include "imgui.h"
-
-#include "render_texture.h"
-
-#include "rendering_utils.h"
-
-namespace op
-{
-    DualKawaseBlur::DualKawaseBlur(RenderContext* renderContext) : RenderPass(renderContext)
-    {
-        // m_downsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_downsample.glsl"); // TODO
-        // INCREF(m_downsampleMat)
-        // m_upsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_upsample.glsl");
-        // INCREF(m_upsampleMat)
-    }
-
-    DualKawaseBlur::~DualKawaseBlur()
-    {
-        ReleaseRt();
-
-        // DECREF(m_downsampleMat)
-        // DECREF(m_upsampleMat) // TODO
-    }
-
-    std::string DualKawaseBlur::GetName()
-    {
-        return "Dual Kawase Blur";
-    }
-
-    void DualKawaseBlur::Execute()
-    {
-        ZoneScoped;
-        
-        auto shadingRt = m_renderContext->GetRt("_ShadingBufferTex");
-        if (!shadingRt || m_maxIterations == 0)
-        {
-            ReleaseRt();
-            return;
-        }
-
-        UpdateRt(shadingRt);
-
-        // m_downsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize)); // TODO
-        // m_upsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize));
-
-        for (int i = 0; i < m_blurTextures.size(); ++i)
-        {
-            RenderTexture* from;
-            RenderTexture* to = m_blurTextures[i];
-            if (i == 0)
-            {
-                from = shadingRt;
-                // m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 1);
-                // m_downsampleMat->SetFloatValue(THRESHOLD, m_threshold); TODO
-            }
-            else
-            {
-                from = m_blurTextures[i - 1];
-                // m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 0);
-            }
-
-            // RenderingUtils::Blit(from, to, m_downsampleMat); TODO
-        }
-
-        for (int i = static_cast<int>(m_blurTextures.size()) - 1; i > 0; --i)
-        {
-            auto from = m_blurTextures[i];
-            auto to = m_blurTextures[i - 1];
-        
-            // RenderingUtils::Blit(from, to, m_upsampleMat); TODO
-        
-            // glEnable(GL_BLEND);
-            // glBlendFunc(GL_ONE, GL_ONE);
-            // RenderingUtils::Blit(m_blurTextures[i - 1], shadingRt);
-            // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            // glDisable(GL_BLEND);
-        }
-    
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
-        // RenderingUtils::Blit(m_blurTextures.front(), shadingRt); // TODO
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_BLEND);
-    }
-
-    void DualKawaseBlur::DrawConsoleUi()
-    {
-        if (!ImGui::CollapsingHeader("Dual Kawase Blur"))
-        {
-            return;
-        }
-    
-        ImGui::SliderInt("Max Iterations", &m_maxIterations, 0, 10);
-        ImGui::SliderInt("Blur Size", &m_blurSize, 1, 10);
-        ImGui::SliderFloat("Threshold", &m_threshold, 0, 4);
-    }
-
-    void DualKawaseBlur::UpdateRt(const RenderTexture* shadingRt)
-    {
-        auto curWidth = shadingRt->width >> 1;
-        auto curHeight = shadingRt->height >> 1;
-        auto iteration = GetIteration(shadingRt->width, shadingRt->height);
-    
-        if (!m_blurTextures.empty() &&
-            m_blurTextures.front()->width == curWidth &&
-            m_blurTextures.front()->height == curHeight &&
-            m_blurTextures.size() == iteration)
-        {
-            return;
-        }
-
-        ReleaseRt();
-        for (int i = 0; i < iteration; ++i)
-        {
-            auto desc = shadingRt->desc;
-            desc.width = curWidth;
-            desc.height = curHeight;
-            m_blurTextures.push_back(new RenderTexture(desc));
-            INCREF(m_blurTextures.back())
-
-            curWidth >>= 1;
-            curHeight >>= 1;
-        }
-    }
-
-    void DualKawaseBlur::ReleaseRt()
-    {
-        for (auto& rt : m_blurTextures)
-        {
-            DECREF(rt)
-        }
-
-        m_blurTextures.clear();
-    }
-
-    int DualKawaseBlur::GetIteration(const int originWidth, const int originHeight)
-    {
-        auto curWidth = originWidth;
-        auto curHeight = originHeight;
-
-        auto iteration = 0;
-        while (curWidth != 0 && curHeight != 0)
-        {
-            iteration++;
-
-            curWidth >>= 1;
-            curHeight >>= 1;
-        }
-        iteration -= 1;
-    
-        iteration = std::min(iteration, m_maxIterations);
-
-        return iteration;
-    }
-}
+﻿// #include "dual_kawase_blur.h"
+//
+// #include <tracy/Tracy.hpp>
+//
+// #include "imgui.h"
+//
+// #include "render_texture.h"
+//
+// #include "rendering_utils.h"
+// #include "render_context.h"
+//
+// namespace op
+// {
+//     DualKawaseBlur::DualKawaseBlur()
+//     {
+//         // m_downsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_downsample.glsl"); // TODO
+//         // INCREF(m_downsampleMat)
+//         // m_upsampleMat = Material::CreateEmptyMaterial("shaders/dual_kawase_upsample.glsl");
+//         // INCREF(m_upsampleMat)
+//     }
+//
+//     DualKawaseBlur::~DualKawaseBlur()
+//     {
+//         ReleaseRt();
+//
+//         // DECREF(m_downsampleMat)
+//         // DECREF(m_upsampleMat) // TODO
+//     }
+//
+//     std::string DualKawaseBlur::GetName()
+//     {
+//         return "Dual Kawase Blur";
+//     }
+//
+//     void DualKawaseBlur::Execute()
+//     {
+//         ZoneScoped;
+//         
+//         if (GetRC()->shadingBufferTex.expired() || m_maxIterations == 0)
+//         {
+//             ReleaseRt();
+//             return;
+//         }
+//
+//         UpdateRt(GetRC()->shadingBufferTex.lock().get());
+//
+//         // m_downsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize)); // TODO
+//         // m_upsampleMat->SetFloatValue(BLUR_SIZE, static_cast<float>(m_blurSize));
+//
+//         for (int i = 0; i < m_blurTextures.size(); ++i)
+//         {
+//             RenderTexture* from;
+//             RenderTexture* to = m_blurTextures[i];
+//             if (i == 0)
+//             {
+//                 // from = shadingRt;
+//                 // m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 1);
+//                 // m_downsampleMat->SetFloatValue(THRESHOLD, m_threshold); TODO
+//             }
+//             else
+//             {
+//                 from = m_blurTextures[i - 1];
+//                 // m_downsampleMat->SetFloatValue(APPLY_THRESHOLD, 0);
+//             }
+//
+//             // RenderingUtils::Blit(from, to, m_downsampleMat); TODO
+//         }
+//
+//         for (int i = static_cast<int>(m_blurTextures.size()) - 1; i > 0; --i)
+//         {
+//             auto from = m_blurTextures[i];
+//             auto to = m_blurTextures[i - 1];
+//         
+//             // RenderingUtils::Blit(from, to, m_upsampleMat); TODO
+//         
+//             // glEnable(GL_BLEND);
+//             // glBlendFunc(GL_ONE, GL_ONE);
+//             // RenderingUtils::Blit(m_blurTextures[i - 1], shadingRt);
+//             // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//             // glDisable(GL_BLEND);
+//         }
+//     
+//         glEnable(GL_BLEND);
+//         glBlendFunc(GL_ONE, GL_ONE);
+//         // RenderingUtils::Blit(m_blurTextures.front(), shadingRt); // TODO
+//         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//         glDisable(GL_BLEND);
+//     }
+//
+//     void DualKawaseBlur::DrawConsoleUi()
+//     {
+//         if (!ImGui::CollapsingHeader("Dual Kawase Blur"))
+//         {
+//             return;
+//         }
+//     
+//         ImGui::SliderInt("Max Iterations", &m_maxIterations, 0, 10);
+//         ImGui::SliderInt("Blur Size", &m_blurSize, 1, 10);
+//         ImGui::SliderFloat("Threshold", &m_threshold, 0, 4);
+//     }
+//
+//     void DualKawaseBlur::UpdateRt(const RenderTexture* shadingRt)
+//     {
+//         auto curWidth = shadingRt->GetDescriptor().width >> 1;
+//         auto curHeight = shadingRt->GetDescriptor().height >> 1;
+//         auto iteration = GetIteration(shadingRt->GetDescriptor().width, shadingRt->GetDescriptor().height);
+//     
+//         if (!m_blurTextures.empty() &&
+//             m_blurTextures.front()->width == curWidth &&
+//             m_blurTextures.front()->height == curHeight &&
+//             m_blurTextures.size() == iteration)
+//         {
+//             return;
+//         }
+//
+//         ReleaseRt();
+//         for (int i = 0; i < iteration; ++i)
+//         {
+//             auto desc = shadingRt->desc;
+//             desc.width = curWidth;
+//             desc.height = curHeight;
+//             m_blurTextures.push_back(new RenderTexture(desc));
+//             INCREF(m_blurTextures.back())
+//
+//             curWidth >>= 1;
+//             curHeight >>= 1;
+//         }
+//     }
+//
+//     void DualKawaseBlur::ReleaseRt()
+//     {
+//         for (auto& rt : m_blurTextures)
+//         {
+//             DECREF(rt)
+//         }
+//
+//         m_blurTextures.clear();
+//     }
+//
+//     uint32_t DualKawaseBlur::GetIteration(const uint32_t originWidth, const uint32_t originHeight)
+//     {
+//         auto curWidth = originWidth;
+//         auto curHeight = originHeight;
+//
+//         auto iteration = 0;
+//         while (curWidth != 0 && curHeight != 0)
+//         {
+//             iteration++;
+//
+//             curWidth >>= 1;
+//             curHeight >>= 1;
+//         }
+//         iteration -= 1;
+//     
+//         iteration = std::min(iteration, m_maxIterations);
+//
+//         return iteration;
+//     }
+// }

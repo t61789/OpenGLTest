@@ -12,16 +12,16 @@ namespace op
 {
     using namespace std;
 
-    vector<CameraComp*> CameraComp::s_cameras;
+    vec<CameraComp*> CameraComp::m_cameras;
 
     void CameraComp::Awake()
     {
-        s_cameras.push_back(this);
+        m_cameras.push_back(this);
     }
 
     void CameraComp::OnDestroy()
     {
-        s_cameras.erase(remove(s_cameras.begin(), s_cameras.end(), this), s_cameras.end());
+        remove(m_cameras, this);
     }
 
     void CameraComp::Start()
@@ -131,11 +131,11 @@ namespace op
 
     CameraComp* CameraComp::GetMainCamera()
     {
-        if(s_cameras.empty())
+        if(m_cameras.empty())
         {
             return nullptr;
         }
 
-        return s_cameras[0];
+        return m_cameras[0];
     }
 }

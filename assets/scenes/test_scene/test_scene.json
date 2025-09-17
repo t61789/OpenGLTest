@@ -122,7 +122,7 @@
                 },
                 {
                     "name": "BatchRenderComp",
-                    "mesh": "meshes/beast.obj",
+                    "mesh": "meshes/test_quad_0.obj",
                     "material": "materials/lit_mat_batch.json"
                 }
             ],
@@ -140,7 +140,7 @@
                         },
                         {
                             "name": "BatchRenderComp",
-                            "mesh": "meshes/smooth_cube.obj",
+                            "mesh": "meshes/test_quad_1.obj",
                             "material": "materials/lit_mat_batch.json"
                         }
                     ]

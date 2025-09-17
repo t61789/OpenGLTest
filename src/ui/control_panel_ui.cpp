@@ -1,7 +1,5 @@
 #include "control_panel_ui.h"
 
-#include <utility>
-
 #include "imgui.h"
 
 #include "gui.h"
@@ -23,14 +21,6 @@ namespace op
     ControlPanelUi::UiProxy::~UiProxy()
     {
         Ins()->m_drawConsoleUiEvent.Remove(m_drawConsoleUiHandler);
-    }
-
-    ControlPanelUi::~ControlPanelUi()
-    {
-        if (m_selected)
-        {
-            DECREF(m_selected)
-        }
     }
 
     void ControlPanelUi::Draw()
@@ -58,32 +48,26 @@ namespace op
         }
     
         ImGui::BeginChild("Hierarchy", ImVec2(0, 150), true);
-        DrawHierarchy(scene->sceneRoot);
+        DrawHierarchy(scene->GetRoot());
         ImGui::EndChild();
         
-        DrawProperties(m_selected);
+        DrawProperties(m_selected.lock().get());
     }
 
-    void ControlPanelUi::DrawHierarchy(Object* obj)
+    void ControlPanelUi::DrawHierarchy(crsp<Object> obj)
     {
         ImGui::TextUnformatted(obj->name.CStr());
         ImGui::SameLine();
         auto pathInScene = obj->GetPathInScene();
         if (ImGui::Button(("pick##" + pathInScene).c_str()))
         {
-            if (m_selected != obj)
+            if (m_selected.expired() || m_selected.lock() != obj)
             {
-                if (m_selected)
-                {
-                    DECREF(m_selected)
-                }
-
                 m_selected = obj;
-                INCREF(m_selected)
             }
         }
 
-        if (!obj->children.empty())
+        if (!obj->GetChildren().empty())
         {
             auto foldout = m_foldout.GetOrAdd(pathInScene);
             ImGui::SameLine();
@@ -97,7 +81,7 @@ namespace op
             if (foldout)
             {
                 ImGui::Indent(s_intent);
-                for (auto child : obj->children)
+                for (auto& child : obj->GetChildren())
                 {
                     DrawHierarchy(child);
                 }

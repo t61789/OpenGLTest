@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "string_handle.h"
+#include "const.h"
 #include "nlohmann/json.hpp"
 
 
@@ -11,15 +11,16 @@ namespace op
 
     class Comp
     {
-    public:
         friend class Object;
         friend class GameFramework;
         friend class SceneObjectIndices;
-
+        friend class Scene;
+        
+    public:
         void SetEnable(bool enable);
         bool GetEnable() { return m_enable;}
         Object* GetOwner() const { return m_owner; }
-        const StringHandle& GetName() const { return m_name; }
+        cr<StringHandle> GetName() const { return m_name; }
 
         virtual void Awake(){}
         virtual void Start(){}
@@ -28,9 +29,14 @@ namespace op
         virtual void OnDisable(){}
         virtual void Update(){}
 
+        Comp() = default;
         virtual ~Comp() = default;
-    
-        virtual void LoadFromJson(const nlohmann::json& objJson){}
+        Comp(const Comp& other) = delete;
+        Comp(Comp&& other) noexcept = delete;
+        Comp& operator=(const Comp& other) = delete;
+        Comp& operator=(Comp&& other) noexcept = delete;
+
+        virtual void LoadFromJson(cr<nlohmann::json> objJson) {}
 
     private:
         bool m_isStarted = false;
@@ -41,7 +47,6 @@ namespace op
         
         bool IsStarted() const { return m_isStarted;}
         void SetIsStarted(const bool val) { m_isStarted = val;}
-        void SetName(const StringHandle& name) { m_name = name;}
-        void SetScene(Scene* scene) { m_scene = scene;}
+        void SetName(cr<StringHandle> name) { m_name = name;}
     };
 }

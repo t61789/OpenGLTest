@@ -4,6 +4,7 @@
 #include "game_resource.h"
 #include "material.h"
 #include "utils.h"
+#include "render/gl/gl_cbuffer.h"
 
 namespace op
 {
@@ -39,7 +40,7 @@ namespace op
 
         s_gradientAmbientColor = cur;
         auto shc = CalcShc(sky, equator, ground);
-        GET_GLOBAL_CBUFFER->Set(SHC, shc.GetData(), 27); // TODO
+        GetGlobalCbuffer()->Set(SHC, shc.GetData(), 27); // TODO
     }
 
     Shc IndirectLighting::CalcShc(const Vec3& sky, const Vec3& equator, const Vec3& ground)

@@ -2,7 +2,6 @@
 
 #include "gui.h"
 #include "indirect_lighting.h"
-#include "render_target.h"
 
 #include "scene.h"
 #include "objects/camera_comp.h"
@@ -11,59 +10,60 @@
 #include "const.h"
 #include "material.h"
 #include "objects/render_comp.h"
+#include "render/render_target.h"
+#include "render/render_target_pool.h"
+#include "render/gl/gl_cbuffer.h"
 
 namespace op
 {
-    PreparingPass::PreparingPass(RenderContext* renderContext) : RenderPass(renderContext)
-    {
-    }
-
-    std::string PreparingPass::GetName()
-    {
-        return "Preparing Pass";
-    }
-
     void PreparingPass::Execute()
     {
-        if(m_renderContext->camera == nullptr)
+        if(GetRC()->camera == nullptr)
         {
             return;
         }
 
-        auto viewportSize = Vec4(m_renderContext->screenWidth, m_renderContext->screenHeight, 0, 0);
-        auto perViewCBuffer = GetGR()->GetPredefinedMaterial(PER_VIEW_CBUFFER);
+        auto viewportSize = Vec4(
+            static_cast<float>(GetRC()->screenWidth),
+            static_cast<float>(GetRC()->screenHeight),
+            0, 0);
+        
+        auto perViewCBuffer = GetGR()->GetPredefinedCbuffer(PER_VIEW_CBUFFER);
         perViewCBuffer->Set(VIEWPORT_SIZE, viewportSize);
 
         // 把需要渲染的objs的矩阵都上传一下
-        for (auto renderComp : m_renderContext->visibleRenderObjs)
+        for (auto renderComp : GetRC()->visibleRenderObjs)
         {
             renderComp->UpdateTransform();
         }
 
-        std::vector clearColors = {
+        auto usingGBufferRenderTarget = GetRC()->UsingGBufferRenderTarget();
+        vec<Vec4> clearColors = {
             Vec4(0.5f),
             Vec4(0.0f),
             Vec4(1.0f),
         };
-        RenderTarget::Get(*m_renderContext->gBufferDesc)->Clear(clearColors, 1.0f);
+        usingGBufferRenderTarget.Get()->Clear(clearColors, 1.0f);
 
         PrepareLightInfos();
-    
+
+        auto scene = GetRC()->scene;
         IndirectLighting::SetGradientAmbientColor(
-            m_renderContext->scene->ambientLightColorSky,
-            m_renderContext->scene->ambientLightColorEquator,
-            m_renderContext->scene->ambientLightColorGround);
+            scene->ambientLightColorSky,
+            scene->ambientLightColorEquator,
+            scene->ambientLightColorGround);
 
-        auto globalCBuffer = GET_GLOBAL_CBUFFER;
-        globalCBuffer->Set(FOG_INTENSITY, m_renderContext->scene->fogIntensity);
-        globalCBuffer->Set(FOG_COLOR, Vec4(m_renderContext->scene->fogColor, 0));
+        auto globalCBuffer = GetGR()->GetPredefinedCbuffer(GLOBAL_CBUFFER);
+        globalCBuffer->Set(FOG_INTENSITY, scene->fogIntensity);
+        globalCBuffer->Set(FOG_COLOR, Vec4(scene->fogColor, 0));
 
-        m_renderContext->SetViewProjMatrix(m_renderContext->camera);
+        GetRC()->SetViewProjMatrix(GetRC()->camera);
     }
 
     void PreparingPass::DrawConsoleUi()
     {
-        if (!m_renderContext->scene)
+        auto scene = GetRC()->scene;
+        if (!scene)
         {
             return;
         }
@@ -73,39 +73,40 @@ namespace op
             return;
         }
     
-        m_renderContext->scene->ambientLightColorSky = Gui::SliderFloat3("GradientSky", m_renderContext->scene->ambientLightColorSky, 0.0f, 10.0f, "%.2f");
-        m_renderContext->scene->ambientLightColorEquator = Gui::SliderFloat3("GradientEquator", m_renderContext->scene->ambientLightColorEquator, 0.0f, 10.0f, "%.2f");
-        m_renderContext->scene->ambientLightColorGround = Gui::SliderFloat3("GradientGround", m_renderContext->scene->ambientLightColorGround, 0.0f, 10.0f, "%.2f");
-        ImGui::SliderFloat("Fog Intensity", &m_renderContext->scene->fogIntensity, 0.0f, 0.005f, "%.5f");
-        m_renderContext->scene->fogColor = Gui::SliderFloat3("Fog Color", m_renderContext->scene->fogColor, 0.0f, 1.0f, "%.2f");
+        scene->ambientLightColorSky = Gui::SliderFloat3("GradientSky", scene->ambientLightColorSky, 0.0f, 10.0f, "%.2f");
+        scene->ambientLightColorEquator = Gui::SliderFloat3("GradientEquator", scene->ambientLightColorEquator, 0.0f, 10.0f, "%.2f");
+        scene->ambientLightColorGround = Gui::SliderFloat3("GradientGround", scene->ambientLightColorGround, 0.0f, 10.0f, "%.2f");
+        ImGui::SliderFloat("Fog Intensity", &scene->fogIntensity, 0.0f, 0.005f, "%.5f");
+        scene->fogColor = Gui::SliderFloat3("Fog Color", scene->fogColor, 0.0f, 1.0f, "%.2f");
     }
 
     void PreparingPass::PrepareLightInfos()
     {
-        m_renderContext->mainLight = nullptr;
+        GetRC()->mainLight = nullptr;
 
-        auto parallelLights = std::vector<LightComp*>();
-        auto pointLights = std::vector<LightComp*>();
+        vec<LightComp*> parallelLights;
+        vec<LightComp*> pointLights;
 
-        auto globalCBuffer = GET_GLOBAL_CBUFFER;
+        auto globalCBuffer = GetGR()->GetPredefinedCbuffer(GLOBAL_CBUFFER);
 
-        for (auto light : *m_renderContext->lights)
+        for (const auto& lightPtr : *GetRC()->lights)
         {
+            auto light = lightPtr.lock();
             constexpr int maxPointLights = 16;
             constexpr int maxParallelLights = 4;
             if (light->lightType == 0 && parallelLights.size() < maxParallelLights)
             {
-                if (!m_renderContext->mainLight)
+                if (!GetRC()->mainLight)
                 {
-                    m_renderContext->mainLight = light;
+                    GetRC()->mainLight = light.get();
                     globalCBuffer->Set(MAIN_LIGHT_DIRECTION, Vec4(-light->GetOwner()->transform->GetLocalToWorld().Forward(), 0));
                 }
 
-                parallelLights.push_back(light);
+                parallelLights.push_back(light.get());
             }
             else if (light->lightType == 1 && pointLights.size() < maxPointLights)
             {
-                pointLights.push_back(light);
+                pointLights.push_back(light.get());
             }
         }
 

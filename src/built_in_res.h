@@ -1,35 +1,36 @@
 ﻿#pragma once
-#include "shader.h"
 #include "utils.h"
-#include "material.h"
-
-#define BUILT_IN_RES (BuiltInRes::Ins())
 
 namespace op
 {
     class Mesh;
+    class Material;
+    class Image;
+    class Shader;
 
     class BuiltInRes : public Singleton<BuiltInRes>
     {
     public:
         BuiltInRes();
-        ~BuiltInRes();
 
-        Mesh* quadMesh = nullptr;
-        Mesh* sphereMesh = nullptr;
+        sp<Mesh> quadMesh = nullptr;
+        sp<Mesh> sphereMesh = nullptr;
 
-        Material* blitMatNew = nullptr;
+        sp<Material> blitMatNew = nullptr;
 
-        Texture* errorTex = nullptr;
-        Texture* whiteTex = nullptr;
-        Texture* blackTex = nullptr;
-        Texture* missTex = nullptr;
-
-        std::vector<Material*> predefinedMaterials;
+        sp<Image> errorTex = nullptr;
+        sp<Image> whiteTex = nullptr;
+        sp<Image> blackTex = nullptr;
+        sp<Image> missTex = nullptr;
 
     private:
-        std::vector<Shader*> m_packedShaders;
+        vecsp<Shader> m_packedShaders;
         
         void LoadPackedShaders();
     };
+
+    inline BuiltInRes* GetBR()
+    {
+        return BuiltInRes::Ins();
+    }
 }

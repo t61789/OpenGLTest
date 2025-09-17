@@ -15,6 +15,8 @@
 #include "GLFW/glfw3.h"
 
 #include "game_resource.h"
+#include "render_pipeline.h"
+#include "render/render_target_pool.h"
 
 namespace op
 {
@@ -100,7 +102,7 @@ namespace op
 
     Scene* GameFramework::GetMainScene() const
     {
-        return m_scene;
+        return m_scene.get();
     }
 
     bool GameFramework::InitFrame()
@@ -189,6 +191,7 @@ namespace op
     void GameFramework::FrameEnd()
     {
         GetGR()->onFrameEnd.Invoke();
+        GetRC()->renderTargetPool->TryRecycle();
         
         FrameMark;
     }
@@ -204,21 +207,21 @@ namespace op
 
         if(GetMainScene())
         {
-            auto indices = GetMainScene()->objectIndices.get();
+            auto indices = GetMainScene()->GetIndices();
             auto comps = indices->GetAllComps();
-            for (const auto& [compName, compVec] : *comps)
+            for (const auto& compPtr : comps)
             {
-                for (auto comp : compVec)
+                auto comp = compPtr.lock();
+                assert(comp);
+                
+                if (!comp->IsStarted())
                 {
-                    if (!comp->IsStarted())
-                    {
-                        comp->Start();
-                        comp->SetIsStarted(true);
-                        comp->SetEnable(true);
-                    }
-                    
-                    comp->Update();
+                    comp->Start();
+                    comp->SetIsStarted(true);
+                    comp->SetEnable(true);
                 }
+                
+                comp->Update();
             }
         }
 
@@ -272,9 +275,6 @@ namespace op
     void GameFramework::InitGame()
     {
         m_gui = new Gui();
-        m_renderState = new RenderState();
-        m_perObjectBuffer = new PerObjectBuffer();
-        m_gameResource->perObjectBuffer = m_perObjectBuffer;
         m_builtInRes = new BuiltInRes();
         m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
         // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
@@ -282,19 +282,13 @@ namespace op
         // m_scene = Scene::LoadScene("scenes/ImportTest/scene.json");
         // m_scene = Scene::LoadScene("scenes/Scene_A/scene.json");
         // m_scene = Scene::LoadScene("scenes/HDRP_template/scene.json");
-        INCREF(m_scene);
     }
 
     void GameFramework::ReleaseGame()
     {
-        if (m_scene)
-        {
-            DECREF(m_scene);
-        }
-
+        m_scene.reset();
+        
         delete m_renderPipeline;
         delete m_builtInRes;
-        delete m_perObjectBuffer;
-        delete m_renderState;
     }
 }

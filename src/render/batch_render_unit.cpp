@@ -1,25 +1,20 @@
 #include "batch_render_unit.h"
 
+#include "batch_matrix.h"
+#include "batch_mesh_0.h"
 #include "rendering_utils.h"
 #include "objects/batch_render_comp.h"
-#include "render_state.h"
 #include "utils.h"
+#include "gl/gl_buffer.h"
 
 namespace op
 {
     BatchRenderUnit::BatchRenderUnit()
     {
-        m_batchMesh = std::make_unique<BatchMesh>();
-        m_batchMatrix = std::make_unique<BatchMatrix>(3000, 5);
-
-        glGenBuffers(1, &m_glCmdBuffer);
-        glGenBuffers(1, &m_glMatrixIndicesBuffer);
-    }
-
-    BatchRenderUnit::~BatchRenderUnit()
-    {
-        GetRS()->DeleteBuffer(GL_DRAW_INDIRECT_BUFFER, m_glCmdBuffer);
-        GetRS()->DeleteBuffer(GL_SHADER_STORAGE_BUFFER, m_glMatrixIndicesBuffer);
+        m_cmdBuffer = msp<GlBuffer>(GL_DRAW_INDIRECT_BUFFER);
+        m_matrixIndicesBuffer = msp<GlBuffer>(GL_SHADER_STORAGE_BUFFER, 4);
+        m_batchMesh = msp<BatchMesh0>();
+        m_batchMatrix = msp<BatchMatrix>(3000, 5);
     }
 
     void BatchRenderUnit::BindComp(BatchRenderComp* comp)
@@ -29,7 +24,7 @@ namespace op
             return;
         }
 
-        m_comps.push_back({m_batchMatrix->Alloc(), comp});
+        m_comps.push_back({m_batchMatrix->Register(), comp});
         m_batchMesh->RegisterMesh(comp->GetMesh());
     }
 
@@ -42,7 +37,7 @@ namespace op
         }
     }
 
-    void BatchRenderUnit::UpdateMatrix(BatchRenderComp* comp, const BatchMatrix::Elem* matrices)
+    void BatchRenderUnit::UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices)
     {
         auto compInfo = find(m_comps, &CompInfo::comp, comp);
         m_batchMatrix->SubmitData(compInfo->matrixIndex, matrices);
@@ -64,14 +59,14 @@ namespace op
         {
             drawContext.sameMatCompsEnd = it;
             auto& comp = it->comp;
-            if (comp->GetMaterial() != curMaterial)
+            if (comp->GetMaterial().get() != curMaterial)
             {
                 if (curMaterial)
                 {
                     drawContext.material = curMaterial;
                     EncodePerMaterialCmds(drawContext);
                 }
-                curMaterial = comp->GetMaterial();
+                curMaterial = comp->GetMaterial().get();
                 drawContext.sameMatCompsBegin = it;
             }
             
@@ -102,7 +97,7 @@ namespace op
             auto& comp = it->comp;
             comp->UpdateTransform();
             
-            if (comp->GetMesh() != curMesh)
+            if (comp->GetMesh().get() != curMesh)
             {
                 if (instanceCount != 0)
                 {
@@ -111,7 +106,7 @@ namespace op
                 }
                 baseInstanceCount += instanceCount;
                 instanceCount = 1;
-                curMesh = comp->GetMesh();
+                curMesh = comp->GetMesh().get();
             }
 
             if (it + 1 == drawContext.sameMatCompsEnd)
@@ -128,31 +123,32 @@ namespace op
 
     void BatchRenderUnit::CallGlCmd(const DrawContext& drawContext)
     {
-        GetRS()->BindBuffer(GL_DRAW_INDIRECT_BUFFER, m_glCmdBuffer);
-        glBufferData(
-            GL_DRAW_INDIRECT_BUFFER,
-            static_cast<GLsizeiptr>(sizeof(IndirectCmd) * drawContext.cmds.size()),
-            drawContext.cmds.data(),
-            GL_STREAM_DRAW);
+        GL_CHECK_ERROR(Begin call cmd)
 
-        GetRS()->BindBuffer(GL_SHADER_STORAGE_BUFFER, m_glMatrixIndicesBuffer);
-        glBufferData(
-            GL_SHADER_STORAGE_BUFFER,
-            static_cast<GLsizeiptr>(sizeof(uint32_t) * drawContext.matrixIndices.size()),
-            drawContext.matrixIndices.data(),
-            GL_STREAM_DRAW);
-        GetRS()->BindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_glMatrixIndicesBuffer);
+        m_cmdBuffer->Bind();
+        m_cmdBuffer->SetData(
+            GL_STREAM_DRAW,
+            sizeof(IndirectCmd) * drawContext.cmds.size(),
+            drawContext.cmds.data());
+
+        m_matrixIndicesBuffer->Bind();
+        m_matrixIndicesBuffer->SetData(
+            GL_STREAM_DRAW,
+            sizeof(uint32_t) * drawContext.matrixIndices.size(),
+            drawContext.matrixIndices.data());
+        m_matrixIndicesBuffer->BindBase();
+        
         m_batchMatrix->Use();
         m_batchMesh->Use();
         
         RenderingUtils::BindDrawResources({
             nullptr,
             drawContext.material,
-            nullptr,
-            nullptr
         });
 
         glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawContext.cmds.size()), 0);
+
+        GL_CHECK_ERROR(End call cmd)
     }
 
     BatchRenderUnit::IndirectCmd BatchRenderUnit::EncodePerMeshCmd(Mesh* mesh, const uint32_t instanceCount, const uint32_t baseInstanceCount)
@@ -171,10 +167,10 @@ namespace op
 
     bool BatchRenderUnit::CompComparer(const CompInfo& lhs, const CompInfo& rhs)
     {
-        auto lMat = reinterpret_cast<uintptr_t>(lhs.comp->GetMaterial());
-        auto lMesh = reinterpret_cast<uintptr_t>(lhs.comp->GetMesh());
-        auto rMat = reinterpret_cast<uintptr_t>(rhs.comp->GetMaterial());
-        auto rMesh = reinterpret_cast<uintptr_t>(rhs.comp->GetMesh());
+        auto lMat = reinterpret_cast<uintptr_t>(lhs.comp->GetMaterial().get());
+        auto lMesh = reinterpret_cast<uintptr_t>(lhs.comp->GetMesh().get());
+        auto rMat = reinterpret_cast<uintptr_t>(rhs.comp->GetMaterial().get());
+        auto rMesh = reinterpret_cast<uintptr_t>(rhs.comp->GetMesh().get());
         if (lMat == rMat)
         {
             return lMesh < rMesh;

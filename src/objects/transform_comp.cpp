@@ -156,13 +156,13 @@ namespace op
         m_dirty = false;
         
         Matrix4x4 parentLocalToWorld;
-        if (GetOwner()->parent)
+        if (!GetOwner()->parent.expired())
         {
             // 如果parent还是dirty的话，GetLocalToWorld会继续往上递归地UpdateMatrix
-            parentLocalToWorld = GetOwner()->parent->transform->GetLocalToWorld();
+            parentLocalToWorld = GetOwner()->parent.lock()->transform->GetLocalToWorld();
             if (m_position.needUpdateFromWorld)
             {
-                auto& parentWorldToLocal = GetOwner()->parent->transform->GetWorldToLocal();
+                auto& parentWorldToLocal = GetOwner()->parent.lock()->transform->GetWorldToLocal();
                 m_position.localVal = (parentWorldToLocal * Vec4(m_position.worldVal, 1.0f)).ToVec3();
                 m_position.needUpdateFromWorld = false;
             }
@@ -200,19 +200,19 @@ namespace op
         object->transform->m_dirty = true;
         object->transform->dirtyEvent.Invoke();
     
-        if (object->children.empty())
+        if (object->GetChildren().empty())
         {
             return;
         }
 
-        for (auto child : object->children)
+        for (auto& child : object->GetChildren())
         {
             if (child->transform->m_dirty)
             {
                 continue;
             }
 
-            SetDirty(child);
+            SetDirty(child.get());
         }
     }
 }

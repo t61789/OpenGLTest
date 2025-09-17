@@ -5,7 +5,7 @@
 
 namespace op
 {
-    class CameraComp : public Comp
+    class CameraComp final : public Comp
     {
     public:
         void Awake() override;
@@ -15,8 +15,10 @@ namespace op
         float fov = 45.0f;
         float nearClip = 0.1f;
         float farClip = 30.0f;
+        
         static CameraComp* GetMainCamera();
-        void LoadFromJson(const nlohmann::json& objJson) override;
+        
+        void LoadFromJson(cr<nlohmann::json> objJson) override;
     
     private:
         Vec3 m_targetPosition = {};
@@ -24,6 +26,6 @@ namespace op
 
         float m_curSpeedAdd = 0;
         
-        static std::vector<CameraComp*> s_cameras;
+        static vec<CameraComp*> m_cameras;
     };
 }

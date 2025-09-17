@@ -1,24 +1,18 @@
 ﻿#pragma once
 
-#include <string>
-
 #include "math/math.h"
 #include "nlohmann/json.hpp"
 
-#include "event.h"
+#include "i_resource.h"
 #include "scene_object_indices.h"
-#include "shared_object.h"
 
 namespace op
 {
     class Object;
 
-    class Scene : public SharedObject
+    class Scene final : public IResource, public std::enable_shared_from_this<Scene>
     {
     public:
-        Object* sceneRoot = nullptr;
-        std::unique_ptr<SceneObjectIndices> objectIndices;
-
         Vec3 ambientLightColorSky = Vec3(0, 0, 0);
         Vec3 ambientLightColorEquator = Vec3(0, 0, 0);
         Vec3 ambientLightColorGround = Vec3(0, 0, 0);
@@ -26,19 +20,20 @@ namespace op
         float fogIntensity = 0.01f;
         Vec3 fogColor = Vec3(1.0f, 1.0f, 1.0f);
 
-        void GetAllObjects(std::vector<Object*>& result);
+        SceneObjectIndices* GetIndices() const { return m_objectIndices.get();}
+        cr<StringHandle> GetPath() override { return m_path;}
+        sp<Object> GetRoot() const { return m_sceneRoot;}
         
-        static Scene* LoadScene(const std::string& sceneJsonPath);
+        static sp<Scene> LoadScene(cr<StringHandle> sceneJsonPath);
 
     private:
-        Scene();
-        ~Scene() override;
-
-        EventHandler m_objectChildAddedHandler = 0;
-        void OnObjectChildAdded(Object* parent, Object* child);
-
-        void LoadSceneConfig(const nlohmann::json& configJson);
+        StringHandle m_path;
         
-        static void LoadChildren(Object* parent, const nlohmann::json& children);
+        sp<Object> m_sceneRoot = nullptr;
+        up<SceneObjectIndices> m_objectIndices;
+        
+        void LoadSceneConfig(cr<nlohmann::json> configJson);
+        
+        static void LoadChildren(crsp<Object> parent, cr<nlohmann::json> children);
     };
 }

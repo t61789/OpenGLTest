@@ -7,12 +7,13 @@
 #include "ui/control_panel_ui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "objects/render_comp.h"
 
 namespace op
 {
     Gui::Gui()
     {
-        m_controlPanelUi = std::make_unique<ControlPanelUi>();
+        m_controlPanelUi = mup<ControlPanelUi>();
     }
 
     void Gui::BeginFrame()

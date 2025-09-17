@@ -20,20 +20,18 @@ namespace op
             EventHandler m_drawConsoleUiHandler = 0;
         };
     
-        ~ControlPanelUi();
-    
         void Draw();
 
     private:
         TimeOutBuffer<std::string, bool> m_foldout = TimeOutBuffer<std::string, bool>(true);
 
         static float s_intent;
-        Object* m_selected = nullptr;
+        wp<Object> m_selected;
 
         Event<> m_drawConsoleUiEvent;
 
         void DrawSceneInfo();
-        void DrawHierarchy(Object* obj);
+        void DrawHierarchy(crsp<Object> obj);
         void DrawProperties(const Object* obj);
         void DrawApplicationInfo();
         void DrawLogInfo();

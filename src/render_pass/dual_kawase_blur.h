@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-#include "render_pass.h"
+#include "i_render_pass.h"
 #include "ui/control_panel_ui.h"
 
 namespace op
 {
-    class DualKawaseBlur : public RenderPass, public ControlPanelUi::UiProxy
+    class DualKawaseBlur : public IRenderPass, public ControlPanelUi::UiProxy
     {
     public:
-        explicit DualKawaseBlur(RenderContext* renderContext);
+        explicit DualKawaseBlur();
         ~DualKawaseBlur() override;
     
         std::string GetName() override;
@@ -26,6 +26,6 @@ namespace op
 
         void UpdateRt(const RenderTexture* shadingRt);
         void ReleaseRt();
-        int GetIteration(int originWidth, int originHeight);
+        uint32_t GetIteration(uint32_t originWidth, uint32_t originHeight);
     };
 }

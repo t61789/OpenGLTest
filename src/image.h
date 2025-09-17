@@ -1,26 +1,39 @@
 ﻿#pragma once
-#include "texture.h"
+#include "i_resource.h"
+#include "i_texture.h"
+#include "shared_object.h"
 
 namespace op
 {
-    class ImageDescriptor
+    enum class TextureFilterMode : uint8_t;
+    enum class TextureWrapMode : uint8_t;
+
+    struct ImageDescriptor
     {
-    public:
         bool needFlipVertical;
         bool needMipmap;
         TextureWrapMode wrapMode;
         TextureFilterMode filterMode;
 
-        static ImageDescriptor GetDefault();
+        static cr<ImageDescriptor> GetDefault();
     };
 
-    class Image : public Texture
+    class Image final : public ITexture, public IResource
     {
     public:
-        Image(GLuint glTextureId);
-        ~Image() override;
+        uint32_t GetWidth() override { return m_width;}
+        uint32_t GetHeight() override { return m_height;}
+        crsp<GlTexture> GetGlTexture() override { return m_glTexture;}
+        cr<StringHandle> GetPath() override { return m_path;}
+
+        static sp<Image> LoadFromFile(cr<StringHandle> path, const ImageDescriptor& desc);
+        static sp<Image> LoadCubeFromFile(cr<StringHandle> dirPath, const std::string& expansionName, const ImageDescriptor& desc);
+
+    private:
+        uint32_t m_width = 0;
+        uint32_t m_height = 0;
+        StringHandle m_path = {};
         
-        static Image* LoadFromFile(const std::string& path, const ImageDescriptor& desc);
-        static Image* LoadCubeFromFile(const std::string& dirPath, const std::string& expansionName, const ImageDescriptor& desc);
+        sp<GlTexture> m_glTexture = nullptr;
     };
 }

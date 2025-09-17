@@ -2,59 +2,37 @@
 
 #include <tracy/Tracy.hpp>
 
-#include "imgui.h"
-
-#include "render_target.h"
 #include "built_in_res.h"
+#include "image.h"
+#include "material.h"
 #include "rendering_utils.h"
+#include "render/render_target.h"
+#include "render/render_target_pool.h"
 
 namespace op
 {
-    FinalBlitPass::FinalBlitPass(RenderContext* renderContext) : RenderPass(renderContext)
+    FinalBlitPass::FinalBlitPass()
     {
-        finalBlitMat = Material::CreateFromShader("shaders/final_blit.shader");
-        INCREF(finalBlitMat)
+        m_finalBlitMat = Material::CreateFromShader("shaders/final_blit.shader");
         auto desc = ImageDescriptor::GetDefault();
         desc.needFlipVertical = false;
-        lutTexture = Image::LoadFromFile("textures/testLut.png", desc);
-        INCREF(lutTexture)
-    }
-
-    FinalBlitPass::~FinalBlitPass()
-    {
-        DECREF(finalBlitMat)
-        DECREF(lutTexture)
-    }
-
-    std::string FinalBlitPass::GetName()
-    {
-        return "Final Blit Pass";
+        m_lutTexture = Image::LoadFromFile("textures/testLut.png", desc);
     }
 
     void FinalBlitPass::Execute()
     {
         ZoneScoped;
         
-        if(finalBlitMat == nullptr)
+        if(m_finalBlitMat == nullptr)
         {
             return;
         }
-    
-        RenderTarget::ClearFrameBuffer(0, Vec4::Zero(), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        RenderTarget::UseScreenTarget();
 
-        finalBlitMat->Set(MIN_LUMINANCE, m_minLuminance);
-        finalBlitMat->Set(MAX_LUMINANCE, m_maxLuminance);
-        finalBlitMat->Set(LUT_TEX, lutTexture);
+        m_finalBlitMat->Set(MIN_LUMINANCE, m_minLuminance);
+        m_finalBlitMat->Set(MAX_LUMINANCE, m_maxLuminance);
+        m_finalBlitMat->Set(LUT_TEX, m_lutTexture);
 
-        auto quad = BUILT_IN_RES->quadMesh;
-        
-        RenderingUtils::RenderMesh({
-            quad,
-            finalBlitMat,
-            &Matrix4x4::Identity(),
-            &Matrix4x4::Identity(),
-        });
+        RenderingUtils::Blit(nullptr, nullptr, m_finalBlitMat.get()); // TODO depth
     }
 
     void FinalBlitPass::DrawConsoleUi()

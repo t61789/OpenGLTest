@@ -6,14 +6,12 @@
 
 #include "utils.h"
 #include "math/math.h"
-#include "render/render_state.h"
-#include "render/texture_binding_mgr.h"
 
 namespace op
 {
-    class CullModeMgr;
-    class BlendModeMgr;
-    class RenderTargetDesc;
+    struct UsingRenderTarget;
+    class RenderTargetPool;
+    class RenderTarget;
     class RenderTexture;
     class Scene;
     class Object;
@@ -24,8 +22,8 @@ namespace op
     class RenderContext : public Singleton<RenderContext>
     {
     public:
-        int screenWidth = 0;
-        int screenHeight = 0;
+        uint32_t screenWidth = 0;
+        uint32_t screenHeight = 0;
 
         int mainLightShadowSize = 0;
         
@@ -36,30 +34,31 @@ namespace op
 
         LightComp* mainLight = nullptr;
 
-        RenderTargetDesc* gBufferDesc = nullptr;
+        vecwp<RenderTexture> gBufferTextures;
+        wp<RenderTexture> shadingBufferTex;
         
         CameraComp* camera = nullptr;
         Scene* scene = nullptr;
-        CullModeMgr* cullModeMgr = nullptr;
-        BlendModeMgr* blendModeMgr = nullptr;
-        TextureBindingMgr* textureBindingMgr = nullptr;
+        RenderTargetPool* renderTargetPool = nullptr;
 
-        std::vector<Object*>* allSceneObjs;
+        const vecwp<Object>* allSceneObjs;
         
-        std::vector<LightComp*>* lights;
-        std::vector<CameraComp*>* cameras;
-        std::vector<RenderComp*>* allRenderObjs;
-        std::vector<RenderComp*> visibleRenderObjs;
+        const vecwp<LightComp>* lights;
+        const vecwp<CameraComp>* cameras;
+        const vecwp<RenderComp>* allRenderObjs;
+        vec<RenderComp*> visibleRenderObjs;
 
-        ~RenderContext();
+        RenderContext() = default;
+        ~RenderContext() = default;
+        RenderContext(const RenderContext& other) = delete;
+        RenderContext(RenderContext&& other) noexcept = delete;
+        RenderContext& operator=(const RenderContext& other) = delete;
+        RenderContext& operator=(RenderContext&& other) noexcept = delete;
 
         void SetViewProjMatrix(const CameraComp* cam);
         void SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj);
         void SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj, const Vec3& cameraPos);
-
-        void RegisterRt(RenderTexture* rt);
-        void UnRegisterRt(const RenderTexture* rt);
-        RenderTexture* GetRt(const std::string& name);
+        UsingRenderTarget UsingGBufferRenderTarget();
 
     private:
         std::unordered_map<std::string, RenderTexture*> m_rts;

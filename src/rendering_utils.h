@@ -2,6 +2,8 @@
 #include <optional>
 #include <vector>
 
+#include "const.h"
+
 
 namespace op
 {
@@ -21,19 +23,16 @@ namespace op
         {
             Mesh* mesh = nullptr;
             Material* material = nullptr;
-            const Matrix4x4* localToWorld = nullptr;
-            const Matrix4x4* worldToLocal = nullptr;
             std::optional<uint32_t> objectIndex = std::nullopt;
         };
         
-        static void RenderScene(const std::vector<RenderComp*>& renderComps);
+        static void RenderScene(crvec<RenderComp*> renderComps);
         static void RenderEntity(const RenderComp* renderComp);
-        static void RenderMesh(const RenderParam& renderParam);
-        static void Blit(RenderTexture* src, RenderTexture* dst, Material* material = nullptr);
-        static void BindDrawResources(const RenderParam& renderParam);
+        static void Blit(crsp<RenderTexture> src, crsp<RenderTexture> dst, Material* material = nullptr);
+        static void RenderMesh(cr<RenderParam> renderParam);
+        static void BindDrawResources(cr<RenderParam> renderParam);
         
     private:
-        static void ApplyTextures(Material* material, Shader* shader);
         static void CallGlDraw(const Mesh* mesh);
     };
 }

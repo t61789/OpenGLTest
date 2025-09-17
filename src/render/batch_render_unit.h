@@ -2,27 +2,25 @@
 
 #include <cstdint>
 #include <memory>
-#include <glad/glad.h>
 
 #include "batch_matrix.h"
-#include "batch_mesh.h"
-#include "mesh.h"
-#include "material.h"
-#include "common/managed_buffer.h"
+#include "utils.h"
 
 namespace op
 {
+    class BatchMesh0;
+    class Mesh;
+    class Material;
     class BatchRenderComp;
     
-    class BatchRenderUnit : public Singleton<BatchRenderUnit>
+    class BatchRenderUnit final : public Singleton<BatchRenderUnit>
     {
     public:
         BatchRenderUnit();
-        ~BatchRenderUnit();
 
         void BindComp(BatchRenderComp* comp);
         void UnBindComp(const BatchRenderComp* comp);
-        void UpdateMatrix(BatchRenderComp* comp, const BatchMatrix::Elem* matrices);
+        void UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices);
         void Execute();
 
     private:
@@ -46,19 +44,19 @@ namespace op
             Material* material = nullptr;
             Mesh* mesh = nullptr;
             
-            std::vector<CompInfo>::iterator sameMatCompsBegin;
-            std::vector<CompInfo>::iterator sameMatCompsEnd;
+            vec<CompInfo>::iterator sameMatCompsBegin;
+            vec<CompInfo>::iterator sameMatCompsEnd;
 
-            std::vector<IndirectCmd> cmds;
-            std::vector<uint32_t> matrixIndices;
+            vec<IndirectCmd> cmds;
+            vec<uint32_t> matrixIndices;
         };
 
-        std::vector<CompInfo> m_comps;
-        std::unique_ptr<BatchMesh> m_batchMesh = nullptr;
-        std::unique_ptr<BatchMatrix> m_batchMatrix = nullptr;
-
-        GLuint m_glCmdBuffer;
-        GLuint m_glMatrixIndicesBuffer;
+        vec<CompInfo> m_comps;
+        
+        sp<GlBuffer> m_cmdBuffer = nullptr;
+        sp<GlBuffer> m_matrixIndicesBuffer = nullptr;
+        sp<BatchMesh0> m_batchMesh = nullptr;
+        sp<BatchMatrix> m_batchMatrix = nullptr;
 
         void EncodePerMaterialCmds(DrawContext& drawContext);
         IndirectCmd EncodePerMeshCmd(Mesh* mesh, uint32_t instanceCount, uint32_t baseInstanceCount);

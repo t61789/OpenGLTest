@@ -43,13 +43,6 @@ namespace op
         static std::vector<uint32_t> Binary8To32(const std::vector<uint8_t>& data);
     };
 
-    template <typename T>
-    struct IndexObj
-    {
-        size_t index;
-        T obj;
-    };
-    
     template <typename... Args>
     static std::string format_string(const std::string& format, Args... args)
     {
@@ -116,100 +109,118 @@ namespace op
         return log(Error, msg, args...);
     }
     
-    template <typename T>
-    static T* find(std::vector<IndexObj<T>>& vec, const size_t key)
+    template <typename T, typename Predicate>
+    static int find_index_if(T& vec, Predicate&& p)
     {
-        for (auto& v : vec)
+        auto it = std::find_if(vec.begin(), vec.end(), p);
+        
+        if (it != vec.end())
         {
-            if (v.index == key)
-            {
-                return &v.obj;
-            }
-        }
-
-        return nullptr;
-    }
-
-    template <typename K, typename V>
-    static V* find(std::vector<V>& vec, const K V::* keyField, const K& key)
-    {
-        for (auto& v : vec)
-        {
-            if (v.*keyField == key)
-            {
-                return &v;
-            }
-        }
-
-        return nullptr;
-    }
-    
-    template <typename V>
-    static V* find(std::vector<V*>& vec, const StringHandle V::* keyField, const size_t key)
-    {
-        for (auto& v : vec)
-        {
-            if (v->*keyField == key)
-            {
-                return v;
-            }
-        }
-
-        return nullptr;
-    }
-    
-    template <typename K, typename V>
-    static int find_index(std::vector<V>& vec, const K V::* keyField, const K& key)
-    {
-        int i = 0;
-        for (auto& v : vec)
-        {
-            if (v.*keyField == key)
-            {
-                return i;
-            }
-            i++;
+            return std::distance(vec.begin(), it);
         }
 
         return -1;
     }
-    
-    template <typename K>
-    static int find_index(std::vector<K>& vec, const K& key)
+
+    template <typename T, typename V>
+    static int find_index(T& vec, const V& val)
     {
-        int i = 0;
-        for (auto& v : vec)
+        auto it = std::find(vec.begin(), vec.end(), val);
+        if (it != vec.end())
         {
-            if (v == key)
-            {
-                return i;
-            }
-            i++;
+            return std::distance(vec.begin(), it);
         }
 
         return -1;
     }
-    
-    template <typename T>
-    static int find_index(std::vector<IndexObj<T>>& vec, const size_t key)
-    {
-        int i = 0;
-        for (auto& v : vec)
-        {
-            if (v.index == key)
-            {
-                return i;
-            }
-            i++;
-        }
 
-        return i;
+    template <typename T, typename K, typename V>
+    static int find_index(T& vec, V K::* field, const V& val)
+    {
+        return find_index_if(vec, [&field, &val](const K& item){return item.*field == val;});
     }
 
-    template <typename T>
-    static bool exists(std::vector<T>& vec, const T& obj)
+
+    template <typename T, typename K, typename V>
+    static T* find(std::vector<T>& vec, V K::* field, const V& val)
     {
-        return std::find(vec.begin(), vec.end(), obj) != vec.end();
+        auto index = find_index(vec, field, val);
+    
+        if (index != -1)
+        {
+            return &vec[index];
+        }
+
+        return nullptr;
+    }
+    
+    template <typename T, typename K, typename V>
+    static const T* find(const std::vector<T>& vec, V K::* field, const V& val)
+    {
+        auto index = find_index(vec, field, val);
+    
+        if (index != -1)
+        {
+            return &vec[index];
+        }
+
+        return nullptr;
+    }
+    
+    template <typename T, typename Predicate>
+    static T* find_if(std::vector<T>& vec, Predicate&& p)
+    {
+        auto index = find_index_if(vec, p);
+    
+        if (index != -1)
+        {
+            return &vec[index];
+        }
+
+        return nullptr;
+    }
+    
+    template <typename T, typename Predicate>
+    static const T* find_if(const std::vector<T>& vec, Predicate&& p)
+    {
+        auto index = find_index_if(vec, p);
+    
+        if (index != -1)
+        {
+            return &vec[index];
+        }
+
+        return nullptr;
+    }
+    
+    template <typename V, typename T>
+    static bool exists(const V& vec, const T& val)
+    {
+        return find_index(vec, val) != -1;
+    }
+    
+    template <typename T, typename K, typename V>
+    static bool exists(const T& vec, V K::* field, const V& val)
+    {
+        return find_index(vec, field, val) != -1;
+    }
+    
+    template <typename T, typename Predicate>
+    static bool exists_if(const T& vec, Predicate&& p)
+    {
+        return find_index_if(vec, p) != -1;
+    }
+    
+    template <typename T>
+    static void remove(vec<T>& vec, const T& obj)
+    {
+        vec.erase(std::remove(vec.begin(), vec.end(), obj), vec.end());
+    }
+
+    template <typename T, typename Predicate>
+    static void remove_if(vec<T>& vec, Predicate&& p)
+    {
+        vec.erase(std::remove_if(vec.begin(), vec.end(), p), vec.end());
     }
     
     #define GL_CHECK_ERROR(position) { auto errors = read_gl_error(); if (!errors.empty()) { throw_gl_error(errors, #position); }}

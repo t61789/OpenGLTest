@@ -7,7 +7,7 @@
 
 namespace op
 {
-    class TransformComp : public Comp
+    class TransformComp final : public Comp
     {
     public:
         Event<> dirtyEvent;

@@ -8,8 +8,7 @@ namespace op
     class StringHandle
     {
     public:
-        StringHandle() = default;
-        
+        StringHandle();
         StringHandle(const char* str);
         StringHandle(const std::string& str);
 
@@ -18,6 +17,8 @@ namespace op
         const std::string& Str() const { return m_str; }
 
         const char* CStr() const { return m_str.c_str(); }
+
+        bool Empty() const;
 
         bool operator==(const StringHandle& other) const { return m_hash == other.m_hash; }
         
@@ -33,7 +34,7 @@ namespace op
 
     private:
         std::string m_str;
-        size_t m_hash;
+        size_t m_hash = 0;
     };
 }
 

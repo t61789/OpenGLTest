@@ -3,160 +3,103 @@
 #include <string>
 #include <spirv_glsl.hpp>
 
-#include "shared_object.h"
-#include "mesh.h"
-#include "texture.h"
-#include "render/cbuffer.h"
+#include "i_resource.h"
+#include "common/data_set.h"
+#include "render/gl/gl_shader.h"
+
 
 namespace op
 {
-    class Shader : public SharedObject
+    class DataSet;
+    class GlShader;
+    struct CBufferLayout;
+    enum class GlTextureType : uint8_t;
+
+    class Shader final : public IResource
     {
     public:
-        class UniformInfo
-        {
-        public:
-            int location;
-            int elemNum;
-            int type;
-            std::string name;
-            bool hasInitGlVal = false;
-
-            union
-            {
-                int intVal = 0;
-                float floatVal;
-                Vec4 vec4Val;
-            };
-
-            static const UniformInfo& GetUnavailable()
-            {
-                static UniformInfo unavailable = { -1, -1, -1, "" };
-                return unavailable;
-            }
-        };
-
-        class UniformBlockMemberInfo
-        {
-        public:
-            StringHandle name;
-            size_t size;
-            uint32_t offset;
-            size_t blockNameId;
-        };
-
-        class UniformBlockInfo
-        {
-        public:
-            StringHandle name;
-            uint32_t binding;
-            size_t size;
-            std::vector<size_t> uniforms;
-        };
-
-        struct VertexLayoutInfo
-        {
-            uint32_t location;
-        };
-
         struct TextureInfo
         {
-            GLuint type;
+            GlTextureType type;
             uint32_t location;
         };
-        
-        GLuint glShaderId;
 
-        std::unordered_map<VertexAttr, VertexLayoutInfo> vertexLayout;
-        std::unordered_map<size_t, UniformInfo> uniforms;
-        std::unordered_map<size_t, UniformBlockInfo> uniformBlocks;
-        std::unordered_map<size_t, UniformBlockMemberInfo> uniformMembers;
+        umap<string_hash, TextureInfo> textures;
+        umap<string_hash, sp<CBufferLayout>> cbuffers;
 
-        std::unordered_map<size_t, TextureInfo> textures;
-        std::unordered_map<size_t, CBufferLayout*> cbuffers;
-
-        const UniformInfo& GetUniformInfo(size_t nameId) const;
-        bool HasParam(const size_t& nameId) const;
-        
-        void SetBool(size_t nameId, bool value) const;
-        static void SetBoolGl(int location, bool value);
-        void SetInt(size_t nameId, int value) const;
-        static void SetIntGl(int location, int value);
-        void SetFloat(size_t nameId, float value) const;
-        static void SetFloatGl(int location, float value);
-        void SetVector(size_t nameId, const Vec4& value) const;
-        static void SetVectorGl(int location, const Vec4& value);
-        void SetMatrix(size_t nameId, const Matrix4x4& value) const;
-        static void SetMatrixGl(int location, const Matrix4x4& value);
-        void SetFloatArr(size_t nameId, int count, const float* value) const;
-        static void SetFloatArrGl(int location, int count, const float* value);
-        void SetTexture(size_t nameId, int slot, const Texture* value) const;
-        static void SetTextureGl(int location, int slot, const Texture* value);
+        Shader();
 
         template <typename T>
-        void SetVal(size_t nameId, T value);
+        void SetVal(size_t nameId, cr<T> value);
+        void SetVal(string_hash nameId, const float* value, uint32_t countF);
 
-        static Shader* LoadFromFile(const std::string& path);
-        static Shader* LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath = NOT_A_FILE);
-        static Shader* LoadFromSpvBase64(const std::string& vert, const std::string& frag, const std::string& path = NOT_A_FILE);
-        static Shader* LoadFromSpvBinary(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path = NOT_A_FILE);
+        void Use();
+
+        cr<StringHandle> GetPath() override { return m_path;}
+
+        static sp<Shader> LoadFromFile(cr<StringHandle> path);
+        static sp<Shader> LoadFromFile(cr<std::string> preparedVert, cr<std::string> preparedFrag, cr<StringHandle> glslPath = NOT_A_FILE);
+        static sp<Shader> LoadFromSpvBase64(cr<std::string> vert, cr<std::string> frag, cr<StringHandle> path = NOT_A_FILE);
+        static sp<Shader> LoadFromSpvBinary(vec<uint32_t> vert, vec<uint32_t> frag, cr<StringHandle> path = NOT_A_FILE);
 
     private:
-        ~Shader() override;
-
-        void LoadVertexLayout(const spirv_cross::CompilerGLSL& vertCompiler, const spirv_cross::ShaderResources& vertResources);
-        void LoadCBuffer(const spirv_cross::CompilerGLSL& compiler, const spirv_cross::ShaderResources& resources);
-        void LoadTextures(const spirv_cross::CompilerGLSL& compiler, const spirv_cross::ShaderResources& resources);
+        StringHandle m_path;
         
-        template <typename T>
-        void SetVal(size_t nameId, T value, T UniformInfo::* valueField, const std::function<void(int, T)>& glSetValue);
+        sp<GlShader> m_glShader;
+        sp<DataSet> m_dataSet;
+        
+        template <class T>
+        void SetValImp(string_hash nameId, cr<T> value, cr<std::function<void(int, cr<T>)>> glSetValue);
 
-        static std::unordered_map<size_t, UniformInfo> LoadUniforms(GLuint program);
-        static std::vector<uint32_t> LoadSpvFileData(const std::string& absolutePath);
-        static bool TryCreatePredefinedCBuffer(const spirv_cross::CompilerGLSL& compiler, const spirv_cross::Resource& uniformBuffer);
+        void LoadCBuffer(cr<spirv_cross::CompilerGLSL> compiler, cr<spirv_cross::ShaderResources> resources);
+        void LoadTextures(cr<spirv_cross::CompilerGLSL> compiler, cr<spirv_cross::ShaderResources> resources);
+        
+        static vec<uint32_t> LoadSpvFileData(cr<std::string> absolutePath);
+        static bool TryCreatePredefinedCBuffer(cr<spirv_cross::CompilerGLSL> compiler, cr<spirv_cross::Resource> uniformBuffer);
         static void CombineSeparateTextures(spirv_cross::CompilerGLSL& compiler);
-        static void CheckShaderCompilation(GLuint vertexShader, const std::string &shaderPath, const std::string& source);
     };
 
     template <>
-    inline void Shader::SetVal<int>(const size_t nameId, const int value)
+    inline void Shader::SetVal<int>(const size_t nameId, cr<int> value)
     {
-        static auto field = &UniformInfo::intVal;
-        static std::function glSetValue = [](const int location, const int v) { glUniform1i(location, v); };
-        SetVal(nameId, value, field, glSetValue);
+        static std::function glSetValue = [this](const int location, cr<int> v) { m_glShader->SetInt(location, v);};
+        SetValImp(nameId, value, glSetValue);
     }
 
     template <>
-    inline void Shader::SetVal<float>(const size_t nameId, const float value)
+    inline void Shader::SetVal<float>(const size_t nameId, cr<float> value)
     {
-        static auto field = &UniformInfo::floatVal;
-        static std::function glSetValue = [](const int location, const float v) { glUniform1f(location, v); };
-        SetVal(nameId, value, field, glSetValue);
+        static std::function glSetValue = [this](const int location, cr<float> v) { m_glShader->SetFloat(location, v);};
+        SetValImp(nameId, value, glSetValue);
     }
     
     template <>
-    inline void Shader::SetVal<Vec4>(const size_t nameId, const Vec4 value)
+    inline void Shader::SetVal<Vec4>(const size_t nameId, cr<Vec4> value)
     {
-        static auto field = &UniformInfo::vec4Val;
-        static std::function glSetValue = [](const int location, const Vec4 v) { glUniform4f(location, v.x, v.y, v.z, v.w); };
-        SetVal(nameId, value, field, glSetValue);
+        static std::function glSetValue = [this](const int location, cr<Vec4> v) { m_glShader->SetFloat4(location, &v.x);};
+        SetValImp(nameId, value, glSetValue);
+    }
+
+    template <>
+    inline void Shader::SetVal<Matrix4x4>(const size_t nameId, cr<Matrix4x4> value)
+    {
+        static std::function glSetValue = [this](const int location, cr<Matrix4x4> v) { m_glShader->SetMatrix(location, v.GetReadOnlyData());};
+        SetValImp(nameId, value, glSetValue);
     }
 
     template <typename T>
-    void Shader::SetVal(const size_t nameId, T value, T UniformInfo::* valueField, const std::function<void(int, T)>& glSetValue)
+    void Shader::SetValImp(const string_hash nameId, cr<T> value, const std::function<void(int, cr<T>)>& glSetValue)
     {
-        auto it = uniforms.find(nameId);
-        if (it == uniforms.end())
+        auto uniformInfo = m_glShader->GetUniformInfo(nameId);
+        assert(uniformInfo);
+        if (uniformInfo == nullptr)
         {
             return;
         }
 
-        auto& uniform = it->second;
-        if (uniform.*valueField != value || !uniform.hasInitGlVal)
+        if (m_dataSet->TrySetImp(nameId, &value, sizeof(value)))
         {
-            uniform.*valueField = value;
-            glSetValue(uniform.location, value);
-            uniform.hasInitGlVal = true;
+            glSetValue(uniformInfo->location, value);
         }
     }
 }

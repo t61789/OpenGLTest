@@ -1,25 +1,24 @@
 ﻿#pragma once
-#include "material.h"
-#include "render_pass.h"
+#include "const.h"
+#include "i_render_pass.h"
 
 namespace op
 {
+    class RenderTexture;
+    class Material;
     class Mesh;
 
-    class DeferredShadingPass : public RenderPass
+    class DeferredShadingPass final : public IRenderPass
     {
     public:
-        DeferredShadingPass(RenderContext* renderContext);
-        ~DeferredShadingPass() override;
+        DeferredShadingPass();
         std::string GetName() override;
         void Execute() override;
 
     private:
         void UpdateRt();
     
-        RenderTexture* m_shadingRt = nullptr;
-        RenderTexture* m_tempPpRt0 = nullptr;
-        RenderTexture* m_tempPpRt1 = nullptr;
-        Material* m_deferredShadingMat = nullptr;
+        sp<RenderTexture> m_shadingRt = nullptr;
+        sp<Material> m_deferredShadingMat = nullptr;
     };
 }

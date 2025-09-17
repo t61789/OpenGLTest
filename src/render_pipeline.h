@@ -3,57 +3,56 @@
 #include <memory>
 #include <vector>
 
-#include "shader.h"
+#include "culling_system.h"
+#include "render_context.h"
+#include "render/render_target_pool.h"
 #include "utils.h"
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "objects/render_comp.h"
-#include "render/render_state.h"
 
 namespace op
 {
+    struct Matrix4x4;
+    class RenderTarget;
     class Object;
     class CameraComp;
     class Scene;
     class RenderTargetDesc;
-    class RenderContext;
-    class CullingSystem;
     class RenderTexture;
-    class RenderPass;
+    class IRenderPass;
 
     class RenderPipeline : public Singleton<RenderPipeline>
     {
     public:
         int mainLightShadowTexSize = 4096;
 
-        RenderPipeline(int width, int height, GLFWwindow* window);
+        RenderPipeline(uint32_t width, uint32_t height, GLFWwindow* window);
         ~RenderPipeline();
-        void SetScreenSize(int width, int height);
+        RenderPipeline(const RenderPipeline& other) = delete;
+        RenderPipeline(RenderPipeline&& other) noexcept = delete;
+        RenderPipeline& operator=(const RenderPipeline& other) = delete;
+        RenderPipeline& operator=(RenderPipeline&& other) noexcept = delete;
+
+        void SetScreenSize(uint32_t width, uint32_t height);
+        void GetScreenSize(uint32_t& width, uint32_t& height);
         void Render(const CameraComp* camera, Scene* scene);
         void GetViewProjMatrix(Matrix4x4& view, Matrix4x4& proj);
-        void GetScreenSize(int& width, int& height);
 
     private:
-        int m_screenWidth;
-        int m_screenHeight;
+        uint32_t m_screenWidth;
+        uint32_t m_screenHeight;
 
         GLFWwindow* m_window = nullptr;
-        std::unique_ptr<TextureBindingMgr> m_textureBindingMgr = nullptr;
-        std::unique_ptr<RenderTargetDesc> m_gBufferDesc = nullptr;
-        std::unique_ptr<RenderContext> m_renderContext = nullptr;
-        std::unique_ptr<CullingSystem> m_cullingSystem = nullptr;
+        up<RenderContext> m_renderContext = nullptr;
+        up<CullingSystem> m_cullingSystem = nullptr;
+        up<RenderTargetPool> m_renderTargetPool = nullptr;
+        sp<RenderTarget> m_gBufferTarget = nullptr;
 
-        Scene* m_preDrawnScene = nullptr;
-        std::unique_ptr<std::vector<Object*>> m_renderObjs = nullptr;
+        sp<RenderTexture> m_gBuffer0Tex = nullptr;
+        sp<RenderTexture> m_gBuffer1Tex = nullptr;
+        sp<RenderTexture> m_gBuffer2Tex = nullptr;
+        sp<RenderTexture> m_gBufferDepthTex = nullptr;
 
-        RenderTexture* m_gBuffer0Tex = nullptr;
-        RenderTexture* m_gBuffer1Tex = nullptr;
-        RenderTexture* m_gBuffer2Tex = nullptr;
-        RenderTexture* m_gBufferDepthTex = nullptr;
-
-        std::vector<RenderPass*> m_passes;
+        vecsp<IRenderPass> m_passes;
         
-        void FirstDrawScene(const Scene* scene);
         void PrepareRenderContext(Scene* scene);
         bool UpdateRenderTargetsPass();
         void RenderUiPass(const RenderContext* renderContext);

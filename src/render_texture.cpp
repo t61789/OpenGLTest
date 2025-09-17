@@ -1,61 +1,13 @@
 ﻿#include "render_texture.h"
 
-#include "texture.h"
 #include "utils.h"
+#include "render/gl/gl_texture.h"
 
 namespace op
 {
-    static void CheckGlFormatSupported(GLuint glFormat, RenderTextureFormat format)
-    {
-        // GLuint support = ;
-        // glGetInternalformativ ()
-    }
-
-    RenderTextureDescriptor::RenderTextureDescriptor() = default;
-
-    RenderTextureDescriptor::RenderTextureDescriptor(
-        const int width,
-        const int height,
-        const RenderTextureFormat format,
-        const TextureFilterMode filterMode,
-        const TextureWrapMode wrapMode,
-        std::string name):
-        name(std::move(name)),
-        width(width),
-        height(height),
-        format(format),
-        filterMode(filterMode),
-        wrapMode(wrapMode)
-    {
-        
-    }
-
-    void RenderTextureDescriptor::replaceSize(int width, int height)
-    {
-        this->width = width;
-        this->height = height;
-    }
-
-    RenderTexture::RenderTexture(const RenderTextureDescriptor& desc): Texture(0)
+    RenderTexture::RenderTexture(const RtDesc& desc)
     {
         Init(desc);
-    }
-
-    RenderTexture::RenderTexture(
-        const int width,
-        const int height,
-        const RenderTextureFormat format,
-        const TextureFilterMode filterMode,
-        const TextureWrapMode wrapMode,
-        const std::string& name) : Texture(0)
-    {
-        Init(RenderTextureDescriptor(
-            width,
-            height,
-            format,
-            filterMode,
-            wrapMode,
-            name));
     }
 
     RenderTexture::~RenderTexture()
@@ -63,76 +15,43 @@ namespace op
         Release();
     }
 
-    void RenderTexture::Recreate(const RenderTextureDescriptor& desc)
+    void RenderTexture::Recreate(const RtDesc& desc)
     {
-        if(isCreated)
-        {
-            Release();
-        }
+        Release();
         
-        this->desc = desc;
-        width = desc.width;
-        height = desc.height;
-
-        auto glInternalFormat = renderTextureFormatToGLInternalFormat[desc.format];
-        auto glFormat = renderTextureFormatToGLFormat[desc.format];
-        auto glType = renderTextureFormatToGLType[desc.format];
-
-        glGenTextures(1, &glTextureId);
-        glBindTexture(GL_TEXTURE_2D, glTextureId);
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            glInternalFormat,
-            static_cast<GLuint>(desc.width),
-            static_cast<GLuint>(desc.height),
-            0,
-            glFormat,
-            glType,
-            0);
-        GL_CHECK_ERROR(创建纹理)
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrapModeToGLWrapMode[desc.wrapMode]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrapModeToGLWrapMode[desc.wrapMode]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilterModeToGLFilterMode[desc.filterMode]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilterModeToGLFilterMode[desc.filterMode]);
-        
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        isCreated = true;
+        m_desc = desc;
+        m_glTexture = GlTexture::Create2D(
+            desc.width,
+            desc.height,
+            desc.format,
+            desc.wrapMode,
+            desc.filterMode,
+            nullptr,
+            false);
     }
 
     void RenderTexture::Release()
     {
-        if(!isCreated)
+        m_glTexture.reset();
+    }
+
+    void RenderTexture::Resize(const uint32_t width, const uint32_t height)
+    {
+        if (GetWidth() == width && GetHeight() == height)
         {
             return;
         }
-
-        glDeleteTextures(1, &glTextureId);
-
-        isCreated = false;
-    }
-
-    void RenderTexture::Resize(int width, int height)
-    {
-        desc.width = width;
-        desc.height = height;
-
-        if (this->width == width && this->height == height)
-        {
-            return;
-        }
-
-        Recreate(desc);
-
-        onResize->Invoke();
-    }
-
-    void RenderTexture::Init(const RenderTextureDescriptor& desc)
-    {
-        onResize = std::make_unique<Event<>>();
         
+        m_desc.width = width;
+        m_desc.height = height;
+
+        Recreate(m_desc);
+
+        onResize.Invoke();
+    }
+
+    void RenderTexture::Init(const RtDesc& desc)
+    {
         Recreate(desc);
     }
 }

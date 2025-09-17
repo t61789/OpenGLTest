@@ -1,9 +1,9 @@
 #pragma once
-#include "render_pass.h"
+#include "i_render_pass.h"
 
 namespace op
 {
-    class TestDrawPass : public RenderPass
+    class TestDrawPass : public IRenderPass
     {
     public:
         TestDrawPass(RenderContext* renderContext);

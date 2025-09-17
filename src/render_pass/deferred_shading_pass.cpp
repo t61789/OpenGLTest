@@ -2,36 +2,23 @@
 
 #include <tracy/Tracy.hpp>
 
-#include "built_in_res.h"
+#include "material.h"
 #include "mesh.h"
 #include "rendering_utils.h"
+#include "render_context.h"
 
 #include "render_texture.h"
-#include "render_target.h"
+#include "shader.h"
+#include "render/gl/gl_texture.h"
+
 
 namespace op
 {
-    DeferredShadingPass::DeferredShadingPass(RenderContext* renderContext) : RenderPass(renderContext)
+    DeferredShadingPass::DeferredShadingPass()
     {
         auto shader = Shader::LoadFromFile("shaders/deferred_shading.shader");
-        m_deferredShadingMat = new Material();
+        m_deferredShadingMat = msp<Material>();
         m_deferredShadingMat->BindShader(shader);
-        INCREF(m_deferredShadingMat)
-    }
-
-    DeferredShadingPass::~DeferredShadingPass()
-    {
-        DECREF(m_deferredShadingMat)
-    
-        if (m_shadingRt)
-        {
-            m_renderContext->UnRegisterRt(m_shadingRt);
-            DECREF(m_shadingRt)
-            m_renderContext->UnRegisterRt(m_tempPpRt0);
-            DECREF(m_tempPpRt0)
-            m_renderContext->UnRegisterRt(m_tempPpRt1);
-            DECREF(m_tempPpRt1)
-        }
     }
 
     std::string DeferredShadingPass::GetName()
@@ -49,46 +36,27 @@ namespace op
         }
 
         UpdateRt();
-    
-        RenderTarget::Get(m_shadingRt, nullptr)->Use();
 
-        auto quadMesh = BUILT_IN_RES->quadMesh;
-        RenderingUtils::RenderMesh({
-            quadMesh,
-            m_deferredShadingMat,
-            &Matrix4x4::Identity(),
-            &Matrix4x4::Identity()
-        });
+        RenderingUtils::Blit(nullptr, m_shadingRt, m_deferredShadingMat.get());
     }
 
     void DeferredShadingPass::UpdateRt()
     {
         if (m_shadingRt == nullptr)
         {
-            auto desc = RenderTextureDescriptor(
-                m_renderContext->screenWidth,
-                m_renderContext->screenHeight,
-                RGBAHdr,
-                Bilinear,
-                Clamp,
-                "_ShadingBufferTex");
-            m_shadingRt = new RenderTexture(desc);
-            INCREF(m_shadingRt)
-            m_renderContext->RegisterRt(m_shadingRt);
-            GET_GLOBAL_CBUFFER->Set(SHADING_BUFFER_TEX, m_shadingRt);
-
-            desc.name = "_TempPpRt0";
-            m_tempPpRt0 = new RenderTexture(desc);
-            INCREF(m_tempPpRt0)
-            m_renderContext->RegisterRt(m_tempPpRt0);
-            desc.name = "_TempPpRt1";
-        
-            m_tempPpRt1 = new RenderTexture(desc);
-            INCREF(m_tempPpRt1)
-            m_renderContext->RegisterRt(m_tempPpRt1);
+            RtDesc desc =
+            {
+                "_ShadingBufferTex",
+                GetRC()->screenWidth,
+                GetRC()->screenHeight,
+                TextureFormat::RGBA,
+                TextureFilterMode::BILINEAR,
+                TextureWrapMode::CLAMP,
+            };
+            m_shadingRt = msp<RenderTexture>(desc);
+            GetRC()->shadingBufferTex = m_shadingRt;
         }
-        m_shadingRt->Resize(m_renderContext->screenWidth, m_renderContext->screenHeight);
-        m_tempPpRt0->Resize(m_renderContext->screenWidth, m_renderContext->screenHeight);
-        m_tempPpRt1->Resize(m_renderContext->screenWidth, m_renderContext->screenHeight);
+        
+        m_shadingRt->Resize(GetRC()->screenWidth, GetRC()->screenHeight);
     }
 }

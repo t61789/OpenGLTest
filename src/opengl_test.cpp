@@ -8,7 +8,11 @@
 
 #include "game_framework.h"
 #include "string_handle.h"
+// #include "common/data_set.h"
+#include "common/elem_accessor_fixed.h"
+#include "common/i_memory_block.h"
 #include "common/managed_buffer.h"
+#include "common/elem_accessor_var.h"
 #include "math/matrix4x4.h"
 #include "math/vec.h"
 #include "math/quaternion.h"

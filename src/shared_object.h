@@ -7,11 +7,6 @@
 
 namespace op
 {
-    #define INCREF(obj) if(obj){(obj)->IncRef(std::string(typeid(this).name()));}
-    #define INCREF_BY(obj, refObj) if(obj){(obj)->IncRef(std::string(typeid(refObj).name()));}
-    #define DECREF(obj) if(obj){(obj)->DecRef(std::string(typeid(this).name()));}
-    #define DECREF_BY(obj, refObj) if(obj){(obj)->DecRef(std::string(typeid(refObj).name()));}
-
     class SharedObject
     {
     public:

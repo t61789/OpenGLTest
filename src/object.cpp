@@ -1,6 +1,10 @@
 ﻿#include "object.h"
 
+#include <memory.h>
+
+#include "const.h"
 #include "scene.h"
+#include "scene_object_indices.h"
 #include "utils.h"
 #include "objects/batch_render_comp.h"
 #include "objects/camera_comp.h"
@@ -11,37 +15,19 @@
 
 namespace op
 {
-    Object* Object::Create(const StringHandle& name)
+    sp<Object> Object::Create(const StringHandle& name)
     {
-        auto result = new Object();
+        auto result = msp<Object>();
         result->name = name;
         result->LoadFromJson(nlohmann::json::object());
         return result;
     }
     
-    Object* Object::CreateFromJson(const nlohmann::json& objJson)
+    sp<Object> Object::CreateFromJson(const nlohmann::json& objJson)
     {
-        auto result = new Object();
+        auto result = msp<Object>();
         result->LoadFromJson(objJson);
         return result;
-    }
-
-    Object::~Object()
-    {
-        for (auto child : children)
-        {
-            DECREF(child)
-        }
-        
-        for (const auto& comp : m_comps)
-        {
-            comp->OnDestroy();
-        }
-
-        for (auto comp : m_comps)
-        {
-            delete comp;
-        }
     }
 
     void Object::LoadFromJson(const nlohmann::json& objJson)
@@ -56,72 +42,101 @@ namespace op
         }
     }
 
-    void Object::AddChild(Object* child)
+    void Object::AddChild(crsp<Object> child)
     {
-        if(std::find(children.begin(), children.end(), child) != children.end())
+        if(exists(m_children, child))
         {
             return;
         }
 
-        child->parent = this;
-        if (scene)
+        auto curObj = parent.lock();
+        while (curObj)
         {
-            scene->objectIndices->AddObject(child);
+            if (curObj == child)
+            {
+                log_warning("Can not add a child that is any of its superior nodes");
+                return; // 这个child不能是自己上级的任何一个节点
+            }
+
+            curObj = curObj->parent.lock();
         }
-        children.push_back(child);
-        INCREF(child)
+
+        // child有parent的话先解绑
+        if (!child->parent.expired())
+        {
+            child->parent.lock()->RemoveChild(child);
+        }
+        child->parent = shared_from_this();
+        
+        if (!m_scene.expired())
+        {
+            m_scene.lock()->GetIndices()->AddObject(child);
+        }
+        
+        m_children.push_back(child);
     }
 
-    void Object::RemoveChild(Object* child)
+    void Object::RemoveChild(crsp<Object> child)
     {
-        auto it = std::find(children.begin(), children.end(), child);
-        if(it == children.end())
+        auto it = std::find(m_children.begin(), m_children.end(), child);
+        if(it == m_children.end())
         {
             return;
         }
 
-        child->parent = nullptr;
-        if (scene)
+        assert(child->parent.lock() == shared_from_this());
+
+        child->parent.reset();
+        
+        if (!m_scene.expired())
         {
-            scene->objectIndices->RemoveObject(child);
+            m_scene.lock()->GetIndices()->RemoveObject(child);
         }
-        children.erase(it);
-        DECREF(child)
+        m_children.erase(it);
     }
 
     std::string Object::GetPathInScene() const
     {
-        auto path = std::vector<std::string>();
-        auto curObj = this;
-
+        vec<std::string> path;
+        
+        auto curObj = shared_from_this();
         while (curObj)
         {
             path.push_back(curObj->name);
-            curObj = curObj->parent;
+            curObj = curObj->parent.lock();
         }
 
         return join(path, "/");
     }
 
-    bool Object::HasComp(const string_hash compNameId)
+    bool Object::HasComp(cr<StringHandle> compName)
     {
-        return GetComp(compNameId) != nullptr;
+        return GetComp(compName) != nullptr;
     }
 
-    Comp* Object::GetComp(const string_hash compNameId)
+    sp<Comp> Object::GetComp(cr<StringHandle> compName)
     {
-        return find(m_comps, &Comp::m_name, compNameId);
+        auto result = find_if(m_comps, [compName](crsp<Comp> x)
+        {
+            return x->m_name == compName;
+        });
+        
+        if (!result)
+        {
+            return nullptr;
+        }
+        return *result;
     }
 
-    const std::vector<Comp*>& Object::GetComps()
+    crvecsp<Comp> Object::GetComps()
     {
         return m_comps;
     }
 
-    const std::function<Comp*()>& Object::GetCompConstructor(const string_hash& compNameId)
+    const std::function<sp<Comp>()>& Object::GetCompConstructor(cr<StringHandle> compNameId)
     {
-        #define REGISTER_COMP(t) {StringHandle(#t), ([]() -> Comp* { auto result = new t(); result->SetName(StringHandle(#t)); return result; })}
-        static std::unordered_map<string_hash, std::function<Comp*()>> constructors = {
+        #define REGISTER_COMP(t) {StringHandle(#t), ([]() -> sp<Comp> { auto result = std::make_shared<t>(); result->SetName(StringHandle(#t)); return result; CompStorage::RegisterComp<t>();})}
+        static std::unordered_map<string_hash, std::function<sp<Comp>()>> constructors = {
             REGISTER_COMP(RenderComp),
             REGISTER_COMP(TransformComp),
             REGISTER_COMP(CameraComp),
@@ -137,7 +152,7 @@ namespace op
             return it->second;
         }
 
-        static std::function nullConstructor = []() -> Comp* { return nullptr; };
+        static std::function nullConstructor = []() -> sp<Comp> { return nullptr; };
         return nullConstructor;
     }
 
@@ -186,15 +201,15 @@ namespace op
         }
     }
     
-    Comp* Object::AddOrCreateComp(const size_t compNameId, const nlohmann::json& compJson)
+    sp<Comp> Object::AddOrCreateComp(cr<StringHandle> compName, const nlohmann::json& compJson)
     {
-        auto comp = GetComp<Comp>(compNameId);
+        auto comp = GetComp<Comp>(compName);
         if (comp)
         {
             return comp;
         }
 
-        comp = GetCompConstructor(compNameId)();
+        comp = GetCompConstructor(compName)();
         if (!comp)
         {
             return nullptr;
@@ -202,10 +217,9 @@ namespace op
 
         comp->m_owner = this;
         m_comps.push_back(comp);
-        if (scene)
+        if (!m_scene.expired())
         {
-            scene->objectIndices->AddComp(comp->GetName(), comp);
-            comp->SetScene(scene);
+            m_scene.lock()->GetIndices()->AddComp(comp);
         }
 
         comp->LoadFromJson(compJson);

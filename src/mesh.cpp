@@ -3,50 +3,28 @@
 #include "shared_object.h"
 #include "utils.h"
 #include "assimp/Importer.hpp"
-#include "assimp\scene.h"
-#include "assimp\postprocess.h"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
 #include <fstream>
 
-#include "render_context.h"
+#include "game_resource.h"
+#include "render/gl/gl_buffer.h"
+#include "render/gl/gl_state.h"
+#include "render/gl/gl_vertex_array.h"
 
 namespace op
 {
-    static void CopyDataTo(
-        const float* src,
-        float* dest,
-        const unsigned int offset,
-        const unsigned int attribFloatNum,
-        const int vertexCount,
-        const int vertexDataFloatNum)
+    void Mesh::Use()
     {
-        if(src == nullptr)
-        {
-            return;
-        }
-
-        for(unsigned int i = 0; i < attribFloatNum * vertexCount; i++)
-        {
-            auto vertexIndex = i / attribFloatNum;
-            auto destIndex = offset + vertexIndex * vertexDataFloatNum + i % attribFloatNum;
-            auto srcIndex = i;
-            dest[destIndex] = src[srcIndex];
-        }
+        m_vao->Use();
     }
 
-    Mesh::~Mesh()
-    {
-        glDeleteVertexArrays(1, &vao);
-        GetRS()->DeleteBuffer(GL_ARRAY_BUFFER, vbo);
-        GetRS()->DeleteBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    }
-
-    Mesh* Mesh::LoadFromFile(const std::string& modelPath)
+    sp<Mesh> Mesh::LoadFromFile(crstr modelPath)
     {
         {
-            SharedObject* result;
-            if(TryGetResource(modelPath, result))
+            if (auto mesh = GetGR()->GetResource<Mesh>(modelPath))
             {
-                return dynamic_cast<Mesh*>(result);
+                return mesh;
             }
         }
 
@@ -147,21 +125,23 @@ namespace op
             vertexData,
             indices,
             bounds,
-            verticesCount,
-            modelPath);
-        RegisterResource(modelPath, result);
+            verticesCount);
+
+        GetGR()->RegisterResource(result->GetPath(), result);
+        result->m_path = modelPath;
         
         log_info("成功载入Mesh: %s", modelPath.c_str());
+        
         return result;
     }
 
-    std::unique_ptr<Assimp::Importer> Mesh::ImportFile(const std::string& modelPath)
+    up<Assimp::Importer> Mesh::ImportFile(crstr modelPath)
     {
         float initScale;
         bool flipWindingOrder;
         GetMeshLoadConfig(modelPath, initScale, flipWindingOrder);
         
-        auto importer = std::make_unique<Assimp::Importer>();
+        auto importer = mup<Assimp::Importer>();
         importer->SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, initScale);
 
         unsigned int pFlags = 
@@ -178,72 +158,59 @@ namespace op
         
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
-            THROW_ERROR("Load model failed: %s", importer->GetErrorString())
+            THROW_ERRORF("Load model failed: %s", importer->GetErrorString())
         }
 
         return importer;
     }
     
-    Mesh* Mesh::CreateMesh(
+    sp<Mesh> Mesh::CreateMesh(
         std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo,
         std::vector<float>& vertexData,
         std::vector<uint32_t>& indices,
         const Bounds& bounds,
-        const uint32_t vertexCount,
-        const std::string& name)
+        const uint32_t vertexCount)
     {
-        auto vertexDataStride = static_cast<int>(vertexData.size() / vertexCount * sizeof(float));
-        
-        // 将顶点数据传入OpenGL中
-        GLuint vao, vbo, ebo;
-        
-        glGenVertexArrays(1, &vao);
-        glGenBuffers(1, &vbo);
-        glGenBuffers(1, &ebo);
+        auto vertexDataStrideB = static_cast<int>(vertexData.size() / vertexCount * sizeof(float));
 
-        GetRS()->BindVertexArray(vao);
+        auto vao = msp<GlVertexArray>();
+        auto vbo = msp<GlBuffer>(GL_ARRAY_BUFFER);
+        auto ebo = msp<GlBuffer>(GL_ELEMENT_ARRAY_BUFFER);
 
-        GetRS()->BindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexData.size() * sizeof(float)), vertexData.data(), GL_STATIC_DRAW);
+        vbo->SetData(GL_STATIC_DRAW, vertexData.size() * sizeof(float), vertexData.data());
+        ebo->SetData(GL_STATIC_DRAW, indices.size() * sizeof(uint32_t), indices.data());
 
-        GetRS()->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indices.size() * sizeof(int)), indices.data(), GL_STATIC_DRAW);
+        vao->StartSetting();
+        vao->BindVbo(vbo);
+        vao->BindEbo(ebo);
 
         for (auto& [attr, attrInfo] : vertexAttribInfo)
         {
-            auto slot = find_index(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, attr);
-            auto& attrDefine = VERTEX_ATTR_DEFINES[slot];
+            auto index = find_index(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, attr);
+            auto& attrDefine = VERTEX_ATTR_DEFINES[index];
             if (attrInfo.enabled)
             {
-                glEnableVertexAttribArray(slot);
-                glVertexAttribPointer(
-                    slot,
-                    attrDefine.strideF,
-                    GL_FLOAT,
-                    GL_FALSE,
-                    vertexDataStride,
-                    reinterpret_cast<const void*>(attrInfo.offsetB));
+                vao->SetAttrEnable(index, true);
+                vao->SetAttr(attrDefine.attr, vertexDataStrideB, attrInfo.offsetB);
             }
             else
             {
-                glDisableVertexAttribArray(slot);
+                vao->SetAttrEnable(index, false);
             }
         }
 
-        GL_CHECK_ERROR(传输Mesh数据)
+        vao->EndSetting();
         
-        auto result = new Mesh();
-        result->bounds = bounds;
-        result->vao = vao;
-        result->vbo = vbo;
-        result->ebo = ebo;
-        result->vertexCount = vertexCount;
-        result->vertexDataStrideB = vertexDataStride;
-        result->indicesCount = static_cast<int>(indices.size());
-        result->name = name;
-        result->vertexAttribInfo = std::move(vertexAttribInfo);
+        auto result = std::make_shared<Mesh>();
+        result->m_bounds = bounds;
+        result->m_vao = std::move(vao);
+        result->m_vbo = std::move(vbo);
+        result->m_ebo = std::move(ebo);
+        result->m_vertexDataStrideB = vertexDataStrideB;
+        result->m_vertexAttribInfo = std::move(vertexAttribInfo);
         result->m_vertexData = std::move(vertexData);
         result->m_indexData = std::move(indices);
+        
         return result;
     }
 
@@ -263,7 +230,7 @@ namespace op
         }
     }
 
-    void Mesh::GetMeshLoadConfig(const std::string& modelPath, float& initScale, bool& flipWindingOrder)
+    void Mesh::GetMeshLoadConfig(crstr modelPath, float& initScale, bool& flipWindingOrder)
     {
         auto config = Utils::GetResourceMeta(modelPath);
 

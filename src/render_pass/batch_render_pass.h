@@ -1,20 +1,19 @@
 #pragma once
-#include "render_pass.h"
+#include "const.h"
+#include "i_render_pass.h"
+#include "render/batch_render_unit.h"
 
 namespace op
 {
-    class BatchRenderUnit;
-    
-    class BatchRenderPass : public RenderPass
+    class BatchRenderPass final : public IRenderPass
     {
     public:
-        BatchRenderPass(RenderContext* renderContext);
-        ~BatchRenderPass() override;
+        BatchRenderPass();
 
         std::string GetName() override { return "BatchRenderPass";}
         void Execute() override;
 
     private:
-        std::unique_ptr<BatchRenderUnit> m_batchRenderUnit;
+        up<BatchRenderUnit> m_batchRenderUnit;
     };
 }

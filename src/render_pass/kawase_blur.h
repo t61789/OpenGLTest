@@ -2,12 +2,12 @@
 
 #include <functional>
 
-#include "render_pass.h"
+#include "i_render_pass.h"
 #include "ui/control_panel_ui.h"
 
 namespace op
 {
-    class KawaseBlur : public RenderPass, public ControlPanelUi::UiProxy
+    class KawaseBlur : public IRenderPass, public ControlPanelUi::UiProxy
     {
     public:
         RenderTexture* rt = nullptr;

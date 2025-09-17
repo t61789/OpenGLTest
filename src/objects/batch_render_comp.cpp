@@ -8,12 +8,6 @@
 
 namespace op
 {
-    BatchRenderComp::~BatchRenderComp()
-    {
-        DECREF(m_mesh)
-        DECREF(m_material)
-    }
-
     void BatchRenderComp::OnEnable()
     {
         m_onTransformDirtyHandler = GetOwner()->transform->dirtyEvent.Add(this, &BatchRenderComp::OnTransformDirty);
@@ -46,7 +40,7 @@ namespace op
         m_submitBuffer.localToWorld = GetOwner()->transform->GetLocalToWorld();
         m_submitBuffer.worldToLocal = GetOwner()->transform->GetWorldToLocal();
 
-        BatchRenderUnit::Ins()->UpdateMatrix(this, &m_submitBuffer);
+        BatchRenderUnit::Ins()->UpdateMatrix(this, m_submitBuffer);
     }
 
     void BatchRenderComp::LoadFromJson(const nlohmann::json& objJson)
@@ -55,14 +49,12 @@ namespace op
         {
             auto meshPath = objJson["mesh"].get<std::string>();
             m_mesh = Mesh::LoadFromFile(meshPath);
-            INCREF(m_mesh)
         }
 
         if(objJson.contains("material"))
         {
             auto matPath = objJson["material"].get<std::string>();
             m_material = Material::LoadFromFile(matPath);
-            INCREF(m_material)
         }
     }
 }

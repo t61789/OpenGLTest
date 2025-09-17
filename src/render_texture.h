@@ -3,54 +3,51 @@
 #include <memory>
 
 #include "event.h"
-#include "texture.h"
+#include "i_texture.h"
+#include "shared_object.h"
 
 namespace op
 {
-    class RenderTextureDescriptor
+    enum class TextureWrapMode : std::uint8_t;
+    enum class TextureFilterMode : std::uint8_t;
+    enum class TextureFormat : std::uint8_t;
+
+    struct RtDesc
     {
-    public:
-        std::string name = "Unnamed Render Texture";
-        int width;
-        int height;
-        RenderTextureFormat format;
+        std::string name;
+        uint32_t width;
+        uint32_t height;
+        TextureFormat format;
         TextureFilterMode filterMode;
         TextureWrapMode wrapMode;
-
-        RenderTextureDescriptor();
-        RenderTextureDescriptor(
-            int width,
-            int height,
-            RenderTextureFormat format,
-            TextureFilterMode filterMode,
-            TextureWrapMode wrapMode,
-            std::string name = "Unnamed RenderTexture");
-        void replaceSize(int width, int height);
     };
 
-    class RenderTexture : public Texture
+    class RenderTexture final : public ITexture
     {
     public:
-        
-        RenderTextureDescriptor desc;
-
-        explicit RenderTexture(const RenderTextureDescriptor& desc);
-        RenderTexture(
-            int width,
-            int height,
-            RenderTextureFormat format,
-            TextureFilterMode filterMode,
-            TextureWrapMode wrapMode,
-            const std::string& name = "Unnamed RenderTexture");
+        explicit RenderTexture(const RtDesc& desc);
         ~RenderTexture() override;
+        RenderTexture(const RenderTexture& other) = delete;
+        RenderTexture(RenderTexture&& other) noexcept = delete;
+        RenderTexture& operator=(const RenderTexture& other) = delete;
+        RenderTexture& operator=(RenderTexture&& other) noexcept = delete;
 
-        void Recreate(const RenderTextureDescriptor& desc);
+        void Recreate(const RtDesc& desc);
         void Release();
-        void Resize(int width, int height);
+        void Resize(uint32_t width, uint32_t height);
 
-        std::unique_ptr<Event<>> onResize; 
+        Event<> onResize;
+
+        RtDesc GetDescriptor() const { return m_desc;}
+        uint32_t GetWidth() override { return m_desc.width;}
+        uint32_t GetHeight() override { return m_desc.height;}
+        crsp<GlTexture> GetGlTexture() override { return m_glTexture;}
 
     private:
-        void Init(const RenderTextureDescriptor& desc);
+        RtDesc m_desc;
+        
+        sp<GlTexture> m_glTexture = nullptr;
+        
+        void Init(const RtDesc& desc);
     };
 }

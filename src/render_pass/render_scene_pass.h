@@ -1,18 +1,13 @@
 ﻿#pragma once
-#include "render_pass.h"
+#include "i_render_pass.h"
 #include "glad/glad.h"
 
 namespace op
 {
-    class RenderScenePass : public RenderPass
+    class RenderScenePass : public IRenderPass
     {
     public:
-
-        GLuint m_buffer;
-        
-        explicit RenderScenePass(RenderContext* renderContext);
-        ~RenderScenePass() override;
-        std::string GetName() override;
+        std::string GetName() override { return "Render Scene Pass";}
         void Execute() override;
     };
 }

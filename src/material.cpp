@@ -1,35 +1,44 @@
 #include "material.h"
 
-#include "built_in_res.h"
 #include "game_resource.h"
 #include "image.h"
+#include "shader.h"
+#include "common/data_set.h"
+#include "render/texture_set.h"
+#include "render/gl/gl_cbuffer.h"
+#include "render/gl/gl_state.h"
 
 namespace op
 {
-    Material::~Material()
+    Material::Material()
     {
-        if (m_shader)
-        {
-            DECREF(m_shader)
-        }
-
-        if (m_cbuffer)
-        {
-            DECREF(m_cbuffer)
-        }
-
-        for (auto& [nameId, texture] : m_textures)
-        {
-            DECREF(texture)
-        }
-
-        for (auto& valueInfo : m_values)
-        {
-            delete[] valueInfo.data;
-        }
+        cullMode = CullMode::UNSET;
+        blendMode = BlendMode::UNSET;
+        m_dataSet = mup<DataSet>();
+        m_textureSet = mup<TextureSet>();
     }
 
-    void Material::BindShader(Shader* shader)
+    void Material::Set(const size_t nameId, crsp<ITexture> val)
+    {
+        m_textureSet->SetTexture(nameId, val);
+    }
+
+    void Material::Set(const size_t nameId, const float* val, const size_t count)
+    {
+        TrySetImp(nameId, val, count * sizeof(float));
+    }
+
+    void Material::Get(const size_t nameId, float* val, const size_t count)
+    {
+        TryGetImp(nameId, val, count * sizeof(float));
+    }
+
+    sp<ITexture> Material::GetTexture(const size_t nameId)
+    {
+        return m_textureSet->GetTexture(nameId);
+    }
+
+    void Material::BindShader(crsp<Shader> shader)
     {
         if (m_shader)
         {
@@ -37,14 +46,13 @@ namespace op
         }
 
         m_shader = shader;
-        INCREF(m_shader)
 
         if (shader->cbuffers.empty())
         {
             return;
         }
 
-        for (auto& [nameId, cbuffer] : shader->cbuffers)
+        for (const auto& [nameId, cbuffer] : shader->cbuffers)
         {
             // 就绑定第一个，现在除了预定义的CBuffer外仅支持一个CBuffer
             CreateCBuffer(cbuffer);
@@ -52,33 +60,53 @@ namespace op
         }
     }
 
-    void Material::CreateCBuffer(CBufferLayout* cbufferLayout)
+    void Material::CreateCBuffer(crsp<CBufferLayout> cbufferLayout)
     {
         if (HasCBuffer())
         {
             THROW_ERROR("CBuffer已绑定")
         }
 
-        m_cbuffer = new CBuffer(cbufferLayout);
-        INCREF(m_cbuffer)
+        m_cbuffer = mup<GlCbuffer>(cbufferLayout);
 
-        SyncCBuffer(true);
+        // 把存在dataSet里的数据放到Cbuffer里去，放不进去就仍然放dataSet里
+        
+        auto allData = m_dataSet->GetAllData();
+        if (allData.empty())
+        {
+            return;
+        }
+
+        vec<string_hash> inCbufferParams;
+        inCbufferParams.reserve(allData.size());
+
+        for (auto& dataInfo : allData)
+        {
+            if (m_cbuffer->TrySetRaw(dataInfo.nameId, dataInfo.data, dataInfo.sizeB))
+            {
+                inCbufferParams.push_back(dataInfo.nameId);
+            }
+        }
+
+        for (auto& nameId : inCbufferParams)
+        {
+            m_dataSet->Remove(nameId);
+        }
     }
 
-    Material* Material::LoadFromFile(const std::string& path)
+    sp<Material> Material::LoadFromFile(cr<StringHandle> path)
     {
         {
-            SharedObject* result;
-            if(TryGetResource(path, result))
+            if (auto result = GetGR()->GetResource<Material>(path))
             {
-                return dynamic_cast<Material*>(result);
+                return result;
             }
         }
 
         auto json = Utils::LoadJson(path);
 
-        auto result = new Material();
-        Shader* shader = nullptr;
+        auto result = msp<Material>();
+        sp<Shader> shader = nullptr;
         for (const auto& elem : json.items())
         {
             const auto& elemKey = StringHandle(elem.key());
@@ -92,13 +120,13 @@ namespace op
 
             if (elemKey.Str() == "cullMode")
             {
-                result->cullMode = RenderState::CullModeFromStr(elemValue.get<std::string>());
+                result->cullMode = GlState::GetCullMode(elemValue.get<std::string>());
                 continue;
             }
 
             if (elemKey.Str() == "blendMode")
             {
-                result->blendMode = RenderState::BlendModeFromStr(elemValue.get<std::string>());
+                result->blendMode = GlState::GetBlendMode(elemValue.get<std::string>());
                 continue;
             }
             
@@ -134,18 +162,22 @@ namespace op
             }
         }
 
-        RegisterResource(path, result);
+        GetGR()->RegisterResource(path, result);
+        result->m_path = path;
+        
         if (shader)
         {
             result->BindShader(shader);
         }
-        log_info("成功载入Material " + path);
+        
+        log_info("成功载入Material %s", path.CStr());
+        
         return result;
     }
 
-    Material* Material::CreateFromShader(const std::string& path)
+    sp<Material> Material::CreateFromShader(cr<StringHandle> path)
     {
-        auto mat = new Material();
+        auto mat = msp<Material>();
         auto shader = Shader::LoadFromFile(path);
         mat->BindShader(shader);
         return mat;
@@ -158,58 +190,36 @@ namespace op
             return;
         }
 
-        SyncCBuffer(false);
-        BindUbo();
-    }
-
-    void Material::SyncCBuffer(const bool force)
-    {
-        if (force)
-        {
-            SetAllValuesDirty();
-        }
-
-        if (m_dirtyValues.empty())
-        {
-            return;
-        }
-
-        m_cbuffer->StartSync();
-        
-        for (auto& nameId : m_dirtyValues)
-        {
-            CBufferParam* param;
-            if (!m_cbuffer->TryGetParam(nameId, &param))
-            {
-                continue;
-            }
-
-            auto valueInfo = find(m_values, &ValueInfo::nameId, nameId);
-            m_cbuffer->Sync(valueInfo->data, param->offset, std::min(param->size, static_cast<size_t>(valueInfo->byteCount)));
-        }
-
-        // m_cbuffer->EndSync();
-        
-        GL_CHECK_ERROR(同步UBO数据)
-
-        m_dirtyValues.clear();
-    }
-    
-    void Material::BindUbo()
-    {
-        m_cbuffer->Use();
-    }
-
-    void Material::SetAllValuesDirty()
-    {
-        for (auto& valueInfo : m_values)
-        {
-            m_dirtyValues.insert(valueInfo.nameId);
-        }
+        m_cbuffer->BindBase();
     }
 
     void Material::OnFrameEnd()
     {
         // m_dirtyValues.clear();
+    }
+
+    bool Material::TrySetImp(const string_hash nameId, const void* data, const uint32_t sizeB)
+    {
+        if (HasCBuffer())
+        {
+            return m_cbuffer->TrySetRaw(nameId, data, sizeB);
+        }
+
+        return m_dataSet->TrySetImp(nameId, data, sizeB);
+    }
+    
+    bool Material::TryGetImp(const string_hash nameId, void* data, const uint32_t sizeB)
+    {
+        if (HasCBuffer() && m_cbuffer->TryGetRaw(nameId, data, sizeB))
+        {
+            return true;
+        }
+
+        if (m_dataSet->TryGetImp(nameId, data, sizeB))
+        {
+            return true;
+        }
+
+        return false;
     }
 }

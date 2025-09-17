@@ -11,17 +11,15 @@ namespace op
     class RenderComp;
     class Object;
 
-    class CullingSystem : public ControlPanelUi::UiProxy
+    class CullingSystem final : public ControlPanelUi::UiProxy
     {
     public:
-        explicit CullingSystem(RenderContext* renderContext);
         void Cull();
 
         void DrawConsoleUi() override;
 
     private:
-        RenderContext* m_renderContext = nullptr;
-        std::vector<Bounds> m_bounds;
+        vec<Bounds> m_bounds;
 
         bool CullOnce(const Bounds& bounds, const std::array<Vec4, 6>& planes);
     };

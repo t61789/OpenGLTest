@@ -1,16 +1,15 @@
 ﻿#pragma once
-#include "render_pass.h"
+#include "i_render_pass.h"
 #include "ui/control_panel_ui.h"
 
 namespace op
 {
-    class PreparingPass : public RenderPass, public ControlPanelUi::UiProxy
+    class PreparingPass final : public IRenderPass, public ControlPanelUi::UiProxy
     {
     public:
-        PreparingPass(RenderContext* renderContext);
-        std::string GetName() override;
+        std::string GetName() override { return "Preparing Pass";}
+        
         void Execute() override;
-
         void DrawConsoleUi() override;
 
     private:

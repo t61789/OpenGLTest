@@ -2,201 +2,77 @@
 
 #include <fstream>
 #include <regex>
-#include <sstream>
 #include <unordered_set>
 #include <utility>
 
-#include "game_framework.h"
 #include "render_texture.h"
 #include "string_handle.h"
 #include "utils.h"
 #include "const.h"
 #include "game_resource.h"
+#include "common/data_set.h"
+#include "render/gl/gl_state.h"
 
 namespace op
 {
     using namespace std;
 
-    Shader::~Shader()
+    Shader::Shader()
     {
-        glDeleteProgram(glShaderId);
-        for (const auto& [nameId, cbufferLayout] : cbuffers)
+        m_dataSet = msp<DataSet>();
+    }
+
+    void Shader::Use()
+    {
+        m_glShader->Use();
+    }
+    
+    void Shader::SetVal(const string_hash nameId, const float* value, const uint32_t countF)
+    {
+        auto uniformInfo = m_glShader->GetUniformInfo(nameId);
+        if (uniformInfo == nullptr)
         {
-            DECREF(cbufferLayout)
+            return;
+        }
+
+        if (m_dataSet->TrySetImp(nameId, value, sizeof(value) * countF))
+        {
+            m_glShader->SetFloatArr(uniformInfo->location, value, countF);
         }
     }
 
-    const Shader::UniformInfo& Shader::GetUniformInfo(const size_t nameId) const
+    sp<Shader> Shader::LoadFromFile(cr<StringHandle> path)
     {
-        auto it = uniforms.find(nameId);
-        if (it != uniforms.end())
+        if(auto result = GetGR()->GetResource<Shader>(path))
         {
-            return it->second;
+            return result;
         }
 
-        return UniformInfo::GetUnavailable();
-    }
-
-    bool Shader::HasParam(const size_t &nameId) const
-    {
-        const auto& uniformInfo = GetUniformInfo(nameId);
-        return uniformInfo.location != -1;
-    }
-
-    void Shader::SetBool(const size_t nameId, const bool value) const
-    {
-        const auto& uniformInfo = GetUniformInfo(nameId);
-        SetBoolGl(uniformInfo.location, value);
+        THROW_ERRORF("Shader未在pack中找到：%s", path.CStr())
     }
     
-    void Shader::SetBoolGl(const int location, const bool value)
+    sp<Shader> Shader::LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, cr<StringHandle> glslPath)
     {
-        if (location != -1)
-        {
-            glUniform1i(location, value);
-        }
-    }
-    
-    void Shader::SetInt(const size_t nameId, const int value) const
-    {
-        const auto& uniformInfo = GetUniformInfo(nameId);
-        SetIntGl(uniformInfo.location, value);
-    }
-    
-    void Shader::SetIntGl(const int location, const int value)
-    {
-        if (location != -1)
-        {
-            glUniform1i(location, value);
-        }
-    }
-    
-    void Shader::SetFloat(const size_t nameId, const float value) const
-    {
-        const auto& uniformInfo = GetUniformInfo(nameId);
-        SetFloatGl(uniformInfo.location, value);
-    }
-    
-    void Shader::SetFloatGl(const int location, const float value)
-    {
-        if (location != -1)
-        {
-            glUniform1f(location, value);
-        }
-    }
-
-    void Shader::SetVector(const size_t nameId, const Vec4& value) const
-    {
-        const auto& uniformInfo = GetUniformInfo(nameId);
-        SetVectorGl(uniformInfo.location, value);
-    }
-    
-    void Shader::SetVectorGl(const int location, const Vec4& value)
-    {
-        if (location != -1)
-        {
-            glUniform4f(location, value.x, value.y, value.z, value.w);
-        }
-    }
-
-    void Shader::SetMatrix(const size_t nameId, const Matrix4x4& value) const
-    {
-        const auto& uniformInfo = GetUniformInfo(nameId);
-        SetMatrixGl(uniformInfo.location, value);
-    }
-    
-    void Shader::SetMatrixGl(const int location, const Matrix4x4& value)
-    {
-        if (location != -1)
-        {
-            glUniformMatrix4fv(location, 1, GL_FALSE, value.Transpose().GetData());
-        }
-    }
-
-    void Shader::SetFloatArr(const size_t nameId, const int count, const float* value) const
-    {
-        const auto& uniformInfo = GetUniformInfo(nameId);
-        SetFloatArrGl(uniformInfo.location, count, value);
-    }
-    
-    void Shader::SetFloatArrGl(const int location, const int count, const float* value)
-    {
-        if (location != -1)
-        {
-            glUniform1fv(location, count, value);
-        }
-    }
-
-    void Shader::SetTexture(const size_t nameId, const int slot, const Texture* value) const
-    {
-        const auto& uniformInfo = GetUniformInfo(nameId);
-        SetTextureGl(uniformInfo.location, slot, value);
-    }
-    
-    void Shader::SetTextureGl(const int location, const int slot, const Texture* value)
-    {
-        if (location != -1 && value && value->isCreated)
-        {
-            SetIntGl(location, slot);
-            glActiveTexture(GL_TEXTURE0 + slot);
-            if(value->isCubeMap)
-            {
-                glBindTexture(GL_TEXTURE_CUBE_MAP, value->glTextureId);
-            }
-            else
-            {
-                glBindTexture(GL_TEXTURE_2D, value->glTextureId);
-            }
-        }
-    }
-
-    Shader* Shader::LoadFromFile(const string& path)
-    {
-        {
-            SharedObject* result;
-            if(TryGetResource(path, result))
-            {
-                return dynamic_cast<Shader*>(result);
-            }
-        }
-
-        THROW_ERRORF("Shader未在pack中找到：%s", path.c_str())
-    }
-    
-    Shader* Shader::LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, const std::string& glslPath)
-    {
-        auto vCharSource = preparedVert.c_str();
-        auto fCharSource = preparedFrag.c_str();
+        auto result = msp<Shader>();
         
-        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vCharSource, nullptr);
-        glCompileShader(vertexShader);
-        CheckShaderCompilation(vertexShader, glslPath, preparedVert);
+        try
+        {
+            result->m_glShader = msp<GlShader>(preparedVert, preparedFrag);
+        }
+        catch (const std::exception& e)
+        {
+            THROW_ERRORF("Shader加载失败：%s \n %s", glslPath.CStr(), e.what())
+        }
 
-        GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragShader, 1, &fCharSource, nullptr);
-        glCompileShader(fragShader);
-        CheckShaderCompilation(fragShader, glslPath, preparedFrag);
-
-        auto glShaderId = glCreateProgram();
-        glAttachShader(glShaderId, vertexShader);
-        glAttachShader(glShaderId, fragShader);
-        glLinkProgram(glShaderId);
-
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragShader);
-
-        GL_CHECK_ERROR(创建Shader)
-
-        auto result = new Shader();
-        result->glShaderId = glShaderId;
-        result->uniforms = LoadUniforms(glShaderId);
-        RegisterResource(glslPath, result);
-        log_info("成功载入Shader " + glslPath);
+        GetGR()->RegisterResource(glslPath, result);
+        result->m_path = glslPath;
+        
+        log_info("成功载入Shader %s", glslPath.CStr());
+        
         return result;
     }
 
-    Shader* Shader::LoadFromSpvBase64(const std::string& vert, const std::string& frag, const std::string& path)
+    sp<Shader> Shader::LoadFromSpvBase64(cr<std::string> vert, cr<std::string> frag, cr<StringHandle> path)
     {
         auto vertStr = Utils::Binary8To32(Utils::Base64ToBinary(vert));
         auto fragStr = Utils::Binary8To32(Utils::Base64ToBinary(frag));
@@ -204,7 +80,7 @@ namespace op
         return LoadFromSpvBinary(std::move(vertStr), std::move(fragStr), path);
     }
 
-    Shader* Shader::LoadFromSpvBinary(std::vector<uint32_t> vert, std::vector<uint32_t> frag, const std::string& path)
+    sp<Shader> Shader::LoadFromSpvBinary(vec<uint32_t> vert, vec<uint32_t> frag, cr<StringHandle> path)
     {
         spirv_cross::CompilerGLSL::Options options;
         options.version = 460;
@@ -223,9 +99,6 @@ namespace op
         
         auto result = LoadFromFile(vSource, fSource, path);
 
-        // Load VertexLayout
-        result->LoadVertexLayout(vertCompilerGlsl, vertShaderResources);
-
         // Load CBuffer
         result->LoadCBuffer(vertCompilerGlsl, vertShaderResources);
         result->LoadCBuffer(fragCompilerGlsl, fragShaderResources);
@@ -234,47 +107,9 @@ namespace op
         result->LoadTextures(vertCompilerGlsl, vertShaderResources);
         result->LoadTextures(fragCompilerGlsl, fragShaderResources);
 
-        if (path.find("indirect_test") != std::string::npos)
-        {
-            log_info(vSource);
-            log_info(fSource);
-        }
-
         return result;
     }
 
-    unordered_map<size_t, Shader::UniformInfo> Shader::LoadUniforms(const GLuint program)
-    {
-        unordered_map<size_t, UniformInfo> result;
-        
-        GLint numUniforms = 0;
-        glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
-
-        for (int i = 0; i < numUniforms; ++i)
-        {
-            GLchar name[256];
-            GLsizei length;
-            GLint size;
-            GLenum type;
-            glGetActiveUniform(program, i, sizeof(name), &length, &size, &type, name);
-
-            UniformInfo uniformInfo;
-            uniformInfo.name = string(name);
-            uniformInfo.location = glGetUniformLocation(program, name);
-            uniformInfo.elemNum = size;
-            uniformInfo.type = static_cast<int>(type);
-            
-            if (type == GL_FLOAT && size > 1)
-            {
-                uniformInfo.name = uniformInfo.name.substr(0, uniformInfo.name.length() - 3);
-            }
-
-            result[StringHandle(uniformInfo.name).Hash()] = uniformInfo;
-        }
-
-        return result;
-    }
-    
     std::vector<uint32_t> Shader::LoadSpvFileData(const string& absolutePath)
     {
         std::ifstream file(absolutePath.c_str(), std::ios::binary);
@@ -297,35 +132,9 @@ namespace op
         return spirv;
     }
 
-    void Shader::LoadVertexLayout(const spirv_cross::CompilerGLSL& vertCompiler, const spirv_cross::ShaderResources& vertResources)
-    {
-        for (const auto& stageInput : vertResources.stage_inputs)
-        {
-            auto found = false;
-            for (const auto& [attr, attrName] : VERTEX_ATTR_NAME)
-            {
-                if (!ends_with(stageInput.name, attrName))
-                {
-                    continue;
-                }
-
-                auto location = vertCompiler.get_decoration(stageInput.id, spv::DecorationLocation);
-
-                vertexLayout[attr] = { location };
-                found = true;
-                break;
-            }
-
-            if (!found)
-            {
-                throw runtime_error(format_string("无法找到顶点属性 %s", stageInput.name.c_str()));
-            }
-        }
-    }
-
     void Shader::LoadCBuffer(
-        const spirv_cross::CompilerGLSL& compiler,
-        const spirv_cross::ShaderResources& resources)
+        cr<spirv_cross::CompilerGLSL> compiler,
+        cr<spirv_cross::ShaderResources> resources)
     {
         for (const auto& uniformBuffer : resources.uniform_buffers)
         {
@@ -342,15 +151,13 @@ namespace op
                 continue;
             }
 
-            auto cbuffer = new CBufferLayout(compiler, uniformBuffer);
-            cbuffers[uniformBufferNameId] = cbuffer;
-            INCREF(cbuffer)
+            cbuffers[uniformBufferNameId] = msp<CBufferLayout>(compiler, uniformBuffer);
         }
     }
 
     void Shader::LoadTextures(
-        const spirv_cross::CompilerGLSL& compiler,
-        const spirv_cross::ShaderResources& resources)
+        cr<spirv_cross::CompilerGLSL> compiler,
+        cr<spirv_cross::ShaderResources> resources)
     {
         for (const auto& image : resources.sampled_images)
         {
@@ -361,42 +168,36 @@ namespace op
                 continue;
             }
 
-            GLuint textureType;
+            GlTextureType textureType;
             if (type.image.dim == spv::Dim2D)
             {
-                textureType = GL_TEXTURE_2D;
+                textureType = GlTextureType::TEXTURE_2D;
             }
             else if (type.image.dim == spv::DimCube)
             {
-                textureType = GL_TEXTURE_CUBE_MAP;
+                textureType = GlTextureType::TEXTURE_CUBE_MAP;
             }
             else
             {
                 THROW_ERROR("不支持的纹理类型")
             }
 
-            uint32_t location = glGetUniformLocation(glShaderId, image.name.c_str());
-            textures[StringHandle(image.name).Hash()] = { textureType, location };
+            auto nameHash = StringHandle(image.name).Hash();
+            auto textureUniformInfo = m_glShader->GetUniformInfo(nameHash);
+            assert(textureUniformInfo);
+            
+            textures[nameHash] = { textureType, textureUniformInfo->location };
         }
     }
 
     bool Shader::TryCreatePredefinedCBuffer(
-        const spirv_cross::CompilerGLSL& compiler,
-        const spirv_cross::Resource& uniformBuffer)
+        cr<spirv_cross::CompilerGLSL> compiler,
+        cr<spirv_cross::Resource> uniformBuffer)
     {
         auto uniformBufferNameId = StringHandle(uniformBuffer.name).Hash();
-        if (uniformBufferNameId == StringHandle("ObjectIndexCBuffer")) // TODO
+        if (GetGR()->NeedCreatePredefinedCbuffer(uniformBufferNameId))
         {
-            return true;
-        }
-        
-        if (auto predefinedMaterial = GetGR()->GetPredefinedMaterial(uniformBufferNameId))
-        {
-            if (!predefinedMaterial->HasCBuffer())
-            {
-                predefinedMaterial->CreateCBuffer(new CBufferLayout(compiler, uniformBuffer));
-            }
-            
+            GetGR()->CreatePredefinedCbuffer(uniformBufferNameId, msp<CBufferLayout>(compiler, uniformBuffer));
             return true;
         }
 
@@ -418,24 +219,6 @@ namespace op
         for (auto& image : compiler.get_combined_image_samplers())
         {
             compiler.set_name(image.combined_id, previousName[image.image_id]);
-        }
-    }
-
-    void Shader::CheckShaderCompilation(const GLuint vertexShader, const string &shaderPath, const string& source)
-    {
-        int success;
-        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-        if(!success)
-        {
-            char info[512];
-            glGetShaderInfoLog(vertexShader, 512, nullptr, info);
-            stringstream ss;
-            ss << "ERROR>> Shader compilation failed:\n";
-            ss << shaderPath;
-            ss << "\n";
-            ss << info;
-            ss << source.c_str();
-            throw runtime_error(ss.str());
         }
     }
 }

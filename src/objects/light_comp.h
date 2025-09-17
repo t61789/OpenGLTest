@@ -3,11 +3,9 @@
 #include "math/math.h"
 #include "comp.h"
 
-#include "object.h"
-
 namespace op
 {
-    class LightComp : public Comp
+    class LightComp final : public Comp
     {
     public:
         Vec3 color = Vec3(1.0f);

@@ -1,8 +1,9 @@
 ﻿#include "scene.h"
 
-#include <fstream>
 #include <filesystem>
 
+#include "game_resource.h"
+#include "object.h"
 #include "utils.h"
 #include "nlohmann/json.hpp"
 #include "objects/light_comp.h"
@@ -13,22 +14,9 @@ namespace op
 {
     using namespace std;
 
-    Scene::Scene()
+    void Scene::LoadChildren(crsp<Object> parent, cr<nlohmann::json> children)
     {
-        objectIndices = std::make_unique<SceneObjectIndices>(this);
-    }
-
-    Scene::~Scene()
-    {
-        if (sceneRoot)
-        {
-            DECREF(sceneRoot)
-        }
-    }
-
-    void Scene::LoadChildren(Object* parent, const nlohmann::json& children)
-    {
-        for(auto elem : children)
+        for(auto& elem : children)
         {
             auto obj = Object::CreateFromJson(elem);
             
@@ -41,42 +29,22 @@ namespace op
         }
     }
 
-    void Scene::GetAllObjects(vector<Object*>& result)
-    {
-        result.clear();
-        function<void(Object*)> fuc = [&](Object* obj)
-        {
-            if (!obj)
-            {
-                return;
-            }
-
-            result.push_back(obj);
-
-            for(auto child : obj->children)
-            {
-                fuc(child);
-            }
-        };
-
-        fuc(sceneRoot);
-    }
-
-    Scene* Scene::LoadScene(const string& sceneJsonPath)
+    sp<Scene> Scene::LoadScene(cr<StringHandle> sceneJsonPath)
     {
         {
-            SharedObject* result;
-            if(TryGetResource(sceneJsonPath, result))
+            if (auto result = GetGR()->GetResource<Scene>(sceneJsonPath))
             {
-                return dynamic_cast<Scene*>(result);
+                return result;
             }
         }
 
-        auto scene = new Scene();
+        auto scene = msp<Scene>();
+        scene->m_objectIndices = mup<SceneObjectIndices>(scene);
+        
         nlohmann::json json = Utils::LoadJson(sceneJsonPath);
 
         // 合并替换json
-        auto p = filesystem::path(sceneJsonPath);
+        auto p = filesystem::path(sceneJsonPath.CStr());
         auto coverSceneJsonPath = p.parent_path() / (p.stem().generic_string() + "_cover.json");
         if (exists(coverSceneJsonPath))
         {
@@ -92,25 +60,20 @@ namespace op
         if(json.contains("root"))
         {
             auto rootObj = Object::Create("Scene Root");
-            rootObj->scene = scene;
-            INCREF_BY(rootObj, scene)
-            scene->sceneRoot = rootObj;
-            scene->sceneRoot->AddOrCreateComp<RuntimeComp>(RUNTIME_COMP);
+            scene->m_path = sceneJsonPath;
+            scene->m_sceneRoot = rootObj;
+            scene->m_sceneRoot->AddOrCreateComp<RuntimeComp>(RUNTIME_COMP);
             
             LoadChildren(rootObj, json["root"]);
         }
 
-        RegisterResource(sceneJsonPath, scene);
+        GetGR()->RegisterResource(sceneJsonPath, scene);
+        scene->m_path = sceneJsonPath;
         
         return scene;
     }
 
-    void Scene::OnObjectChildAdded(Object* parent, Object* child)
-    {
-        
-    }
-
-    void Scene::LoadSceneConfig(const nlohmann::json& configJson)
+    void Scene::LoadSceneConfig(cr<nlohmann::json> configJson)
     {
         if(configJson.contains("ambientLightColorSky"))
         {

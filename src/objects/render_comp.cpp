@@ -1,5 +1,7 @@
 ﻿#include "render_comp.h"
 
+#include "game_resource.h"
+#include "material.h"
 #include "mesh.h"
 
 #include "object.h"
@@ -10,7 +12,7 @@ namespace op
 {
     void RenderComp::Awake()
     {
-        m_perObjectBufferIndex = GetGR()->perObjectBuffer->BindObject();
+        m_perObjectBufferIndex = GetGR()->GetPerObjectBuffer()->Register();
     }
 
     void RenderComp::Start()
@@ -21,15 +23,12 @@ namespace op
 
     void RenderComp::OnDestroy()
     {
-        GetGR()->perObjectBuffer->UnbindObject(m_perObjectBufferIndex);
+        GetGR()->GetPerObjectBuffer()->UnRegister(m_perObjectBufferIndex);
 
         if (m_onTransformDirtyHandler)
         {
             GetOwner()->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
         }
-        
-        DECREF(mesh)
-        DECREF(material)
     }
 
     void RenderComp::LoadFromJson(const nlohmann::json& objJson)
@@ -37,21 +36,13 @@ namespace op
         if(objJson.contains("mesh"))
         {
             auto meshPath = objJson["mesh"].get<std::string>();
-            mesh = Mesh::LoadFromFile(meshPath);
-            if (mesh)
-            {
-                INCREF(mesh)
-            }
+            m_mesh = Mesh::LoadFromFile(meshPath);
         }
 
         if(objJson.contains("material"))
         {
             auto matPath = objJson["material"].get<std::string>();
-            material = Material::LoadFromFile(matPath);
-            if (material)
-            {
-                INCREF(material)
-            }
+            m_material = Material::LoadFromFile(matPath);
         }
     }
 
@@ -82,7 +73,7 @@ namespace op
     void RenderComp::UpdateWorldBounds()
     {
         auto m = GetOwner()->transform->GetLocalToWorld();
-        const auto& boundsOS = mesh->bounds;
+        auto& boundsOS = m_mesh->GetBounds();
         auto centerWS = Vec3(m * Vec4(boundsOS.center, 1));
         Vec3 extentsWS = {
             dot(abs(Vec3(m[0])), boundsOS.extents),
@@ -95,9 +86,10 @@ namespace op
 
     void RenderComp::UpdatePerObjectBuffer()
     {
-        m_submitBuffer.localToWorld = GetOwner()->transform->GetLocalToWorld();
-        m_submitBuffer.worldToLocal = GetOwner()->transform->GetWorldToLocal();
-
-        GetGR()->perObjectBuffer->SubmitData(m_perObjectBufferIndex, &m_submitBuffer);
+        GetGR()->GetPerObjectBuffer()->SubmitData(m_perObjectBufferIndex,
+        {
+            GetOwner()->transform->GetLocalToWorld(),
+            GetOwner()->transform->GetWorldToLocal()
+        });
     }
 }

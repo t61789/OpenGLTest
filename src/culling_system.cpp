@@ -31,26 +31,21 @@ namespace op
 {
     using namespace std;
 
-    CullingSystem::CullingSystem(RenderContext* renderContext)
-    {
-        m_renderContext = renderContext;
-    }
-
     void CullingSystem::Cull()
     {
         ZoneScoped;
         
         // 把visibleRenderObjs扔了，剔除allRenderObjs生成一个新的
-        m_renderContext->visibleRenderObjs.clear();
+        GetRC()->visibleRenderObjs.clear();
     
-        const auto& renderObjs = *m_renderContext->allRenderObjs;
-        auto planes = get_frustum_planes(m_renderContext->vpMatrix);
+        const auto& renderObjs = *GetRC()->allRenderObjs;
+        auto planes = get_frustum_planes(GetRC()->vpMatrix);
 
         for (const auto& renderObj : renderObjs)
         {
             // if (CullOnce(renderObj->GetWorldBounds(), planes))
             // {
-                m_renderContext->visibleRenderObjs.push_back(renderObj);
+                GetRC()->visibleRenderObjs.push_back(renderObj.lock().get());
             // }
         }
     }
