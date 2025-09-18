@@ -52,9 +52,12 @@ namespace op
         wp<Scene> m_scene;
         vecsp<Comp> m_comps;
         vecsp<Object> m_children;
+        
+        static std::unordered_map<string_hash, std::function<sp<Comp>()>> m_compConstructors;
 
         void AddCompsFromJsons(const std::vector<nlohmann::json>& compJsons);
-        
+
+        static void InitComps();
         static const std::function<sp<Comp>()>& GetCompConstructor(cr<StringHandle> compNameId);
         static std::vector<nlohmann::json> GetPresetCompJsons();
         static void LoadCompJsons(std::vector<nlohmann::json>& target, const nlohmann::json& objJson);

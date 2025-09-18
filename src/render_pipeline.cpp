@@ -15,6 +15,7 @@
 #include "objects/render_comp.h"
 #include "render/render_target.h"
 #include "render/texture_set.h"
+#include "render/gl/gl_state.h"
 #include "render/gl/gl_texture.h"
 #include "render_pass/batch_render_pass.h"
 #include "render_pass/deferred_shading_pass.h"
@@ -33,7 +34,8 @@ namespace op
     {
         m_window = window;
         SetScreenSize(width, height);
-        
+
+        m_renderTargetPool = mup<RenderTargetPool>();
         m_renderContext = mup<RenderContext>();
         m_cullingSystem = mup<CullingSystem>();
 
@@ -56,7 +58,7 @@ namespace op
         m_passes.push_back(msp<PreparingPass>());
         // m_passes.push_back(msp<MainLightShadowPass>());
         m_passes.push_back(msp<RenderSkyboxPass>());
-        m_passes.push_back(msp<BatchRenderPass>());
+        // m_passes.push_back(msp<BatchRenderPass>());
         m_passes.push_back(msp<RenderScenePass>());
         // m_passes.push_back(msp<TestDrawPass>());
         m_passes.push_back(msp<DeferredShadingPass>());
@@ -99,6 +101,8 @@ namespace op
         RenderUiPass(m_renderContext.get());
         end_debug_group();
 
+        GlState::Ins()->Reset();
+
         GL_CHECK_ERROR(帧绘制结束)
 
         SwapBuffers();
@@ -119,7 +123,7 @@ namespace op
     void RenderPipeline::PrepareRenderContext(Scene* scene)
     {
         ZoneScoped;
-        
+
         m_renderContext->camera = CameraComp::GetMainCamera(); // TODO 依赖于scene
         m_renderContext->scene = scene;
         m_renderContext->renderTargetPool = m_renderTargetPool.get();
@@ -166,6 +170,7 @@ namespace op
         renderContext.lights = &objectIndices->GetComps<LightComp>();
         renderContext.cameras = &objectIndices->GetComps<CameraComp>();
     }
+    
     void RenderPipeline::SwapBuffers()
     {
         ZoneScoped;

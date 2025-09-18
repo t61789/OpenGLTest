@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "i_resource.h"
 #include "i_texture.h"
-#include "shared_object.h"
 
 namespace op
 {

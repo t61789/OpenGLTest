@@ -1,6 +1,5 @@
 ﻿#include "mesh.h"
 
-#include "shared_object.h"
 #include "utils.h"
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
@@ -127,7 +126,7 @@ namespace op
             bounds,
             verticesCount);
 
-        GetGR()->RegisterResource(result->GetPath(), result);
+        GetGR()->RegisterResource(modelPath, result);
         result->m_path = modelPath;
         
         log_info("成功载入Mesh: %s", modelPath.c_str());

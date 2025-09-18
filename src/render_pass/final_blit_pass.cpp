@@ -6,14 +6,15 @@
 #include "image.h"
 #include "material.h"
 #include "rendering_utils.h"
-#include "render/render_target.h"
-#include "render/render_target_pool.h"
+#include "render_context.h"
+#include "render/gl/gl_state.h"
 
 namespace op
 {
     FinalBlitPass::FinalBlitPass()
     {
         m_finalBlitMat = Material::CreateFromShader("shaders/final_blit.shader");
+        m_finalBlitMat->depthMode = DepthMode::DISABLE;
         auto desc = ImageDescriptor::GetDefault();
         desc.needFlipVertical = false;
         m_lutTexture = Image::LoadFromFile("textures/testLut.png", desc);
@@ -30,9 +31,9 @@ namespace op
 
         m_finalBlitMat->Set(MIN_LUMINANCE, m_minLuminance);
         m_finalBlitMat->Set(MAX_LUMINANCE, m_maxLuminance);
-        m_finalBlitMat->Set(LUT_TEX, m_lutTexture);
+        m_finalBlitMat->SetTexture(LUT_TEX, m_lutTexture);
 
-        RenderingUtils::Blit(nullptr, nullptr, m_finalBlitMat.get()); // TODO depth
+        RenderingUtils::Blit(GetRC()->shadingBufferTex.lock(), nullptr, m_finalBlitMat.get());
     }
 
     void FinalBlitPass::DrawConsoleUi()

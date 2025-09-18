@@ -128,10 +128,10 @@ namespace op
         const static umap<TextureFormat, GLenum> MAPPER = {
             {TextureFormat::RGBA, GL_RGBA},
             {TextureFormat::RGB, GL_RGB},
-            {TextureFormat::RGBA_HDR, GL_RGBA},
-            {TextureFormat::DEPTH_STENCIL, GL_DEPTH_STENCIL},
+            {TextureFormat::RGBA_HDR, GL_RGBA16F},
+            {TextureFormat::DEPTH_STENCIL, GL_DEPTH24_STENCIL8},
             {TextureFormat::DEPTH, GL_DEPTH_COMPONENT},
-            {TextureFormat::DEPTH_TEX, GL_RED},
+            {TextureFormat::DEPTH_TEX, GL_R32F},
         };
 
         return MAPPER.at(format);
@@ -142,10 +142,10 @@ namespace op
         const static umap<TextureFormat, GLenum> MAPPER = {
             {TextureFormat::RGBA, GL_RGBA},
             {TextureFormat::RGB, GL_RGB},
-            {TextureFormat::RGBA_HDR, GL_RGBA16F},
-            {TextureFormat::DEPTH_STENCIL, GL_DEPTH24_STENCIL8},
+            {TextureFormat::RGBA_HDR, GL_RGBA},
+            {TextureFormat::DEPTH_STENCIL, GL_DEPTH_STENCIL},
             {TextureFormat::DEPTH, GL_DEPTH_COMPONENT},
-            {TextureFormat::DEPTH_TEX, GL_R32F},
+            {TextureFormat::DEPTH_TEX, GL_RED},
         };
 
         return MAPPER.at(format);
@@ -169,7 +169,7 @@ namespace op
     {
         const static umap<TextureFilterMode, GLenum> MAPPER = {
             {TextureFilterMode::POINT, GL_NEAREST},
-            {TextureFilterMode::BILINEAR, GL_LINEAR_MIPMAP_LINEAR},
+            {TextureFilterMode::BILINEAR, GL_LINEAR},
         };
 
         return MAPPER.at(filterMode);

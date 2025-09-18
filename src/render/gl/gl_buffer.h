@@ -27,7 +27,7 @@ namespace op
     private:
         uint32_t m_id = 0;
         uint32_t m_type = 0;
-        uint32_t m_slot = 0;
+        uint32_t m_slot = ~0u;
         uint32_t m_sizeB = 0;
         uint32_t m_usage = 0;
         bool m_mapping = false;

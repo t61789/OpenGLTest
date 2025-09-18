@@ -121,9 +121,9 @@
                     ]
                 },
                 {
-                    "name": "BatchRenderComp",
-                    "mesh": "meshes/test_quad_0.obj",
-                    "material": "materials/lit_mat_batch.json"
+                    "name": "RenderComp",
+                    "mesh": "meshes/beast.obj",
+                    "material": "materials/lit_mat.json"
                 }
             ],
             "children": [
@@ -139,9 +139,9 @@
                             ]
                         },
                         {
-                            "name": "BatchRenderComp",
-                            "mesh": "meshes/test_quad_1.obj",
-                            "material": "materials/lit_mat_batch.json"
+                            "name": "RenderComp",
+                            "mesh": "meshes/smooth_cube.obj",
+                            "material": "materials/lit_mat.json"
                         }
                     ]
                 }

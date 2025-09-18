@@ -48,6 +48,7 @@ namespace op
         RenderMesh({
             mesh,
             material,
+            renderComp->GetObjectIndex()
         });
     }
 
@@ -58,7 +59,7 @@ namespace op
         auto blitMat = material ? material : GetBR()->blitMatNew.get();
         if (src)
         {
-            blitMat->Set(MAIN_TEX, src);
+            blitMat->SetTexture(MAIN_TEX, src);
         }
 
         RenderMesh({
@@ -89,8 +90,9 @@ namespace op
         GetPerViewCbuffer()->BindBase();
         if (renderParam.objectIndex.has_value())
         {
+            GetGR()->GetPredefinedCbuffer(OBJECT_INDEX_CBUFFER)->Set(OBJECT_INDEX, renderParam.objectIndex.value());
+            GetGR()->GetPredefinedCbuffer(OBJECT_INDEX_CBUFFER)->BindBase();
             GetGR()->GetPerObjectBuffer()->Use();
-            shader->SetVal(OBJECT_INDEX, static_cast<int>(renderParam.objectIndex.value()));
         }
 
         // Bind Vertex Attrib
@@ -108,6 +110,7 @@ namespace op
         // Set Render State
         GlState::Ins()->SetCullMode(material->cullMode);
         GlState::Ins()->SetBlendMode(material->blendMode);
+        GlState::Ins()->SetDepthMode(material->depthMode);
     }
     
     void RenderingUtils::CallGlDraw(const Mesh* mesh)

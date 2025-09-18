@@ -9,8 +9,8 @@
 
 #include "render_texture.h"
 #include "shader.h"
+#include "render/gl/gl_state.h"
 #include "render/gl/gl_texture.h"
-
 
 namespace op
 {
@@ -19,6 +19,7 @@ namespace op
         auto shader = Shader::LoadFromFile("shaders/deferred_shading.shader");
         m_deferredShadingMat = msp<Material>();
         m_deferredShadingMat->BindShader(shader);
+        m_deferredShadingMat->depthMode = DepthMode::DISABLE;
     }
 
     std::string DeferredShadingPass::GetName()

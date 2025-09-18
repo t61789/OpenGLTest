@@ -3,7 +3,6 @@
 #include <tracy/Tracy.hpp>
 
 #include "game_resource.h"
-#include "shared_object.h"
 #include "image.h"
 #include "material.h"
 

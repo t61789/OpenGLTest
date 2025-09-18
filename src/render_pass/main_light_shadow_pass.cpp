@@ -7,7 +7,6 @@
 //
 // #include "material.h"
 // #include "render_texture.h"
-// #include "shared_object.h"
 // #include "rendering_utils.h"
 // #include "utils.h"
 // #include "objects/camera_comp.h"

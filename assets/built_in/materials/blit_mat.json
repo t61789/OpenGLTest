@@ -1,3 +1,6 @@
 {
-    "shader": "shaders/blit.shader"
+    "shader": "shaders/blit.shader",
+    "depthMode": "Always",
+    "cullMode": "None",
+    "blendMode": "None"
 }

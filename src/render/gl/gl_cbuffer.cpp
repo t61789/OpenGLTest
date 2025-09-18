@@ -59,12 +59,7 @@ namespace op
         }
 
         auto& param = it->second;
-        if (param.sizeB != sizeB)
-        {
-            return false;
-        }
-
-        m_buffer->SetData(param.offsetB, param.sizeB, data);
+        m_buffer->SetData(param.offsetB, std::min(param.sizeB, sizeB), data);
 
         return true;
     }

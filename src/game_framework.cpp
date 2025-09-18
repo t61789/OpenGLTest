@@ -17,6 +17,7 @@
 #include "game_resource.h"
 #include "render_pipeline.h"
 #include "render/render_target_pool.h"
+#include "render/gl/gl_state.h"
 
 namespace op
 {
@@ -44,17 +45,12 @@ namespace op
 
     GameFramework::GameFramework()
     {
-        m_gameResource = new GameResource();
-        m_onFrameBufferResizeHandler = GetGR()->onFrameBufferResize.Add(this, &GameFramework::OnSetFrameBufferResize); // TODO resize
     }
 
     GameFramework::~GameFramework()
     {
-        GetGR()->onFrameBufferResize.Remove(m_onFrameBufferResizeHandler);
 
         ReleaseGame();
-
-        delete m_gameResource;
     }
 
     bool GameFramework::Init()
@@ -130,7 +126,7 @@ namespace op
     {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
@@ -274,6 +270,10 @@ namespace op
 
     void GameFramework::InitGame()
     {
+        m_glState = new GlState();
+        m_gameResource = new GameResource();
+        m_onFrameBufferResizeHandler = GetGR()->onFrameBufferResize.Add(this, &GameFramework::OnSetFrameBufferResize); // TODO resize
+        
         m_gui = new Gui();
         m_builtInRes = new BuiltInRes();
         m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
@@ -287,8 +287,11 @@ namespace op
     void GameFramework::ReleaseGame()
     {
         m_scene.reset();
-        
         delete m_renderPipeline;
         delete m_builtInRes;
+        delete m_gui;
+        GetGR()->onFrameBufferResize.Remove(m_onFrameBufferResizeHandler);
+        delete m_gameResource;
+        delete m_glState;
     }
 }

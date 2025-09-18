@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "utils.h"
-#include "shared_object.h"
 
 #include "game_framework.h"
 #include "string_handle.h"
@@ -47,11 +46,6 @@ int main(int argc, char* argv[])
     catch (std::exception& e)
     {
         std::cout << e.what() << "\n";
-    }
-    
-    if (!SharedObject::m_count.empty())
-    {
-        log_warning("SharedObject未完全释放");
     }
     
     return 0;

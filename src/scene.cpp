@@ -60,6 +60,7 @@ namespace op
         if(json.contains("root"))
         {
             auto rootObj = Object::Create("Scene Root");
+            rootObj->m_scene = scene;
             scene->m_path = sceneJsonPath;
             scene->m_sceneRoot = rootObj;
             scene->m_sceneRoot->AddOrCreateComp<RuntimeComp>(RUNTIME_COMP);

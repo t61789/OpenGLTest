@@ -11,6 +11,7 @@ PSInput VS_Main(VSInput input)
 }
 
 TEXTURE2D(_LutTex)
+TEXTURE2D(_MainTex)
 
 cbuffer PerMaterialCBuffer : register(b3)
 {
@@ -46,7 +47,7 @@ float3 AdjustLuminance(float3 color)
 
 float4 PS_Main(PSInput input) : SV_Target
 {
-    float4 color = _ShadingBufferTex.Sample(_ShadingBufferTexSampler, input.uv);
+    float4 color = _MainTex.Sample(_MainTex, input.uv);
     
     // color.rgb = AdjustLuminance(color.rgb);
     

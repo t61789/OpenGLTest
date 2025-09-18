@@ -100,8 +100,8 @@ namespace op
         auto result = LoadFromFile(vSource, fSource, path);
 
         // Load CBuffer
-        result->LoadCBuffer(vertCompilerGlsl, vertShaderResources);
-        result->LoadCBuffer(fragCompilerGlsl, fragShaderResources);
+        result->LoadCBuffer(vertShaderResources);
+        result->LoadCBuffer(fragShaderResources);
 
         // Load Textures
         result->LoadTextures(vertCompilerGlsl, vertShaderResources);
@@ -132,26 +132,26 @@ namespace op
         return spirv;
     }
 
-    void Shader::LoadCBuffer(
-        cr<spirv_cross::CompilerGLSL> compiler,
-        cr<spirv_cross::ShaderResources> resources)
+    void Shader::LoadCBuffer(cr<spirv_cross::ShaderResources> resources)
     {
         for (const auto& uniformBuffer : resources.uniform_buffers)
         {
+            auto uniformBufferName = StringHandle(uniformBuffer.name);
+            
             // 是内置cbuffer的话就加载到GameResource中
-            if (TryCreatePredefinedCBuffer(compiler, uniformBuffer))
+            if (GetGR()->IsPredefinedCbuffer(uniformBufferName))
+            {
+                CreatePredefinedCBuffer(uniformBufferName);
+                continue;
+            }
+
+            // 不是内置的cbuffer，就由当前Shader持有这个cbuffer
+            if (cbuffers.find(uniformBufferName) != cbuffers.end())
             {
                 continue;
             }
 
-            // 没加载过就加载，由当前Shader持有这个cbuffer
-            auto uniformBufferNameId = StringHandle(uniformBuffer.name).Hash();
-            if (cbuffers.find(uniformBufferNameId) != cbuffers.end())
-            {
-                continue;
-            }
-
-            cbuffers[uniformBufferNameId] = msp<CBufferLayout>(compiler, uniformBuffer);
+            cbuffers[uniformBufferName] = msp<CBufferLayout>(m_glShader.get(), uniformBuffer.name.c_str());
         }
     }
 
@@ -190,18 +190,12 @@ namespace op
         }
     }
 
-    bool Shader::TryCreatePredefinedCBuffer(
-        cr<spirv_cross::CompilerGLSL> compiler,
-        cr<spirv_cross::Resource> uniformBuffer)
+    void Shader::CreatePredefinedCBuffer(cr<StringHandle> uniformBufferName)
     {
-        auto uniformBufferNameId = StringHandle(uniformBuffer.name).Hash();
-        if (GetGR()->NeedCreatePredefinedCbuffer(uniformBufferNameId))
+        if (GetGR()->NeedCreatePredefinedCbuffer(uniformBufferName))
         {
-            GetGR()->CreatePredefinedCbuffer(uniformBufferNameId, msp<CBufferLayout>(compiler, uniformBuffer));
-            return true;
+            GetGR()->CreatePredefinedCbuffer(uniformBufferName, msp<CBufferLayout>(m_glShader.get(), uniformBufferName.CStr()));
         }
-
-        return false;
     }
 
     void Shader::CombineSeparateTextures(spirv_cross::CompilerGLSL& compiler)

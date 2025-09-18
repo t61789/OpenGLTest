@@ -1,5 +1,6 @@
 #include "gl_render_target.h"
 
+#include "game_framework.h"
 #include "game_resource.h"
 #include "gl_state.h"
 #include "gl_texture.h"
@@ -128,6 +129,8 @@ namespace op
         if (!frameRenderTarget)
         {
             frameRenderTarget = msp<GlRenderTarget>(0);
+            frameRenderTarget->m_width = GameFramework::Ins()->GetScreenWidth();
+            frameRenderTarget->m_height = GameFramework::Ins()->GetScreenHeight();
             GetGR()->onFrameBufferResize.Add([](GLFWwindow*, const uint32_t width, const uint32_t height)
             {
                 frameRenderTarget->m_width = width;
@@ -140,7 +143,7 @@ namespace op
 
     bool GlRenderTarget::IsColorAttachment(crsp<GlTexture> attachment)
     {
-        return attachment->GetFormat() == TextureFormat::RGBA || attachment->GetFormat() == TextureFormat::RGBA_HDR;
+        return attachment->GetFormat() == TextureFormat::RGBA || attachment->GetFormat() == TextureFormat::RGBA_HDR || attachment->GetFormat() == TextureFormat::DEPTH_TEX;
     }
 
     bool GlRenderTarget::IsDepthAttachment(crsp<GlTexture> attachment)

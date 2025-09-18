@@ -14,11 +14,12 @@ namespace op
     {
         cullMode = CullMode::UNSET;
         blendMode = BlendMode::UNSET;
+        depthMode = DepthMode::LESS;
         m_dataSet = mup<DataSet>();
         m_textureSet = mup<TextureSet>();
     }
 
-    void Material::Set(const size_t nameId, crsp<ITexture> val)
+    void Material::SetTexture(const size_t nameId, crsp<ITexture> val)
     {
         m_textureSet->SetTexture(nameId, val);
     }
@@ -129,6 +130,12 @@ namespace op
                 result->blendMode = GlState::GetBlendMode(elemValue.get<std::string>());
                 continue;
             }
+
+            if (elemKey.Str() == "depthMode")
+            {
+                result->depthMode = GlState::GetDepthMode(elemValue.get<std::string>());
+                continue;
+            }
             
             if (elemValue.is_number_integer())
             {
@@ -157,7 +164,7 @@ namespace op
             if (elemValue.is_string() && ends_with(elemKey, "Tex"))
             {
                 auto texture = Image::LoadFromFile(elemValue.get<std::string>(), ImageDescriptor::GetDefault());
-                result->Set(elemKey, texture);
+                result->SetTexture(elemKey, texture);
                 continue;
             }
         }

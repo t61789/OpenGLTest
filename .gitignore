@@ -31,20 +31,6 @@
 *.out
 *.app
 
-.idea
-
-glfw-3.4/build/*
-
-OpenGLTest/OpenGLTest/x64/*
-OpenGLTest/x64/*
-
-!/assets/**
-
-imgui.ini
-
-build/*
-
-!/lib/**
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -249,3 +235,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+.idea
+
+glfw-3.4/build/*
+
+OpenGLTest/OpenGLTest/x64/*
+OpenGLTest/x64/*
+
+!/assets/**
+
+imgui.ini
+
+build/*
+
+!/lib/**

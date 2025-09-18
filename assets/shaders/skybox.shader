@@ -4,7 +4,7 @@ PSInput VS_Main(VSInput input)
 {
     PSInput output;
 
-   output.positionCS = TransformObjectToHClip(input.positionOS);
+    output.positionCS = TransformObjectToHClip(input.positionOS);
     output.positionCS.z = output.positionCS.w - 0.00001f;
     output.positionSS = output.positionCS;
     output.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz);

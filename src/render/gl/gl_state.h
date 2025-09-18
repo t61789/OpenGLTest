@@ -38,7 +38,19 @@ namespace op
         BLEND,
         ADD
     };
-    
+
+    enum class DepthMode : uint8_t
+    {
+        UNSET,
+        DISABLE,
+        ALWAYS,
+        LESS,
+        LESS_EQUAL,
+        EQUAL,
+        NOT_EQUAL,
+        GREATER,
+        GREATER_EQUAL
+    };
 
     class GlState : public Singleton<GlState>
     {
@@ -48,6 +60,7 @@ namespace op
         friend class GlRenderTarget;
         friend class GlShader;
         friend class RenderingUtils;
+        friend class CBufferLayout;
         
     public:
         void Reset();
@@ -61,9 +74,11 @@ namespace op
         bool BindShader(crsp<GlShader> shader);
         void SetCullMode(CullMode mode);
         void SetBlendMode(BlendMode mode);
+        void SetDepthMode(DepthMode mode);
 
         static CullMode GetCullMode(cr<StringHandle> str);
         static BlendMode GetBlendMode(cr<StringHandle> str);
+        static DepthMode GetDepthMode(cr<StringHandle> str);
 
     private:
         struct GlTextureInfo
@@ -86,6 +101,7 @@ namespace op
 
         CullMode m_glCullMode = CullMode::UNSET;
         BlendMode m_glBlendMode = BlendMode::UNSET;
+        DepthMode m_glDepthMode = DepthMode::UNSET;
         wp<IGlResource> m_usingResource;
         vec<GlBufferInfo> m_glBufferInfos;
         sp<GlVertexArray> m_glVertexArray = nullptr;
@@ -112,7 +128,12 @@ namespace op
         static uint32_t GetGlGlobalBuffer(uint32_t type);
         static uint32_t GetGlBufferBase(uint32_t type, uint32_t slot);
         static uint32_t GetGlBufferBindingType(uint32_t type);
+        static uint32_t GlGetUniformBlockIndex(uint32_t programId, cstr name);
+        static uint32_t GlGetUniformIndices(uint32_t programId, const char* uniformNames);
         static int32_t GetGlUniformLocation(uint32_t programId, cstr name);
+        static void GlGetActiveUniformBlockiv(uint32_t programId, uint32_t uniformBlockIndex, uint32_t param, int32_t* results);
+        static void GlGetActiveUniformsiv(uint32_t programId, int32_t uniformCount, const uint32_t* uniformIndices, uint32_t param, int32_t* results);
+        static void GlGetActiveUniformName(uint32_t programId, uint32_t uniformIndex, uint32_t bufSize, int32_t* length, char* name);
         
         static uint32_t GlGenVertexArray();
         static uint32_t GlGenBuffer();
@@ -152,6 +173,7 @@ namespace op
         static void GlDisable(uint32_t flag);
         static void GlCullFace(uint32_t flag);
         static void GlBlendFunc(uint32_t sfactor, uint32_t dfactor);
+        static void GlDepthFunc(uint32_t flag);
         static void GlDrawElements(uint32_t mode, uint32_t count, uint32_t type, const void* indices);
         static void GlShaderSource(uint32_t shaderId, uint32_t count, const char** source, const int* length);
         static void GlCompileShader(uint32_t shaderId);

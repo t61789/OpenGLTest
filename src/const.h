@@ -77,6 +77,7 @@ namespace op
     STRING_HANDLE(GLOBAL_CBUFFER, _Global)
     STRING_HANDLE(PER_VIEW_CBUFFER, PerViewCBuffer)
     STRING_HANDLE(PER_MATERIAL_CBUFFER, PerMaterialCBuffer)
+    STRING_HANDLE(OBJECT_INDEX_CBUFFER, ObjectIndexCBuffer)
 
     STRING_HANDLE(MIN_LUMINANCE, _MinLuminance)
     STRING_HANDLE(MAX_LUMINANCE, _MaxLuminance)
@@ -184,5 +185,6 @@ namespace op
     inline std::unordered_set PREDEFINED_MATERIALS = {
         GLOBAL_CBUFFER.Hash(),
         PER_VIEW_CBUFFER.Hash(),
+        OBJECT_INDEX_CBUFFER.Hash()
     };
 }

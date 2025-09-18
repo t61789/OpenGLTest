@@ -18,14 +18,16 @@ float4 PS_Main(PSInput input) : SV_TARGET
     ReadGBuffer0(input.uv, albedo, pixelType);
     ReadGBuffer1(input.uv, normalWS);
 
+    float4 finalColor = float4(0,0,0,1);
     if (pixelType == PIXEL_TYPE_LIT)
     {
-        // return float4(lerp(albedo, normalWS, 0.5f), 1.0f);
-        float3 finalColor = Lit(input.positionSS.xyz, normalWS, albedo);
-        return float4(finalColor, 1.0f);
+        float3 col = Lit(input.positionSS.xyz, normalWS, albedo);
+        finalColor.rgb = col;
     }
     else
     {
-        return float4(albedo, 1.0f);
+        finalColor.rgb = albedo;
     }
+
+    return finalColor;
 }

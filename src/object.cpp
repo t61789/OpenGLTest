@@ -15,6 +15,8 @@
 
 namespace op
 {
+    std::unordered_map<string_hash, std::function<sp<Comp>()>> Object::m_compConstructors;
+    
     sp<Object> Object::Create(const StringHandle& name)
     {
         auto result = msp<Object>();
@@ -135,25 +137,9 @@ namespace op
 
     const std::function<sp<Comp>()>& Object::GetCompConstructor(cr<StringHandle> compNameId)
     {
-        #define REGISTER_COMP(t) {StringHandle(#t), ([]() -> sp<Comp> { auto result = std::make_shared<t>(); result->SetName(StringHandle(#t)); return result; CompStorage::RegisterComp<t>();})}
-        static std::unordered_map<string_hash, std::function<sp<Comp>()>> constructors = {
-            REGISTER_COMP(RenderComp),
-            REGISTER_COMP(TransformComp),
-            REGISTER_COMP(CameraComp),
-            REGISTER_COMP(LightComp),
-            REGISTER_COMP(RuntimeComp),
-            REGISTER_COMP(BatchRenderComp),
-        };
-        #undef REGISTER_COMP
+        InitComps();
 
-        auto it = constructors.find(compNameId);
-        if (it != constructors.end())
-        {
-            return it->second;
-        }
-
-        static std::function nullConstructor = []() -> sp<Comp> { return nullptr; };
-        return nullConstructor;
+        return m_compConstructors.at(compNameId);
     }
 
     std::vector<nlohmann::json> Object::GetPresetCompJsons()
@@ -200,7 +186,34 @@ namespace op
             AddOrCreateComp(StringHandle(compName), compJson);
         }
     }
-    
+
+    void Object::InitComps()
+    {
+        if (!m_compConstructors.empty())
+        {
+            return;
+        }
+
+        #define REGISTER_COMP(t) \
+            m_compConstructors[StringHandle(#t)] = []() -> sp<Comp> { \
+                auto result = std::make_shared<t>(); \
+                result->SetName(StringHandle(#t)); \
+                result->SetType(std::type_index(typeid(t))); \
+                return result; \
+            }; \
+            CompStorage::RegisterComp<t>();
+
+        REGISTER_COMP(RenderComp)
+        REGISTER_COMP(TransformComp)
+        REGISTER_COMP(CameraComp)
+        REGISTER_COMP(LightComp)
+        REGISTER_COMP(RuntimeComp)
+        REGISTER_COMP(BatchRenderComp)
+
+        #undef REGISTER_COMP
+    }
+
+    // todo 改成泛型
     sp<Comp> Object::AddOrCreateComp(cr<StringHandle> compName, const nlohmann::json& compJson)
     {
         auto comp = GetComp<Comp>(compName);

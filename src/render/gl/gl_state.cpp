@@ -104,6 +104,7 @@ namespace op
             return false;
         }
         glBufferBaseInfo.buffer = buffer;
+        glBufferInfo->buffer.reset();
 
         glBindBufferBase(buffer->GetType(), slot, buffer->GetId());
 
@@ -351,31 +352,106 @@ namespace op
         m_glBlendMode = mode;
     }
 
+    void GlState::SetDepthMode(const DepthMode mode)
+    {
+        if (m_glDepthMode == mode)
+        {
+            return;
+        }
+
+        if (mode == DepthMode::DISABLE)
+        {
+            GlDisable(GL_DEPTH_TEST);
+        }
+        else if (mode != DepthMode::UNSET)
+        {
+            if (m_glDepthMode == DepthMode::DISABLE || m_glDepthMode == DepthMode::UNSET)
+            {
+                GlEnable(GL_DEPTH_TEST);
+            }
+            
+            if (mode == DepthMode::ALWAYS)
+            {
+                GlDepthFunc(GL_ALWAYS);
+            }
+
+            if (mode == DepthMode::LESS)
+            {
+                GlDepthFunc(GL_LESS);
+            }
+
+            if (mode == DepthMode::LESS_EQUAL)
+            {
+                GlDepthFunc(GL_LEQUAL);
+            }
+
+            if (mode == DepthMode::EQUAL)
+            {
+                GlDepthFunc(GL_EQUAL);
+            }
+
+            if (mode == DepthMode::NOT_EQUAL)
+            {
+                GlDepthFunc(GL_NOTEQUAL);
+            }
+
+            if (mode == DepthMode::GREATER)
+            {
+                GlDepthFunc(GL_GREATER);
+            }
+
+            if (mode == DepthMode::GREATER_EQUAL)
+            {
+                GlDepthFunc(GL_GEQUAL);
+            }
+        }
+
+        m_glDepthMode = mode;
+    }
+
     CullMode GlState::GetCullMode(cr<StringHandle> str)
     {
         static const umap<string_hash, CullMode> CULL_MODE_MAP =
         {
-            {StringHandle("Unset").Hash(), CullMode::UNSET},
-            {StringHandle("None").Hash(), CullMode::NONE},
-            {StringHandle("Front").Hash(), CullMode::FRONT},
-            {StringHandle("Back").Hash(), CullMode::BACK},
-            {StringHandle("All").Hash(), CullMode::ALL},
+            {StringHandle("Unset"), CullMode::UNSET},
+            {StringHandle("None"), CullMode::NONE},
+            {StringHandle("Front"), CullMode::FRONT},
+            {StringHandle("Back"), CullMode::BACK},
+            {StringHandle("All"), CullMode::ALL},
         };
 
-        return CULL_MODE_MAP.at(str.Hash());
+        return CULL_MODE_MAP.at(str);
     }
 
     BlendMode GlState::GetBlendMode(cr<StringHandle> str)
     {
         static const umap<string_hash, BlendMode> BLEND_MODE_MAP =
         {
-            {StringHandle("Unset").Hash(), BlendMode::UNSET},
-            {StringHandle("None").Hash(), BlendMode::NONE},
-            {StringHandle("Blend").Hash(), BlendMode::BLEND},
-            {StringHandle("Add").Hash(), BlendMode::ADD},
+            {StringHandle("Unset"), BlendMode::UNSET},
+            {StringHandle("None"), BlendMode::NONE},
+            {StringHandle("Blend"), BlendMode::BLEND},
+            {StringHandle("Add"), BlendMode::ADD},
         };
 
-        return BLEND_MODE_MAP.at(str.Hash());
+        return BLEND_MODE_MAP.at(str);
+    }
+
+    DepthMode GlState::GetDepthMode(cr<StringHandle> str)
+    {
+        static const umap<string_hash, DepthMode> DEPTH_MODE_MAP =
+        {
+            {StringHandle("Unset"), DepthMode::UNSET},
+            {StringHandle("Disable"), DepthMode::DISABLE},
+            {StringHandle("Always"), DepthMode::ALWAYS},
+            {StringHandle("Less"), DepthMode::LESS},
+            {StringHandle("LessEqual"), DepthMode::LESS_EQUAL},
+            {StringHandle("Equal"), DepthMode::EQUAL},
+            {StringHandle("NotEqual"), DepthMode::NOT_EQUAL},
+            {StringHandle("Greater"), DepthMode::GREATER},
+            {StringHandle("GreaterEqual"), DepthMode::GREATER_EQUAL}
+        };
+
+        return DEPTH_MODE_MAP.at(str);
     }
 
     void GlState::UseGlResource(const std::shared_ptr<IGlResource>& resource)
@@ -630,13 +706,13 @@ namespace op
     {
         glTexImage2D(
             ToGl(type),
-            static_cast<int>(level),
-            static_cast<int>(internalFormat),
-            static_cast<int>(width),
-            static_cast<int>(height),
-            static_cast<int>(border),
-            static_cast<int>(format),
-            dataType,
+            static_cast<GLint>(level),
+            static_cast<GLint>(internalFormat),
+            static_cast<GLsizei>(width),
+            static_cast<GLsizei>(height),
+            static_cast<GLint>(border),
+            static_cast<GLenum>(format),
+            static_cast<GLenum>(dataType),
             data);
 
         GlCheckError();
@@ -765,6 +841,13 @@ namespace op
     void GlState::GlBlendFunc(const uint32_t sfactor, const uint32_t dfactor)
     {
         glBlendFunc(sfactor, dfactor);
+
+        GlCheckError();
+    }
+
+    void GlState::GlDepthFunc(const uint32_t flag)
+    {
+        glDepthFunc(flag);
 
         GlCheckError();
     }
@@ -902,6 +985,47 @@ namespace op
         };
 
         return GL_BUFFER_BINDING_TYPE.at(type);
+    }
+
+    uint32_t GlState::GlGetUniformBlockIndex(const uint32_t programId, const cstr name)
+    {
+        auto result = glGetUniformBlockIndex(programId, name);
+
+        GlCheckError();
+
+        return result;
+    }
+    
+    void GlState::GlGetActiveUniformBlockiv(const uint32_t programId, const uint32_t uniformBlockIndex, const uint32_t param, int32_t* results)
+    {
+        glGetActiveUniformBlockiv(programId, uniformBlockIndex, param, results);
+
+        GlCheckError();
+    }
+
+    uint32_t GlState::GlGetUniformIndices(const uint32_t programId, const char* uniformNames)
+    {
+        GLuint index;
+
+        glGetUniformIndices(programId, 1, &uniformNames, &index);
+
+        GlCheckError();
+
+        return index;
+    }
+
+    void GlState::GlGetActiveUniformsiv(const uint32_t programId, const int32_t uniformCount, const uint32_t* uniformIndices, const uint32_t param, int32_t* results)
+    {
+        glGetActiveUniformsiv(programId, uniformCount, uniformIndices, param, results);
+
+        GlCheckError();
+    }
+
+    void GlState::GlGetActiveUniformName(uint32_t programId, uint32_t uniformIndex, uint32_t bufSize, int32_t* length, char* name)
+    {
+        glGetActiveUniformName(programId, uniformIndex, bufSize, length, name);
+
+        GlCheckError();
     }
 
     void GlState::GlCheckError()

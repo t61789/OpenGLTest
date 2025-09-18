@@ -24,6 +24,7 @@ namespace op
         TextureSet* GetGlobalTextureSet() const { return m_globalTextureSet.get();}
         PerObjectBuffer* GetPerObjectBuffer() const { return m_perObjectBuffer.get();}
         GlCbuffer* GetPredefinedCbuffer(size_t nameId);
+        bool IsPredefinedCbuffer(size_t nameId);
         bool NeedCreatePredefinedCbuffer(size_t nameId);
         void CreatePredefinedCbuffer(size_t nameId, crsp<CBufferLayout> layout);
 

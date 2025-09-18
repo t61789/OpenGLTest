@@ -2,7 +2,6 @@
 
 #include "i_resource.h"
 #include "common/data_set.h"
-#include "math/matrix4x4.h"
 #include "math/vec.h"
 #include "render/texture_set.h"
 #include "render/gl/gl_cbuffer.h"
@@ -14,18 +13,20 @@ namespace op
     class ITexture;
     enum class BlendMode : uint8_t;
     enum class CullMode : uint8_t;
+    enum class DepthMode : uint8_t;
 
     class Material final : public IResource
     {
     public:
         CullMode cullMode;
         BlendMode blendMode;
+        DepthMode depthMode;
         
         Material();
 
         template <typename T>
         void Set(size_t nameId, cr<T> val);
-        void Set(size_t nameId, crsp<ITexture> val);
+        void SetTexture(size_t nameId, crsp<ITexture> val);
         void Set(size_t nameId, const float* val, size_t count);
 
         template <typename T>
@@ -69,12 +70,28 @@ namespace op
     template <typename T>
     void Material::Set(const size_t nameId, cr<T> val)
     {
+        static_assert(
+            std::is_same_v<T, bool>||
+            std::is_same_v<T, int>||
+            std::is_same_v<T, float>||
+            std::is_same_v<T, Vec4>||
+            std::is_same_v<T, Matrix4x4>,
+            "Invalid type");
+        
         TrySetImp(nameId, &val, sizeof(T));
     }
 
     template <typename T>
     T Material::Get(const size_t nameId)
     {
+        static_assert(
+            std::is_same_v<T, bool>||
+            std::is_same_v<T, int>||
+            std::is_same_v<T, float>||
+            std::is_same_v<T, Vec4>||
+            std::is_same_v<T, Matrix4x4>,
+            "Invalid type");
+        
         T val;
         TryGetImp(nameId, &val, sizeof(T));
         return val;

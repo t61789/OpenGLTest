@@ -23,6 +23,9 @@ namespace op
         bool KeyPressed(int glfwKey) const;
 
         Scene* GetMainScene() const;
+
+        uint32_t GetScreenWidth() const { return m_screenWidth;}
+        uint32_t GetScreenHeight() const { return m_screenHeight;}
         
     private:
         GLFWwindow* m_window = nullptr;
@@ -31,9 +34,10 @@ namespace op
         BuiltInRes* m_builtInRes = nullptr;
         RenderPipeline* m_renderPipeline = nullptr;
         GameResource* m_gameResource = nullptr;
+        GlState* m_glState = nullptr;
 
-        int m_screenWidth = 1600;
-        int m_screenHeight = 900;
+        uint32_t m_screenWidth = 1600;
+        uint32_t m_screenHeight = 900;
 
         EventHandler m_onFrameBufferResizeHandler = 0;
 

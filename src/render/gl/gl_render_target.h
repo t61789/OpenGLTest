@@ -28,7 +28,7 @@ namespace op
         void Use();
         void Clear(crvec<Vec4> clearColors, float clearDepth, uint32_t clearType);
         void ClearUnchecked(crvec<Vec4> clearColors, float clearDepth, uint32_t clearType);
-        bool IsComplete() const { return m_width != 0;}
+        bool IsComplete() const { return m_width != 0 || this == GetFrameRenderTarget().get();}
 
         static sp<GlRenderTarget> GetFrameRenderTarget();
 

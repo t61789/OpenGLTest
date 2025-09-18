@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "utils.h"
+#include "objects/comp.h"
 
 namespace op
 {
@@ -14,6 +15,7 @@ namespace op
     {
         struct CompsAccessor
         {
+            std::function<std::any()> createStorageFunc;
             std::function<bool(const std::weak_ptr<Comp>&, std::any&)> addFunc;
             std::function<bool(const std::weak_ptr<Comp>&, std::any&)> removeFunc;
         };
@@ -23,10 +25,8 @@ namespace op
         static std::unordered_map<std::type_index, CompsAccessor> m_compAccessors;
         
     public:
-        template <typename T>
-        void AddComp(const std::shared_ptr<T>& comp);
-        template <typename T>
-        void RemoveComp(const std::shared_ptr<T>& comp);
+        void AddComp(const std::shared_ptr<Comp>& comp);
+        void RemoveComp(const std::shared_ptr<Comp>& comp);
         template <typename T>
         const std::vector<std::weak_ptr<T>>& GetComps();
         crvecwp<Comp> GetAllComps() const { return m_allComps;}
@@ -65,18 +65,15 @@ namespace op
         bool ObjectExists(crsp<Object> obj);
     };
 
-    template <typename T>
-    void CompStorage::AddComp(const std::shared_ptr<T>& comp)
+    inline void CompStorage::AddComp(const std::shared_ptr<Comp>& comp)
     {
-        static_assert(std::is_base_of_v<Comp, T>);
-            
-        std::type_index compTypeIndex = typeid(T);
+        const auto& compTypeIndex = comp->GetType();
         auto& compAccessor = m_compAccessors.at(compTypeIndex);
 
         auto it = m_comps.find(compTypeIndex);
         if (it == m_comps.end())
         {
-            m_comps[compTypeIndex] = std::vector<std::weak_ptr<T>>();
+            m_comps[compTypeIndex] = compAccessor.createStorageFunc();
             it = m_comps.find(compTypeIndex);
         }
             
@@ -86,12 +83,9 @@ namespace op
         }
     }
 
-    template <typename T>
-    void CompStorage::RemoveComp(const std::shared_ptr<T>& comp)
+    inline void CompStorage::RemoveComp(const std::shared_ptr<Comp>& comp)
     {
-        static_assert(std::is_base_of_v<Comp, T>);
-            
-        std::type_index compTypeIndex = typeid(T);
+        const auto& compTypeIndex = comp->GetType();
         auto& compAccessor = m_compAccessors.at(compTypeIndex);
 
         auto it = m_comps.find(compTypeIndex);
@@ -134,6 +128,12 @@ namespace op
         std::type_index compTypeIndex = typeid(T);
             
         CompsAccessor compsAccessor;
+
+        compsAccessor.createStorageFunc = []() -> std::any
+        {
+            return std::vector<std::weak_ptr<T>>();
+        };
+        
         compsAccessor.addFunc = [](const std::weak_ptr<Comp>& comp, std::any& any) -> bool
         {
             std::weak_ptr<T> p = std::static_pointer_cast<T>(comp.lock());
@@ -156,6 +156,7 @@ namespace op
 
             return false;
         };
+        
         compsAccessor.removeFunc = [](const std::weak_ptr<Comp>& comp, std::any& any) -> bool
         {
             std::weak_ptr<T> p = std::static_pointer_cast<T>(comp.lock());

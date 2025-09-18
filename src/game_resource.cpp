@@ -1,14 +1,13 @@
 #include "game_resource.h"
 #include "const.h"
 #include "material.h"
-#include "shared_object.h"
 #include "render/gl/gl_cbuffer.h"
 
 namespace op
 {
     GameResource::GameResource()
     {
-        m_perObjectBuffer = mup<PerObjectBuffer>(5000, 2);
+        m_perObjectBuffer = mup<PerObjectBuffer>(5000, 4);
         m_globalTextureSet = mup<TextureSet>();
         for (auto& matName : PREDEFINED_MATERIALS)
         {
@@ -25,6 +24,11 @@ namespace op
         }
 
         return nullptr;
+    }
+
+    bool GameResource::IsPredefinedCbuffer(const size_t nameId)
+    {
+        return m_predefinedCbuffers.find(nameId) != m_predefinedCbuffers.end();
     }
 
     bool GameResource::NeedCreatePredefinedCbuffer(const size_t nameId)

@@ -4,7 +4,6 @@
 
 #include "event.h"
 #include "i_texture.h"
-#include "shared_object.h"
 
 namespace op
 {
