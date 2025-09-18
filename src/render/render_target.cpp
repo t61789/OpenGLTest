@@ -10,18 +10,10 @@ namespace op
      RenderTarget::RenderTarget(crvecsp<RenderTexture> renderTextures)
      {
           m_renderTextures = renderTextures;
-          if (m_renderTextures.empty())
+          m_onAnyRtResizedHandler = GenEventHandler();
+          for (auto& rt : m_renderTextures)
           {
-               m_glRenderTarget = GlRenderTarget::GetFrameRenderTarget();
-          }
-          else
-          {
-               m_glRenderTarget = msp<GlRenderTarget>();
-               m_onAnyRtResizedHandler = GenEventHandler();
-               for (auto& rt : renderTextures)
-               {
-                    rt->onResize.Add(this, &RenderTarget::OnAnyRtResized, m_onAnyRtResizedHandler);
-               }
+               rt->onResize.Add(this, &RenderTarget::OnAnyRtResized, m_onAnyRtResizedHandler);
           }
      }
 
@@ -72,11 +64,17 @@ namespace op
 
      void RenderTarget::Recreate()
      {
+          // Destroy the old one, and create a new one
+          m_glRenderTarget.reset();
+
+          // Use the frame buffer when no render textures were provided
           if (m_renderTextures.empty())
           {
+               m_glRenderTarget = GlRenderTarget::GetFrameRenderTarget();
                return;
           }
           
+          m_glRenderTarget = msp<GlRenderTarget>();
           m_glRenderTarget->StartSetting();
           for (auto& rt : m_renderTextures)
           {

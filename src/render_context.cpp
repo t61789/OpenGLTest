@@ -49,13 +49,11 @@ namespace op
 
     UsingRenderTarget RenderContext::UsingGBufferRenderTarget()
     {
-        static vecsp<RenderTexture> rts;
-        rts.clear();
-        for (auto& rt : gBufferTextures)
+        vecsp<RenderTexture> rts(gBufferTextures.size());
+        for (size_t i = 0; i < gBufferTextures.size(); ++i)
         {
-            rts.push_back(rt.lock());
+            rts[i] = gBufferTextures[i].lock();
         }
-        
         return UsingRenderTarget(rts);
     }
 }

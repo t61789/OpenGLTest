@@ -43,14 +43,14 @@ namespace op
         return true;
     }
 
-    GameFramework::GameFramework()
-    {
-    }
+    GameFramework::GameFramework() = default;
 
     GameFramework::~GameFramework()
     {
-
         ReleaseGame();
+        
+        glfwDestroyWindow(m_window);
+        glfwTerminate();
     }
 
     bool GameFramework::Init()
@@ -82,13 +82,6 @@ namespace op
             
             FrameEnd();
         }
-
-        if(m_window)
-        {
-            glfwDestroyWindow(m_window);
-            m_window = nullptr;
-        }
-        glfwTerminate();
     }
 
     bool GameFramework::KeyPressed(const int glfwKey) const

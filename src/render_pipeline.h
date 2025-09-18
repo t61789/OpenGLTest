@@ -44,7 +44,6 @@ namespace op
         up<RenderContext> m_renderContext = nullptr;
         up<CullingSystem> m_cullingSystem = nullptr;
         up<RenderTargetPool> m_renderTargetPool = nullptr;
-        sp<RenderTarget> m_gBufferTarget = nullptr;
 
         sp<RenderTexture> m_gBuffer0Tex = nullptr;
         sp<RenderTexture> m_gBuffer1Tex = nullptr;

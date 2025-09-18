@@ -48,13 +48,6 @@ namespace op
         GetGlobalTextureSet()->SetTexture(GBUFFER_1_TEX, m_gBuffer1Tex);
         GetGlobalTextureSet()->SetTexture(GBUFFER_2_TEX, m_gBuffer2Tex);
         
-        m_gBufferTarget = msp<RenderTarget>(vecsp<RenderTexture>{
-            m_gBuffer0Tex,
-            m_gBuffer1Tex,
-            m_gBuffer2Tex,
-            m_gBufferDepthTex
-        });
-
         m_passes.push_back(msp<PreparingPass>());
         // m_passes.push_back(msp<MainLightShadowPass>());
         m_passes.push_back(msp<RenderSkyboxPass>());

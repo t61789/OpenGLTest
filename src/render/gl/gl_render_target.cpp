@@ -26,7 +26,7 @@ namespace op
     {
         assert(!m_isSetting);
 
-        UnbindFrameBufferTextures(m_colorAttachments, m_depthAttachment);
+        // UnbindFrameBufferTextures(m_colorAttachments, m_depthAttachment);
 
         m_colorAttachments.clear();
         m_depthAttachment.reset();
@@ -125,18 +125,20 @@ namespace op
 
     sp<GlRenderTarget> GlRenderTarget::GetFrameRenderTarget()
     {
-        static sp<GlRenderTarget> frameRenderTarget = nullptr;
-        if (!frameRenderTarget)
+        auto frameRenderTarget = msp<GlRenderTarget>(0);
+        
+        frameRenderTarget->m_width = GameFramework::Ins()->GetScreenWidth();
+        frameRenderTarget->m_height = GameFramework::Ins()->GetScreenHeight();
+
+        std::weak_ptr weakPtr = frameRenderTarget;
+        GetGR()->onFrameBufferResize.Add([weakPtr](GLFWwindow*, const uint32_t width, const uint32_t height)
         {
-            frameRenderTarget = msp<GlRenderTarget>(0);
-            frameRenderTarget->m_width = GameFramework::Ins()->GetScreenWidth();
-            frameRenderTarget->m_height = GameFramework::Ins()->GetScreenHeight();
-            GetGR()->onFrameBufferResize.Add([](GLFWwindow*, const uint32_t width, const uint32_t height)
+            if (!weakPtr.expired())
             {
-                frameRenderTarget->m_width = width;
-                frameRenderTarget->m_height = height;
-            });
-        }
+                weakPtr.lock()->m_width = width;
+                weakPtr.lock()->m_height = height;
+            }
+        });
 
         return frameRenderTarget;
     }

@@ -21,9 +21,7 @@ namespace op
             return;
         }
         
-        static vecsp<RenderTexture> rts(1);
-        rts[0] = rt;
-        m_renderTarget = GetRC()->renderTargetPool->Push(rts);
+        m_renderTarget = GetRC()->renderTargetPool->Push(std::vector{rt});
     }
 
     UsingRenderTarget::UsingRenderTarget(crvecsp<RenderTexture> rts)
