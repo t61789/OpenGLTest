@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "const.h"
 #include "event.h"
 #include "i_texture.h"
 

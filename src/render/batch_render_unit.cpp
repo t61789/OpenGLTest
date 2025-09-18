@@ -6,15 +6,16 @@
 #include "objects/batch_render_comp.h"
 #include "utils.h"
 #include "gl/gl_buffer.h"
+#include "gl/gl_state.h"
 
 namespace op
 {
     BatchRenderUnit::BatchRenderUnit()
     {
         m_cmdBuffer = msp<GlBuffer>(GL_DRAW_INDIRECT_BUFFER);
-        m_matrixIndicesBuffer = msp<GlBuffer>(GL_SHADER_STORAGE_BUFFER, 4);
+        m_matrixIndicesBuffer = msp<GlBuffer>(GL_SHADER_STORAGE_BUFFER, 5);
         m_batchMesh = msp<BatchMesh0>();
-        m_batchMatrix = msp<BatchMatrix>(3000, 5);
+        m_batchMatrix = msp<BatchMatrix>(3000, 6);
     }
 
     void BatchRenderUnit::BindComp(BatchRenderComp* comp)
@@ -123,8 +124,6 @@ namespace op
 
     void BatchRenderUnit::CallGlCmd(const DrawContext& drawContext)
     {
-        GL_CHECK_ERROR(Begin call cmd)
-
         m_cmdBuffer->Bind();
         m_cmdBuffer->SetData(
             GL_STREAM_DRAW,
@@ -146,9 +145,7 @@ namespace op
             drawContext.material,
         });
 
-        glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawContext.cmds.size()), 0);
-
-        GL_CHECK_ERROR(End call cmd)
+        GlState::GlMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawContext.cmds.size()), 0);
     }
 
     BatchRenderUnit::IndirectCmd BatchRenderUnit::EncodePerMeshCmd(Mesh* mesh, const uint32_t instanceCount, const uint32_t baseInstanceCount)

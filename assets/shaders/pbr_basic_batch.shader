@@ -1,16 +1,13 @@
 #include "shaders/lib/common.hlsl"
-
-StructuredBuffer<uint> _BatchMatricesIndices : register(t4);
-StructuredBuffer<ObjectMatrix> _BatchMatrices : register(t5);
+#include "shaders/lib/batch_rendering.hlsl"
 
 PSInput VS_Main(VSInput input)
 {
     PSInput output;
 
-    float4x4 localToWorld = _BatchMatrices[_BatchMatricesIndices[input.id]].localToWorld;
-    output.positionCS = mul(mul(float4(input.positionOS.xyz, 1.0f), localToWorld), _VP);
+    output.positionCS = TransformObjectToHClipBatch(input.positionOS.xyz, input.id);
     output.positionSS = output.positionCS;
-    output.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz);
+    output.normalWS = TransformObjectToWorldNormalBatch(input.normalOS.xyz, input.id);
     output.uv = input.uv0;
 
     return output;

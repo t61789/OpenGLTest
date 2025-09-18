@@ -80,13 +80,17 @@ namespace op
         {
             return false;
         }
-        glBufferInfo->buffer = buffer;
-
+        
         if (buffer->GetType() == GL_ARRAY_BUFFER || buffer->GetType() == GL_ELEMENT_ARRAY_BUFFER)
         {
             auto& vao = GetVertexArray();
-            assert(!vao || (vao && vao->IsSettingAttr()));
+            if (vao && !vao->IsSettingAttr())
+            {
+                UnBindVertexArray();
+            }
         }
+        
+        glBufferInfo->buffer = buffer;
 
         glBindBuffer(buffer->GetType(), buffer->GetId());
 
@@ -911,6 +915,13 @@ namespace op
     void GlState::GlGetActiveUniform(const uint32_t programId, const uint32_t index, const uint32_t bufSize, int32_t* length, int* size, uint32_t* type, char* name)
     {
         glGetActiveUniform(programId, index, static_cast<GLsizei>(bufSize), length, size, type, name);
+
+        GlCheckError();
+    }
+
+    void GlState::GlMultiDrawElementsIndirect(const uint32_t mode, const uint32_t type, const void* indirect, const uint32_t drawCount, const uint32_t stride)
+    {
+        glMultiDrawElementsIndirect(mode, type, indirect, static_cast<GLsizei>(drawCount), static_cast<GLsizei>(stride));
 
         GlCheckError();
     }

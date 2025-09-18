@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#include "utils.h"
-
 namespace op
 {
     class GlTexture;

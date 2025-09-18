@@ -61,6 +61,7 @@ namespace op
         friend class GlShader;
         friend class RenderingUtils;
         friend class CBufferLayout;
+        friend class BatchRenderUnit;
         
     public:
         void Reset();
@@ -183,6 +184,7 @@ namespace op
         static void GlGetShaderInfoLog(uint32_t shaderId, uint32_t bufSize, char* infoLog);
         static void GlGetProgramiv(uint32_t programId, uint32_t param, int* value);
         static void GlGetActiveUniform(uint32_t programId, uint32_t index, uint32_t bufSize, int32_t* length, int* size, uint32_t* type, char* name);
+        static void GlMultiDrawElementsIndirect(uint32_t mode, uint32_t type, const void* indirect, uint32_t drawCount, uint32_t stride);
 
         static void GlUniform1i(uint32_t location, int32_t value);
         static void GlUniform1f(uint32_t location, float value);

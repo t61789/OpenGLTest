@@ -6,11 +6,15 @@
 
 namespace op
 {
-    class GlBuffer : public IGlResource, public std::enable_shared_from_this<GlBuffer>
+    class GlBuffer final : public IGlResource, public std::enable_shared_from_this<GlBuffer>
     {
     public:
         explicit GlBuffer(uint32_t type, uint32_t slot = ~0u);
         ~GlBuffer();
+        GlBuffer(const GlBuffer& other) = delete;
+        GlBuffer(GlBuffer&& other) noexcept = delete;
+        GlBuffer& operator=(const GlBuffer& other) = delete;
+        GlBuffer& operator=(GlBuffer&& other) noexcept = delete;
 
         uint32_t GetId() const { return m_id;}
         uint32_t GetType() const { return m_type;}

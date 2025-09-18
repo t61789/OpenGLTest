@@ -135,14 +135,14 @@ float4x4 GetWorldToLocal()
     return _ObjectMatrices[_ObjectIndex].worldToLocal;
 }
 
-float4 TransformObjectToHClip(float3 positionOS)
+float4 TransformObjectToHClip(float3 positionOS, float4x4 localToWorld)
 {
-    return mul(mul(float4(positionOS, 1.0f), GetLocalToWorld()), _VP);
+    return mul(mul(float4(positionOS, 1.0f), localToWorld), _VP);
 }
 
-float4 TransformObjectToHClip(float4 positionOS)
+float4 TransformObjectToHClip(float3 positionOS)
 {
-    return TransformObjectToHClip(positionOS.xyz);
+    return TransformObjectToHClip(positionOS, GetLocalToWorld());
 }
 
 float4 TransformWorldToHClip(float3 positionWS)
@@ -150,14 +150,14 @@ float4 TransformWorldToHClip(float3 positionWS)
     return mul(float4(positionWS, 1.0f), _VP);
 }
 
-float4 TransformWorldToHClip(float4 positionWS)
+float3 TransformObjectToWorldNormal(float3 normalOS, float4x4 worldToLocal)
 {
-    return TransformWorldToHClip(positionWS.xyz);
+    return mul(transpose(worldToLocal), float4(normalOS, 0.0f)).xyz;
 }
 
 float3 TransformObjectToWorldNormal(float3 normalOS)
 {
-    return mul(transpose(GetWorldToLocal()), float4(normalOS, 0.0f)).xyz;
+    return TransformObjectToWorldNormal(normalOS, GetWorldToLocal());
 }
 
 float4 SampleSkybox(float3 direction)
