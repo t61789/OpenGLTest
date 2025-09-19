@@ -6,9 +6,7 @@
 #include "object.h"
 #include "utils.h"
 #include "nlohmann/json.hpp"
-#include "objects/light_comp.h"
 #include "objects/runtime_comp.h"
-#include "objects/transform_comp.h"
 
 namespace op
 {
@@ -18,15 +16,18 @@ namespace op
     {
         for(auto& elem : children)
         {
-            auto obj = Object::CreateFromJson(elem);
-            
-            parent->AddChild(obj);
+            auto obj = Object::CreateFromJson(elem, parent);
             
             if(elem.contains("children"))
             {
                 LoadChildren(obj, elem["children"]);
             }
         }
+    }
+
+    Scene::~Scene()
+    {
+        m_sceneRoot->Destroy();
     }
 
     sp<Scene> Scene::LoadScene(cr<StringHandle> sceneJsonPath)
@@ -57,23 +58,24 @@ namespace op
             scene->LoadSceneConfig(json["config"]);
         }
 
-        if(json.contains("root"))
+        if (!json.contains("root"))
         {
-            auto rootObj = Object::Create("Scene Root");
-            rootObj->m_scene = scene;
-            scene->m_path = sceneJsonPath;
-            scene->m_sceneRoot = rootObj;
-            scene->m_sceneRoot->AddOrCreateComp<RuntimeComp>(RUNTIME_COMP);
-            
-            LoadChildren(rootObj, json["root"]);
+            throw std::runtime_error("Scene must have a root");
         }
+        
+        auto rootObj = msp<Object>();
+        rootObj->name = "Scene Root";
+        rootObj->m_scene = scene;
+        scene->m_sceneRoot = rootObj;
+        scene->m_sceneRoot->AddOrCreateComp<RuntimeComp>(RUNTIME_COMP);
+        LoadChildren(rootObj, json["root"]);
 
         GetGR()->RegisterResource(sceneJsonPath, scene);
         scene->m_path = sceneJsonPath;
         
         return scene;
     }
-
+    
     void Scene::LoadSceneConfig(cr<nlohmann::json> configJson)
     {
         if(configJson.contains("ambientLightColorSky"))

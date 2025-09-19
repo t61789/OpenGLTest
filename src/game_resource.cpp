@@ -1,6 +1,7 @@
 #include "game_resource.h"
 #include "const.h"
 #include "material.h"
+#include "scene.h"
 #include "render/gl/gl_cbuffer.h"
 
 namespace op
@@ -8,22 +9,34 @@ namespace op
     GameResource::GameResource()
     {
         m_perObjectBuffer = mup<PerObjectBuffer>(5000, 4);
-        m_globalTextureSet = mup<TextureSet>();
         for (auto& matName : PREDEFINED_MATERIALS)
         {
             m_predefinedCbuffers[matName] = nullptr;
         }
+        m_builtInRes = mup<BuiltInRes>();
+        m_globalTextureSet = mup<TextureSet>();
+        
+        m_batchRenderUnit = mup<BatchRenderUnit>();
+        m_mainScene = Scene::LoadScene("scenes/test_scene/test_scene.json");
+        // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
+        // m_scene = Scene::LoadScene("scenes/ImportTest/scene.json");
+        // m_scene = Scene::LoadScene("scenes/Scene_A/scene.json");
+        // m_scene = Scene::LoadScene("scenes/HDRP_template/scene.json");
+    }
+
+    GameResource::~GameResource()
+    {
+        m_mainScene.reset();
+        m_batchRenderUnit.reset();
+        m_globalTextureSet.reset();
+        m_builtInRes.reset();
+        m_predefinedCbuffers.clear();
+        m_perObjectBuffer.reset();
     }
 
     GlCbuffer* GameResource::GetPredefinedCbuffer(const size_t nameId)
     {
-        auto it = m_predefinedCbuffers.find(nameId);
-        if (it != m_predefinedCbuffers.end())
-        {
-            return it->second.get();
-        }
-
-        return nullptr;
+        return m_predefinedCbuffers.at(nameId).get();
     }
 
     bool GameResource::IsPredefinedCbuffer(const size_t nameId)
@@ -44,34 +57,26 @@ namespace op
     
     void GameResource::CreatePredefinedCbuffer(const size_t nameId, crsp<CBufferLayout> layout)
     {
-        auto it = m_predefinedCbuffers.find(nameId);
-        if (it == m_predefinedCbuffers.end() || it->second)
-        {
-            return;
-        }
-
-        it->second = mup<GlCbuffer>(layout);
-
-        return;
+        m_predefinedCbuffers[nameId] = mup<GlCbuffer>(layout);
     }
 
-    void GameResource::RegisterResource(cr<StringHandle> pathId, crsp<IResource> resource)
+    void GameResource::RegisterResource(cr<StringHandle> path, crsp<IResource> resource)
     {
-        assert(!GetResource(pathId));
+        assert(!GetResource(path));
         
-        m_resources[pathId] = resource;
+        m_resources[path] = resource;
     }
 
-    void GameResource::UnregisterResource(cr<StringHandle> pathId)
+    void GameResource::UnregisterResource(cr<StringHandle> path)
     {
-        assert(GetResource(pathId));
+        assert(GetResource(path));
         
-        m_resources.erase(pathId);
+        m_resources.erase(path);
     }
 
-    sp<IResource> GameResource::GetResource(cr<StringHandle> pathId)
+    sp<IResource> GameResource::GetResource(cr<StringHandle> path)
     {
-        auto it = m_resources.find(pathId);
+        auto it = m_resources.find(path);
         if (it == m_resources.end())
         {
             return nullptr;

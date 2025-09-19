@@ -1,5 +1,6 @@
 #include "batch_render_comp.h"
 
+#include "game_resource.h"
 #include "material.h"
 #include "mesh.h"
 #include "object.h"
@@ -11,12 +12,13 @@ namespace op
     void BatchRenderComp::OnEnable()
     {
         m_onTransformDirtyHandler = GetOwner()->transform->dirtyEvent.Add(this, &BatchRenderComp::OnTransformDirty);
-        BatchRenderUnit::Ins()->BindComp(this);
+        GetGR()->GetBatchRenderUnit()->BindComp(this);
     }
 
     void BatchRenderComp::OnDisable()
     {
-        BatchRenderUnit::Ins()->UnBindComp(this);
+        GetOwner()->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
+        GetGR()->GetBatchRenderUnit()->UnBindComp(this);
     }
 
     void BatchRenderComp::OnTransformDirty()
@@ -40,7 +42,7 @@ namespace op
         m_submitBuffer.localToWorld = GetOwner()->transform->GetLocalToWorld();
         m_submitBuffer.worldToLocal = GetOwner()->transform->GetWorldToLocal();
 
-        BatchRenderUnit::Ins()->UpdateMatrix(this, m_submitBuffer);
+        GetGR()->GetBatchRenderUnit()->UpdateMatrix(this, m_submitBuffer);
     }
 
     void BatchRenderComp::LoadFromJson(const nlohmann::json& objJson)

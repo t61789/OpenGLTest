@@ -20,6 +20,13 @@ namespace op
         float fogIntensity = 0.01f;
         Vec3 fogColor = Vec3(1.0f, 1.0f, 1.0f);
 
+        Scene() = default;
+        ~Scene() override;
+        Scene(const Scene& other) = delete;
+        Scene(Scene&& other) noexcept = delete;
+        Scene& operator=(const Scene& other) = delete;
+        Scene& operator=(Scene&& other) noexcept = delete;
+
         SceneObjectIndices* GetIndices() const { return m_objectIndices.get();}
         cr<StringHandle> GetPath() override { return m_path;}
         sp<Object> GetRoot() const { return m_sceneRoot;}

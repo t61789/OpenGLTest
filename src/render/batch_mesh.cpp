@@ -1,4 +1,4 @@
-#include "batch_mesh_0.h"
+#include "batch_mesh.h"
 
 #include "mesh.h"
 #include "common/elem_accessor_var.h"
@@ -8,7 +8,7 @@
 
 namespace op
 {
-    BatchMesh0::BatchMesh0()
+    BatchMesh::BatchMesh()
     {
         m_vao = msp<GlVertexArray>();
         m_vbo = msp<GlSubmitBuffer>(
@@ -31,24 +31,24 @@ namespace op
         m_vao->EndSetting();
     }
 
-    void BatchMesh0::Use()
+    void BatchMesh::Use()
     {
         assert(m_delayAddMeshes.empty());
         
         m_vao->Use();
     }
 
-    void BatchMesh0::StopUse()
+    void BatchMesh::StopUse()
     {
         m_vao->StopUse();
     }
 
-    void BatchMesh0::RegisterMesh(crsp<Mesh> mesh)
+    void BatchMesh::RegisterMesh(crsp<Mesh> mesh)
     {
         m_delayAddMeshes.push_back(mesh);
     }
 
-    void BatchMesh0::GetMeshInfo(Mesh* mesh, uint32_t& vertexOffsetB, uint32_t& vertexSizeB, uint32_t& indexOffsetB, uint32_t& indexSizeB)
+    void BatchMesh::GetMeshInfo(Mesh* mesh, uint32_t& vertexOffsetB, uint32_t& vertexSizeB, uint32_t& indexOffsetB, uint32_t& indexSizeB)
     {
         RegisterMeshActually();
 
@@ -62,7 +62,7 @@ namespace op
         m_eboAccessor->GetInfo(meshInfo->indexBufferId, indexOffsetB, indexSizeB);
     }
 
-    void BatchMesh0::RegisterMeshActually()
+    void BatchMesh::RegisterMeshActually()
     {
         if (m_delayAddMeshes.empty())
         {
@@ -108,7 +108,7 @@ namespace op
         m_ebo->Submit();
     }
 
-    crvec<float> BatchMesh0::GetFullVertexData(crwp<Mesh> meshPtr)
+    crvec<float> BatchMesh::GetFullVertexData(crwp<Mesh> meshPtr)
     {
         auto mesh = meshPtr.lock().get();
         auto vertexCount = mesh->GetVertexCount();
@@ -143,7 +143,7 @@ namespace op
         return vertexData;
     }
     
-    void BatchMesh0::ConfigVaoPointer(crsp<GlVertexArray> vao)
+    void BatchMesh::ConfigVaoPointer(crsp<GlVertexArray> vao)
     {
         for (auto& attr : VERTEX_ATTR_DEFINES)
         {

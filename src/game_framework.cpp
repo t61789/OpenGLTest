@@ -7,7 +7,6 @@
 #include "scene.h"
 #include "gui.h"
 #include "windows.h"
-#include "built_in_res.h"
 #include "objects/camera_comp.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -89,11 +88,6 @@ namespace op
         return glfwGetKey(m_window, glfwKey) == GLFW_PRESS;
     }
 
-    Scene* GameFramework::GetMainScene() const
-    {
-        return m_scene.get();
-    }
-
     bool GameFramework::InitFrame()
     {
         if(!InitGlfw())
@@ -113,7 +107,6 @@ namespace op
 
         return true;
     }
-
 
     bool GameFramework::InitGlfw()
     {
@@ -194,24 +187,35 @@ namespace op
     {
         ZoneScoped;
 
-        if(GetMainScene())
+        if(GetGR()->GetMainScene())
         {
-            auto indices = GetMainScene()->GetIndices();
-            auto comps = indices->GetAllComps();
-            for (const auto& compPtr : comps)
+            auto compStorage = GetGR()->GetMainScene()->GetIndices()->GetCompStorage();
+
+            compStorage->ForeachPendingComp([](crwp<Comp> compPtr) -> bool
             {
+                assert(!compPtr.expired());
+
                 auto comp = compPtr.lock();
-                assert(comp);
-                
-                if (!comp->IsStarted())
+                if (!comp->IsEnable())
                 {
-                    comp->Start();
-                    comp->SetIsStarted(true);
-                    comp->SetEnable(true);
+                    return false;
                 }
-                
-                comp->Update();
-            }
+
+                comp->Start();
+
+                return true;
+            });
+
+            compStorage->ForeachAllComp([](crwp<Comp> compPtr) -> void
+            {
+                assert(!compPtr.expired());
+
+                auto comp = compPtr.lock();
+                if (comp->IsEnable())
+                {
+                    comp->Update();
+                }
+            });
         }
 
         // if (scene)
@@ -241,9 +245,9 @@ namespace op
     void GameFramework::Render() const
     {
         auto mainCamera = CameraComp::GetMainCamera();
-        if(mainCamera && GetMainScene() && m_renderPipeline)
+        if(mainCamera && GetGR()->GetMainScene() && m_renderPipeline)
         {
-            m_renderPipeline->Render(mainCamera, GetMainScene());
+            m_renderPipeline->Render(mainCamera, GetGR()->GetMainScene());
         }
         else
         {
@@ -265,25 +269,18 @@ namespace op
     {
         m_glState = new GlState();
         m_gameResource = new GameResource();
-        m_onFrameBufferResizeHandler = GetGR()->onFrameBufferResize.Add(this, &GameFramework::OnSetFrameBufferResize); // TODO resize
-        
         m_gui = new Gui();
-        m_builtInRes = new BuiltInRes();
         m_renderPipeline = new RenderPipeline(m_screenWidth, m_screenHeight, m_window);
-        // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
-        m_scene = Scene::LoadScene("scenes/test_scene/test_scene.json");
-        // m_scene = Scene::LoadScene("scenes/ImportTest/scene.json");
-        // m_scene = Scene::LoadScene("scenes/Scene_A/scene.json");
-        // m_scene = Scene::LoadScene("scenes/HDRP_template/scene.json");
+        
+        m_onFrameBufferResizeHandler = GetGR()->onFrameBufferResize.Add(this, &GameFramework::OnSetFrameBufferResize); // TODO resize
     }
 
     void GameFramework::ReleaseGame()
     {
-        m_scene.reset();
-        delete m_renderPipeline;
-        delete m_builtInRes;
-        delete m_gui;
         GetGR()->onFrameBufferResize.Remove(m_onFrameBufferResizeHandler);
+        
+        delete m_renderPipeline;
+        delete m_gui;
         delete m_gameResource;
         delete m_glState;
     }

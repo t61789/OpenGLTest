@@ -1,7 +1,7 @@
 #include "batch_render_unit.h"
 
 #include "batch_matrix.h"
-#include "batch_mesh_0.h"
+#include "batch_mesh.h"
 #include "rendering_utils.h"
 #include "objects/batch_render_comp.h"
 #include "utils.h"
@@ -14,7 +14,7 @@ namespace op
     {
         m_cmdBuffer = msp<GlBuffer>(GL_DRAW_INDIRECT_BUFFER);
         m_matrixIndicesBuffer = msp<GlBuffer>(GL_SHADER_STORAGE_BUFFER, 5);
-        m_batchMesh = msp<BatchMesh0>();
+        m_batchMesh = msp<BatchMesh>();
         m_batchMatrix = msp<BatchMatrix>(3000, 6);
     }
 

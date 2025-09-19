@@ -11,18 +11,20 @@ namespace op
     class Scene;
     class Gui;
 
-    class GameFramework : public Singleton<GameFramework>
+    class GameFramework final : public Singleton<GameFramework>
     {
     public:
         GameFramework();
         ~GameFramework();
+        GameFramework(const GameFramework& other) = delete;
+        GameFramework(GameFramework&& other) noexcept = delete;
+        GameFramework& operator=(const GameFramework& other) = delete;
+        GameFramework& operator=(GameFramework&& other) noexcept = delete;
 
         bool Init();
         void GameLoop();
 
         bool KeyPressed(int glfwKey) const;
-
-        Scene* GetMainScene() const;
 
         uint32_t GetScreenWidth() const { return m_screenWidth;}
         uint32_t GetScreenHeight() const { return m_screenHeight;}
@@ -31,7 +33,6 @@ namespace op
         GLFWwindow* m_window = nullptr;
 
         Gui* m_gui = nullptr;
-        BuiltInRes* m_builtInRes = nullptr;
         RenderPipeline* m_renderPipeline = nullptr;
         GameResource* m_gameResource = nullptr;
         GlState* m_glState = nullptr;
@@ -41,13 +42,10 @@ namespace op
 
         EventHandler m_onFrameBufferResizeHandler = 0;
 
-        sp<Scene> m_scene = nullptr;
-
         void InitGame();
         void ReleaseGame();
         bool InitFrame();
         bool InitGlfw();
-        bool InitImGui(GLFWwindow* glfwWindow);
         void ProcessInput() const;
         void FrameBegin();
         void FrameEnd();
@@ -55,5 +53,7 @@ namespace op
         void Update();
         void Render() const;
         void OnSetFrameBufferResize(GLFWwindow* window, int width, int height);
+        
+        static bool InitImGui(GLFWwindow* glfwWindow);
     };
 }

@@ -20,6 +20,7 @@ namespace op
             std::function<bool(const std::weak_ptr<Comp>&, std::any&)> removeFunc;
         };
 
+        vecwp<Comp> m_pendingComps;
         vecwp<Comp> m_allComps;
         std::unordered_map<std::type_index, std::any> m_comps;
         static std::unordered_map<std::type_index, CompsAccessor> m_compAccessors;
@@ -32,37 +33,33 @@ namespace op
         crvecwp<Comp> GetAllComps() const { return m_allComps;}
         template <typename T>
         static void RegisterComp();
+
+        template <typename Func>
+        void ForeachPendingComp(Func&& func);
+        template <typename Func>
+        void ForeachAllComp(Func&& func);
     };
 
     class SceneObjectIndices
     {
         friend class Object;
         
+        wp<Scene> m_scene;
+        vecwp<Object> m_objects;
+        CompStorage m_compStorage;
+        
+        bool ObjectExists(crsp<Object> obj);
+        
     public:
         explicit SceneObjectIndices(crsp<Scene> scene);
+        
         void AddObject(crsp<Object> obj);
         void RemoveObject(crsp<Object> obj);
         void AddComp(crsp<Comp> comp);
         void RemoveComp(crsp<Comp> comp);
 
         crvecwp<Object> GetAllObjects() const { return m_objects;}
-        crvecwp<Comp> GetAllComps() const { return m_compStorage.GetAllComps();}
-        
-        template <typename T>
-        crvecwp<T> GetComps();
-        
-    private:
-        struct CompsAccessor
-        {
-            std::function<void(crwp<Comp>, std::any&)> addFunc;
-            std::function<void(crwp<Comp>, std::any&)> removeFunc;
-        };
-        
-        wp<Scene> m_scene;
-        vecwp<Object> m_objects;
-        CompStorage m_compStorage;
-        
-        bool ObjectExists(crsp<Object> obj);
+        CompStorage* GetCompStorage() { return &m_compStorage; }
     };
 
     inline void CompStorage::AddComp(const std::shared_ptr<Comp>& comp)
@@ -79,7 +76,7 @@ namespace op
             
         if (compAccessor.addFunc(comp, it->second))
         {
-            m_allComps.push_back(comp);
+            m_pendingComps.push_back(comp);
         }
     }
 
@@ -96,6 +93,11 @@ namespace op
             
         if (compAccessor.removeFunc(comp, it->second))
         {
+            op::remove_if(m_pendingComps, [&comp](crwp<Comp> x)
+            {
+                return x.lock() == comp;
+            });
+            
             op::remove_if(m_allComps, [&comp](crwp<Comp> x)
             {
                 return x.lock() == comp;
@@ -177,9 +179,36 @@ namespace op
         m_compAccessors[compTypeIndex] = std::move(compsAccessor);
     }
 
-    template <typename T>
-    crvecwp<T> SceneObjectIndices::GetComps()
+    template <typename Func>
+    void CompStorage::ForeachPendingComp(Func&& func)
     {
-        return m_compStorage.GetComps<T>();
+        static vecwp<Comp> backVec;
+        backVec.clear();
+        
+        for (const auto& comp : m_pendingComps)
+        {
+            if (func(comp))
+            {
+                m_allComps.push_back(comp);
+            }
+            else
+            {
+                backVec.push_back(comp);
+            }
+        }
+
+        m_pendingComps.swap(backVec);
+    }
+
+    template <typename Func>
+    void CompStorage::ForeachAllComp(Func&& func)
+    {
+        static vecwp<Comp> curVec;
+        curVec.assign(m_allComps.begin(), m_allComps.end());
+        
+        for (const auto& comp : curVec)
+        {
+            func(comp);
+        }
     }
 }

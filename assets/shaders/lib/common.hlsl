@@ -152,7 +152,7 @@ float4 TransformWorldToHClip(float3 positionWS)
 
 float3 TransformObjectToWorldNormal(float3 normalOS, float4x4 worldToLocal)
 {
-    return mul(transpose(worldToLocal), float4(normalOS, 0.0f)).xyz;
+    return mul(float4(normalOS, 0.0f), transpose(worldToLocal)).xyz;
 }
 
 float3 TransformObjectToWorldNormal(float3 normalOS)

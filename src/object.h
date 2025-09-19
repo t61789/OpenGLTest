@@ -19,42 +19,46 @@ namespace op
         friend class SceneObjectIndices;
         
     public:
-        bool enabled = true;
-        
         StringHandle name = UNNAMED_OBJECT;
 
         TransformComp* transform = nullptr;
         wp<Object> parent;
-
+        
         Object() = default;
+
+        bool IsEnable() const { return m_realEnable;}
+        crvecsp<Object> GetChildren() const { return m_children;}
+        crvecsp<Comp> GetComps() const { return m_comps;}
+        std::string GetPathInScene() const;
 
         void LoadFromJson(const nlohmann::json& objJson);
 
-        void AddChild(crsp<Object> child);
-        void RemoveChild(crsp<Object> child);
-        crvecsp<Object> GetChildren() const { return m_children;}
-        std::string GetPathInScene() const;
+        void SetEnable(bool enable);
+        void SetParent(crsp<Object> obj);
+        void Destroy();
 
         bool HasComp(cr<StringHandle> compName);
         sp<Comp> GetComp(cr<StringHandle> compName);
         sp<Comp> AddOrCreateComp(cr<StringHandle> compName, const nlohmann::json& compJson = nlohmann::json::object());
-        crvecsp<Comp> GetComps();
         
         template <typename T>
         sp<T> GetComp(cr<StringHandle> compName);
         template <typename T>
         sp<T> AddOrCreateComp(cr<StringHandle> compName, const nlohmann::json& compJson = nlohmann::json::object());
         
-        static sp<Object> Create(cr<StringHandle> name = UNNAMED_OBJECT);
-        static sp<Object> CreateFromJson(const nlohmann::json& objJson);
+        static sp<Object> Create(cr<StringHandle> name = UNNAMED_OBJECT, crsp<Object> parent = nullptr);
+        static sp<Object> CreateFromJson(const nlohmann::json& objJson, crsp<Object> parent = nullptr);
 
     private:
-        wp<Scene> m_scene;
         vecsp<Comp> m_comps;
         vecsp<Object> m_children;
+        wp<Scene> m_scene;
+        bool m_enable = true;
+        bool m_realEnable = true;
         
         static std::unordered_map<string_hash, std::function<sp<Comp>()>> m_compConstructors;
 
+        void UpdateRealEnable();
         void AddCompsFromJsons(const std::vector<nlohmann::json>& compJsons);
 
         static void InitComps();

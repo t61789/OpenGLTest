@@ -23,10 +23,12 @@ float4 PS_Main(PSInput input) : SV_TARGET
     {
         float3 col = Lit(input.positionSS.xyz, normalWS, albedo);
         finalColor.rgb = col;
+        // finalColor.rgb = lerp(finalColor.rgb, normalWS, 0.99f);
     }
     else
     {
         finalColor.rgb = albedo;
+        // finalColor.rgb = normalWS;
     }
 
     return finalColor;

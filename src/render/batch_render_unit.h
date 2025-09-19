@@ -8,12 +8,12 @@
 
 namespace op
 {
-    class BatchMesh0;
+    class BatchMesh;
     class Mesh;
     class Material;
     class BatchRenderComp;
     
-    class BatchRenderUnit final : public Singleton<BatchRenderUnit>
+    class BatchRenderUnit
     {
     public:
         BatchRenderUnit();
@@ -55,7 +55,7 @@ namespace op
         
         sp<GlBuffer> m_cmdBuffer = nullptr;
         sp<GlBuffer> m_matrixIndicesBuffer = nullptr;
-        sp<BatchMesh0> m_batchMesh = nullptr;
+        sp<BatchMesh> m_batchMesh = nullptr;
         sp<BatchMatrix> m_batchMatrix = nullptr;
 
         void EncodePerMaterialCmds(DrawContext& drawContext);

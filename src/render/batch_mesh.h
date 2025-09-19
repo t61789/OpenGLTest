@@ -11,10 +11,10 @@ namespace op
     class GlVertexArray;
     class GlSubmitBuffer;
     
-    class BatchMesh0 final
+    class BatchMesh final
     {
     public:
-        BatchMesh0();
+        BatchMesh();
 
         void Use();
         void StopUse();

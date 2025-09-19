@@ -36,7 +36,7 @@ namespace op
 
     void ControlPanelUi::DrawSceneInfo()
     {
-        auto scene = GameFramework::Ins()->GetMainScene();
+        auto scene = GetGR()->GetMainScene();
         if (!scene)
         {
             return;

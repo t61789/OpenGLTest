@@ -1,8 +1,7 @@
 ﻿#include "object.h"
 
-#include <memory.h>
-
 #include "const.h"
+#include "game_resource.h"
 #include "scene.h"
 #include "scene_object_indices.h"
 #include "utils.h"
@@ -17,18 +16,40 @@ namespace op
 {
     std::unordered_map<string_hash, std::function<sp<Comp>()>> Object::m_compConstructors;
     
-    sp<Object> Object::Create(const StringHandle& name)
+    sp<Object> Object::Create(cr<StringHandle> name, crsp<Object> parent)
     {
         auto result = msp<Object>();
         result->name = name;
+
+        if (parent)
+        {
+            result->SetParent(parent);
+        }
+        else
+        {
+            result->SetParent(GetGR()->GetMainScene()->GetRoot());
+        }
+        
         result->LoadFromJson(nlohmann::json::object());
+        
         return result;
     }
     
-    sp<Object> Object::CreateFromJson(const nlohmann::json& objJson)
+    sp<Object> Object::CreateFromJson(const nlohmann::json& objJson, crsp<Object> parent)
     {
         auto result = msp<Object>();
+        
+        if (parent)
+        {
+            result->SetParent(parent);
+        }
+        else
+        {
+            result->SetParent(GetGR()->GetMainScene()->GetRoot());
+        }
+        
         result->LoadFromJson(objJson);
+        
         return result;
     }
 
@@ -44,71 +65,124 @@ namespace op
         }
     }
 
-    void Object::AddChild(crsp<Object> child)
+    void Object::SetEnable(const bool enable)
     {
-        if(exists(m_children, child))
+        if (enable && !m_enable)
         {
-            return;
-        }
+            m_enable = true;
 
-        auto curObj = parent.lock();
-        while (curObj)
+            UpdateRealEnable();
+        }
+        else if (!enable && m_enable)
         {
-            if (curObj == child)
-            {
-                log_warning("Can not add a child that is any of its superior nodes");
-                return; // 这个child不能是自己上级的任何一个节点
-            }
+            m_enable = false;
 
-            curObj = curObj->parent.lock();
+            UpdateRealEnable();
         }
-
-        // child有parent的话先解绑
-        if (!child->parent.expired())
-        {
-            child->parent.lock()->RemoveChild(child);
-        }
-        child->parent = shared_from_this();
-        
-        if (!m_scene.expired())
-        {
-            m_scene.lock()->GetIndices()->AddObject(child);
-        }
-        
-        m_children.push_back(child);
     }
 
-    void Object::RemoveChild(crsp<Object> child)
+    void Object::SetParent(crsp<Object> obj)
     {
-        auto it = std::find(m_children.begin(), m_children.end(), child);
-        if(it == m_children.end())
+        auto newParent = obj ? obj : GetGR()->GetMainScene()->GetRoot();
+        
+        if (newParent == this->parent.lock())
         {
             return;
         }
 
-        assert(child->parent.lock() == shared_from_this());
+        auto curObj = newParent.get();
+        while (curObj)
+        {
+            if (curObj == this)
+            {
+                log_warning("The current node cannot be any ancestor of the target node");
+                return;
+            }
 
-        child->parent.reset();
+            curObj = curObj->parent.lock().get();
+        }
+
+        // Remove from the old parent when parent exists
+        if (!parent.expired())
+        {
+            remove(parent.lock()->m_children, shared_from_this());
+            parent.reset();
+        }
+
+        assert(!exists(obj->m_children, shared_from_this()));
+
+        obj->m_children.push_back(shared_from_this());
+        if (obj->m_scene.lock() != m_scene.lock())
+        {
+            if (!m_scene.expired())
+            {
+                m_scene.lock()->GetIndices()->RemoveObject(shared_from_this());
+            }
+
+            if (!obj->m_scene.expired())
+            {
+                obj->m_scene.lock()->GetIndices()->AddObject(shared_from_this());
+            }
+
+            m_scene = obj->m_scene;
+        }
+    }
+
+    void Object::Destroy()
+    {
+        for (auto& child : m_children)
+        {
+            child->Destroy();
+        }
         
+        if (!parent.expired())
+        {
+            remove(parent.lock()->m_children, shared_from_this());
+            parent.reset();
+        }
+
         if (!m_scene.expired())
         {
-            m_scene.lock()->GetIndices()->RemoveObject(child);
+            m_scene.lock()->GetIndices()->RemoveObject(shared_from_this());
         }
-        m_children.erase(it);
+        
+        for (auto& comp: m_comps)
+        {
+            comp->Destroy();
+        }
     }
 
     std::string Object::GetPathInScene() const
     {
         vec<std::string> path;
         
-        auto curObj = shared_from_this();
+        auto curObj = this;
         while (curObj)
         {
             path.push_back(curObj->name);
-            curObj = curObj->parent.lock();
+            curObj = curObj->parent.lock().get();
         }
 
         return join(path, "/");
+    }
+
+    void Object::UpdateRealEnable()
+    {
+        m_realEnable = m_enable;
+        if (!parent.expired())
+        {
+            m_realEnable = m_realEnable && parent.lock()->IsEnable();
+        }
+
+        for (auto& comp: m_comps)
+        {
+            comp->UpdateRealEnable();
+        }
+
+        for (auto& child : m_children)
+        {
+            child->UpdateRealEnable();
+        }
     }
 
     bool Object::HasComp(cr<StringHandle> compName)
@@ -128,11 +202,6 @@ namespace op
             return nullptr;
         }
         return *result;
-    }
-
-    crvecsp<Comp> Object::GetComps()
-    {
-        return m_comps;
     }
 
     const std::function<sp<Comp>()>& Object::GetCompConstructor(cr<StringHandle> compNameId)
@@ -177,7 +246,7 @@ namespace op
             Utils::MergeJson(*it, compFromFile);
         }
     }
-    
+
     void Object::AddCompsFromJsons(const std::vector<nlohmann::json>& compJsons)
     {
         for (auto& compJson : compJsons)
@@ -213,7 +282,6 @@ namespace op
         #undef REGISTER_COMP
     }
 
-    // todo 改成泛型
     sp<Comp> Object::AddOrCreateComp(cr<StringHandle> compName, const nlohmann::json& compJson)
     {
         auto comp = GetComp<Comp>(compName);
@@ -238,6 +306,7 @@ namespace op
         comp->LoadFromJson(compJson);
 
         comp->Awake();
+        comp->SetEnable(true);
 
         return comp;
     }

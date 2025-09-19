@@ -17,20 +17,22 @@ namespace op
         friend class GameFramework;
         friend class SceneObjectIndices;
         friend class Scene;
+        friend class CompStorage;
         
     public:
-        void SetEnable(bool enable);
-        bool GetEnable() { return m_enable;}
         Object* GetOwner() const { return m_owner; }
         cr<StringHandle> GetName() const { return m_name; }
         std::type_index GetType() const { return m_type; }
+        
+        void SetEnable(bool enable);
+        bool IsEnable() const { return m_realEnable; }
 
         virtual void Awake(){}
         virtual void Start(){}
+        virtual void Update(){}
         virtual void OnDestroy(){}
         virtual void OnEnable(){}
         virtual void OnDisable(){}
-        virtual void Update(){}
 
         Comp() = default;
         virtual ~Comp() = default;
@@ -42,15 +44,16 @@ namespace op
         virtual void LoadFromJson(cr<nlohmann::json> objJson) {}
 
     private:
-        bool m_isStarted = false;
         bool m_enable = false;
+        bool m_realEnable = false;
         StringHandle m_name;
         Object* m_owner = nullptr;
         Scene* m_scene = nullptr;
         std::type_index m_type = std::type_index(typeid(Comp));
         
-        bool IsStarted() const { return m_isStarted;}
-        void SetIsStarted(const bool val) { m_isStarted = val;}
+        void Destroy();
+        void UpdateRealEnable();
+        
         void SetName(cr<StringHandle> name) { m_name = name;}
         void SetType(const std::type_index type) { m_type = type;}
     };

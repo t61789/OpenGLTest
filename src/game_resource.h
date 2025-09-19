@@ -1,6 +1,8 @@
 #pragma once
+#include "built_in_res.h"
 #include "i_resource.h"
 #include "utils.h"
+#include "render/batch_render_unit.h"
 #include "render/per_object_buffer.h"
 #include "render/texture_set.h"
 #include "render/gl/gl_cbuffer.h"
@@ -8,6 +10,7 @@
 struct GLFWwindow;
 namespace op
 {
+    class Scene;
     class RenderTexture;
     class Material;
     struct CBufferLayout;
@@ -20,9 +23,17 @@ namespace op
         Event<GLFWwindow*, int, int> onFrameBufferResize;
 
         GameResource();
+        ~GameResource();
+        GameResource(const GameResource& other) = delete;
+        GameResource(GameResource&& other) noexcept = delete;
+        GameResource& operator=(const GameResource& other) = delete;
+        GameResource& operator=(GameResource&& other) noexcept = delete;
 
+        Scene* GetMainScene() const { return m_mainScene.get();}
         TextureSet* GetGlobalTextureSet() const { return m_globalTextureSet.get();}
         PerObjectBuffer* GetPerObjectBuffer() const { return m_perObjectBuffer.get();}
+        BatchRenderUnit* GetBatchRenderUnit() const { return m_batchRenderUnit.get();}
+        
         GlCbuffer* GetPredefinedCbuffer(size_t nameId);
         bool IsPredefinedCbuffer(size_t nameId);
         bool NeedCreatePredefinedCbuffer(size_t nameId);
@@ -30,15 +41,18 @@ namespace op
 
         template <typename T>
         sp<T> GetResource(cr<StringHandle> path);
-        sp<IResource> GetResource(cr<StringHandle> pathId);
-        void RegisterResource(cr<StringHandle> pathId, crsp<IResource> resource);
-        void UnregisterResource(cr<StringHandle> pathId);
+        sp<IResource> GetResource(cr<StringHandle> path);
+        void RegisterResource(cr<StringHandle> path, crsp<IResource> resource);
+        void UnregisterResource(cr<StringHandle> path);
 
     private:
         up<PerObjectBuffer> m_perObjectBuffer;
         umap<string_hash, wp<IResource>> m_resources;
         umap<string_hash, up<GlCbuffer>> m_predefinedCbuffers;
         up<TextureSet> m_globalTextureSet;
+        up<BatchRenderUnit> m_batchRenderUnit;
+        sp<Scene> m_mainScene = nullptr;
+        up<BuiltInRes> m_builtInRes = nullptr;
     };
 
     template <typename T>
