@@ -13,6 +13,7 @@ namespace op
     class Mesh final : public IResource
     {
         friend sp<Mesh> std::make_shared<Mesh>();
+        friend class MeshCacheMgr;
         
     public:
         struct VertexAttrInfo
@@ -49,14 +50,15 @@ namespace op
         vec<float> m_vertexData;
         vec<uint32_t> m_indexData;
         umap<VertexAttr, VertexAttrInfo> m_vertexAttribInfo;
-        
+
+        static sp<Mesh> LoadFromFileImp(crstr modelPath);
         static up<Assimp::Importer> ImportFile(crstr modelPath);
         static void GetMeshLoadConfig(crstr modelPath, float& initScale, bool& flipWindingOrder);
         static sp<Mesh> CreateMesh(
-            std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo,
-            std::vector<float>& vertexData,
-            std::vector<uint32_t>& indices,
-            const Bounds& bounds,
+            umap<VertexAttr, VertexAttrInfo>&& vertexAttribInfo,
+            vec<float>&& vertexData,
+            vec<uint32_t>&& indices,
+            cr<Bounds> bounds,
             uint32_t vertexCount);
         static void CalcVertexAttrOffset(std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo);
     };

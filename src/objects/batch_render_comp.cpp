@@ -1,5 +1,7 @@
 #include "batch_render_comp.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "game_resource.h"
 #include "material.h"
 #include "mesh.h"
@@ -54,12 +56,16 @@ namespace op
     {
         if(objJson.contains("mesh"))
         {
+            ZoneScopedN("Load Mesh");
+            
             auto meshPath = objJson["mesh"].get<std::string>();
             m_mesh = Mesh::LoadFromFile(meshPath);
         }
 
         if(objJson.contains("material"))
         {
+            ZoneScopedN("Load Material");
+            
             auto matPath = objJson["material"].get<std::string>();
             m_material = Material::LoadFromFile(matPath);
         }

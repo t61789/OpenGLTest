@@ -96,7 +96,7 @@ namespace op
         for (const auto& meshPtr : needAddMeshes)
         {
             auto mesh = meshPtr.lock().get();
-            auto& vertexData = GetFullVertexData(meshPtr);
+            auto& vertexData = mesh->GetVertexData();
             auto& indexData = mesh->GetIndexData();
 
             auto vertexBufferId = m_vboAccessor->Alloc(vertexData.size() * sizeof(float));

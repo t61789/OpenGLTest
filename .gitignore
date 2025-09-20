@@ -250,3 +250,5 @@ imgui.ini
 build/*
 
 !/lib/**
+
+assets/cache/*

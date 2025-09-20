@@ -1,6 +1,8 @@
 ﻿#include "image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include <tracy/Tracy.hpp>
+
 #include "built_in_res.h"
 #include "game_resource.h"
 #include "utils.h"
@@ -40,6 +42,8 @@ namespace op
         stbi_uc* data;
         try
         {
+            ZoneScopedN("Load Image Data");
+            
             data = stbi_load(Utils::GetAbsolutePath(path).c_str(), &width, &height, &nChannels, 0);
             if(!data)
             {

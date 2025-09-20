@@ -53,6 +53,20 @@ namespace op
         return fs::exists(absPath);
     }
 
+    size_t Utils::GetFileHash(const std::string& path)
+    {
+        std::ifstream file(GetAbsolutePath(path), std::ios::binary);
+        if (!file)
+        {
+            return 0;
+        }
+
+        std::hash<std::string> hasher;
+        auto content = std::string(std::istreambuf_iterator(file), std::istreambuf_iterator<char>());
+
+        return hasher(content);
+    }
+
     std::string Utils::GetCurrentTimeFormatted()
     {
         // 获取当前时间点

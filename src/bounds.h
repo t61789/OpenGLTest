@@ -12,5 +12,12 @@ namespace op
 
         Bounds() = default;
         Bounds(const Vec3& center, const Vec3& extents);
+
+        template <typename Archive>
+        void serialize(Archive& archive, unsigned int version)
+        {
+            archive & center.x & center.y & center.z;
+            archive & extents.x & extents.y & extents.z;
+        }
     };
 }

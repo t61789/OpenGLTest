@@ -16,9 +16,9 @@
             0.46
         ],
         "mainLightColor": [
-            0.7,
-            0.7,
-            0.7
+            3.7,
+            3.7,
+            3.7
         ],
         "mainLightDirection": [
             -1,
@@ -66,9 +66,9 @@
                 {
                     "name": "LightComp",
                     "color": [
-                        0.7,
-                        0.7,
-                        0.7
+                        3.7,
+                        3.7,
+                        3.7
                     ],
                     "light_type": 0,
                     "intensity": 1

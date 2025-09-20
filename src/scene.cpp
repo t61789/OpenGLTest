@@ -1,6 +1,7 @@
 ﻿#include "scene.h"
 
 #include <filesystem>
+#include <tracy/Tracy.hpp>
 
 #include "game_resource.h"
 #include "object.h"
@@ -39,6 +40,8 @@ namespace op
                 return result;
             }
         }
+        
+        ZoneScoped;
 
         auto scene = msp<Scene>();
         scene->m_objectIndices = mup<SceneObjectIndices>(scene);

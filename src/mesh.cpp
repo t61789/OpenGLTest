@@ -6,10 +6,11 @@
 #include "assimp/postprocess.h"
 #include <fstream>
 #include <mutex>
+#include <tracy/Tracy.hpp>
 
 #include "game_resource.h"
+#include "mesh_cache_mgr.h"
 #include "render/gl/gl_buffer.h"
-#include "render/gl/gl_state.h"
 #include "render/gl/gl_vertex_array.h"
 
 namespace op
@@ -27,7 +28,21 @@ namespace op
                 return mesh;
             }
         }
+        
+        ZoneScoped;
 
+        auto result = MeshCacheMgr::GetMeshFromCache(modelPath);
+
+        GetGR()->RegisterResource(modelPath, result);
+        result->m_path = modelPath;
+        
+        log_info("Load mesh succeed: %s", modelPath.c_str());
+        
+        return result;
+    }
+
+    sp<Mesh> Mesh::LoadFromFileImp(crstr modelPath)
+    {
         auto importer = ImportFile(modelPath);
         auto scene = importer->GetScene();
 
@@ -121,17 +136,12 @@ namespace op
         bounds.extents = max(bounds.extents, Vec3(0.01f));
 
         auto result = CreateMesh(
-            vertexAttribInfo,
-            vertexData,
-            indices,
+            std::move(vertexAttribInfo),
+            std::move(vertexData),
+            std::move(indices),
             bounds,
             verticesCount);
 
-        GetGR()->RegisterResource(modelPath, result);
-        result->m_path = modelPath;
-        
-        log_info("成功载入Mesh: %s", modelPath.c_str());
-        
         return result;
     }
 
@@ -165,10 +175,10 @@ namespace op
     }
     
     sp<Mesh> Mesh::CreateMesh(
-        std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo,
-        std::vector<float>& vertexData,
-        std::vector<uint32_t>& indices,
-        const Bounds& bounds,
+        umap<VertexAttr, VertexAttrInfo>&& vertexAttribInfo,
+        vec<float>&& vertexData,
+        vec<uint32_t>&& indices,
+        cr<Bounds> bounds,
         const uint32_t vertexCount)
     {
         auto vertexDataStrideB = static_cast<int>(vertexData.size() / vertexCount * sizeof(float));

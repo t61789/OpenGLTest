@@ -4,6 +4,9 @@
 #include <sstream>
 #include <random>
 #include <cstddef>
+#include <fstream>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -32,6 +35,7 @@ namespace op
         static std::vector<std::string> ToDirectories(const std::string& path);
         static std::string GetAbsolutePath(const std::string& relativePath);
         static bool AssetExists(const std::string& path);
+        static size_t GetFileHash(const std::string& path);
 
         static std::string GetCurrentTimeFormatted(); 
 
@@ -41,6 +45,11 @@ namespace op
         static nlohmann::json GetResourceMeta(const std::string& assetPath);
         static std::vector<uint8_t> Base64ToBinary(const std::string& base64Str);
         static std::vector<uint32_t> Binary8To32(const std::vector<uint8_t>& data);
+
+        template <typename T>
+        static void BinarySerialize(T& obj, crstr path);
+        template <class T>
+        static void BinaryDeserialize(T& obj, crstr path);
     };
 
     template <typename... Args>
@@ -400,6 +409,40 @@ namespace op
         case GL_FLOAT_MAT4x3: return 48; // 4×vec3
         default: return 0;
         }
+    }
+
+    template <typename T>
+    void Utils::BinarySerialize(T& obj, crstr path)
+    {
+        auto absPath = GetAbsolutePath(path);
+        auto parentDirPath = std::filesystem::path(absPath).parent_path();
+        if (!exists(parentDirPath))
+        {
+            create_directories(parentDirPath);
+        }
+        
+        std::ofstream ofs(absPath, std::ios::binary);
+        if (!ofs)
+        {
+            throw std::runtime_error(format_log(Error, "Unable to serialize: %s", path.c_str()));
+        }
+        
+        boost::archive::binary_oarchive oa(ofs);
+        oa << obj;
+    }
+
+    template <typename T>
+    void Utils::BinaryDeserialize(T& obj, crstr path)
+    {
+        auto absPath = GetAbsolutePath(path);
+        std::ifstream ifs(absPath, std::ios::binary);
+        if (!ifs)
+        {
+            throw std::runtime_error(format_log(Error, "Unable to deserialize: %s", path.c_str()));
+        }
+    
+        boost::archive::binary_iarchive ia(ifs);
+        ia >> obj;
     }
 
     template<typename T>

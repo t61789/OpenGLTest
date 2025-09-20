@@ -343,7 +343,13 @@ namespace op
             return result;
         }
         
-    #pragma endregion 
+    #pragma endregion
+
+        template <typename Archive>
+        void serialize(Archive& archive, const unsigned int version)
+        {
+            archive & x & y & z;
+        }
     };
 
     struct alignas(16) Vec4
