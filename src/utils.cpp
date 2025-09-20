@@ -55,16 +55,32 @@ namespace op
 
     size_t Utils::GetFileHash(const std::string& path)
     {
-        std::ifstream file(GetAbsolutePath(path), std::ios::binary);
+        auto filename = GetAbsolutePath(path);
+        std::ifstream file(filename, std::ios::binary);
         if (!file)
         {
-            return 0;
+            throw std::runtime_error("无法打开文件");
         }
-
+    
         std::hash<std::string> hasher;
-        auto content = std::string(std::istreambuf_iterator(file), std::istreambuf_iterator<char>());
-
-        return hasher(content);
+        size_t finalHash = 0;
+        char buffer[4096];
+    
+        while (file.read(buffer, sizeof(buffer)))
+        {
+            std::string chunk(buffer, sizeof(buffer));
+            size_t chunkHash = hasher(chunk);
+            finalHash ^= chunkHash + 0x9e3779b9 + (finalHash << 6) + (finalHash >> 2);
+        }
+    
+        if (file.gcount() > 0)
+        {
+            std::string lastChunk(buffer, file.gcount());
+            size_t chunkHash = hasher(lastChunk);
+            finalHash ^= chunkHash + 0x9e3779b9 + (finalHash << 6) + (finalHash >> 2);
+        }
+    
+        return finalHash;
     }
 
     std::string Utils::GetCurrentTimeFormatted()
