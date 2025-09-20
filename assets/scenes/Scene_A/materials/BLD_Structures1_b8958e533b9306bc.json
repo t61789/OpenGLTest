@@ -1,5 +1,5 @@
 {
-  "shader": "shaders/lit.glsl",
+  "shader": "shaders/pbr_basic_batch.shader",
   "_Albedo": [
     1.0,
     1.0,
