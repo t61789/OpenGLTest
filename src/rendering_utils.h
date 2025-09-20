@@ -23,6 +23,7 @@ namespace op
         {
             Mesh* mesh = nullptr;
             Material* material = nullptr;
+            bool hasOddNegativeScale = false;
             std::optional<uint32_t> objectIndex = std::nullopt;
         };
         

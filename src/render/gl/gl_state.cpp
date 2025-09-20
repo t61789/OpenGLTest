@@ -290,8 +290,20 @@ namespace op
         return resultSlots;
     }
 
-    void GlState::SetCullMode(const CullMode mode)
+    void GlState::SetCullMode(CullMode mode, const bool hasOddNegativeScale)
     {
+        if (hasOddNegativeScale)
+        {
+            if (mode == CullMode::FRONT)
+            {
+                mode = CullMode::BACK;
+            }
+            else if (mode == CullMode::BACK)
+            {
+                mode = CullMode::FRONT;
+            }
+        }
+        
         if (m_glCullMode == mode)
         {
             return;

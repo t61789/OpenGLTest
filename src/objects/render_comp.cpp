@@ -53,6 +53,11 @@ namespace op
         return m_worldBounds;
     }
 
+    bool RenderComp::HasOddNegativeScale() const
+    {
+        return GetOwner()->transform->HasOddNegativeScale();
+    }
+
     void RenderComp::OnTransformDirty()
     {
         m_transformDirty = true;
@@ -86,10 +91,10 @@ namespace op
 
     void RenderComp::UpdatePerObjectBuffer()
     {
-        GetGR()->GetPerObjectBuffer()->SubmitData(m_perObjectBufferIndex,
-        {
-            GetOwner()->transform->GetLocalToWorld(),
-            GetOwner()->transform->GetWorldToLocal()
-        });
+        PerObjectBuffer::Elem submitBuffer;
+        submitBuffer.localToWorld = GetOwner()->transform->GetLocalToWorld();
+        submitBuffer.worldToLocal = GetOwner()->transform->GetWorldToLocal();
+        
+        GetGR()->GetPerObjectBuffer()->SubmitData(m_perObjectBufferIndex, submitBuffer);
     }
 }

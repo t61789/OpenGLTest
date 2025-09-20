@@ -19,11 +19,12 @@ namespace op
         void OnDestroy() override;
         void UpdateTransform();
         cr<Bounds> GetWorldBounds();
-
+        
+        bool HasOddNegativeScale() const;
         sp<Mesh> GetMesh() const { return m_mesh;}
         sp<Material> GetMaterial() const { return m_material;}
         uint32_t GetObjectIndex() const { return m_perObjectBufferIndex;}
-    
+
         void LoadFromJson(const nlohmann::json& objJson) override;
 
     private:

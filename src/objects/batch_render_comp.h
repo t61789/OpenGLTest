@@ -21,6 +21,7 @@ namespace op
         void OnEnable() override;
         void OnDisable() override;
         void UpdateTransform();
+        bool HasONS();
 
         void LoadFromJson(cr<nlohmann::json> objJson) override;
 

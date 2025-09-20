@@ -15,6 +15,23 @@ namespace op
     
     class BatchRenderUnit
     {
+        struct PerCmdKey
+        {
+            Material* material = nullptr;
+            bool hasONS = false;
+
+            bool operator==(const PerCmdKey& rhs) const;
+            bool operator!=(const PerCmdKey& rhs) const;
+        };
+
+        struct PerSubCmdKey
+        {
+            Mesh* mesh = nullptr;
+
+            bool operator==(const PerSubCmdKey& rhs) const;
+            bool operator!=(const PerSubCmdKey& rhs) const;
+        };
+        
     public:
         BatchRenderUnit();
 
@@ -49,6 +66,8 @@ namespace op
 
             vec<IndirectCmd> cmds;
             vec<uint32_t> matrixIndices;
+
+            bool hasONS = false;
         };
 
         vec<CompInfo> m_comps;

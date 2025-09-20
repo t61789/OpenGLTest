@@ -95,8 +95,8 @@ namespace op
         end_debug_group();
 
         GlState::Ins()->Reset();
-
-        GL_CHECK_ERROR(帧绘制结束)
+        //
+        // GL_CHECK_ERROR(帧绘制结束)
 
         SwapBuffers();
     }

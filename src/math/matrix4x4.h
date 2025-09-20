@@ -144,7 +144,8 @@ namespace op
 
                 if (std::abs(aug[max_row * 8 + col]) < EPSILON)
                 {
-                    throw std::runtime_error("奇异矩阵无法求逆");
+                    // throw std::runtime_error("奇异矩阵无法求逆");
+                    return {};
                 }
 
                 // 交换当前行和主元行
@@ -188,6 +189,13 @@ namespace op
             return result;
         }
 
+        float Determinant3() const
+        {
+            return m_data[0] * (m_data[5] * m_data[10] - m_data[6] * m_data[9])
+                - m_data[1] * (m_data[4] * m_data[10] - m_data[6] * m_data[8])
+                + m_data[2] * (m_data[4] * m_data[9] - m_data[5] * m_data[8]);
+        }
+
         float* GetData()
         {
             return m_data;
@@ -201,6 +209,11 @@ namespace op
         void SetRow(const int row, const Vec4 v)
         {
             memcpy(m_data + static_cast<size_t>(row) * 4, &v.x, sizeof(float) * 4);
+        }
+
+        float At(const int row, const int col) const
+        {
+            return m_data[static_cast<size_t>(row) * 4 + col];
         }
 
         Vec4 GetRow(const int row)

@@ -24,6 +24,8 @@ namespace op
         void SetRotation(Quaternion& rotation);
         Vec3 GetEulerAngles();
         void SetEulerAngles(const Vec3& ea);
+
+        bool HasOddNegativeScale();
     
         void UpdateMatrix();
     
@@ -45,6 +47,9 @@ namespace op
         };
     
         bool m_dirty = true;
+
+        bool m_hasOddNegativeScale = false;
+        
         TransformCompProp<Vec3> m_position = TransformCompProp(Vec3());
         TransformCompProp<Quaternion> m_rotation = TransformCompProp(Quaternion());
         TransformCompProp<Vec3> m_eulerAngles = TransformCompProp(Vec3());

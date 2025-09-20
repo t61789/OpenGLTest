@@ -48,6 +48,7 @@ namespace op
         RenderMesh({
             mesh,
             material,
+            renderComp->HasOddNegativeScale(),
             renderComp->GetObjectIndex()
         });
     }
@@ -108,7 +109,7 @@ namespace op
         material->UseCBuffer();
         
         // Set Render State
-        GlState::Ins()->SetCullMode(material->cullMode);
+        GlState::Ins()->SetCullMode(material->cullMode, renderParam.hasOddNegativeScale);
         GlState::Ins()->SetBlendMode(material->blendMode);
         GlState::Ins()->SetDepthMode(material->depthMode);
     }

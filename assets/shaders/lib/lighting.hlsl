@@ -21,5 +21,8 @@ ParallelLightInfo GetParallelLightInfo(int index)
 float3 Lit(float3 positionWS, float3 normalWS, float3 albedo)
 {
     ParallelLightInfo mainLight = GetParallelLightInfo(0);
-    return dot(mainLight.direction, normalWS) * 0.5 + 0.5;
+    float3 finalColor = dot(mainLight.direction, normalWS) * 0.5 + 0.5;
+    finalColor *= mainLight.color * albedo / 3.1415926;
+
+    return finalColor;
 }

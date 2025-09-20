@@ -12,6 +12,26 @@
 
 namespace op
 {
+    bool BatchRenderUnit::PerCmdKey::operator==(const PerCmdKey& rhs) const
+    {
+        return material == rhs.material && hasONS == rhs.hasONS;
+    }
+
+    bool BatchRenderUnit::PerCmdKey::operator!=(const PerCmdKey& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    bool BatchRenderUnit::PerSubCmdKey::operator==(const PerSubCmdKey& rhs) const
+    {
+        return mesh == rhs.mesh;
+    }
+
+    bool BatchRenderUnit::PerSubCmdKey::operator!=(const PerSubCmdKey& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
     BatchRenderUnit::BatchRenderUnit()
     {
         m_cmdBuffer = msp<GlBuffer>(GL_DRAW_INDIRECT_BUFFER);
@@ -58,29 +78,40 @@ namespace op
             
             std::sort(m_comps.begin(), m_comps.end(), CompComparer);
         }
-        
+
         static DrawContext drawContext;
 
-        Material* curMaterial = nullptr;
+        PerCmdKey curPerCmdKey;
         for (auto it = m_comps.begin(); it != m_comps.end(); ++it)
         {
             drawContext.sameMatCompsEnd = it;
             auto& comp = it->comp;
-            if (comp->GetMaterial().get() != curMaterial)
+
+            PerCmdKey perCmdKey = {
+                comp->GetMaterial().get(),
+                comp->HasONS()
+            };
+            
+            if (perCmdKey != curPerCmdKey)
             {
-                if (curMaterial)
+                if (curPerCmdKey.material)
                 {
-                    drawContext.material = curMaterial;
+                    drawContext.material = curPerCmdKey.material;
+                    drawContext.hasONS = curPerCmdKey.hasONS;
+                    
                     EncodePerMaterialCmds(drawContext);
                 }
-                curMaterial = comp->GetMaterial().get();
+                curPerCmdKey = perCmdKey;
                 drawContext.sameMatCompsBegin = it;
             }
             
             if (it + 1 == m_comps.end())
             {
                 drawContext.sameMatCompsEnd = m_comps.end();
-                drawContext.material = curMaterial;
+                
+                drawContext.material = curPerCmdKey.material;
+                drawContext.hasONS = curPerCmdKey.hasONS;
+                
                 EncodePerMaterialCmds(drawContext);
             }
         }
@@ -100,30 +131,38 @@ namespace op
 
         uint32_t instanceCount = 0;
         uint32_t baseInstanceCount = 0;
-        Mesh* curMesh = nullptr;
+
+        PerSubCmdKey curPerSubCmdKey;
         for (auto it = drawContext.sameMatCompsBegin; it != drawContext.sameMatCompsEnd; ++it)
         {
             auto& comp = it->comp;
             comp->UpdateTransform();
+
+            PerSubCmdKey perSubCmdKey = {
+                comp->GetMesh().get()
+            };
             
-            if (comp->GetMesh().get() != curMesh)
+            if (perSubCmdKey != curPerSubCmdKey)
             {
                 if (instanceCount != 0)
                 {
-                    drawContext.mesh = curMesh;
-                    drawContext.cmds.push_back(EncodePerMeshCmd(curMesh, instanceCount, baseInstanceCount));
+                    drawContext.mesh = curPerSubCmdKey.mesh;
+                    
+                    drawContext.cmds.push_back(EncodePerMeshCmd(curPerSubCmdKey.mesh, instanceCount, baseInstanceCount));
                 }
                 baseInstanceCount += instanceCount;
                 instanceCount = 0;
-                curMesh = comp->GetMesh().get();
+
+                curPerSubCmdKey = perSubCmdKey;
             }
 
             instanceCount++;
 
             if (it + 1 == drawContext.sameMatCompsEnd)
             {
-                drawContext.mesh = curMesh;
-                drawContext.cmds.push_back(EncodePerMeshCmd(curMesh, instanceCount, baseInstanceCount));
+                drawContext.mesh = curPerSubCmdKey.mesh;
+                
+                drawContext.cmds.push_back(EncodePerMeshCmd(curPerSubCmdKey.mesh, instanceCount, baseInstanceCount));
             }
 
             drawContext.matrixIndices.push_back(it->matrixIndex);
@@ -153,6 +192,7 @@ namespace op
         RenderingUtils::BindDrawResources({
             nullptr,
             drawContext.material,
+            drawContext.hasONS
         });
 
         GlState::GlMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawContext.cmds.size()), 0);
@@ -178,9 +218,16 @@ namespace op
         auto lMesh = reinterpret_cast<uintptr_t>(lhs.comp->GetMesh().get());
         auto rMat = reinterpret_cast<uintptr_t>(rhs.comp->GetMaterial().get());
         auto rMesh = reinterpret_cast<uintptr_t>(rhs.comp->GetMesh().get());
+        auto lONS = lhs.comp->HasONS();
+        auto rONS = rhs.comp->HasONS();
+
         if (lMat == rMat)
         {
-            return lMesh < rMesh;
+            if (lONS == rONS)
+            {
+                return lMesh < rMesh;
+            }
+            return lONS < rONS;
         }
         return lMat < rMat;
     }

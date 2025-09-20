@@ -57,6 +57,7 @@ namespace op
         RenderingUtils::RenderMesh({
             m_sphereMesh.get(),
             m_skyboxMat.get(),
+            false,
             m_objectIndex
         });
     }

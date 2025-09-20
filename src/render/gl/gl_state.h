@@ -73,7 +73,7 @@ namespace op
         crsp<GlBuffer> GetGlobalBufferBase(uint32_t type, uint32_t slot);
         crvec<int32_t> BindTextures(crvecsp<GlTexture> textures);
         bool BindShader(crsp<GlShader> shader);
-        void SetCullMode(CullMode mode);
+        void SetCullMode(CullMode mode, bool hasOddNegativeScale = false);
         void SetBlendMode(BlendMode mode);
         void SetDepthMode(DepthMode mode);
 

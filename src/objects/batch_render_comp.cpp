@@ -36,7 +36,12 @@ namespace op
 
         UpdatePerObjectBuffer();
     }
-    
+
+    bool BatchRenderComp::HasONS()
+    {
+        return GetOwner()->transform->HasOddNegativeScale();
+    }
+
     void BatchRenderComp::UpdatePerObjectBuffer()
     {
         m_submitBuffer.localToWorld = GetOwner()->transform->GetLocalToWorld();

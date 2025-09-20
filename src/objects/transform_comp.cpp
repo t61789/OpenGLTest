@@ -114,6 +114,13 @@ namespace op
         m_rotation.localVal = Quaternion::Euler(ea);
     }
 
+    bool TransformComp::HasOddNegativeScale()
+    {
+        UpdateMatrix();
+
+        return m_hasOddNegativeScale;
+    }
+
     const Matrix4x4& TransformComp::GetLocalToWorld()
     {
         UpdateMatrix();
@@ -181,6 +188,8 @@ namespace op
 
         m_matrix.localVal = parentLocalToWorld * objectMatrix;
         m_matrix.worldVal = m_matrix.localVal.Inverse();
+
+        m_hasOddNegativeScale = m_matrix.localVal.Determinant3() < 0;
 
         m_position.worldVal = {
             m_matrix.localVal[0][3],
