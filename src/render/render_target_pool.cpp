@@ -37,6 +37,11 @@ namespace op
     RenderTarget* RenderTargetPool::Push(crvecsp<RenderTexture> rts)
     {
         assert(m_renderTargetStack.size() < 10);
+
+        if (LOG_RENDER_TARGET_STACK_NOT_EMPTY && !m_renderTargetStack.empty())
+        {
+            log_warning("Render target stack is not empty");
+        }
         
         const auto& renderTarget = Get(rts);
         m_renderTargetStack.push_back(renderTarget);

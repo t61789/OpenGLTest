@@ -14,28 +14,7 @@ namespace op
 
     GlVertexArray::~GlVertexArray()
     {
-        Delete();
-    }
-
-    void GlVertexArray::Use()
-    {
-        assert(!m_deleted && !m_settingAttr);
-        assert(m_vbo && m_ebo);
-
-        GlState::Ins()->BindVertexArray(shared_from_this());
-    }
-
-    void GlVertexArray::StopUse()
-    {
-        assert(!m_deleted && !m_settingAttr);
-        assert(GlState::Ins()->GetVertexArray().get() == this);
-
-        GlState::Ins()->UnBindVertexArray();
-    }
-
-    void GlVertexArray::Delete()
-    {
-        assert(!m_deleted && !m_settingAttr);
+        assert(!m_settingAttr);
 
         if (GlState::Ins()->GetVertexArray().get() == this)
         {
@@ -45,32 +24,27 @@ namespace op
         GlState::GlDeleteVertexArray(m_id);
         m_vbo.reset();
         m_ebo.reset();
-        m_deleted = true;
     }
 
-    void GlVertexArray::StartSetting()
+    void GlVertexArray::Use()
     {
-        assert(!m_deleted && !m_settingAttr);
+        assert(!m_settingAttr);
+        assert(m_vbo && m_ebo);
 
-        m_settingAttr = true;
-        
-        GlState::Ins()->UseGlResource(shared_from_this());
         GlState::Ins()->BindVertexArray(shared_from_this());
     }
 
-    void GlVertexArray::EndSetting()
+    void GlVertexArray::StopUse()
     {
-        assert(!m_deleted && m_settingAttr);
-        
-        m_settingAttr = false;
+        assert(!m_settingAttr);
+        assert(GlState::Ins()->GetVertexArray().get() == this);
 
-        GlState::Ins()->EndUseGlResource(shared_from_this());
         GlState::Ins()->UnBindVertexArray();
     }
 
     void GlVertexArray::BindVbo(const std::shared_ptr<GlBuffer>& vbo)
     {
-        assert(!m_deleted && m_settingAttr);
+        assert(m_settingAttr);
         assert(vbo->GetType() == GL_ARRAY_BUFFER);
         
         m_vbo = vbo;
@@ -80,7 +54,7 @@ namespace op
 
     void GlVertexArray::BindEbo(const std::shared_ptr<GlBuffer>& ebo)
     {
-        assert(!m_deleted && m_settingAttr);
+        assert(m_settingAttr);
         assert(ebo->GetType() == GL_ELEMENT_ARRAY_BUFFER);
 
         m_ebo = ebo;
@@ -90,7 +64,7 @@ namespace op
 
     void GlVertexArray::SetAttrEnable(const uint32_t index, const bool enable)
     {
-        assert(!m_deleted && m_settingAttr);
+        assert(m_settingAttr);
         assert(m_vbo);
 
         GlState::GlSetVertAttrEnable(index, enable);
@@ -101,7 +75,7 @@ namespace op
         const uint32_t vertexDataStrideB,
         const uint32_t vertexDataOffsetB)
     {
-        assert(!m_deleted && m_settingAttr);
+        assert(m_settingAttr);
         assert(m_vbo);
 
         auto index = find_index(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, attr);
@@ -113,5 +87,34 @@ namespace op
             GL_FALSE,
             vertexDataStrideB,
             vertexDataOffsetB);
+    }
+
+    void GlVertexArray::StartSetting()
+    {
+        assert(!m_settingAttr);
+
+        m_settingAttr = true;
+        
+        GlState::Ins()->UseGlResource(shared_from_this());
+        GlState::Ins()->BindVertexArray(shared_from_this());
+    }
+
+    void GlVertexArray::EndSetting()
+    {
+        assert(m_settingAttr);
+        
+        m_settingAttr = false;
+
+        GlState::Ins()->EndUseGlResource(shared_from_this());
+    }
+
+    void GlVertexArray::lock()
+    {
+        StartSetting();
+    }
+
+    void GlVertexArray::unlock()
+    {
+        EndSetting();
     }
 }

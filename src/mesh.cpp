@@ -5,6 +5,7 @@
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 #include <fstream>
+#include <mutex>
 
 #include "game_resource.h"
 #include "render/gl/gl_buffer.h"
@@ -179,26 +180,27 @@ namespace op
         vbo->SetData(GL_STATIC_DRAW, vertexData.size() * sizeof(float), vertexData.data());
         ebo->SetData(GL_STATIC_DRAW, indices.size() * sizeof(uint32_t), indices.data());
 
-        vao->StartSetting();
-        vao->BindVbo(vbo);
-        vao->BindEbo(ebo);
-
-        for (auto& [attr, attrInfo] : vertexAttribInfo)
         {
-            auto index = find_index(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, attr);
-            auto& attrDefine = VERTEX_ATTR_DEFINES[index];
-            if (attrInfo.enabled)
+            std::lock_guard usingVao(*vao);
+            
+            vao->BindVbo(vbo);
+            vao->BindEbo(ebo);
+
+            for (auto& [attr, attrInfo] : vertexAttribInfo)
             {
-                vao->SetAttrEnable(index, true);
-                vao->SetAttr(attrDefine.attr, vertexDataStrideB, attrInfo.offsetB);
-            }
-            else
-            {
-                vao->SetAttrEnable(index, false);
+                auto index = find_index(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, attr);
+                auto& attrDefine = VERTEX_ATTR_DEFINES[index];
+                if (attrInfo.enabled)
+                {
+                    vao->SetAttrEnable(index, true);
+                    vao->SetAttr(attrDefine.attr, vertexDataStrideB, attrInfo.offsetB);
+                }
+                else
+                {
+                    vao->SetAttrEnable(index, false);
+                }
             }
         }
-
-        vao->EndSetting();
         
         auto result = std::make_shared<Mesh>();
         result->m_bounds = bounds;

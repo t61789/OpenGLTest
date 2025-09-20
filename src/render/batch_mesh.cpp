@@ -1,5 +1,7 @@
 #include "batch_mesh.h"
 
+#include <mutex>
+
 #include "mesh.h"
 #include "common/elem_accessor_var.h"
 #include "gl/gl_state.h"
@@ -24,11 +26,13 @@ namespace op
         m_vboAccessor = mup<ElemAccessorVar>(m_vbo);
         m_eboAccessor = mup<ElemAccessorVar>(m_ebo);
 
-        m_vao->StartSetting();
-        m_vao->BindVbo(m_vbo->GetGlBuffer());
-        m_vao->BindEbo(m_ebo->GetGlBuffer());
-        ConfigVaoPointer(m_vao);
-        m_vao->EndSetting();
+        {
+            std::lock_guard usingVao(*m_vao);
+            
+            m_vao->BindVbo(m_vbo->GetGlBuffer());
+            m_vao->BindEbo(m_ebo->GetGlBuffer());
+            ConfigVaoPointer(m_vao);
+        }
     }
 
     void BatchMesh::Use()

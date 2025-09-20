@@ -1,5 +1,7 @@
 #include "batch_render_unit.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "batch_matrix.h"
 #include "batch_mesh.h"
 #include "rendering_utils.h"
@@ -15,7 +17,7 @@ namespace op
         m_cmdBuffer = msp<GlBuffer>(GL_DRAW_INDIRECT_BUFFER);
         m_matrixIndicesBuffer = msp<GlBuffer>(GL_SHADER_STORAGE_BUFFER, 5);
         m_batchMesh = msp<BatchMesh>();
-        m_batchMatrix = msp<BatchMatrix>(3000, 6);
+        m_batchMatrix = msp<BatchMatrix>(200, 6);
     }
 
     void BatchRenderUnit::BindComp(BatchRenderComp* comp)
@@ -50,8 +52,12 @@ namespace op
         {
             return;
         }
-        
-        std::sort(m_comps.begin(), m_comps.end(), CompComparer);
+
+        {
+            ZoneScopedN("Sort");
+            
+            std::sort(m_comps.begin(), m_comps.end(), CompComparer);
+        }
         
         static DrawContext drawContext;
 
@@ -86,6 +92,8 @@ namespace op
         {
             return;
         }
+
+        ZoneScoped;
         
         drawContext.cmds.clear();
         drawContext.matrixIndices.clear();
@@ -106,9 +114,11 @@ namespace op
                     drawContext.cmds.push_back(EncodePerMeshCmd(curMesh, instanceCount, baseInstanceCount));
                 }
                 baseInstanceCount += instanceCount;
-                instanceCount = 1;
+                instanceCount = 0;
                 curMesh = comp->GetMesh().get();
             }
+
+            instanceCount++;
 
             if (it + 1 == drawContext.sameMatCompsEnd)
             {

@@ -17,10 +17,10 @@ namespace op
         m_globalTextureSet = mup<TextureSet>();
         
         m_batchRenderUnit = mup<BatchRenderUnit>();
-        m_mainScene = Scene::LoadScene("scenes/test_scene/test_scene.json");
-        // m_scene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
+        // m_mainScene = Scene::LoadScene("scenes/test_scene/test_scene.json");
+        // m_mainScene = Scene::LoadScene("scenes/rpgpp_lt_scene_1.0/scene.json");
         // m_scene = Scene::LoadScene("scenes/ImportTest/scene.json");
-        // m_scene = Scene::LoadScene("scenes/Scene_A/scene.json");
+        m_mainScene = Scene::LoadScene("scenes/Scene_A/scene.json");
         // m_scene = Scene::LoadScene("scenes/HDRP_template/scene.json");
     }
 

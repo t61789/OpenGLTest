@@ -12,7 +12,7 @@ namespace op
         void OnDestroy() override;
         void Start() override;
         void Update() override;
-        float fov = 45.0f;
+        float fov = 60.0f;
         float nearClip = 0.1f;
         float farClip = 30.0f;
         

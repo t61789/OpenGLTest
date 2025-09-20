@@ -12,8 +12,8 @@ namespace op
 {
     Material::Material()
     {
-        cullMode = CullMode::UNSET;
-        blendMode = BlendMode::UNSET;
+        cullMode = CullMode::BACK;
+        blendMode = BlendMode::NONE;
         depthMode = DepthMode::LESS;
         m_dataSet = mup<DataSet>();
         m_textureSet = mup<TextureSet>();

@@ -1,6 +1,7 @@
 ﻿#include "object.h"
 
 #include "const.h"
+#include "game_framework.h"
 #include "game_resource.h"
 #include "scene.h"
 #include "scene_object_indices.h"
@@ -108,6 +109,7 @@ namespace op
             remove(parent.lock()->m_children, shared_from_this());
             parent.reset();
         }
+        parent = newParent;
 
         assert(!exists(obj->m_children, shared_from_this()));
 
@@ -130,7 +132,12 @@ namespace op
 
     void Object::Destroy()
     {
-        for (auto& child : m_children)
+        // GameFramework::Ins()->EnqueueDestroyedObject(shared_from_this());
+
+        auto self = shared_from_this();
+
+        auto tempChildren = m_children;
+        for (auto& child : tempChildren)
         {
             child->Destroy();
         }
@@ -150,6 +157,8 @@ namespace op
         {
             comp->Destroy();
         }
+
+        tempChildren.clear();
     }
 
     std::string Object::GetPathInScene() const
@@ -266,8 +275,8 @@ namespace op
         #define REGISTER_COMP(t) \
             m_compConstructors[StringHandle(#t)] = []() -> sp<Comp> { \
                 auto result = std::make_shared<t>(); \
-                result->SetName(StringHandle(#t)); \
-                result->SetType(std::type_index(typeid(t))); \
+                result->m_name = StringHandle(#t); \
+                result->m_type = std::type_index(typeid(t)); \
                 return result; \
             }; \
             CompStorage::RegisterComp<t>();

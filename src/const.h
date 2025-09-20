@@ -8,6 +8,9 @@
 
 namespace op
 {
+    static bool LOG_RENDER_TARGET_STACK_NOT_EMPTY = false;
+    static bool ENABLE_GL_CHECK_ERROR = false;
+    
     #define THROW_ERROR(msg) throw std::runtime_error(format_log(Error, msg));
     #define THROW_ERRORF(msg, ...) throw std::runtime_error(format_log(Error, msg, __VA_ARGS__));
 
@@ -116,13 +119,11 @@ namespace op
     STRING_HANDLE(OBJECT_INDEX, _ObjectIndex)
 
     STRING_HANDLE(UNNAMED_OBJECT, UnnamedObject)
-    STRING_HANDLE(TRANSFORM_COMP, TrasformComp)
+    STRING_HANDLE(TRANSFORM_COMP, TransformComp)
     STRING_HANDLE(RUNTIME_COMP, RuntimeComp)
     STRING_HANDLE(RENDER_COMP, RenderComp)
     STRING_HANDLE(LIGHT_COMP, LightComp)
     STRING_HANDLE(CAMERA_COMP, CameraComp)
-    
-    static constexpr bool ENABLE_GL_CHECK_ERROR = true;
 
     inline std::string NOT_A_FILE = "NOT_A_FILE";
 

@@ -174,6 +174,7 @@ namespace op
     {
         GetGR()->onFrameEnd.Invoke();
         GetRC()->renderTargetPool->TryRecycle();
+        RealDestroyObjects();
         
         FrameMark;
     }
@@ -277,11 +278,23 @@ namespace op
 
     void GameFramework::ReleaseGame()
     {
+        RealDestroyObjects();
+        
         GetGR()->onFrameBufferResize.Remove(m_onFrameBufferResizeHandler);
         
         delete m_renderPipeline;
         delete m_gui;
         delete m_gameResource;
         delete m_glState;
+    }
+
+    void GameFramework::EnqueueDestroyedObject(crsp<Object> obj)
+    {
+        m_destroyedObjects.push_back(obj);
+    }
+
+    void GameFramework::RealDestroyObjects()
+    {
+        m_destroyedObjects.clear();
     }
 }

@@ -48,13 +48,9 @@ namespace op
         bool m_realEnable = false;
         StringHandle m_name;
         Object* m_owner = nullptr;
-        Scene* m_scene = nullptr;
         std::type_index m_type = std::type_index(typeid(Comp));
         
         void Destroy();
         void UpdateRealEnable();
-        
-        void SetName(cr<StringHandle> name) { m_name = name;}
-        void SetType(const std::type_index type) { m_type = type;}
     };
 }

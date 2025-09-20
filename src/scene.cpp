@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "nlohmann/json.hpp"
 #include "objects/runtime_comp.h"
+#include "objects/transform_comp.h"
 
 namespace op
 {
@@ -68,6 +69,7 @@ namespace op
         rootObj->m_scene = scene;
         scene->m_sceneRoot = rootObj;
         scene->m_sceneRoot->AddOrCreateComp<RuntimeComp>(RUNTIME_COMP);
+        scene->m_sceneRoot->AddOrCreateComp<TransformComp>(TRANSFORM_COMP);
         LoadChildren(rootObj, json["root"]);
 
         GetGR()->RegisterResource(sceneJsonPath, scene);

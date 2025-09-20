@@ -1041,7 +1041,7 @@ namespace op
 
     void GlState::GlCheckError()
     {
-        if constexpr (!ENABLE_GL_CHECK_ERROR)
+        if (!ENABLE_GL_CHECK_ERROR)
         {
             return;
         }

@@ -10,6 +10,7 @@ namespace op
     class BuiltInRes;
     class Scene;
     class Gui;
+    class Object;
 
     class GameFramework final : public Singleton<GameFramework>
     {
@@ -29,6 +30,8 @@ namespace op
         uint32_t GetScreenWidth() const { return m_screenWidth;}
         uint32_t GetScreenHeight() const { return m_screenHeight;}
         
+        void EnqueueDestroyedObject(crsp<Object> obj);
+        
     private:
         GLFWwindow* m_window = nullptr;
 
@@ -42,8 +45,11 @@ namespace op
 
         EventHandler m_onFrameBufferResizeHandler = 0;
 
+        vecsp<Object> m_destroyedObjects;
+
         void InitGame();
         void ReleaseGame();
+        void RealDestroyObjects();
         bool InitFrame();
         bool InitGlfw();
         void ProcessInput() const;
