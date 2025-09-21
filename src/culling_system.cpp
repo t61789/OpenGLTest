@@ -7,6 +7,8 @@
 #include "render_context.h"
 #include "bounds.h"
 #include "object.h"
+#include "scene.h"
+#include "objects/batch_render_comp.h"
 #include "objects/render_comp.h"
 #include "objects/transform_comp.h"
 
@@ -47,6 +49,18 @@ namespace op
             // {
                 GetRC()->visibleRenderObjs.push_back(renderObj.lock().get());
             // }
+        }
+
+        for (const auto& batchRenderCompPtr : GetRC()->scene->GetIndices()->GetCompStorage()->GetComps<BatchRenderComp>())
+        {
+            if (batchRenderCompPtr.expired())
+            {
+                continue;
+            }
+            auto batchRenderComp = batchRenderCompPtr.lock();
+
+            auto inView = batchRenderComp->IsEnable() && CullOnce(batchRenderComp->GetWorldBounds(), planes);
+            batchRenderComp->SetInView(inView);
         }
     }
 

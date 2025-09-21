@@ -105,7 +105,7 @@ namespace op
                 drawContext.sameMatCompsBegin = it;
             }
             
-            if (it + 1 == m_comps.end())
+            if (it + 1 == m_comps.end() || !(it + 1)->comp->GetInView())
             {
                 drawContext.sameMatCompsEnd = m_comps.end();
                 
@@ -113,6 +113,8 @@ namespace op
                 drawContext.hasONS = curPerCmdKey.hasONS;
                 
                 EncodePerMaterialCmds(drawContext);
+
+                break;
             }
         }
     }
@@ -220,15 +222,21 @@ namespace op
         auto rMesh = reinterpret_cast<uintptr_t>(rhs.comp->GetMesh().get());
         auto lONS = lhs.comp->HasONS();
         auto rONS = rhs.comp->HasONS();
+        auto lInView = lhs.comp->GetInView();
+        auto rInView = rhs.comp->GetInView();
 
-        if (lMat == rMat)
+        if (lInView == rInView)
         {
-            if (lONS == rONS)
+            if (lMat == rMat)
             {
-                return lMesh < rMesh;
+                if (lONS == rONS)
+                {
+                    return lMesh < rMesh;
+                }
+                return lONS < rONS;
             }
-            return lONS < rONS;
+            return lMat < rMat;
         }
-        return lMat < rMat;
+        return lInView > rInView;
     }
 }

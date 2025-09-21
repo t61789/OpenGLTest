@@ -36,12 +36,20 @@ namespace op
         }
         m_transformDirty = false;
 
+        m_worldBounds = m_mesh->GetBounds().ToWorld(GetOwner()->transform->GetLocalToWorld());
         UpdatePerObjectBuffer();
     }
 
     bool BatchRenderComp::HasONS()
     {
         return GetOwner()->transform->HasOddNegativeScale();
+    }
+
+    Bounds BatchRenderComp::GetWorldBounds()
+    {
+        UpdateTransform();
+
+        return m_worldBounds;
     }
 
     void BatchRenderComp::UpdatePerObjectBuffer()

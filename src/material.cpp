@@ -177,7 +177,7 @@ namespace op
             result->BindShader(shader);
         }
         
-        log_info("成功载入Material %s", path.CStr());
+        log_info("Load material: %s", path.CStr());
         
         return result;
     }

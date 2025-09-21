@@ -77,16 +77,7 @@ namespace op
 
     void RenderComp::UpdateWorldBounds()
     {
-        auto m = GetOwner()->transform->GetLocalToWorld();
-        auto& boundsOS = m_mesh->GetBounds();
-        auto centerWS = Vec3(m * Vec4(boundsOS.center, 1));
-        Vec3 extentsWS = {
-            dot(abs(Vec3(m[0])), boundsOS.extents),
-            dot(abs(Vec3(m[1])), boundsOS.extents),
-            dot(abs(Vec3(m[2])), boundsOS.extents)
-        };
-
-        m_worldBounds = {centerWS, extentsWS};
+        m_worldBounds = m_mesh->GetBounds().ToWorld(GetOwner()->transform->GetLocalToWorld());
     }
 
     void RenderComp::UpdatePerObjectBuffer()

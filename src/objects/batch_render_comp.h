@@ -1,9 +1,8 @@
 #pragma once
 
+#include "bounds.h"
 #include "comp.h"
 #include "event.h"
-#include "math/matrix4x4.h"
-#include "render/batch_matrix.h"
 #include "render/batch_matrix.h"
 
 namespace op
@@ -22,6 +21,10 @@ namespace op
         void OnDisable() override;
         void UpdateTransform();
         bool HasONS();
+        Bounds GetWorldBounds();
+
+        bool GetInView() const { return m_inView; }
+        void SetInView(const bool inView) { m_inView = inView; }
 
         void LoadFromJson(cr<nlohmann::json> objJson) override;
 
@@ -31,6 +34,8 @@ namespace op
         EventHandler m_onTransformDirtyHandler = 0;
         bool m_transformDirty = true;
         BatchMatrix::Elem m_submitBuffer;
+        Bounds m_worldBounds;
+        bool m_inView = true;
 
         void OnTransformDirty();
         void UpdatePerObjectBuffer();

@@ -13,6 +13,8 @@ namespace op
         Bounds() = default;
         Bounds(const Vec3& center, const Vec3& extents);
 
+        Bounds ToWorld(cr<Matrix4x4> m) const;
+
         template <typename Archive>
         void serialize(Archive& archive, unsigned int version)
         {

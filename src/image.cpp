@@ -46,6 +46,8 @@ namespace op
         
         GetGR()->RegisterResource(path, result);
         result->m_path = path;
+
+        log_info("Load texture: %s", path.CStr());
         
         return result;
     }

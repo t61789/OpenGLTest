@@ -64,6 +64,11 @@ namespace op
             return m_data + i * 4;
         }
 
+        Vec4 GetRow(const uint32_t i) const
+        {
+            return Vec4(m_data + i * 4);
+        }
+
         Matrix4x4 operator*(const Matrix4x4& other) const
         {
             Matrix4x4 result;
