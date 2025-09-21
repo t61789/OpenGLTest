@@ -97,6 +97,27 @@ namespace op
         return texture;
     }
 
+    TextureWrapMode GlTexture::GetTextureWrapMode(cr<StringHandle> s)
+    {
+        const static umap<string_hash, TextureWrapMode> MAPPER = {
+            {StringHandle("Clamp"), TextureWrapMode::CLAMP},
+            {StringHandle("Repeat"), TextureWrapMode::REPEAT},
+            {StringHandle("MirroredRepeat"), TextureWrapMode::MIRRORED_REPEAT},
+        };
+
+        return MAPPER.at(s);
+    }
+
+    TextureFilterMode GlTexture::GetTextureFilterMode(cr<StringHandle> s)
+    {
+        const static umap<string_hash, TextureFilterMode> MAPPER = {
+            {StringHandle("Point"), TextureFilterMode::POINT},
+            {StringHandle("Bilinear"), TextureFilterMode::BILINEAR},
+        };
+
+        return MAPPER.at(s);
+    }
+
     sp<GlTexture> GlTexture::CreateBasicTexture(
         const GlTextureType type,
         const uint32_t width,

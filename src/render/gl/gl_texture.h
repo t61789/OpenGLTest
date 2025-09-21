@@ -44,6 +44,7 @@ namespace op
         GlTextureType GetType() const { return m_type;}
         uint32_t GetWidth() const { return m_width;}
         uint32_t GetHeight() const { return m_height;}
+        bool HasMipmap() const { return m_hasMipmap;}
 
         void Bind(uint32_t slot);
 
@@ -64,6 +65,9 @@ namespace op
             TextureFilterMode filterMode = TextureFilterMode::BILINEAR,
             cr<arr<uint8_t*, 6>> data = {},
             bool needMipmap = true);
+
+        static TextureWrapMode GetTextureWrapMode(cr<StringHandle> s);
+        static TextureFilterMode GetTextureFilterMode(cr<StringHandle> s);
 
     private:
         uint32_t m_id = 0;

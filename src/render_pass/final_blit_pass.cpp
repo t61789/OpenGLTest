@@ -15,9 +15,7 @@ namespace op
     {
         m_finalBlitMat = Material::CreateFromShader("shaders/final_blit.shader");
         m_finalBlitMat->depthMode = DepthMode::DISABLE;
-        auto desc = ImageDescriptor::GetDefault();
-        desc.needFlipVertical = false;
-        m_lutTexture = Image::LoadFromFile("textures/testLut.png", desc);
+        m_lutTexture = Image::LoadFromFile("textures/testLut.png");
     }
 
     void FinalBlitPass::Execute()

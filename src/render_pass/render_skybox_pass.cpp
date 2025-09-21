@@ -21,10 +21,7 @@ namespace op
 {
     RenderSkyboxPass::RenderSkyboxPass()
     {
-        auto desc = ImageDescriptor::GetDefault();
-        desc.needFlipVertical = false;
-        
-        m_skyboxCubeTexture = Image::LoadCubeFromFile("built_in/texture/skybox", "png", desc);
+        m_skyboxCubeTexture = Image::LoadFromFile("built_in/texture/skybox");
         GetGlobalTextureSet()->SetTexture(SKYBOX_TEX, m_skyboxCubeTexture);
         m_sphereMesh = Mesh::LoadFromFile("meshes/sphere.obj");
         m_skyboxMat = Material::LoadFromFile("materials/skybox_mat.json");

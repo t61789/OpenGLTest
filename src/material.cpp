@@ -163,7 +163,7 @@ namespace op
             
             if (elemValue.is_string() && ends_with(elemKey, "Tex"))
             {
-                auto texture = Image::LoadFromFile(elemValue.get<std::string>(), ImageDescriptor::GetDefault());
+                auto texture = Image::LoadFromFile(elemValue.get<std::string>());
                 result->SetTexture(elemKey, texture);
                 continue;
             }

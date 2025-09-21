@@ -12,8 +12,18 @@ namespace op
     
     class Mesh final : public IResource
     {
-        friend sp<Mesh> std::make_shared<Mesh>();
         friend class MeshCacheMgr;
+        
+        struct Cache
+        {
+            Bounds bounds = {};
+            uint32_t vertexCount = 0;
+            vec<float> vertexData = {};
+            vec<uint32_t> indices = {};
+
+            template <class Archive>
+            void serialize(Archive& ar, unsigned int version);
+        };
         
     public:
         struct VertexAttrInfo
@@ -37,7 +47,10 @@ namespace op
         uint32_t GetIndicesCount() const { return static_cast<uint32_t>(GetIndexData().size());}
 
         static sp<Mesh> LoadFromFile(crstr modelPath);
-
+        
+        static Cache CreateCacheFromAsset(crstr assetPath);
+        static sp<Mesh> CreateAssetFromCache(Cache&& cache);
+        
     private:
         sp<GlVertexArray> m_vao;
         sp<GlBuffer> m_vbo;
@@ -61,5 +74,16 @@ namespace op
             cr<Bounds> bounds,
             uint32_t vertexCount);
         static void CalcVertexAttrOffset(std::unordered_map<VertexAttr, VertexAttrInfo>& vertexAttribInfo);
+        
+        static crvec<float> GetFullVertexData(const Mesh* mesh);
     };
+
+    template <class Archive>
+    void Mesh::Cache::serialize(Archive& ar, unsigned int version)
+    {
+        ar & bounds;
+        ar & vertexCount;
+        ar & vertexData;
+        ar & indices;
+    }
 }

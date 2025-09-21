@@ -34,8 +34,10 @@ namespace op
         
         static std::vector<std::string> ToDirectories(const std::string& path);
         static std::string GetAbsolutePath(const std::string& relativePath);
+        static str GetRelativePath(crstr absPath);
         static bool AssetExists(const std::string& path);
         static size_t GetFileHash(const std::string& path);
+        static size_t CombineHash(size_t hash1, size_t hash2);
 
         static std::string GetCurrentTimeFormatted(); 
 
@@ -43,6 +45,7 @@ namespace op
         static void MergeJson(nlohmann::json& json1, const nlohmann::json& json2, bool combineArray = false);
 
         static nlohmann::json GetResourceMeta(const std::string& assetPath);
+        static str GetResourceMetaPath(crstr assetPath);
         static std::vector<uint8_t> Base64ToBinary(const std::string& base64Str);
         static std::vector<uint32_t> Binary8To32(const std::vector<uint8_t>& data);
 

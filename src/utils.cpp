@@ -47,6 +47,11 @@ namespace op
         return (fs::current_path() / relativePath).generic_string();
     }
 
+    str Utils::GetRelativePath(crstr absPath)
+    {
+        return relative(absPath, fs::current_path()).generic_string();
+    }
+
     bool Utils::AssetExists(const std::string& path)
     {
         auto absPath = GetAbsolutePath(path);
@@ -56,6 +61,21 @@ namespace op
     size_t Utils::GetFileHash(const std::string& path)
     {
         auto filename = GetAbsolutePath(path);
+        if (std::filesystem::is_directory(filename))
+        {
+            size_t result = 0;
+            for (const auto& entry : fs::directory_iterator(filename))
+            {
+                if (entry.is_regular_file())
+                {
+                    auto hash = GetFileHash(GetRelativePath(entry.path().generic_string()));
+                    result = CombineHash(result, hash);
+                }
+            }
+
+            return result;
+        }
+        
         std::ifstream file(filename, std::ios::binary);
         if (!file)
         {
@@ -70,17 +90,22 @@ namespace op
         {
             std::string chunk(buffer, sizeof(buffer));
             size_t chunkHash = hasher(chunk);
-            finalHash ^= chunkHash + 0x9e3779b9 + (finalHash << 6) + (finalHash >> 2);
+            finalHash = CombineHash(finalHash, chunkHash);
         }
     
         if (file.gcount() > 0)
         {
             std::string lastChunk(buffer, file.gcount());
             size_t chunkHash = hasher(lastChunk);
-            finalHash ^= chunkHash + 0x9e3779b9 + (finalHash << 6) + (finalHash >> 2);
+            finalHash = CombineHash(finalHash, chunkHash);
         }
     
         return finalHash;
+    }
+
+    size_t Utils::CombineHash(const size_t hash1, const size_t hash2)
+    {
+        return hash1 ^ (hash2 + 0x9e3779b9 + (hash1 << 6) + (hash2 >> 2));
     }
 
     std::string Utils::GetCurrentTimeFormatted()
@@ -150,13 +175,18 @@ namespace op
 
     nlohmann::json Utils::GetResourceMeta(const std::string& assetPath)
     {
-        auto metaPath = assetPath + ".meta";
+        auto metaPath = GetResourceMetaPath(assetPath);
         if (!fs::exists(GetAbsolutePath(metaPath)))
         {
             return nlohmann::json::object();
         }
 
         return LoadJson(metaPath);
+    }
+    
+    str Utils::GetResourceMetaPath(crstr assetPath)
+    {
+        return assetPath + ".meta";
     }
 
     std::vector<uint8_t> Utils::Base64ToBinary(const std::string& base64Str)

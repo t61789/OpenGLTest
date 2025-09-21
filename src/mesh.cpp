@@ -9,9 +9,28 @@
 #include <tracy/Tracy.hpp>
 
 #include "game_resource.h"
-#include "mesh_cache_mgr.h"
+#include "common/asset_cache.h"
 #include "render/gl/gl_buffer.h"
 #include "render/gl/gl_vertex_array.h"
+
+namespace
+{
+    using namespace op;
+    
+    std::unordered_map<VertexAttr, Mesh::VertexAttrInfo> CreateFullVertexAttribInfo()
+    {
+        umap<VertexAttr, Mesh::VertexAttrInfo> vertexAttribInfo;
+        for (auto& attrInfo : VERTEX_ATTR_DEFINES)
+        {
+            Mesh::VertexAttrInfo meshVertexAttrInfo;
+            meshVertexAttrInfo.enabled = true;
+            meshVertexAttrInfo.offsetB = attrInfo.offsetF * sizeof(float);
+            vertexAttribInfo.emplace(attrInfo.attr, meshVertexAttrInfo);
+        }
+
+        return vertexAttribInfo;
+    }
+}
 
 namespace op
 {
@@ -31,12 +50,12 @@ namespace op
         
         ZoneScoped;
 
-        auto result = MeshCacheMgr::GetMeshFromCache(modelPath);
+        auto result = AssetCache::GetFromCache<Mesh, Cache>(modelPath);
 
         GetGR()->RegisterResource(modelPath, result);
         result->m_path = modelPath;
         
-        log_info("Load mesh succeed: %s", modelPath.c_str());
+        log_info("Load mesh: %s", modelPath.c_str());
         
         return result;
     }
@@ -256,5 +275,66 @@ namespace op
         {
             flipWindingOrder = config.at("flip_winding_order").get<bool>();
         }
+    }
+    
+    crvec<float> Mesh::GetFullVertexData(const Mesh* mesh)
+    {
+        auto vertexCount = mesh->GetVertexCount();
+        auto& rawVertexData = mesh->GetVertexData();
+        auto rawVertexStrideF = mesh->GetVertexDataStrideB() / sizeof(float);
+        
+        static std::vector<float> vertexData;
+        vertexData.resize(MAX_VERTEX_ATTR_STRIDE_F * vertexCount);
+
+        uint32_t curOffsetF = 0;
+        for (auto& attrInfo : VERTEX_ATTR_DEFINES)
+        {
+            auto aa = attrInfo.name;
+            auto& meshVertexAttrInfo = mesh->GetVertexAttribInfo().at(attrInfo.attr);
+            if (meshVertexAttrInfo.enabled)
+            {
+                auto rawAttrOffsetF = meshVertexAttrInfo.offsetB / sizeof(float);
+                for (uint32_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+                {
+                    for (uint32_t j = 0; j < attrInfo.strideF; ++j)
+                    {
+                        auto dstIndex = vertexIndex * MAX_VERTEX_ATTR_STRIDE_F + curOffsetF + j;
+                        auto srcIndex = vertexIndex * rawVertexStrideF + rawAttrOffsetF + j;
+                        vertexData[dstIndex] = rawVertexData[srcIndex];
+                    }
+                }
+            }
+
+            curOffsetF += attrInfo.strideF;
+        }
+
+        return vertexData;
+    }
+
+    Mesh::Cache Mesh::CreateCacheFromAsset(crstr assetPath)
+    {
+        auto mesh = LoadFromFileImp(assetPath);
+
+        Cache fullMesh;
+        fullMesh.bounds = mesh->GetBounds();
+        fullMesh.vertexCount = mesh->GetVertexCount();
+        fullMesh.vertexData = GetFullVertexData(mesh.get());
+        fullMesh.indices = mesh->GetIndexData();
+
+        return fullMesh;
+    }
+
+    sp<Mesh> Mesh::CreateAssetFromCache(Cache&& cache)
+    {
+        auto c = std::move(cache);
+        
+        auto mesh = CreateMesh(
+            CreateFullVertexAttribInfo(),
+            std::move(c.vertexData),
+            std::move(c.indices),
+            c.bounds,
+            c.vertexCount);
+
+        return mesh;
     }
 }
