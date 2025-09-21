@@ -2,6 +2,8 @@
 
 #include <immintrin.h>
 
+#include "const.h"
+
 namespace op
 {
     inline void add(const float* l, const float* r, float* dst)
@@ -156,5 +158,121 @@ namespace op
         auto sv = _mm_load_ps(v);
         
         _mm_store_ps(dst, sign(sv));
+    }
+    
+    struct SimdVec3
+    {
+        __m128 x;
+        __m128 y;
+        __m128 z;
+
+        SimdVec3() = default;
+        
+        explicit SimdVec3(cr<__m128> v)
+        {
+            x = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
+            y = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
+            z = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2));
+        }
+        
+        SimdVec3(cr<__m128> x, cr<__m128> y, cr<__m128> z)
+        {
+            this->x = x;
+            this->y = y;
+            this->z = z;
+        }
+    };
+
+    struct SimdVec4
+    {
+        __m128 x;
+        __m128 y;
+        __m128 z;
+        __m128 w;
+
+        SimdVec4() = default;
+        
+        explicit SimdVec4(cr<__m128> v)
+        {
+            x = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
+            y = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
+            z = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2));
+            w = _mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3));
+        }
+        
+        SimdVec4(cr<__m128> x, cr<__m128> y, cr<__m128> z, cr<__m128> w)
+        {
+            this->x = x;
+            this->y = y;
+            this->z = z;
+            this->w = w;
+        }
+    };
+    
+    inline SimdVec3 add(cr<SimdVec3> l, cr<SimdVec3>r)
+    {
+        return {
+            _mm_add_ps(l.x, r.x),
+            _mm_add_ps(l.y, r.y),
+            _mm_add_ps(l.z, r.z)
+        };
+    }
+
+    inline SimdVec3 sub(cr<SimdVec3> l, cr<SimdVec3>r)
+    {
+        return {
+            _mm_sub_ps(l.x, r.x),
+            _mm_sub_ps(l.y, r.y),
+            _mm_sub_ps(l.z, r.z)
+        };
+    }
+
+    inline SimdVec3 mul(cr<SimdVec3> l, cr<SimdVec3>r)
+    {
+        return {
+            _mm_mul_ps(l.x, r.x),
+            _mm_mul_ps(l.y, r.y),
+            _mm_mul_ps(l.z, r.z)
+        };
+    }
+
+    inline SimdVec4 add(cr<SimdVec4> l, cr<SimdVec4>r)
+    {
+        return {
+            _mm_add_ps(l.x, r.x),
+            _mm_add_ps(l.y, r.y),
+            _mm_add_ps(l.z, r.z),
+            _mm_add_ps(l.w, r.w)
+        };
+    }
+
+    inline SimdVec4 sub(cr<SimdVec4> l, cr<SimdVec4>r)
+    {
+        return {
+            _mm_sub_ps(l.x, r.x),
+            _mm_sub_ps(l.y, r.y),
+            _mm_sub_ps(l.z, r.z),
+            _mm_sub_ps(l.w, r.w)
+        };
+    }
+
+    inline SimdVec4 mul(cr<SimdVec4> l, cr<SimdVec4>r)
+    {
+        return {
+            _mm_mul_ps(l.x, r.x),
+            _mm_mul_ps(l.y, r.y),
+            _mm_mul_ps(l.z, r.z),
+            _mm_mul_ps(l.w, r.w)
+        };
+    }
+
+    inline __m128 dot(cr<SimdVec4> l, cr<SimdVec4>r)
+    {
+        auto x = _mm_mul_ps(l.x, r.x);
+        auto y = _mm_mul_ps(l.y, r.y);
+        auto z = _mm_mul_ps(l.z, r.z);
+        auto w = _mm_mul_ps(l.w, r.w);
+
+        return _mm_add_ps(x, _mm_add_ps(y, _mm_add_ps(z, w)));
     }
 }

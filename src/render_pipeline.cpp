@@ -2,9 +2,9 @@
 
 #include <tracy/Tracy.hpp>
 
+#include "culling_system.h"
 #include "render_texture.h"
 #include "gui.h"
-#include "culling_system.h"
 
 #include "utils.h"
 #include "scene.h"
@@ -37,7 +37,6 @@ namespace op
 
         m_renderTargetPool = mup<RenderTargetPool>();
         m_renderContext = mup<RenderContext>();
-        m_cullingSystem = mup<CullingSystem>();
 
         m_gBuffer0Tex = msp<RenderTexture>(RtDesc{"_GBuffer0Tex", width, height, TextureFormat::RGBA_HDR, TextureFilterMode::POINT, TextureWrapMode::CLAMP});
         m_gBuffer1Tex = msp<RenderTexture>(RtDesc{"_GBuffer1Tex", width, height, TextureFormat::RGBA_HDR, TextureFilterMode::POINT, TextureWrapMode::CLAMP});
@@ -131,8 +130,8 @@ namespace op
         };
 
         CategorizeObjects(*m_renderContext);
-        
-        m_cullingSystem->Cull();
+
+        GetGR()->GetCullingSystem()->Cull();
     }
 
     bool RenderPipeline::UpdateRenderTargetsPass()

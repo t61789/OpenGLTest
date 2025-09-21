@@ -7,6 +7,7 @@
 #include "mesh.h"
 #include "object.h"
 #include "transform_comp.h"
+#include "culling_system.h"
 #include "render/batch_render_unit.h"
 
 namespace op
@@ -15,12 +16,16 @@ namespace op
     {
         m_onTransformDirtyHandler = GetOwner()->transform->dirtyEvent.Add(this, &BatchRenderComp::OnTransformDirty);
         GetGR()->GetBatchRenderUnit()->BindComp(this);
+
+        m_cullingBufferAccessor = GetGR()->GetCullingSystem()->GetCullingBuffer()->Alloc();
     }
 
     void BatchRenderComp::OnDisable()
     {
         GetOwner()->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
         GetGR()->GetBatchRenderUnit()->UnBindComp(this);
+        
+        GetGR()->GetCullingSystem()->GetCullingBuffer()->Release(m_cullingBufferAccessor);
     }
 
     void BatchRenderComp::OnTransformDirty()

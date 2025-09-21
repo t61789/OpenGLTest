@@ -10,6 +10,7 @@
 struct GLFWwindow;
 namespace op
 {
+    class CullingSystem;
     class Scene;
     class RenderTexture;
     class Material;
@@ -29,10 +30,11 @@ namespace op
         GameResource& operator=(const GameResource& other) = delete;
         GameResource& operator=(GameResource&& other) noexcept = delete;
 
-        Scene* GetMainScene() const { return m_mainScene.get();}
-        TextureSet* GetGlobalTextureSet() const { return m_globalTextureSet.get();}
-        PerObjectBuffer* GetPerObjectBuffer() const { return m_perObjectBuffer.get();}
-        BatchRenderUnit* GetBatchRenderUnit() const { return m_batchRenderUnit.get();}
+        Scene* GetMainScene() const { return m_mainScene.get(); }
+        TextureSet* GetGlobalTextureSet() const { return m_globalTextureSet.get(); }
+        PerObjectBuffer* GetPerObjectBuffer() const { return m_perObjectBuffer.get(); }
+        BatchRenderUnit* GetBatchRenderUnit() const { return m_batchRenderUnit.get(); }
+        CullingSystem* GetCullingSystem() const { return m_cullingSystem.get(); }
         
         GlCbuffer* GetPredefinedCbuffer(size_t nameId);
         bool IsPredefinedCbuffer(size_t nameId);
@@ -51,6 +53,7 @@ namespace op
         umap<string_hash, up<GlCbuffer>> m_predefinedCbuffers;
         up<TextureSet> m_globalTextureSet;
         up<BatchRenderUnit> m_batchRenderUnit;
+        sp<CullingSystem> m_cullingSystem;
         sp<Scene> m_mainScene = nullptr;
         up<BuiltInRes> m_builtInRes = nullptr;
     };

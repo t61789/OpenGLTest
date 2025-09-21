@@ -2,6 +2,7 @@
 
 #include "bounds.h"
 #include "comp.h"
+#include "culling_system.h"
 #include "event.h"
 #include "render/batch_matrix.h"
 
@@ -23,8 +24,7 @@ namespace op
         bool HasONS();
         Bounds GetWorldBounds();
 
-        bool GetInView() const { return m_inView; }
-        void SetInView(const bool inView) { m_inView = inView; }
+        bool GetInView() { return m_cullingBufferAccessor.IsEnable() ? m_cullingBufferAccessor.GetVisible() : false; }
 
         void LoadFromJson(cr<nlohmann::json> objJson) override;
 
@@ -35,7 +35,7 @@ namespace op
         bool m_transformDirty = true;
         BatchMatrix::Elem m_submitBuffer;
         Bounds m_worldBounds;
-        bool m_inView = true;
+        CullingBufferAccessor m_cullingBufferAccessor = {};
 
         void OnTransformDirty();
         void UpdatePerObjectBuffer();

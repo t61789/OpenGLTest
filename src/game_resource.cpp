@@ -3,6 +3,7 @@
 #include "material.h"
 #include "scene.h"
 #include "render/gl/gl_cbuffer.h"
+#include "culling_system.h"
 
 namespace op
 {
@@ -15,6 +16,7 @@ namespace op
         }
         m_builtInRes = mup<BuiltInRes>();
         m_globalTextureSet = mup<TextureSet>();
+        m_cullingSystem = msp<CullingSystem>();
         
         m_batchRenderUnit = mup<BatchRenderUnit>();
         // m_mainScene = Scene::LoadScene("scenes/test_scene/test_scene.json");
@@ -28,6 +30,7 @@ namespace op
     {
         m_mainScene.reset();
         m_batchRenderUnit.reset();
+        m_cullingSystem.reset();
         m_globalTextureSet.reset();
         m_builtInRes.reset();
         m_predefinedCbuffers.clear();

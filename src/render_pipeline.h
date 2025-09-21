@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 
-#include "culling_system.h"
 #include "render_context.h"
 #include "render/render_target_pool.h"
 #include "utils.h"
@@ -42,7 +41,6 @@ namespace op
 
         GLFWwindow* m_window = nullptr;
         up<RenderContext> m_renderContext = nullptr;
-        up<CullingSystem> m_cullingSystem = nullptr;
         up<RenderTargetPool> m_renderTargetPool = nullptr;
 
         sp<RenderTexture> m_gBuffer0Tex = nullptr;

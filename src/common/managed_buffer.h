@@ -1,49 +1,147 @@
 #pragma once
 #include <cstdint>
-#include <unordered_map>
-#include <vector>
 
-#include "event.h"
+#include "math/vec.h"
 
 namespace op
 {
-    typedef size_t ManagedBlockId;
+    template <typename T>
+    class ManagedBuffer;
     
+    template <typename T>
+    struct MBPtr
+    {
+        explicit MBPtr(uint32_t index, ManagedBuffer<T>* buffer);
+
+        T* operator->();
+        T& operator*();
+
+    private:
+        bool m_enable = true;
+        uint32_t m_index;
+        ManagedBuffer<T>* m_buffer;
+
+        friend class ManagedBuffer<T>;
+    };
+
+
+    
+    
+    template <typename T>
     class ManagedBuffer
     {
     public:
-        explicit ManagedBuffer(uint32_t capacityB);
-        ~ManagedBuffer();
+        MBPtr<T> Alloc();
+        void Free(MBPtr<T>& access);
 
-        void Reserve(uint32_t capacityB);
-        ManagedBlockId Alloc(uint32_t sizeB);
-        void Release(ManagedBlockId id);
-        void* GetWriteDst(ManagedBlockId id);
-        void GetBlockInfo(ManagedBlockId id, uint32_t& offsetB, uint32_t& sizeB);
-        bool Compaction();
+        T* GetData(uint32_t index);
 
-        uint32_t Size() const { return m_sizeB;}
-        uint32_t RealSize() const { return m_realSize;}
-        uint32_t Capacity() const { return m_capacityB;}
-        uint8_t* Data() const { return m_data;}
+        T& operator[](uint32_t index);
+
+        template <typename F>
+        void Foreach(F&& func);
 
     private:
-        struct ManagedBlock
+        struct ElemInfo
         {
-            ManagedBlockId id = ~0u;
-            bool enable = true;
-            uint32_t offsetB;
-            uint32_t sizeB;
+            uint32_t empty = true;
         };
-    
-        uint32_t m_capacityB = 0;
-        uint32_t m_sizeB = 0;
-        uint32_t m_realSize = 0;
-        uint8_t* m_data = nullptr;
-        std::vector<ManagedBlock> m_blocks;
-        std::unordered_map<ManagedBlockId, size_t> m_blockIndices;
-
-        void Expansion(uint32_t size);
-        void SortBlocks();
+        
+        vec<T> m_data;
+        vec<ElemInfo> m_info;
+        uint32_t m_realSizeT = 0;
+        uint32_t m_nextEmpty = 0;
     };
+
+
+    
+
+    template <typename T>
+    MBPtr<T>::MBPtr(const uint32_t index, ManagedBuffer<T>* buffer)
+    {
+        m_index = index;
+        m_buffer = buffer;
+    }
+
+    template <typename T>
+    T* MBPtr<T>::operator->()
+    {
+        assert(m_enable);
+        
+        return m_buffer->GetData(m_index);
+    }
+
+    template <typename T>
+    T& MBPtr<T>::operator*()
+    {
+        assert(m_enable);
+        
+        return *m_buffer->GetData(m_index);
+    }
+
+
+
+    
+    template <typename T>
+    MBPtr<T> ManagedBuffer<T>::Alloc()
+    {
+        for (auto searchIndex = m_nextEmpty; searchIndex <= m_data.size(); ++searchIndex)
+        {
+            if (searchIndex == m_data.size())
+            {
+                m_data.push_back({});
+                m_info.push_back({});
+            }
+            
+            if (m_info[searchIndex].empty)
+            {
+                m_realSizeT++;
+                m_nextEmpty = searchIndex + 1;
+                m_info[searchIndex].empty = false;
+                return MBPtr<T>(searchIndex, this);
+            }
+        }
+
+        throw "Wtf!!!";
+    }
+
+    template <typename T>
+    void ManagedBuffer<T>::Free(MBPtr<T>& access)
+    {
+        assert(!m_info[access.m_index].empty);
+
+        access.m_enable = false;
+        m_info[access.m_index].empty = true;
+        m_nextEmpty = std::min(m_nextEmpty, access.m_index);
+        m_realSizeT--;
+    }
+
+    template <typename T>
+    T* ManagedBuffer<T>::GetData(uint32_t index)
+    {
+        assert(!m_info[index].empty);
+        
+        return &m_data[index];
+    }
+
+    template <typename T>
+    T& ManagedBuffer<T>::operator[](const uint32_t index)
+    {
+        assert(!m_info[index].empty);
+        
+        return m_data[index];
+    }
+
+    template <typename T>
+    template <typename F>
+    void ManagedBuffer<T>::Foreach(F&& func)
+    {
+        for (uint32_t i = 0; i < m_data.size(); ++i)
+        {
+            if (!m_info[i].empty)
+            {
+                func(m_data[i]);
+            }
+        }
+    }
 }
