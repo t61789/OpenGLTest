@@ -15,23 +15,6 @@ namespace op
     
     class BatchRenderUnit
     {
-        struct PerCmdKey
-        {
-            Material* material = nullptr;
-            bool hasONS = false;
-
-            bool operator==(const PerCmdKey& rhs) const;
-            bool operator!=(const PerCmdKey& rhs) const;
-        };
-
-        struct PerSubCmdKey
-        {
-            Mesh* mesh = nullptr;
-
-            bool operator==(const PerSubCmdKey& rhs) const;
-            bool operator!=(const PerSubCmdKey& rhs) const;
-        };
-        
     public:
         BatchRenderUnit();
 
@@ -53,6 +36,7 @@ namespace op
         struct CompInfo
         {
             uint32_t matrixIndex;
+            std::tuple<Material*, bool, Mesh*> sortKey;
             BatchRenderComp* comp;
         };
 
@@ -80,7 +64,6 @@ namespace op
         void EncodePerMaterialCmds(DrawContext& drawContext);
         IndirectCmd EncodePerMeshCmd(Mesh* mesh, uint32_t instanceCount, uint32_t baseInstanceCount);
         void CallGlCmd(const DrawContext& drawContext);
-
-        static bool CompComparer(const CompInfo& lhs, const CompInfo& rhs);
+        void AddToCompsOrderly(BatchRenderComp* comp);
     };
 }

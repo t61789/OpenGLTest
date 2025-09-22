@@ -12,26 +12,6 @@
 
 namespace op
 {
-    bool BatchRenderUnit::PerCmdKey::operator==(const PerCmdKey& rhs) const
-    {
-        return material == rhs.material && hasONS == rhs.hasONS;
-    }
-
-    bool BatchRenderUnit::PerCmdKey::operator!=(const PerCmdKey& rhs) const
-    {
-        return !(*this == rhs);
-    }
-
-    bool BatchRenderUnit::PerSubCmdKey::operator==(const PerSubCmdKey& rhs) const
-    {
-        return mesh == rhs.mesh;
-    }
-
-    bool BatchRenderUnit::PerSubCmdKey::operator!=(const PerSubCmdKey& rhs) const
-    {
-        return !(*this == rhs);
-    }
-
     BatchRenderUnit::BatchRenderUnit()
     {
         m_cmdBuffer = msp<GlBuffer>(GL_DRAW_INDIRECT_BUFFER);
@@ -42,22 +22,22 @@ namespace op
 
     void BatchRenderUnit::BindComp(BatchRenderComp* comp)
     {
-        if (find(m_comps, &CompInfo::comp, comp) || !comp->GetMesh() || !comp->GetMaterial())
+        if (!comp->GetMesh() || !comp->GetMaterial())
         {
             return;
         }
 
-        m_comps.push_back({m_batchMatrix->Register(), comp});
         m_batchMesh->RegisterMesh(comp->GetMesh());
+
+        AddToCompsOrderly(comp);
     }
 
     void BatchRenderUnit::UnBindComp(const BatchRenderComp* comp)
     {
-        auto it = std::find_if(m_comps.begin(), m_comps.end(), [&](const CompInfo& info){ return info.comp == comp;});
-        if (it != m_comps.end())
+        remove_if(m_comps, [&comp](cr<CompInfo> info)
         {
-            m_comps.erase(it);
-        }
+            return info.comp == comp;
+        });
     }
 
     void BatchRenderUnit::UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices)
@@ -73,48 +53,33 @@ namespace op
             return;
         }
 
-        {
-            ZoneScopedN("Sort");
-            
-            std::sort(m_comps.begin(), m_comps.end(), CompComparer);
-        }
-
         static DrawContext drawContext;
 
-        PerCmdKey curPerCmdKey;
-        for (auto it = m_comps.begin(); it != m_comps.end(); ++it)
+        std::tuple<Material*, bool> curPerCmdKey;
+        for (auto it = m_comps.begin();; ++it)
         {
             drawContext.sameMatCompsEnd = it;
-            auto& comp = it->comp;
-
-            PerCmdKey perCmdKey = {
-                comp->GetMaterial().get(),
-                comp->HasONS()
-            };
             
-            if (perCmdKey != curPerCmdKey)
+            if (it == m_comps.end())
             {
-                if (curPerCmdKey.material)
-                {
-                    drawContext.material = curPerCmdKey.material;
-                    drawContext.hasONS = curPerCmdKey.hasONS;
-                    
-                    EncodePerMaterialCmds(drawContext);
-                }
-                curPerCmdKey = perCmdKey;
-                drawContext.sameMatCompsBegin = it;
-            }
-            
-            if (it + 1 == m_comps.end() || !(it + 1)->comp->GetInView())
-            {
-                drawContext.sameMatCompsEnd = m_comps.end();
-                
-                drawContext.material = curPerCmdKey.material;
-                drawContext.hasONS = curPerCmdKey.hasONS;
-                
+                std::tie(drawContext.material, drawContext.hasONS) = curPerCmdKey;
                 EncodePerMaterialCmds(drawContext);
 
                 break;
+            }
+            
+            auto& comp = it->comp;
+            auto perCmdKey = std::tuple(comp->GetMaterial().get(), comp->HasONS()); // todo make them const
+            if (perCmdKey != curPerCmdKey)
+            {
+                if (it != m_comps.begin())
+                {
+                    std::tie(drawContext.material, drawContext.hasONS) = curPerCmdKey;
+                    EncodePerMaterialCmds(drawContext);
+                }
+                
+                curPerCmdKey = perCmdKey;
+                drawContext.sameMatCompsBegin = it;
             }
         }
     }
@@ -134,24 +99,35 @@ namespace op
         uint32_t instanceCount = 0;
         uint32_t baseInstanceCount = 0;
 
-        PerSubCmdKey curPerSubCmdKey;
-        for (auto it = drawContext.sameMatCompsBegin; it != drawContext.sameMatCompsEnd; ++it)
+        std::tuple<Mesh*> curPerSubCmdKey;
+        for (auto it = drawContext.sameMatCompsBegin;; ++it)
         {
-            auto& comp = it->comp;
-            comp->UpdateTransform();
+            if (it == drawContext.sameMatCompsEnd)
+            {
+                if (instanceCount != 0)
+                {
+                    auto cmd = EncodePerMeshCmd(std::get<0>(curPerSubCmdKey), instanceCount, baseInstanceCount);
+                    drawContext.cmds.push_back(cmd);
+                }
 
-            PerSubCmdKey perSubCmdKey = {
-                comp->GetMesh().get()
-            };
+                break;
+            }
             
+            auto& comp = it->comp;
+            if (!comp->GetInView())
+            {
+                // continue;
+            }
+
+            auto perSubCmdKey = std::tuple(comp->GetMesh().get());
             if (perSubCmdKey != curPerSubCmdKey)
             {
                 if (instanceCount != 0)
                 {
-                    drawContext.mesh = curPerSubCmdKey.mesh;
-                    
-                    drawContext.cmds.push_back(EncodePerMeshCmd(curPerSubCmdKey.mesh, instanceCount, baseInstanceCount));
+                    auto cmd = EncodePerMeshCmd(std::get<0>(curPerSubCmdKey), instanceCount, baseInstanceCount);
+                    drawContext.cmds.push_back(cmd);
                 }
+                
                 baseInstanceCount += instanceCount;
                 instanceCount = 0;
 
@@ -159,14 +135,6 @@ namespace op
             }
 
             instanceCount++;
-
-            if (it + 1 == drawContext.sameMatCompsEnd)
-            {
-                drawContext.mesh = curPerSubCmdKey.mesh;
-                
-                drawContext.cmds.push_back(EncodePerMeshCmd(curPerSubCmdKey.mesh, instanceCount, baseInstanceCount));
-            }
-
             drawContext.matrixIndices.push_back(it->matrixIndex);
         }
 
@@ -175,6 +143,11 @@ namespace op
 
     void BatchRenderUnit::CallGlCmd(const DrawContext& drawContext)
     {
+        if (drawContext.cmds.empty())
+        {
+            return;
+        }
+        
         m_cmdBuffer->Bind();
         m_cmdBuffer->SetData(
             GL_STREAM_DRAW,
@@ -214,29 +187,21 @@ namespace op
         return cmd;
     }
 
-    bool BatchRenderUnit::CompComparer(const CompInfo& lhs, const CompInfo& rhs)
+    void BatchRenderUnit::AddToCompsOrderly(BatchRenderComp* comp)
     {
-        auto lMat = reinterpret_cast<uintptr_t>(lhs.comp->GetMaterial().get());
-        auto lMesh = reinterpret_cast<uintptr_t>(lhs.comp->GetMesh().get());
-        auto rMat = reinterpret_cast<uintptr_t>(rhs.comp->GetMaterial().get());
-        auto rMesh = reinterpret_cast<uintptr_t>(rhs.comp->GetMesh().get());
-        auto lONS = lhs.comp->HasONS();
-        auto rONS = rhs.comp->HasONS();
-        auto lInView = lhs.comp->GetInView();
-        auto rInView = rhs.comp->GetInView();
+        auto sortKey = std::tuple(
+            comp->GetMaterial().get(),
+            comp->HasONS(),
+            comp->GetMesh().get());
+        
+        CompInfo compInfo = {
+            m_batchMatrix->Register(),
+            sortKey,
+            comp};
 
-        if (lInView == rInView)
+        insert(m_comps, compInfo, [&sortKey](cr<CompInfo> x)
         {
-            if (lMat == rMat)
-            {
-                if (lONS == rONS)
-                {
-                    return lMesh < rMesh;
-                }
-                return lONS < rONS;
-            }
-            return lMat < rMat;
-        }
-        return lInView > rInView;
+            return x.sortKey < sortKey;
+        });
     }
 }

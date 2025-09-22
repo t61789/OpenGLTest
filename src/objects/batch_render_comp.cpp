@@ -14,15 +14,20 @@ namespace op
 {
     void BatchRenderComp::OnEnable()
     {
-        m_onTransformDirtyHandler = GetOwner()->transform->dirtyEvent.Add(this, &BatchRenderComp::OnTransformDirty);
-        GetGR()->GetBatchRenderUnit()->BindComp(this);
-
+        m_preHasONS = HasONS();
+        
         m_cullingBufferAccessor = GetGR()->GetCullingSystem()->GetCullingBuffer()->Alloc();
+        
+        GetGR()->GetBatchRenderUnit()->BindComp(this);
+        
+        m_onTransformDirtyHandler = GetOwner()->transform->dirtyEvent.Add(this, &BatchRenderComp::OnTransformDirty);
+        OnTransformDirty();
     }
 
     void BatchRenderComp::OnDisable()
     {
         GetOwner()->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
+        
         GetGR()->GetBatchRenderUnit()->UnBindComp(this);
         
         GetGR()->GetCullingSystem()->GetCullingBuffer()->Release(m_cullingBufferAccessor);
@@ -30,31 +35,36 @@ namespace op
 
     void BatchRenderComp::OnTransformDirty()
     {
-        m_transformDirty = true;
+        if (!IsEnable())
+        {
+            return;
+        }
+        
+        UpdateTransform();
     }
     
     void BatchRenderComp::UpdateTransform()
     {
-        if (!m_transformDirty)
+        auto hasONS = HasONS();
+        if (hasONS != m_preHasONS)
         {
-            return;
-        }
-        m_transformDirty = false;
+            m_preHasONS = hasONS;
 
-        m_worldBounds = m_mesh->GetBounds().ToWorld(GetOwner()->transform->GetLocalToWorld());
+            // When the key changes, rebinding is required for sorting
+            // Mesh and Material are included in the key but not yet implemented
+            GetGR()->GetBatchRenderUnit()->UnBindComp(this);
+            GetGR()->GetBatchRenderUnit()->BindComp(this);
+        }
+        
+        auto worldBounds = m_mesh->GetBounds().ToWorld(GetOwner()->transform->GetLocalToWorld());
+        m_cullingBufferAccessor.Submit(worldBounds);
+        
         UpdatePerObjectBuffer();
     }
 
     bool BatchRenderComp::HasONS()
     {
         return GetOwner()->transform->HasOddNegativeScale();
-    }
-
-    Bounds BatchRenderComp::GetWorldBounds()
-    {
-        UpdateTransform();
-
-        return m_worldBounds;
     }
 
     void BatchRenderComp::UpdatePerObjectBuffer()

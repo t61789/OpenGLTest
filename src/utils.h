@@ -182,11 +182,11 @@ namespace op
     template <typename T, typename Predicate>
     static T* find_if(std::vector<T>& vec, Predicate&& p)
     {
-        auto index = find_index_if(vec, p);
-    
-        if (index != -1)
+        auto it = std::find_if(vec.begin(), vec.end(), p);
+
+        if (it != vec.end())
         {
-            return &vec[index];
+            return &*it;
         }
 
         return nullptr;
@@ -195,14 +195,46 @@ namespace op
     template <typename T, typename Predicate>
     static const T* find_if(const std::vector<T>& vec, Predicate&& p)
     {
-        auto index = find_index_if(vec, p);
-    
-        if (index != -1)
+        auto it = std::find_if(vec.begin(), vec.end(), p);
+
+        if (it != vec.end())
         {
-            return &vec[index];
+            return &it->second();
         }
 
         return nullptr;
+    }
+
+    template <typename T, typename Predicate>
+    static void insert_when(vec<T>& v, cr<T> o, Predicate&& p)
+    {
+        auto it = std::find_if(v.begin(), v.end(), p);
+
+        if (it == v.end())
+        {
+            v.push_back(o);
+        }
+        else
+        {
+            v.insert(it, o);
+        }
+    }
+    
+    template <typename T, typename Predicate>
+    static void insert(vec<T>& v, cr<T> o, Predicate&& p)
+    {
+        // predicate: return true when element is on the left of o
+        
+        auto it = std::partition_point(v.begin(), v.end(), p);
+
+        if (it == v.end())
+        {
+            v.push_back(o);
+        }
+        else
+        {
+            v.insert(it, o);
+        }
     }
     
     template <typename V, typename T>

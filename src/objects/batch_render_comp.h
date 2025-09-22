@@ -22,7 +22,6 @@ namespace op
         void OnDisable() override;
         void UpdateTransform();
         bool HasONS();
-        Bounds GetWorldBounds();
 
         bool GetInView() { return m_cullingBufferAccessor.IsEnable() ? m_cullingBufferAccessor.GetVisible() : false; }
 
@@ -32,9 +31,8 @@ namespace op
         sp<Mesh> m_mesh = nullptr;
         sp<Material> m_material = nullptr;
         EventHandler m_onTransformDirtyHandler = 0;
-        bool m_transformDirty = true;
         BatchMatrix::Elem m_submitBuffer;
-        Bounds m_worldBounds;
+        bool m_preHasONS = false;
         CullingBufferAccessor m_cullingBufferAccessor = {};
 
         void OnTransformDirty();
