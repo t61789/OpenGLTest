@@ -9,6 +9,7 @@ namespace op
 {
     GameResource::GameResource()
     {
+        m_threadPool = mup<ThreadPool>(5);
         m_perObjectBuffer = mup<PerObjectBuffer>(5000, 4);
         for (auto& matName : PREDEFINED_MATERIALS)
         {
@@ -35,6 +36,7 @@ namespace op
         m_builtInRes.reset();
         m_predefinedCbuffers.clear();
         m_perObjectBuffer.reset();
+        m_threadPool.reset();
     }
 
     GlCbuffer* GameResource::GetPredefinedCbuffer(const size_t nameId)

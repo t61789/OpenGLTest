@@ -217,16 +217,21 @@ namespace op
 
             for (auto& [attr, attrInfo] : vertexAttribInfo)
             {
-                auto index = find_index(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, attr);
-                auto& attrDefine = VERTEX_ATTR_DEFINES[index];
+                auto index = find_index_if(VERTEX_ATTR_DEFINES, [a=attr](cr<VertexAttrDefine> x)
+                {
+                    return x.attr == a;
+                });
+                assert(index.has_value());
+                
+                auto& attrDefine = VERTEX_ATTR_DEFINES[index.value()];
                 if (attrInfo.enabled)
                 {
-                    vao->SetAttrEnable(index, true);
+                    vao->SetAttrEnable(index.value(), true);
                     vao->SetAttr(attrDefine.attr, vertexDataStrideB, attrInfo.offsetB);
                 }
                 else
                 {
-                    vao->SetAttrEnable(index, false);
+                    vao->SetAttrEnable(index.value(), false);
                 }
             }
         }

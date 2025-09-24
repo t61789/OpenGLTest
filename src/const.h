@@ -3,6 +3,7 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include <boost/lockfree/lockfree_forward.hpp>
 
 #include "string_handle.h"
 
@@ -57,6 +58,8 @@ namespace op
     using arr = std::array<T, N>;
     using str = std::string;
     using crstr = cr<std::string>;
+    template <typename T>
+    using lock_free_queue = boost::lockfree::queue<T, boost::lockfree::fixed_sized<true>>;
     
     template <typename T, typename... Args>
     std::unique_ptr<T> mup(Args&&... args)

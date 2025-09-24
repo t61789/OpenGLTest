@@ -78,10 +78,13 @@ namespace op
         assert(m_settingAttr);
         assert(m_vbo);
 
-        auto index = find_index(VERTEX_ATTR_DEFINES, &VertexAttrDefine::attr, attr);
-        auto& attrInfo = VERTEX_ATTR_DEFINES[index];
+        auto index = find_index_if(VERTEX_ATTR_DEFINES, [&attr](cr<VertexAttrDefine> d)
+        {
+            return attr == d.attr;
+        });
+        auto& attrInfo = VERTEX_ATTR_DEFINES[index.value()];
         GlState::GlSetVertAttrLayout(
-            index,
+            index.value(),
             attrInfo.strideF,
             GL_FLOAT,
             GL_FALSE,

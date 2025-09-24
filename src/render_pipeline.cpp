@@ -132,6 +132,8 @@ namespace op
         CategorizeObjects(*m_renderContext);
 
         GetGR()->GetCullingSystem()->Cull();
+
+        GetGR()->GetBatchRenderUnit()->StartEncodingCmds();
     }
 
     bool RenderPipeline::UpdateRenderTargetsPass()

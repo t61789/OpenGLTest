@@ -2,6 +2,7 @@
 #include "built_in_res.h"
 #include "i_resource.h"
 #include "utils.h"
+#include "common/thread_pool.h"
 #include "render/batch_render_unit.h"
 #include "render/per_object_buffer.h"
 #include "render/texture_set.h"
@@ -35,6 +36,7 @@ namespace op
         PerObjectBuffer* GetPerObjectBuffer() const { return m_perObjectBuffer.get(); }
         BatchRenderUnit* GetBatchRenderUnit() const { return m_batchRenderUnit.get(); }
         CullingSystem* GetCullingSystem() const { return m_cullingSystem.get(); }
+        ThreadPool* GetThreadPool() const { return m_threadPool.get(); }
         
         GlCbuffer* GetPredefinedCbuffer(size_t nameId);
         bool IsPredefinedCbuffer(size_t nameId);
@@ -56,6 +58,7 @@ namespace op
         sp<CullingSystem> m_cullingSystem;
         sp<Scene> m_mainScene = nullptr;
         up<BuiltInRes> m_builtInRes = nullptr;
+        up<ThreadPool> m_threadPool = nullptr;
     };
 
     template <typename T>

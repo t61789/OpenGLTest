@@ -11,15 +11,18 @@ namespace op
     template <typename T>
     struct MBPtr
     {
+        MBPtr() = default;
         explicit MBPtr(uint32_t index, ManagedBuffer<T>* buffer);
+
+        bool IsEnable() const { return m_enable; }
 
         T* operator->();
         T& operator*();
 
     private:
-        bool m_enable = true;
-        uint32_t m_index;
-        ManagedBuffer<T>* m_buffer;
+        bool m_enable = false;
+        uint32_t m_index = 0;
+        ManagedBuffer<T>* m_buffer = nullptr;
 
         friend class ManagedBuffer<T>;
     };
@@ -61,6 +64,7 @@ namespace op
     {
         m_index = index;
         m_buffer = buffer;
+        m_enable = true;
     }
 
     template <typename T>
@@ -80,8 +84,6 @@ namespace op
     }
 
 
-
-    
     template <typename T>
     MBPtr<T> ManagedBuffer<T>::Alloc()
     {

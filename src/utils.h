@@ -121,107 +121,164 @@ namespace op
         return log(Error, msg, args...);
     }
     
-    template <typename T, typename Predicate>
-    static int find_index_if(T& vec, Predicate&& p)
+    template <typename T, size_t N>
+    static std::optional<size_t> find_index(const std::array<T, N>& arr, const T& value)
     {
-        auto it = std::find_if(vec.begin(), vec.end(), p);
-        
-        if (it != vec.end())
+        auto it = std::find(arr.begin(), arr.end(), value);
+        if (it == arr.end())
         {
-            return std::distance(vec.begin(), it);
+            return std::nullopt;
         }
 
-        return -1;
+        return std::distance(arr.begin(), it);
+    }
+    
+    template <typename T>
+    static std::optional<size_t> find_index(const std::vector<T>& vec, const T& value)
+    {
+        auto it = std::find(vec.begin(), vec.end(), value);
+        if (it == vec.end())
+        {
+            return std::nullopt;
+        }
+
+        return std::distance(vec.begin(), it);
+    }
+
+    template <typename T, typename Predicate>
+    static std::optional<size_t> find_index_if(const std::vector<T>& vec, Predicate&& predicate)
+    {
+        auto it = std::find_if(vec.begin(), vec.end(), predicate);
+        if (it == vec.end())
+        {
+            return std::nullopt;
+        }
+
+        return std::distance(vec.begin(), it);
+    }
+    
+    template <typename T, typename Predicate>
+    static const T* find_if(const std::vector<T*>& vec, Predicate&& predicate)
+    {
+        auto it = std::find_if(vec.begin(), vec.end(), predicate);
+        if (it == vec.end())
+        {
+            return nullptr;
+        }
+
+        return *it;
+    }
+    
+    template <typename T, typename Predicate>
+    static const T* find_if(const std::vector<T>& vec, Predicate&& predicate)
+    {
+        auto it = std::find_if(vec.begin(), vec.end(), predicate);
+        if (it == vec.end())
+        {
+            return nullptr;
+        }
+
+        return &*it;
+    }
+    
+    template <typename T, typename Predicate>
+    static T* find_if(std::vector<T*>& vec, Predicate&& predicate)
+    {
+        auto it = std::find_if(vec.begin(), vec.end(), predicate);
+        if (it == vec.end())
+        {
+            return nullptr;
+        }
+
+        return *it;
+    }
+    
+    template <typename T, typename Predicate>
+    static T* find_if(std::vector<T>& vec, Predicate&& predicate)
+    {
+        auto it = std::find_if(vec.begin(), vec.end(), predicate);
+        if (it == vec.end())
+        {
+            return nullptr;
+        }
+
+        return &*it;
+    }
+    
+    template <typename T, typename V>
+    static const T* find(const std::vector<T*>& vec, V T::* field, const V& value)
+    {
+        auto it = std::find_if(vec.begin(), vec.end(), [field, &value](T* t)
+        {
+            return t->*field == value;
+        });
+        if (it == vec.end())
+        {
+            return nullptr;
+        }
+
+        return *it;
     }
 
     template <typename T, typename V>
-    static int find_index(T& vec, const V& val)
+    static const T* find(const std::vector<T>& vec, V T::* field, const V& value)
     {
-        auto it = std::find(vec.begin(), vec.end(), val);
-        if (it != vec.end())
+        auto it = std::find_if(vec.begin(), vec.end(), [field, &value](const T& t)
         {
-            return std::distance(vec.begin(), it);
+            return t.*field == value;
+        });
+        if (it == vec.end())
+        {
+            return nullptr;
         }
 
-        return -1;
+        return &*it;
     }
-
-    template <typename T, typename K, typename V>
-    static int find_index(T& vec, V K::* field, const V& val)
-    {
-        return find_index_if(vec, [&field, &val](const K& item){return item.*field == val;});
-    }
-
-
-    template <typename T, typename K, typename V>
-    static T* find(std::vector<T>& vec, V K::* field, const V& val)
-    {
-        auto index = find_index(vec, field, val);
     
-        if (index != -1)
+    template <typename T, typename V>
+    static T* find(std::vector<T*>& vec, V T::* field, const V& value)
+    {
+        auto it = std::find_if(vec.begin(), vec.end(), [field, &value](T* t)
         {
-            return &vec[index];
+            return t->*field == value;
+        });
+        if (it == vec.end())
+        {
+            return nullptr;
         }
 
-        return nullptr;
+        return *it;
     }
-    
-    template <typename T, typename K, typename V>
-    static const T* find(const std::vector<T>& vec, V K::* field, const V& val)
+
+    template <typename T, typename V>
+    static T* find(std::vector<T>& vec, V T::* field, const V& value)
     {
-        auto index = find_index(vec, field, val);
-    
-        if (index != -1)
+        auto it = std::find_if(vec.begin(), vec.end(), [field, &value](T& t)
         {
-            return &vec[index];
+            return t.*field == value;
+        });
+        if (it == vec.end())
+        {
+            return nullptr;
         }
 
-        return nullptr;
+        return &*it;
     }
-    
-    template <typename T, typename Predicate>
-    static T* find_if(std::vector<T>& vec, Predicate&& p)
+
+    template <typename T>
+    static bool exists(const std::vector<T>& vec, const T& value)
     {
-        auto it = std::find_if(vec.begin(), vec.end(), p);
-
-        if (it != vec.end())
-        {
-            return &*it;
-        }
-
-        return nullptr;
-    }
-    
-    template <typename T, typename Predicate>
-    static const T* find_if(const std::vector<T>& vec, Predicate&& p)
-    {
-        auto it = std::find_if(vec.begin(), vec.end(), p);
-
-        if (it != vec.end())
-        {
-            return &it->second();
-        }
-
-        return nullptr;
+        return std::find(vec.begin(), vec.end(), value) != vec.end();
     }
 
     template <typename T, typename Predicate>
-    static void insert_when(vec<T>& v, cr<T> o, Predicate&& p)
+    static bool exists_if(const std::vector<T>& vec, Predicate&& predicate)
     {
-        auto it = std::find_if(v.begin(), v.end(), p);
-
-        if (it == v.end())
-        {
-            v.push_back(o);
-        }
-        else
-        {
-            v.insert(it, o);
-        }
+        return std::find_if(vec.begin(), vec.end(), predicate) != vec.end();
     }
     
     template <typename T, typename Predicate>
-    static void insert(vec<T>& v, cr<T> o, Predicate&& p)
+    static void insert(std::vector<T>& v, const T& o, Predicate&& p)
     {
         // predicate: return true when element is on the left of o
         
@@ -237,32 +294,14 @@ namespace op
         }
     }
     
-    template <typename V, typename T>
-    static bool exists(const V& vec, const T& val)
-    {
-        return find_index(vec, val) != -1;
-    }
-    
-    template <typename T, typename K, typename V>
-    static bool exists(const T& vec, V K::* field, const V& val)
-    {
-        return find_index(vec, field, val) != -1;
-    }
-    
-    template <typename T, typename Predicate>
-    static bool exists_if(const T& vec, Predicate&& p)
-    {
-        return find_index_if(vec, p) != -1;
-    }
-    
     template <typename T>
-    static void remove(vec<T>& vec, const T& obj)
+    static void remove(std::vector<T>& vec, const T& obj)
     {
         vec.erase(std::remove(vec.begin(), vec.end(), obj), vec.end());
     }
 
     template <typename T, typename Predicate>
-    static void remove_if(vec<T>& vec, Predicate&& p)
+    static void remove_if(std::vector<T>& vec, Predicate&& p)
     {
         vec.erase(std::remove_if(vec.begin(), vec.end(), p), vec.end());
     }

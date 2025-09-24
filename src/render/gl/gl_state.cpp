@@ -251,8 +251,8 @@ namespace op
             auto& texture = textures[i];
             auto textureTypeIndex = static_cast<uint8_t>(texture->GetType());
             auto& destSlots = m_glTextures[textureTypeIndex].slots;
-            auto boundSlot = find_index(destSlots, texture);
-            resultSlots[i] = boundSlot;
+            auto boundSlot = find_index(destSlots, texture).value_or(-1);
+            resultSlots[i] = static_cast<int>(boundSlot);
 
             if (boundSlot != -1)
             { 

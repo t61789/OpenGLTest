@@ -4,9 +4,11 @@
 
 #include "batch_matrix.h"
 #include "batch_mesh.h"
+#include "game_resource.h"
 #include "rendering_utils.h"
 #include "objects/batch_render_comp.h"
 #include "utils.h"
+#include "common/asset_cache.h"
 #include "gl/gl_buffer.h"
 #include "gl/gl_state.h"
 
@@ -22,143 +24,233 @@ namespace op
 
     void BatchRenderUnit::BindComp(BatchRenderComp* comp)
     {
-        if (!comp->GetMesh() || !comp->GetMaterial())
-        {
-            return;
-        }
-
-        m_batchMesh->RegisterMesh(comp->GetMesh());
-
-        AddToCompsOrderly(comp);
+        AddComp(comp);
     }
 
-    void BatchRenderUnit::UnBindComp(const BatchRenderComp* comp)
+    void BatchRenderUnit::UnBindComp(BatchRenderComp* comp)
     {
-        remove_if(m_comps, [&comp](cr<CompInfo> info)
-        {
-            return info.comp == comp;
-        });
+        RemoveComp(comp);
     }
 
     void BatchRenderUnit::UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices)
     {
-        auto compInfo = find(m_comps, &CompInfo::comp, comp);
-        m_batchMatrix->SubmitData(compInfo->matrixIndex, matrices);
+        auto compInfo = m_comps.find(comp);
+        assert(compInfo != m_comps.end());
+        m_batchMatrix->SubmitData(compInfo->second->matrixIndex, matrices);
     }
-
+    
     void BatchRenderUnit::Execute()
     {
-        if (m_comps.empty())
+        assert(m_encodingCmds);
+        
+        while (true)
+        {
+            Cmd* cmd = nullptr;
+            if (!m_encodedCmds.pop(cmd))
+            {
+                std::this_thread::yield();
+                continue;
+            }
+
+            if (cmd)
+            {
+                CallGlCmd(cmd);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        m_encodingCmds = false;
+    }
+
+    void BatchRenderUnit::StartEncodingCmds()
+    {
+        assert(!m_encodingCmds && m_encodedCmds.empty());
+
+        m_encodingCmds = true;
+
+        GetGR()->GetThreadPool()->Start([this]
+        {
+            this->EncodeCmdsTask();
+        });
+    }
+
+    void BatchRenderUnit::AddComp(BatchRenderComp* comp)
+    {
+        auto material = comp->GetMaterial().get();
+        auto mesh = comp->GetMesh();
+        auto hasONS = comp->HasONS();
+
+        if (mesh == nullptr || material == nullptr)
+        {
+            return;
+        }
+        
+        auto cmd = op::find_if(m_cmds, [material, hasONS](const Cmd* x)
+        {
+            return x->material == material && x->hasONS == hasONS;
+        });
+        if (!cmd)
+        {
+            m_cmds.push_back(new Cmd{
+                material,
+                hasONS
+            });
+            cmd = m_cmds.back();
+        }
+
+        
+        auto subCmd = find_if(cmd->subCmds, [mesh=mesh.get()](const SubCmd* x)
+        {
+            return x->mesh == mesh;
+        });
+        if (!subCmd)
+        {
+            m_batchMesh->RegisterMesh(mesh);
+            cmd->subCmds.push_back(new SubCmd{
+                mesh.get(),
+                CreateIndirectCmd(mesh.get())
+            });
+            subCmd = cmd->subCmds.back();
+        }
+
+        
+        assert(!exists_if(subCmd->comps, [comp](const CompInfo* x){ return x->comp == comp; }));
+        subCmd->comps.push_back(new CompInfo{
+            m_batchMatrix->Register(),
+            comp
+        });
+        m_comps[comp] = subCmd->comps.back();
+    }
+
+    void BatchRenderUnit::RemoveComp(BatchRenderComp* comp)
+    {
+        auto material = comp->GetMaterial().get();
+        auto mesh = comp->GetMesh().get();
+        auto hasONS = comp->HasONS();
+        
+        if (mesh == nullptr || material == nullptr)
+        {
+            return;
+        }
+        
+        auto cmd = find_if(m_cmds, [material, hasONS](const Cmd* x)
+        {
+            return x->material == material && x->hasONS == hasONS;
+        });
+        if (cmd == nullptr)
+        {
+            return;
+        }
+        
+
+        auto subCmd = find(cmd->subCmds, &SubCmd::mesh, mesh);
+        if (subCmd == nullptr)
         {
             return;
         }
 
-        static DrawContext drawContext;
-
-        std::tuple<Material*, bool> curPerCmdKey;
-        for (auto it = m_comps.begin();; ++it)
+        
+        auto compInfo = find(subCmd->comps, &CompInfo::comp, comp);
+        if (compInfo == nullptr)
         {
-            drawContext.sameMatCompsEnd = it;
-            
-            if (it == m_comps.end())
-            {
-                std::tie(drawContext.material, drawContext.hasONS) = curPerCmdKey;
-                EncodePerMaterialCmds(drawContext);
+            return;
+        }
+        
 
-                break;
-            }
-            
-            auto& comp = it->comp;
-            auto perCmdKey = std::tuple(comp->GetMaterial().get(), comp->HasONS()); // todo make them const
-            if (perCmdKey != curPerCmdKey)
-            {
-                if (it != m_comps.begin())
-                {
-                    std::tie(drawContext.material, drawContext.hasONS) = curPerCmdKey;
-                    EncodePerMaterialCmds(drawContext);
-                }
-                
-                curPerCmdKey = perCmdKey;
-                drawContext.sameMatCompsBegin = it;
-            }
+        m_batchMatrix->UnRegister(compInfo->matrixIndex);
+        remove(subCmd->comps, compInfo);
+        m_comps.erase(comp);
+        delete compInfo;
+        if (subCmd->comps.empty())
+        {
+            remove(cmd->subCmds, subCmd);
+            delete subCmd;
+        }
+        if (cmd->subCmds.empty())
+        {
+            remove(m_cmds, cmd);
+            delete cmd;
         }
     }
 
-    void BatchRenderUnit::EncodePerMaterialCmds(DrawContext& drawContext)
+    void BatchRenderUnit::EncodeCmdsTask()
     {
-        if (drawContext.sameMatCompsBegin == drawContext.sameMatCompsEnd)
-        {
-            return;
-        }
-
         ZoneScoped;
         
-        drawContext.cmds.clear();
-        drawContext.matrixIndices.clear();
-
-        uint32_t instanceCount = 0;
-        uint32_t baseInstanceCount = 0;
-
-        std::tuple<Mesh*> curPerSubCmdKey;
-        for (auto it = drawContext.sameMatCompsBegin;; ++it)
+        for (auto cmd : m_cmds)
         {
-            if (it == drawContext.sameMatCompsEnd)
-            {
-                if (instanceCount != 0)
-                {
-                    auto cmd = EncodePerMeshCmd(std::get<0>(curPerSubCmdKey), instanceCount, baseInstanceCount);
-                    drawContext.cmds.push_back(cmd);
-                }
-
-                break;
-            }
+            ZoneScopedN("Encode Cmd");
             
-            auto& comp = it->comp;
-            if (!comp->GetInView())
-            {
-                // continue;
-            }
+            cmd->indirectCmds.clear();
+            cmd->indirectCmds.reserve(cmd->subCmds.size());
+            cmd->matrixIndices.clear();
+            cmd->matrixIndices.reserve(cmd->subCmds.size());
 
-            auto perSubCmdKey = std::tuple(comp->GetMesh().get());
-            if (perSubCmdKey != curPerSubCmdKey)
+            auto baseInstanceCount = 0;
+            for (auto& subCmd : cmd->subCmds)
             {
+                auto instanceCount = 0;
+                for (auto& compInfo : subCmd->comps)
+                {
+                    // if (compInfo->comp->GetInView())
+                    // {
+                        cmd->matrixIndices.push_back(compInfo->matrixIndex);
+                        instanceCount++;
+                    // }
+                }
+
+                subCmd->indirectCmd.instanceCount = instanceCount;
+                subCmd->indirectCmd.baseInstance = baseInstanceCount;
+
+                baseInstanceCount += instanceCount;
+
                 if (instanceCount != 0)
                 {
-                    auto cmd = EncodePerMeshCmd(std::get<0>(curPerSubCmdKey), instanceCount, baseInstanceCount);
-                    drawContext.cmds.push_back(cmd);
+                    cmd->indirectCmds.push_back(subCmd->indirectCmd);
                 }
-                
-                baseInstanceCount += instanceCount;
-                instanceCount = 0;
-
-                curPerSubCmdKey = perSubCmdKey;
             }
 
-            instanceCount++;
-            drawContext.matrixIndices.push_back(it->matrixIndex);
+            if (!cmd->indirectCmds.empty())
+            {
+                this->m_encodedCmds.push(cmd);
+            }
         }
 
-        CallGlCmd(drawContext);
+        this->m_encodedCmds.push(nullptr);
+    }
+    
+    BatchRenderUnit::IndirectCmd BatchRenderUnit::CreateIndirectCmd(Mesh* mesh)
+    {
+        uint32_t vertexOffset, vertexSize, indexOffset, indexSize;
+        m_batchMesh->GetMeshInfo(mesh, vertexOffset, vertexSize, indexOffset, indexSize);
+        auto cmd = IndirectCmd();
+        cmd.count = static_cast<uint32_t>(indexSize / sizeof(uint32_t));
+        cmd.instanceCount = 0;
+        cmd.firstIndex = static_cast<uint32_t>(indexOffset / sizeof(uint32_t));
+        cmd.baseVertex = static_cast<uint32_t>(vertexOffset / (MAX_VERTEX_ATTR_STRIDE_F * sizeof(float)));
+        cmd.baseInstance = 0;
+
+        return cmd;
     }
 
-    void BatchRenderUnit::CallGlCmd(const DrawContext& drawContext)
+    void BatchRenderUnit::CallGlCmd(const Cmd* cmd)
     {
-        if (drawContext.cmds.empty())
-        {
-            return;
-        }
+        ZoneScoped;
         
         m_cmdBuffer->Bind();
         m_cmdBuffer->SetData(
             GL_STREAM_DRAW,
-            sizeof(IndirectCmd) * drawContext.cmds.size(),
-            drawContext.cmds.data());
+            sizeof(IndirectCmd) * cmd->indirectCmds.size(),
+            cmd->indirectCmds.data());
 
         m_matrixIndicesBuffer->Bind();
         m_matrixIndicesBuffer->SetData(
             GL_STREAM_DRAW,
-            sizeof(uint32_t) * drawContext.matrixIndices.size(),
-            drawContext.matrixIndices.data());
+            sizeof(uint32_t) * cmd->matrixIndices.size(),
+            cmd->matrixIndices.data());
         m_matrixIndicesBuffer->BindBase();
         
         m_batchMatrix->Use();
@@ -166,42 +258,10 @@ namespace op
         
         RenderingUtils::BindDrawResources({
             nullptr,
-            drawContext.material,
-            drawContext.hasONS
+            cmd->material,
+            cmd->hasONS
         });
 
-        GlState::GlMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawContext.cmds.size()), 0);
-    }
-
-    BatchRenderUnit::IndirectCmd BatchRenderUnit::EncodePerMeshCmd(Mesh* mesh, const uint32_t instanceCount, const uint32_t baseInstanceCount)
-    {
-        uint32_t vertexOffset, vertexSize, indexOffset, indexSize;
-        m_batchMesh->GetMeshInfo(mesh, vertexOffset, vertexSize, indexOffset, indexSize);
-        auto cmd = IndirectCmd();
-        cmd.count = static_cast<uint32_t>(indexSize / sizeof(uint32_t));
-        cmd.instanceCount = instanceCount;
-        cmd.firstIndex = static_cast<uint32_t>(indexOffset / sizeof(uint32_t));
-        cmd.baseVertex = static_cast<uint32_t>(vertexOffset / (MAX_VERTEX_ATTR_STRIDE_F * sizeof(float)));
-        cmd.baseInstance = baseInstanceCount;
-
-        return cmd;
-    }
-
-    void BatchRenderUnit::AddToCompsOrderly(BatchRenderComp* comp)
-    {
-        auto sortKey = std::tuple(
-            comp->GetMaterial().get(),
-            comp->HasONS(),
-            comp->GetMesh().get());
-        
-        CompInfo compInfo = {
-            m_batchMatrix->Register(),
-            sortKey,
-            comp};
-
-        insert(m_comps, compInfo, [&sortKey](cr<CompInfo> x)
-        {
-            return x.sortKey < sortKey;
-        });
+        GlState::GlMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(cmd->indirectCmds.size()), 0);
     }
 }
