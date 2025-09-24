@@ -8,6 +8,7 @@
 #include "batch_matrix.h"
 #include "utils.h"
 #include "common/managed_buffer.h"
+#include "common/simple_list.h"
 
 namespace op
 {
@@ -59,9 +60,10 @@ namespace op
         {
             Material* material = nullptr;
             bool hasONS = true;
+            uint32_t compCount = 0;
 
-            vec<IndirectCmd> indirectCmds = {};
-            vec<uint32_t> matrixIndices = {};
+            SimpleList<IndirectCmd> indirectCmds = {};
+            SimpleList<uint32_t> matrixIndices = {};
             
             vec<SubCmd*> subCmds = {};
         };

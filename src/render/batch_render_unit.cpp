@@ -96,7 +96,7 @@ namespace op
         {
             m_cmds.push_back(new Cmd{
                 material,
-                hasONS
+                hasONS,
             });
             cmd = m_cmds.back();
         }
@@ -123,6 +123,7 @@ namespace op
             comp
         });
         m_comps[comp] = subCmd->comps.back();
+        cmd->compCount++;
     }
 
     void BatchRenderUnit::RemoveComp(BatchRenderComp* comp)
@@ -160,6 +161,7 @@ namespace op
         }
         
 
+        cmd->compCount--;
         m_batchMatrix->UnRegister(compInfo->matrixIndex);
         remove(subCmd->comps, compInfo);
         m_comps.erase(comp);
@@ -184,10 +186,10 @@ namespace op
         {
             ZoneScopedN("Encode Cmd");
             
-            cmd->indirectCmds.clear();
-            cmd->indirectCmds.reserve(cmd->subCmds.size());
-            cmd->matrixIndices.clear();
-            cmd->matrixIndices.reserve(cmd->subCmds.size());
+            cmd->indirectCmds.Clear();
+            cmd->indirectCmds.Reserve(cmd->subCmds.size());
+            cmd->matrixIndices.Clear();
+            cmd->matrixIndices.Reserve(cmd->compCount);
 
             auto baseInstanceCount = 0;
             for (auto& subCmd : cmd->subCmds)
@@ -197,7 +199,7 @@ namespace op
                 {
                     // if (compInfo->comp->GetInView())
                     // {
-                        cmd->matrixIndices.push_back(compInfo->matrixIndex);
+                        cmd->matrixIndices.Add<false>(compInfo->matrixIndex);
                         instanceCount++;
                     // }
                 }
@@ -209,11 +211,11 @@ namespace op
 
                 if (instanceCount != 0)
                 {
-                    cmd->indirectCmds.push_back(subCmd->indirectCmd);
+                    cmd->indirectCmds.Add<false>(subCmd->indirectCmd);
                 }
             }
 
-            if (!cmd->indirectCmds.empty())
+            if (!cmd->indirectCmds.Empty())
             {
                 this->m_encodedCmds.push(cmd);
             }
@@ -243,14 +245,14 @@ namespace op
         m_cmdBuffer->Bind();
         m_cmdBuffer->SetData(
             GL_STREAM_DRAW,
-            sizeof(IndirectCmd) * cmd->indirectCmds.size(),
-            cmd->indirectCmds.data());
+            sizeof(IndirectCmd) * cmd->indirectCmds.Size(),
+            cmd->indirectCmds.Data());
 
         m_matrixIndicesBuffer->Bind();
         m_matrixIndicesBuffer->SetData(
             GL_STREAM_DRAW,
-            sizeof(uint32_t) * cmd->matrixIndices.size(),
-            cmd->matrixIndices.data());
+            sizeof(uint32_t) * cmd->matrixIndices.Size(),
+            cmd->matrixIndices.Data());
         m_matrixIndicesBuffer->BindBase();
         
         m_batchMatrix->Use();
@@ -262,6 +264,6 @@ namespace op
             cmd->hasONS
         });
 
-        GlState::GlMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(cmd->indirectCmds.size()), 0);
+        GlState::GlMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(cmd->indirectCmds.Size()), 0);
     }
 }
