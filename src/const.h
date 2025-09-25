@@ -6,6 +6,7 @@
 #include <boost/lockfree/lockfree_forward.hpp>
 
 #include "string_handle.h"
+#include "common/simple_list.h"
 
 namespace op
 {
@@ -24,6 +25,7 @@ namespace op
     template <typename T>
     using cr = const T&;
     template <typename T>
+    
     using vec = std::vector<T>;
     template <typename T>
     using vecsp = std::vector<sp<T>>;
@@ -41,6 +43,12 @@ namespace op
     using crvecwp = cr<vecwp<T>>;
     template <typename T>
     using crvecpt = cr<vecpt<T>>;
+
+    template <typename T>
+    using sl = SimpleList<T>;
+    template <typename T>
+    using crsl = cr<sl<T>>;
+    
     template <typename K, typename V>
     using umap = std::unordered_map<K, V>;
     template <typename K, typename V>

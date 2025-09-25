@@ -5,7 +5,9 @@
 #include "batch_matrix.h"
 #include "batch_mesh.h"
 #include "game_resource.h"
+#include "material.h"
 #include "rendering_utils.h"
+#include "shader.h"
 #include "objects/batch_render_comp.h"
 #include "utils.h"
 #include "common/asset_cache.h"
@@ -43,6 +45,14 @@ namespace op
     {
         assert(m_encodingCmds);
         
+        m_batchMatrix->Use();
+        m_batchMesh->Use();
+        
+        GetGlobalCbuffer()->BindBase();
+        GetPerViewCbuffer()->BindBase();
+
+        DrawContext context;
+        
         while (true)
         {
             Cmd* cmd = nullptr;
@@ -54,7 +64,7 @@ namespace op
 
             if (cmd)
             {
-                CallGlCmd(cmd);
+                CallGlCmd(cmd, context);
             }
             else
             {
@@ -238,32 +248,60 @@ namespace op
         return cmd;
     }
 
-    void BatchRenderUnit::CallGlCmd(const Cmd* cmd)
+    void BatchRenderUnit::CallGlCmd(const Cmd* cmd, DrawContext& context)
     {
         ZoneScoped;
-        
-        m_cmdBuffer->Bind();
-        m_cmdBuffer->SetData(
-            GL_STREAM_DRAW,
-            sizeof(IndirectCmd) * cmd->indirectCmds.Size(),
-            cmd->indirectCmds.Data());
 
-        m_matrixIndicesBuffer->Bind();
-        m_matrixIndicesBuffer->SetData(
-            GL_STREAM_DRAW,
-            sizeof(uint32_t) * cmd->matrixIndices.Size(),
-            cmd->matrixIndices.Data());
-        m_matrixIndicesBuffer->BindBase();
-        
-        m_batchMatrix->Use();
-        m_batchMesh->Use();
-        
-        RenderingUtils::BindDrawResources({
-            nullptr,
-            cmd->material,
-            cmd->hasONS
-        });
+        auto shaderChanged = context.shader != cmd->material->GetShader().get();
+        auto materialChanged = context.material != cmd->material;
+        auto onsChanged = cmd->hasONS != context.hasONS;
+        auto textureSetHashChanged = cmd->material->GetTextureSet()->GetHash() != context.textureSetHash;
 
+        context.shader = cmd->material->GetShader().get();
+        context.material = cmd->material;
+        context.hasONS = cmd->hasONS;
+        context.textureSetHash = cmd->material->GetTextureSet()->GetHash();
+
+        if (shaderChanged)
+        {
+            context.shader->Use();
+        }
+
+        if (shaderChanged || textureSetHashChanged)
+        {
+            cmd->material->GetTextureSet()->ApplyTextures(context.shader);
+        }
+
+        if (materialChanged || onsChanged)
+        {
+            GlState::Ins()->SetCullMode(context.material->cullMode, context.hasONS);
+        }
+
+        if (materialChanged)
+        {
+            context.material->UseCBuffer();
+            
+            GlState::Ins()->SetBlendMode(context.material->blendMode);
+            GlState::Ins()->SetDepthMode(context.material->depthMode);
+        }
+
+        {
+            ZoneScopedN("Submit GL Draw Data");
+            
+            m_cmdBuffer->Bind();
+            m_cmdBuffer->SetData(
+                GL_STREAM_DRAW,
+                sizeof(IndirectCmd) * cmd->indirectCmds.Size(),
+                cmd->indirectCmds.Data());
+
+            m_matrixIndicesBuffer->Bind();
+            m_matrixIndicesBuffer->SetData(
+                GL_STREAM_DRAW,
+                sizeof(uint32_t) * cmd->matrixIndices.Size(),
+                cmd->matrixIndices.Data());
+            m_matrixIndicesBuffer->BindBase();
+        }
+        
         GlState::GlMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(cmd->indirectCmds.Size()), 0);
     }
 }

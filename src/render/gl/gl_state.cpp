@@ -1,5 +1,7 @@
 #include "gl_state.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "gl_buffer.h"
 #include "gl_render_target.h"
 #include "gl_shader.h"
@@ -53,6 +55,24 @@ namespace op
         GlCheckError();
 
         return true;
+    }
+
+    bool GlState::UnRegisterTexture(const GlTexture* texture)
+    {
+        assert(texture);
+        
+        auto& textureInfo = m_glTextures[static_cast<uint8_t>(texture->GetType())];
+        for (uint32_t i = 0; i < textureInfo.slots.size(); ++i)
+        {
+            if (textureInfo.slots[i] == texture)
+            {
+                textureInfo.slots[i] = nullptr;
+                textureInfo.firstEmptySlot = std::min(textureInfo.firstEmptySlot, i);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool GlState::BindVertexArray(const std::shared_ptr<GlVertexArray>& vao)
@@ -132,7 +152,7 @@ namespace op
         return true;
     }
     
-    bool GlState::BindTexture(const uint32_t slot, crsp<GlTexture> texture)
+    bool GlState::BindTexture(const uint32_t slot, GlTexture* texture)
     {
         if (!texture)
         {
@@ -188,10 +208,7 @@ namespace op
 
         for (auto& glTextureInfo : m_glTextures)
         {
-            for (auto& texture : glTextureInfo.slots)
-            {
-                texture.reset();
-            }
+            glTextureInfo.slots.fill(nullptr);
         }
 
         m_glCullMode = CullMode::UNSET;
@@ -235,24 +252,24 @@ namespace op
         return GetGlBufferInfo(type)->baseBuffers[slot].buffer;
     }
 
-    crvec<int32_t> GlState::BindTextures(crvecsp<GlTexture> textures)
+    crsl<int32_t> GlState::BindTextures(crsl<GlTexture*> textures)
     {
-        static vec<int32_t> resultSlots;
+        static SimpleList<int32_t> resultSlots(MAX_SUPPORT_SLOTS);
         static arr<arr<bool, MAX_SUPPORT_SLOTS> , TEXTURE_TYPE_LIMIT> slotHasBound;
-        resultSlots.resize(textures.size());
+        resultSlots.Resize(textures.Size());
         for (auto& slots : slotHasBound)
         {
             slots.fill(false);
         }
 
         // 把已经绑定的texture先记录一下
-        for (size_t i = 0; i < textures.size(); ++i)
+        for (uint32_t i = 0; i < textures.Size(); ++i)
         {
-            auto& texture = textures[i];
+            auto texture = textures[i];
             auto textureTypeIndex = static_cast<uint8_t>(texture->GetType());
             auto& destSlots = m_glTextures[textureTypeIndex].slots;
-            auto boundSlot = find_index(destSlots, texture).value_or(-1);
-            resultSlots[i] = static_cast<int>(boundSlot);
+            int boundSlot = find_index(destSlots, texture).value_or(-1);
+            resultSlots[i] = boundSlot;
 
             if (boundSlot != -1)
             { 
@@ -260,10 +277,9 @@ namespace op
             }
         }
 
-        for (size_t i = 0; i < textures.size(); ++i)
+        for (uint32_t i = 0; i < textures.Size(); ++i)
         {
             auto& resultSlot = resultSlots[i];
-            
             if (resultSlot == -1) // 绑定还没绑定的texture
             {
                 auto& texture = textures[i];

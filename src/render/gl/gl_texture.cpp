@@ -12,12 +12,13 @@ namespace op
 
     GlTexture::~GlTexture()
     {
+        GlState::Ins()->UnRegisterTexture(this);
         GlState::GlDeleteTexture(m_id);
     }
 
     void GlTexture::Bind(const uint32_t slot)
     {
-        GlState::Ins()->BindTexture(slot, shared_from_this());
+        GlState::Ins()->BindTexture(slot, this);
     }
 
     sp<GlTexture> GlTexture::Create2D(
@@ -134,7 +135,7 @@ namespace op
         texture->m_wrapMode = wrapMode;
         texture->m_filterMode = filterMode;
 
-        GlState::Ins()->BindTexture(0, texture);
+        GlState::Ins()->BindTexture(0, texture.get());
         GlState::GlPixelStore(GL_UNPACK_ALIGNMENT, 1);
         GlState::GlTexParameter(texture->GetType(), GL_TEXTURE_WRAP_S, GetGlWrapMode(wrapMode));
         GlState::GlTexParameter(texture->GetType(), GL_TEXTURE_WRAP_T, GetGlWrapMode(wrapMode));

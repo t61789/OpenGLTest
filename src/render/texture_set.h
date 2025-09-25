@@ -13,7 +13,7 @@ namespace op
     public:
         TextureSet() = default;
         ~TextureSet();
-        TextureSet(const TextureSet& other) = delete;
+        TextureSet(const TextureSet& other);
         TextureSet(TextureSet&& other) noexcept = delete;
         TextureSet& operator=(const TextureSet& other) = delete;
         TextureSet& operator=(TextureSet&& other) noexcept = delete;
@@ -22,8 +22,13 @@ namespace op
         void RemoveTexture(string_hash nameId);
         sp<ITexture> GetTexture(string_hash nameId);
         void ApplyTextures(Shader* shader);
+        void FillFrom(TextureSet* other);
+        void UpdateHash();
+        size_t GetHash();
 
     private:
-        umap<string_hash, sp<ITexture>> m_textures;
+        bool m_hashDirty = true;
+        size_t m_hash = 0;
+        vec<std::pair<string_hash, sp<ITexture>>> m_textures;
     };
 }

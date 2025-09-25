@@ -12,6 +12,7 @@
 
 namespace op
 {
+    class Shader;
     class BatchMesh;
     class Mesh;
     class Material;
@@ -68,6 +69,14 @@ namespace op
             vec<SubCmd*> subCmds = {};
         };
 
+        struct DrawContext
+        {
+            Shader* shader = nullptr;
+            Material* material = nullptr;
+            bool hasONS = false;
+            size_t textureSetHash = 0;
+        };
+
         sp<GlBuffer> m_cmdBuffer = nullptr;
         sp<GlBuffer> m_matrixIndicesBuffer = nullptr;
         sp<BatchMesh> m_batchMesh = nullptr;
@@ -80,7 +89,7 @@ namespace op
 
         bool m_encodingCmds = false;
 
-        void CallGlCmd(const Cmd* cmd);
+        void CallGlCmd(const Cmd* cmd, DrawContext& context);
         void AddComp(BatchRenderComp* comp);
         void RemoveComp(BatchRenderComp* comp);
         void EncodeCmdsTask();

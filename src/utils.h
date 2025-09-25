@@ -264,6 +264,21 @@ namespace op
 
         return &*it;
     }
+    
+    template <typename T>
+    static T* find(std::vector<std::pair<string_hash, T>>& vec, const string_hash nameId)
+    {
+        auto p = find_if(vec, [nameId](const std::pair<string_hash, T>& pair)
+        {
+            return pair.first == nameId;
+        });
+        if (p)
+        {
+            return &p->second;
+        }
+
+        return nullptr;
+    }
 
     template <typename T>
     static bool exists(const std::vector<T>& vec, const T& value)
@@ -293,11 +308,33 @@ namespace op
             v.insert(it, o);
         }
     }
+
+    template <typename T>
+    static void insert(std::vector<std::pair<string_hash, T>>& vec, const string_hash& nameId, const T& o)
+    {
+        if (auto p = find(vec, nameId))
+        {
+            *p = o;
+        }
+        else
+        {
+            vec.emplace_back(nameId, o);
+        }
+    }
     
     template <typename T>
     static void remove(std::vector<T>& vec, const T& obj)
     {
         vec.erase(std::remove(vec.begin(), vec.end(), obj), vec.end());
+    }
+    
+    template <typename T>
+    static void remove(std::vector<std::pair<string_hash, T>>& vec, const string_hash nameId)
+    {
+        vec.erase(std::remove_if(vec.begin(), vec.end(), [nameId](const std::pair<string_hash, T>& pair)
+        {
+            return pair.first == nameId;
+        }), vec.end());
     }
 
     template <typename T, typename Predicate>
@@ -483,6 +520,11 @@ namespace op
         case GL_FLOAT_MAT4x3: return 48; // 4×vec3
         default: return 0;
         }
+    }
+
+    static void combine_hash_no_order(size_t& base, const size_t newHash)
+    {
+        base ^= newHash * 0x9e3779b9;
     }
 
     template <typename T>

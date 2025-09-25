@@ -1,6 +1,9 @@
 #include "texture_set.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "game_resource.h"
+#include "image.h"
 #include "shader.h"
 #include "i_texture.h"
 #include "gl/gl_state.h"
@@ -12,61 +15,107 @@ namespace op
         m_textures.clear();
     }
 
+    TextureSet::TextureSet(const TextureSet& other)
+    {
+        m_textures = other.m_textures;
+    }
+
     void TextureSet::SetTexture(const string_hash nameId, crsp<ITexture> texture)
     {
-        m_textures[nameId] = texture;
+        insert(m_textures, nameId, texture);
+
+        m_hashDirty = true;
     }
 
     void TextureSet::RemoveTexture(const string_hash nameId)
     {
-        auto it = m_textures.find(nameId);
-        if (it != m_textures.end())
-        {
-            m_textures.erase(it);
-        }
+        remove(m_textures, nameId);
+
+        m_hashDirty = true;
     }
 
     sp<ITexture> TextureSet::GetTexture(const string_hash nameId)
     {
-        auto it = m_textures.find(nameId);
-        return it != m_textures.end() ? it->second : nullptr;
+        if (auto p = find(m_textures, nameId))
+        {
+            return *p;
+        }
+
+        return nullptr;
     }
 
     void TextureSet::ApplyTextures(Shader* shader)
     {
+        ZoneScoped;
+        
+        static sl<GlTexture*> textures(MAX_SUPPORT_SLOTS);
+
+        auto tempTextureSet = shader->textures;
+        tempTextureSet.FillFrom(this);
         auto globalTextureSet = GetGlobalTextureSet();
-        if (globalTextureSet == this)
+        if (globalTextureSet != this)
         {
-            return;
+            tempTextureSet.FillFrom(globalTextureSet);
         }
 
-        static vecsp<GlTexture> textures;
-        static vec<string_hash> textureNames;
-        for (auto& [textureNameId, textureInfo] : shader->textures)
+        textures.Resize(tempTextureSet.m_textures.size());
+        for (size_t i = 0; i < textures.Size(); ++i)
         {
-            auto localIt = m_textures.find(textureNameId);
-            if (localIt != m_textures.end())
+            if (auto& texture = tempTextureSet.m_textures[i].second)
             {
-                textures.push_back(localIt->second->GetGlTexture());
-                textureNames.push_back(textureNameId);
+                textures[i] = texture->GetGlTexture().get();
+            }
+            else
+            {
+                textures[i] = GetBR()->missTex->GetGlTexture().get();
+            }
+        }
+        
+        auto& resultSlots = GlState::Ins()->BindTextures(textures);
+        for (uint32_t i = 0; i < resultSlots.Size(); ++i)
+        {
+            shader->SetVal(tempTextureSet.m_textures[i].first, resultSlots[i]);
+        }
+    }
+
+    void TextureSet::FillFrom(TextureSet* other)
+    {
+        for (auto& [nameId, texture] : m_textures)
+        {
+            if (texture)
+            {
                 continue;
             }
 
-            auto globalIt = globalTextureSet->m_textures.find(textureNameId);
-            if (globalIt != globalTextureSet->m_textures.end())
-            {
-                textures.push_back(globalIt->second->GetGlTexture());
-                textureNames.push_back(textureNameId);
-            }
+            texture = other->GetTexture(nameId);
         }
 
-        auto& resultSlots = GlState::Ins()->BindTextures(textures);
-        for (uint32_t i = 0; i < resultSlots.size(); ++i)
+        m_hashDirty = true;
+    }
+    
+    void TextureSet::UpdateHash()
+    {
+        m_hash = 0;
+        for (auto& [nameId, texture] : m_textures)
         {
-            shader->SetVal(textureNames[i], resultSlots[i]);
+            auto t = texture ? texture : GetBR()->missTex;
+            auto pairHash = nameId;
+            combine_hash_no_order(pairHash, std::hash<size_t>{}(reinterpret_cast<uintptr_t>(t.get())));
+            combine_hash_no_order(m_hash, pairHash);
         }
-        
-        textures.clear();
-        textureNames.clear();
+
+        m_hashDirty = false;
+    }
+
+    size_t TextureSet::GetHash()
+    {
+        if (!m_hashDirty)
+        {
+            return m_hash;
+        }
+
+        UpdateHash();
+
+        return m_hash;
     }
 }

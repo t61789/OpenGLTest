@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "utils.h"
+#include "common/simple_list.h"
 #include "math/vec.h"
 
 namespace op
@@ -71,7 +72,7 @@ namespace op
         crsp<GlVertexArray> GetVertexArray();
         crsp<GlBuffer> GetGlobalBuffer(uint32_t type);
         crsp<GlBuffer> GetGlobalBufferBase(uint32_t type, uint32_t slot);
-        crvec<int32_t> BindTextures(crvecsp<GlTexture> textures);
+        crsl<int32_t> BindTextures(crsl<GlTexture*> textures);
         bool BindShader(crsp<GlShader> shader);
         void SetCullMode(CullMode mode, bool hasOddNegativeScale = false);
         void SetBlendMode(BlendMode mode);
@@ -84,7 +85,8 @@ namespace op
     private:
         struct GlTextureInfo
         {
-            arr<sp<GlTexture>, TEXTURE_SLOT_LIMIT> slots = {};
+            uint32_t firstEmptySlot = 0;
+            arr<GlTexture*, TEXTURE_SLOT_LIMIT> slots = {};
         };
         
         struct GlBufferBaseInfo
@@ -113,11 +115,12 @@ namespace op
         bool UnBindBuffer(uint32_t type);
         bool UnBindVertexArray();
         bool UnBindRenderTarget(crsp<GlRenderTarget> renderTarget);
+        bool UnRegisterTexture(const GlTexture* texture);
 
         bool BindVertexArray(crsp<GlVertexArray> vao);
         bool BindBuffer(crsp<GlBuffer> buffer);
         bool BindBufferBase(crsp<GlBuffer> buffer, uint32_t slot);
-        bool BindTexture(uint32_t slot, crsp<GlTexture> texture);
+        bool BindTexture(uint32_t slot, GlTexture* texture);
         bool BindRenderTarget(crsp<GlRenderTarget> frameBuffer);
         
         void UseGlResource(crsp<IGlResource> resource);

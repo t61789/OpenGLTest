@@ -5,11 +5,13 @@
 
 #include "i_resource.h"
 #include "common/data_set.h"
+#include "render/texture_set.h"
 #include "render/gl/gl_shader.h"
 
 
 namespace op
 {
+    class ITexture;
     class DataSet;
     class GlShader;
     struct CBufferLayout;
@@ -24,7 +26,7 @@ namespace op
             uint32_t location;
         };
 
-        umap<string_hash, TextureInfo> textures;
+        TextureSet textures;
         umap<string_hash, sp<CBufferLayout>> cbuffers;
 
         Shader();

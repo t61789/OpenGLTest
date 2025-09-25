@@ -185,8 +185,8 @@ namespace op
             auto nameHash = StringHandle(image.name).Hash();
             auto textureUniformInfo = m_glShader->GetUniformInfo(nameHash);
             assert(textureUniformInfo);
-            
-            textures[nameHash] = { textureType, textureUniformInfo->location };
+
+            textures.SetTexture(nameHash, nullptr);
         }
     }
 

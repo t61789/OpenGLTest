@@ -17,6 +17,9 @@ namespace op
         SimpleList(SimpleList&& other) noexcept;
         SimpleList& operator=(const SimpleList& other) = delete;
         SimpleList& operator=(SimpleList&& other) noexcept = delete;
+        
+        T& operator[](size_t index) { return m_data[index]; }
+        const T& operator[](size_t index) const { return m_data[index]; }
 
         T* Data() const { return m_data; }
         uint32_t Size() const { return m_size; }
@@ -101,10 +104,7 @@ namespace op
     template <typename T>
     void SimpleList<T>::Resize(const uint32_t newSize)
     {
-        if (newSize > m_capacity)
-        {
-            throw std::runtime_error("Out of range");
-        }
+        Reserve(newSize);
 
         m_size = newSize;
     }
