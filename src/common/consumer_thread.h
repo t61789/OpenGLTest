@@ -23,6 +23,7 @@ namespace op
         ConsumerThread& operator=(const ConsumerThread& other) = delete;
         ConsumerThread& operator=(ConsumerThread&& other) noexcept = delete;
 
+        template <bool EnsureEnqueue = false>
         void Enqueue(const T& product);
         bool Dequeue(T& product);
         void Stop(bool immediate = false);
@@ -63,12 +64,22 @@ namespace op
     }
 
     template <typename T>
+    template <bool EnsureEnqueue>
     void ConsumerThread<T>::Enqueue(const T& product)
     {
         ZoneScoped;
 
-        m_taskQueue.push(product);
-        m_hasTaskCond.notify_one();
+        if constexpr (EnsureEnqueue)
+        {
+            std::lock_guard lock(m_consumeMutex);
+            m_taskQueue.push(product);
+            m_hasTaskCond.notify_one();
+        }
+        else
+        {
+            m_taskQueue.push(product);
+            m_hasTaskCond.notify_one();
+        }
     }
 
     template <typename T>

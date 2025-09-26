@@ -76,13 +76,14 @@ namespace op
             return;
         }
         
+        *func = nullptr;
+        
         std::lock_guard lock(m_allocMutex);
         if (m_functions.Size() == m_functions.Capacity())
         {
             m_functions.Reserve(m_functions.Capacity() * 2);
         }
 
-        *func = nullptr;
         m_functions.Add(func);
     }
 }

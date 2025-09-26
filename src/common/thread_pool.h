@@ -37,7 +37,7 @@ namespace op
     template <typename Func>
     void ThreadPool::Start(Func&& f)
     {
-        m_threads[m_preUsedThread]->Enqueue(FunctionPool<void()>::Ins()->Alloc(f));
+        m_threads[m_preUsedThread]->Enqueue<true>(FunctionPool<void()>::Ins()->Alloc(f));
 
         m_preUsedThread = (m_preUsedThread + 1) % m_threads.size();
     }
