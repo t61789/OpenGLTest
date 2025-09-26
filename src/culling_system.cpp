@@ -6,6 +6,7 @@
 
 #include "render_context.h"
 #include "bounds.h"
+#include "game_resource.h"
 #include "object.h"
 #include "scene.h"
 #include "objects/batch_render_comp.h"
@@ -36,6 +37,16 @@ namespace op
     CullingSystem::CullingSystem()
     {
         m_cullingBuffer = new CullingBuffer();
+
+        m_input = sl<uint32_t>(10000000);
+        m_input.Resize(m_input.Capacity());
+        m_output = sl<uint32_t>(m_input.Size());
+        m_output.Resize(m_output.Capacity());
+
+        for (uint32_t i = 0; i < m_input.Size(); i++)
+        {
+            m_input[i] = i;
+        }
     }
 
     CullingSystem::~CullingSystem()
@@ -81,8 +92,6 @@ namespace op
         return frustum_culling(planes, bounds.center, bounds.extents);
     }
 
-
-
     
     CullingBufferAccessor::CullingBufferAccessor(const uint32_t index, CullingBuffer* buffer)
     {
@@ -101,8 +110,6 @@ namespace op
         return m_buffer->GetVisible(m_index);
     }
 
-
-
     
     CullingBufferAccessor CullingBuffer::Alloc()
     {
@@ -112,13 +119,24 @@ namespace op
             {
                 for (uint32_t i = 0; i < 4; ++i)
                 {
-                    m_buffer.centerX.push_back(0);
-                    m_buffer.centerY.push_back(0);
-                    m_buffer.centerZ.push_back(0);
-                    m_buffer.extentsX.push_back(0);
-                    m_buffer.extentsY.push_back(0);
-                    m_buffer.extentsZ.push_back(0);
-                    m_buffer.visible.push_back(1);
+                    if (m_buffer.centerX.Size() == m_buffer.centerX.Capacity())
+                    {
+                        m_buffer.centerX.Reserve(m_buffer.centerX.Capacity() * 2);
+                        m_buffer.centerY.Reserve(m_buffer.centerY.Capacity() * 2);
+                        m_buffer.centerZ.Reserve(m_buffer.centerZ.Capacity() * 2);
+                        m_buffer.extentsX.Reserve(m_buffer.extentsX.Capacity() * 2);
+                        m_buffer.extentsY.Reserve(m_buffer.extentsY.Capacity() * 2);
+                        m_buffer.extentsZ.Reserve(m_buffer.extentsZ.Capacity() * 2);
+                        m_buffer.visible.Reserve(m_buffer.visible.Capacity() * 2);
+                    }
+                    
+                    m_buffer.centerX.Add(0);
+                    m_buffer.centerY.Add(0);
+                    m_buffer.centerZ.Add(0);
+                    m_buffer.extentsX.Add(0);
+                    m_buffer.extentsY.Add(0);
+                    m_buffer.extentsZ.Add(0);
+                    m_buffer.visible.Add(1);
 
                     m_elemInfos.push_back({});
                 }
@@ -162,6 +180,28 @@ namespace op
 
     void CullingBuffer::Cull(cr<arr<Vec4, 6>> planes)
     {
+        auto count = m_buffer.centerX.Size();
+        auto threadCount = GetGR()->GetJobScheduler()->GetThreadCount();
+        auto batchSize = ceil_div(count, threadCount);
+        batchSize = ceil_div(batchSize, 4) * 4;
+        batchSize = std::max(batchSize, 4u);
+
+        // assert(m_cullJobId == 0);
+        
+        m_cullJobId = GetGR()->GetJobScheduler()->ScheduleFixedBatchSize(m_buffer.centerX.Size(), batchSize,
+            [planes, this](const uint32_t start, const uint32_t end)
+            {
+                this->CullBatch(planes, start, end);
+            });
+
+        GetGR()->GetJobScheduler()->Wait(m_cullJobId);
+        GetGR()->GetBatchRenderUnit()->StartEncodingCmds();
+    }
+
+    void CullingBuffer::CullBatch(cr<arr<Vec4, 6>> planes, uint32_t start, uint32_t end)
+    {
+        ZoneScoped;
+        
         arr<SimdVec4, 6> plane;
         arr<SimdVec4, 6> planeSign;
 
@@ -176,18 +216,18 @@ namespace op
         }
         
         auto resultP = _mm_set1_ps(1.0f);
-        for (uint32_t i = 0; i < m_buffer.centerX.size(); i+=4)
+        for (uint32_t i = start; i < end; i+=4)
         {
             SimdVec4 center = {
-                _mm_load_ps(&m_buffer.centerX[i]),
-                _mm_load_ps(&m_buffer.centerY[i]),
-                _mm_load_ps(&m_buffer.centerZ[i]),
+                _mm_load_ps(m_buffer.centerX.Data() + i),
+                _mm_load_ps(m_buffer.centerY.Data() + i),
+                _mm_load_ps(m_buffer.centerZ.Data() + i),
                 _mm_set1_ps(0.0f)
             };
             SimdVec4 extents = {
-                _mm_load_ps(&m_buffer.extentsX[i]),
-                _mm_load_ps(&m_buffer.extentsY[i]),
-                _mm_load_ps(&m_buffer.extentsZ[i]),
+                _mm_load_ps(m_buffer.extentsX.Data() + i),
+                _mm_load_ps(m_buffer.extentsY.Data() + i),
+                _mm_load_ps(m_buffer.extentsZ.Data() + i),
                 _mm_set1_ps(1.0f)
             };
 
@@ -203,7 +243,18 @@ namespace op
                 resultP = _mm_and_ps(resultP, _mm_or_ps(cmp_d0, cmp_d1));
             }
 
-            _mm_store_ps(&m_buffer.visible[i], resultP);
+            _mm_store_ps(m_buffer.visible.Data() + i, resultP);
         }
+    }
+
+    CullingBuffer::CullingSoA::CullingSoA()
+    {
+        centerX = sl<float>(1024);
+        centerY = sl<float>(1024);
+        centerZ = sl<float>(1024);
+        extentsX = sl<float>(1024);
+        extentsY = sl<float>(1024);
+        extentsZ = sl<float>(1024);
+        visible = sl<float>(1024);
     }
 }

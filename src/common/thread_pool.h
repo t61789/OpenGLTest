@@ -3,6 +3,9 @@
 #include <functional>
 #include <mutex>
 
+#include "consumer_thread.h"
+#include "function_pool.h"
+
 namespace op
 {
     class ThreadPool
@@ -15,20 +18,27 @@ namespace op
         ThreadPool& operator=(const ThreadPool& other) = delete;
         ThreadPool& operator=(ThreadPool&& other) noexcept = delete;
 
-        void Start(const std::function<void()>& f);
+        uint32_t GetThreadCount() const { return m_threads.size(); }
+        
+        template <typename Func>
+        void Start(Func&& f);
         void Wait();
-        void Stop(bool immediate = false);
+        void Stop(bool immediate);
 
     private:
-        std::mutex m_enqueueMutex;
-        std::condition_variable m_condition;
-        std::condition_variable m_pendingCondition;
-        std::vector<std::function<void()>> m_tasks;
-        std::vector<std::thread> m_threads;
-        bool m_stopFlag = false;
-        bool m_stopImmediate = false;
-        uint32_t m_remainingTasks = 0;
+        using func_ptr = std::function<void()>*;
+        
+        vec<ConsumerThread<func_ptr>*> m_threads;
+        uint32_t m_preUsedThread = 0;
 
-        void WorkerThread();
+        void ExecuteFunc(func_ptr func);
     };
+
+    template <typename Func>
+    void ThreadPool::Start(Func&& f)
+    {
+        m_threads[m_preUsedThread]->Enqueue(FunctionPool<void()>::Ins()->Alloc(f));
+
+        m_preUsedThread = (m_preUsedThread + 1) % m_threads.size();
+    }
 }

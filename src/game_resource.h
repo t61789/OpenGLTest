@@ -3,6 +3,7 @@
 #include "i_resource.h"
 #include "utils.h"
 #include "common/thread_pool.h"
+#include "job_system/job_scheduler.h"
 #include "render/batch_render_unit.h"
 #include "render/per_object_buffer.h"
 #include "render/texture_set.h"
@@ -37,6 +38,7 @@ namespace op
         BatchRenderUnit* GetBatchRenderUnit() const { return m_batchRenderUnit.get(); }
         CullingSystem* GetCullingSystem() const { return m_cullingSystem.get(); }
         ThreadPool* GetThreadPool() const { return m_threadPool.get(); }
+        JobScheduler* GetJobScheduler() const { return m_jobScheduler.get(); }
         
         GlCbuffer* GetPredefinedCbuffer(size_t nameId);
         bool IsPredefinedCbuffer(size_t nameId);
@@ -59,6 +61,7 @@ namespace op
         sp<Scene> m_mainScene = nullptr;
         up<BuiltInRes> m_builtInRes = nullptr;
         up<ThreadPool> m_threadPool = nullptr;
+        up<JobScheduler> m_jobScheduler = nullptr;
     };
 
     template <typename T>

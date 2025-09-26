@@ -8,6 +8,11 @@
 
 namespace op
 {
+    inline uint32_t ceil_div(const uint32_t a, const uint32_t b)
+    {
+        return (a + b - 1) / b;
+    }
+    
     inline float clamp(const float x, const float min, const float max)
     {
         return x < min ? min : x > max ? max : x;

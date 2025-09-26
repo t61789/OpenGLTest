@@ -15,8 +15,8 @@ namespace op
         ~SimpleList();
         SimpleList(const SimpleList& other);
         SimpleList(SimpleList&& other) noexcept;
-        SimpleList& operator=(const SimpleList& other) = delete;
-        SimpleList& operator=(SimpleList&& other) noexcept = delete;
+        SimpleList& operator=(const SimpleList& other);
+        SimpleList& operator=(SimpleList&& other) noexcept;
         
         T& operator[](size_t index) { return m_data[index]; }
         const T& operator[](size_t index) const { return m_data[index]; }
@@ -28,6 +28,8 @@ namespace op
         
         template <bool Check = true>
         void Add(const T& element);
+        bool Pop(T& element);
+        
         void Resize(uint32_t newSize);
         void Reserve(uint32_t newCapacity);
         void Clear();
@@ -57,13 +59,11 @@ namespace op
     template <typename T>
     SimpleList<T>::SimpleList(const SimpleList& other)
     {
-        if (other.m_capacity == 0)
+        if (other.m_capacity != 0)
         {
-            return;
+            m_data = new T[other.m_capacity];
+            memcpy(m_data, other.m_data, other.m_capacity * sizeof(T));
         }
-        
-        m_data = new T[other.m_capacity];
-        memcpy(m_data, other.m_data, other.m_capacity * sizeof(T));
         m_capacity = other.m_capacity;
         m_size = other.m_size;
     }
@@ -71,10 +71,42 @@ namespace op
     template <typename T>
     SimpleList<T>::SimpleList(SimpleList&& other) noexcept
     {
-        if (other.m_capacity == 0)
+        m_data = other.m_data;
+        m_size = other.m_size;
+        m_capacity = other.m_capacity;
+
+        other.m_data = nullptr;
+        other.m_size = 0;
+        other.m_capacity = 0;
+    }
+
+    template <typename T>
+    SimpleList<T>& SimpleList<T>::operator=(const SimpleList& other)
+    {
+        if (this == &other)
         {
-            return;
+            return *this;
         }
+
+        delete[] m_data;
+        m_data = nullptr;
+        
+        if (other.m_capacity != 0)
+        {
+            m_data = new T[other.m_capacity];
+            memcpy(m_data, other.m_data, other.m_capacity * sizeof(T));
+        }
+        
+        m_capacity = other.m_capacity;
+        m_size = other.m_size;
+
+        return *this;
+    }
+
+    template <typename T>
+    SimpleList<T>& SimpleList<T>::operator=(SimpleList&& other) noexcept
+    {
+        delete[] m_data;
         
         m_data = other.m_data;
         m_size = other.m_size;
@@ -83,6 +115,8 @@ namespace op
         other.m_data = nullptr;
         other.m_size = 0;
         other.m_capacity = 0;
+
+        return *this;
     }
 
     template <typename T>
@@ -99,6 +133,20 @@ namespace op
         
         m_data[m_size] = element;
         m_size++;
+    }
+
+    template <typename T>
+    bool SimpleList<T>::Pop(T& element)
+    {
+        if (m_size == 0)
+        {
+            return false;
+        }
+
+        element = m_data[m_size - 1];
+        m_size--;
+
+        return true;
     }
 
     template <typename T>

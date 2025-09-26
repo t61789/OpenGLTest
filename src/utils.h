@@ -5,6 +5,7 @@
 #include <random>
 #include <cstddef>
 #include <fstream>
+#include <mutex>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 
@@ -26,6 +27,8 @@ namespace op
         Warning,
         Error,
     };
+
+    static std::mutex logMutex;
 
     class Utils
     {
@@ -94,12 +97,15 @@ namespace op
     template <typename... Args>
     static void log(const LogType logType, const std::string& msg, Args... args)
     {
+        std::lock_guard lock(logMutex);
+        
         auto logStr = format_log(logType, msg, args...);
         Utils::s_logs.push_back(logStr);
         if (Utils::s_logs.size() > 50)
         {
             Utils::s_logs.erase(Utils::s_logs.begin());
         }
+        
         std::cout << logStr << '\n';
     }
     
@@ -584,7 +590,7 @@ namespace op
     protected:
         inline static T* m_instance = nullptr;
     };
-
+    
     class Time
     {
     public:

@@ -4,96 +4,63 @@ namespace op
 {
     ThreadPool::ThreadPool(const uint32_t threadCount)
     {
-        m_threads.reserve(threadCount);
+        m_threads = vec<ConsumerThread<func_ptr>*>(threadCount);
         for (uint32_t i = 0; i < threadCount; ++i)
         {
-            m_threads.emplace_back(&ThreadPool::WorkerThread, this);
-            m_remainingTasks++;
+            auto thread = new ConsumerThread<func_ptr>(1024, [this](const func_ptr func)
+            {
+                this->ExecuteFunc(func);
+            });
+            
+            m_threads[i] = thread;
         }
     }
 
     ThreadPool::~ThreadPool()
     {
-        m_stopFlag = true;
-        m_condition.notify_all();
-
-        for (auto& thread : m_threads)
-        {
-            thread.join();
-        }
-    }
-
-    void ThreadPool::Start(const std::function<void()>& f)
-    {
-        std::lock_guard lock(m_enqueueMutex);
-        m_tasks.emplace_back(f);
-        
-        m_condition.notify_one();
+        Stop(true);
     }
 
     void ThreadPool::Wait()
     {
-        std::unique_lock lock(m_enqueueMutex);
+        for (auto thread : m_threads)
+        {
+            thread->Wait();
+        }
+    }
 
-        if (m_remainingTasks == m_threads.size() && (m_tasks.empty() || m_stopFlag))
+    inline void ThreadPool::Stop(const bool immediate)
+    {
+        if (m_threads.empty())
         {
             return;
         }
-
-        m_pendingCondition.wait(lock, [this]
+        
+        for (auto thread : m_threads)
         {
-            return this->m_remainingTasks == this->m_threads.size() && (this->m_tasks.empty() || this->m_stopFlag);
-        });
-    }
-
-    void ThreadPool::Stop(const bool immediate)
-    {
-        m_stopFlag = true;
-        m_stopImmediate = immediate;
-        m_condition.notify_all();
-    }
-
-    void ThreadPool::WorkerThread()
-    {
-        while (true)
-        {
-            std::function<void()> task;
-
-            {
-                std::unique_lock lock(m_enqueueMutex);
-
-                if (m_tasks.empty())
-                {
-                    if (m_remainingTasks == m_threads.size())
-                    {
-                        m_pendingCondition.notify_all();
-                    }
-                    
-                    m_condition.wait(lock, [this]
-                    {
-                        return !this->m_tasks.empty() || this->m_stopFlag;
-                    });
-                }
-
-                if (!m_tasks.empty() && !m_stopImmediate)
-                {
-                    task = std::move(m_tasks.back());
-                    m_tasks.pop_back();
-                    
-                    m_remainingTasks--;
-                }
-                else if (m_stopFlag)
-                {
-                    break;
-                }
-            }
-
-            task();
-            
-            std::unique_lock lock(m_enqueueMutex);
-            m_remainingTasks++;
+            thread->Stop(immediate);
         }
 
-        m_pendingCondition.notify_all();
+        for (auto thread : m_threads)
+        {
+            thread->Join();
+
+            func_ptr func;
+            while (thread->Dequeue(func))
+            {
+                FunctionPool<void()>::Ins()->Free(func);
+            }
+
+            delete thread;
+        }
+
+        m_threads.clear();
+    }
+
+    void ThreadPool::ExecuteFunc(const func_ptr func)
+    {
+        (*func)();
+
+        FunctionPool<void()>::Ins()->Free(func);
     }
 }

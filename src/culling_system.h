@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vector>
 
+#include "job_system/job_scheduler.h"
 #include "math/vec.h"
 
 namespace op
@@ -31,11 +32,13 @@ namespace op
         vec<Bounds> m_bounds;
         CullingBuffer* m_cullingBuffer = nullptr;
 
+        sl<uint32_t> m_input;
+        sl<uint32_t> m_output;
+        JobScheduler m_jobScheduler;
+
         bool CullOnce(const Bounds& bounds, const std::array<Vec4, 6>& planes);
     };
 
-
-    
 
     struct CullingBufferAccessor
     {
@@ -55,8 +58,6 @@ namespace op
     };
 
 
-
-
     class CullingBuffer
     {
     public:
@@ -67,6 +68,7 @@ namespace op
         bool GetVisible(uint32_t index);
 
         void Cull(cr<arr<Vec4, 6>> planes);
+        void CullBatch(cr<arr<Vec4, 6>> planes, uint32_t start, uint32_t end);
 
     private:
         struct ElemInfo
@@ -76,17 +78,21 @@ namespace op
     
         struct CullingSoA
         {
-            vec<float> centerX;
-            vec<float> centerY;
-            vec<float> centerZ;
-            vec<float> extentsX;
-            vec<float> extentsY;
-            vec<float> extentsZ;
-            vec<float> visible;
+            sl<float> centerX;
+            sl<float> centerY;
+            sl<float> centerZ;
+            sl<float> extentsX;
+            sl<float> extentsY;
+            sl<float> extentsZ;
+            sl<float> visible;
+
+            CullingSoA();
         };
         
         CullingSoA m_buffer;
         uint32_t m_firstEmpty = 0;
         vec<ElemInfo> m_elemInfos;
+        size_t m_cullJobId = 0;
+        uint32_t m_lastCullCompleteFrame = 0;
     };
 }
