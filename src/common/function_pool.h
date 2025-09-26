@@ -82,6 +82,7 @@ namespace op
             m_functions.Reserve(m_functions.Capacity() * 2);
         }
 
+        *func = nullptr;
         m_functions.Add(func);
     }
 }

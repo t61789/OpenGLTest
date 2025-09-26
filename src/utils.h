@@ -106,7 +106,7 @@ namespace op
             Utils::s_logs.erase(Utils::s_logs.begin());
         }
         
-        std::cout << logStr << '\n';
+        std::cout << logStr << '\n' << std::flush;
     }
     
     template <typename... Args>

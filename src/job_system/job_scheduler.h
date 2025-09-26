@@ -13,10 +13,54 @@ namespace op
 {
     class JobScheduler
     {
+        using task_func = std::function<void()>;
         using parallel_task_func = std::function<void(uint32_t, uint32_t)>;
         using task_finished_func = std::function<void(size_t)>;
         
     public:
+        class Job
+        {
+        public:
+            uint32_t count = 0;
+            uint32_t minBatchSize = 1;
+            bool fixedBatchSize = false;
+
+            Job() = default;
+            ~Job();
+            Job(const Job& other) = delete;
+            Job(Job&& other) noexcept = delete;
+            Job& operator=(const Job& other) = delete;
+            Job& operator=(Job&& other) noexcept = delete;
+
+            void WaitForStart();
+            void WaitForStop();
+            void SetNext(crsp<Job> next);
+            
+            template <typename TaskFunc>
+            static sp<Job> CreateCommon(TaskFunc&& f);
+            template <typename TaskFunc>
+            static sp<Job> CreateParallel(uint32_t count, TaskFunc&& f);
+            
+        private:
+            size_t m_taskGroupId;
+            
+            task_func* m_taskFunc;
+            parallel_task_func* m_parallelTaskFunc;
+            
+            uint32_t m_exceptTaskNum = 0;
+            uint32_t m_completeTaskNum;
+            uint32_t m_completed = false;
+            std::mutex m_accessMutex;
+            std::condition_variable m_startingSignal;
+            std::condition_variable m_completeSignal;
+
+            sp<Job> m_next;
+            
+            bool CompleteOnce();
+
+            friend class JobScheduler;
+        };
+        
         JobScheduler();
         ~JobScheduler();
         JobScheduler(const JobScheduler& other) = delete;
@@ -26,72 +70,41 @@ namespace op
 
         uint32_t GetThreadCount() const { return m_threadPool->GetThreadCount(); }
 
-        template <typename ParallelTaskFunc>
-        size_t Schedule(uint32_t count, ParallelTaskFunc&& func, uint32_t minBatchSize=~0u);
-        template <typename ParallelTaskFunc>
-        size_t ScheduleFixedBatchSize(uint32_t count, uint32_t batchSize, ParallelTaskFunc&& func);
-        void Wait(size_t taskGroupId);
+        void Schedule(crsp<Job> job);
 
     private:
-        struct ParallelTask
-        {
-            size_t taskGroupId;
-            uint32_t count;
-            uint32_t minBatchSize;
-            bool fixedBatchSize;
-            parallel_task_func* func;
-            
-            uint32_t exceptTaskNum;
-            uint32_t completeTaskNum;
-            std::condition_variable completeSignal;
-
-            ~ParallelTask();
-        };
 
         up<ThreadPool> m_threadPool;
-        vec<std::pair<size_t, sp<ParallelTask>>> m_runningParallelTasks;
-        std::mutex m_taskCompleteMutex;
-        
-        void DispatchTask(crsp<ParallelTask> task);
+        vec<std::pair<size_t, sp<Job>>> m_runningParallelTasks;
+        std::mutex m_schedulerMutex;
+
+        void ScheduleCommonJob(crsp<Job> job);
+        void ScheduleParallelJob(crsp<Job> job);
+        void JobComplete(crsp<Job> job);
     };
 
-    template <typename ParallelTaskFunc>
-    size_t JobScheduler::Schedule(const uint32_t count, ParallelTaskFunc&& func, const uint32_t minBatchSize)
+    template <typename CommonTaskFunc>
+    sp<JobScheduler::Job> JobScheduler::Job::CreateCommon(CommonTaskFunc&& f)
     {
-        ZoneScoped;
-        
-        auto task = mup<ParallelTask>();
-        auto taskGroupId = std::hash<size_t>{}(reinterpret_cast<uintptr_t>(task.get()));
-        task->taskGroupId = taskGroupId;
-        task->count = count;
-        task->minBatchSize = std::max(minBatchSize, 1u);
-        task->fixedBatchSize = false;
-        task->func = FunctionPool<void(uint32_t, uint32_t)>::Ins()->Alloc(std::forward<ParallelTaskFunc>(func));
+        auto job = msp<Job>();
+        job->m_taskGroupId = std::hash<size_t>{}(reinterpret_cast<uintptr_t>(job.get()));
+        job->m_taskFunc = FunctionPool<void()>::Ins()->Alloc(std::forward<CommonTaskFunc>(f));
+        job->m_parallelTaskFunc = nullptr;
+        job->m_next = nullptr;
 
-        assert(task->func && count != 0);
-
-        DispatchTask(std::move(task));
-        
-        return taskGroupId;
+        return job;
     }
 
     template <typename ParallelTaskFunc>
-    size_t JobScheduler::ScheduleFixedBatchSize(const uint32_t count, const uint32_t batchSize, ParallelTaskFunc&& func)
+    sp<JobScheduler::Job> JobScheduler::Job::CreateParallel(uint32_t count, ParallelTaskFunc&& f)
     {
-        ZoneScoped;
-        
-        auto task = mup<ParallelTask>();
-        auto taskGroupId = std::hash<size_t>{}(reinterpret_cast<uintptr_t>(task.get()));
-        task->taskGroupId = taskGroupId;
-        task->count = count;
-        task->minBatchSize = std::max(batchSize, 1u);
-        task->fixedBatchSize = true;
-        task->func = FunctionPool<void(uint32_t, uint32_t)>::Ins()->Alloc(std::forward<ParallelTaskFunc>(func));
+        auto job = msp<Job>();
+        job->count = count;
+        job->m_taskGroupId = std::hash<size_t>{}(reinterpret_cast<uintptr_t>(job.get()));
+        job->m_taskFunc = nullptr;
+        job->m_parallelTaskFunc = FunctionPool<void(uint32_t, uint32_t)>::Ins()->Alloc(std::forward<ParallelTaskFunc>(f));
+        job->m_next = nullptr;
 
-        assert(task->func && count != 0);
-        
-        DispatchTask(std::move(task));
-
-        return taskGroupId;
+        return job;
     }
 }

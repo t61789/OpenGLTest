@@ -40,17 +40,18 @@ namespace op
         std::atomic<bool> m_stopImmediate = false;
         std::atomic<bool> m_isIdle = false;
 
-        std::function<void(T)> m_consumeFunc;
-
-        void Thread();
+        template <class ConsumeFunc>
+        void Thread(ConsumeFunc&& consumeFunc);
     };
 
     template <typename T>
     template <typename ConsumeFunc>
     ConsumerThread<T>::ConsumerThread(uint32_t productCapacity, ConsumeFunc&& f) : m_taskQueue(productCapacity)
     {
-        m_consumeFunc = std::forward<ConsumeFunc>(f);
-        m_thread = std::thread(&ConsumerThread::Thread, this);
+        m_thread = std::thread([this, f=std::move(f)]
+        {
+            this->Thread(f);
+        });
     }
 
     template <typename T>
@@ -105,7 +106,8 @@ namespace op
     }
 
     template <typename T>
-    void ConsumerThread<T>::Thread()
+    template <typename ConsumeFunc>
+    void ConsumerThread<T>::Thread(ConsumeFunc&& consumeFunc)
     {
         auto retryCount = 0;
         while (true)
@@ -122,7 +124,7 @@ namespace op
 
             if (m_taskQueue.pop(product))
             {
-                m_consumeFunc(product);
+                consumeFunc(product);
                 retryCount = 0;
             }
             else

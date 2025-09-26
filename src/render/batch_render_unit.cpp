@@ -43,13 +43,15 @@ namespace op
     
     void BatchRenderUnit::Execute()
     {
-        assert(m_encodingCmds);
-        
+        assert(m_encodeCmdsJob);
+
         m_batchMatrix->Use();
         m_batchMesh->Use();
         
         GetGlobalCbuffer()->BindBase();
         GetPerViewCbuffer()->BindBase();
+
+        m_encodeCmdsJob->WaitForStart();
 
         DrawContext context;
         
@@ -72,19 +74,21 @@ namespace op
             }
         }
 
-        m_encodingCmds = false;
+        m_encodeCmdsJob.reset();
     }
 
-    void BatchRenderUnit::StartEncodingCmds()
+    sp<JobScheduler::Job> BatchRenderUnit::StartEncodingCmds()
     {
-        assert(!m_encodingCmds && m_encodedCmds.empty());
+        assert(!m_encodeCmdsJob && m_encodedCmds.empty());
 
-        m_encodingCmds = true;
-
-        GetGR()->GetThreadPool()->Start([this]
+        auto job = JobScheduler::Job::CreateCommon([this]
         {
             this->EncodeCmdsTask();
         });
+
+        m_encodeCmdsJob = job;
+
+        return job;
     }
 
     void BatchRenderUnit::AddComp(BatchRenderComp* comp)

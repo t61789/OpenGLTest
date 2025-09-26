@@ -7,8 +7,8 @@
 
 #include "batch_matrix.h"
 #include "utils.h"
-#include "common/managed_buffer.h"
 #include "common/simple_list.h"
+#include "job_system/job_scheduler.h"
 
 namespace op
 {
@@ -27,7 +27,7 @@ namespace op
         void UnBindComp(BatchRenderComp* comp);
         void UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices);
         void Execute();
-        void StartEncodingCmds();
+        sp<JobScheduler::Job> StartEncodingCmds();
 
     private:
         
@@ -87,7 +87,7 @@ namespace op
         
         lock_free_queue<Cmd*> m_encodedCmds = lock_free_queue<Cmd*>(1024);
 
-        bool m_encodingCmds = false;
+        sp<JobScheduler::Job> m_encodeCmdsJob = nullptr;
 
         void CallGlCmd(const Cmd* cmd, DrawContext& context);
         void AddComp(BatchRenderComp* comp);

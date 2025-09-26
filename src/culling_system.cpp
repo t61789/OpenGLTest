@@ -187,15 +187,17 @@ namespace op
         batchSize = std::max(batchSize, 4u);
 
         // assert(m_cullJobId == 0);
-        
-        m_cullJobId = GetGR()->GetJobScheduler()->ScheduleFixedBatchSize(m_buffer.centerX.Size(), batchSize,
-            [planes, this](const uint32_t start, const uint32_t end)
-            {
-                this->CullBatch(planes, start, end);
-            });
 
-        GetGR()->GetJobScheduler()->Wait(m_cullJobId);
-        GetGR()->GetBatchRenderUnit()->StartEncodingCmds();
+        auto job = JobScheduler::Job::CreateParallel(m_buffer.centerX.Size(), [planes, this](const uint32_t start, const uint32_t end)
+        {
+            this->CullBatch(planes, start, end);
+        });
+        job->fixedBatchSize = true;
+        job->minBatchSize = batchSize;
+
+        job->SetNext(GetGR()->GetBatchRenderUnit()->StartEncodingCmds());
+
+        GetGR()->GetJobScheduler()->Schedule(job);
     }
 
     void CullingBuffer::CullBatch(cr<arr<Vec4, 6>> planes, uint32_t start, uint32_t end)
