@@ -58,9 +58,9 @@ namespace op
 
         ImportConfig importConfig;
 
-        if (config.contains("flip_winding_order"))
+        if (config.contains("need_flip_vertical"))
         {
-            importConfig.needFlipVertical = config.at("flip_winding_order").get<bool>();
+            importConfig.needFlipVertical = config.at("need_flip_vertical").get<bool>();
         }
 
         if (config.contains("need_mipmap"))
