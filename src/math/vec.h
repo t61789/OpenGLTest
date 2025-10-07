@@ -458,6 +458,13 @@ namespace op
             normalize(&x, &result.x);
             return result;
         }
+        
+        float Magnitude() const
+        {
+            float result;
+            length(&x, &result);
+            return result;
+        }
 
         std::string ToString()
         {

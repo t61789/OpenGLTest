@@ -7,6 +7,8 @@
 #include "ui/control_panel_ui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "scene.h"
+#include "objects/batch_render_comp.h"
 #include "objects/render_comp.h"
 
 namespace op
@@ -84,6 +86,16 @@ namespace op
                 view,
                 proj,
                 screenSize);
+        }
+        
+        for (auto const& renderComp : GetGR()->GetMainScene()->GetIndices()->GetCompStorage()->GetComps<BatchRenderComp>())
+        {
+            DebugDrawCube(
+                renderComp.lock()->GetWorldBounds(),
+                view,
+                proj,
+                screenSize,
+                ImColor(255, 0, 0, 255));
         }
     }
     

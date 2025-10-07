@@ -24,6 +24,7 @@ namespace op
         bool HasONS();
 
         bool GetInView() { return m_cullingBufferAccessor.IsEnable() ? m_cullingBufferAccessor.GetVisible() : false; }
+        Bounds GetWorldBounds() { return m_worldBounds; }
 
         void LoadFromJson(cr<nlohmann::json> objJson) override;
 
@@ -34,6 +35,7 @@ namespace op
         BatchMatrix::Elem m_submitBuffer;
         bool m_preHasONS = false;
         CullingBufferAccessor m_cullingBufferAccessor = {};
+        Bounds m_worldBounds;
 
         void OnTransformDirty();
         void UpdatePerObjectBuffer();

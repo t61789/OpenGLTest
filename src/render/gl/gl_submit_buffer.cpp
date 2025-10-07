@@ -62,9 +62,9 @@ namespace op
 
     bool GlSubmitBuffer::GetData(const uint32_t offsetB, const uint32_t sizeB, void* data)
     {
-        if (offsetB + sizeB <= m_sizeB)
+        if (offsetB + sizeB > m_sizeB)
         {
-            THROW_ERRORF("Block out of range: offset %u, size %u", offsetB, sizeB);
+            THROW_ERRORF("Block out of range: offset %u, size %u", offsetB, sizeB)
         }
 
         memcpy(data, m_data + offsetB, sizeB);

@@ -211,11 +211,11 @@ namespace op
                 auto instanceCount = 0;
                 for (auto& compInfo : subCmd->comps)
                 {
-                    // if (compInfo->comp->GetInView())
-                    // {
+                    if (compInfo->comp->GetInView())
+                    {
                         cmd->matrixIndices.Add<false>(compInfo->matrixIndex);
                         instanceCount++;
-                    // }
+                    }
                 }
 
                 subCmd->indirectCmd.instanceCount = instanceCount;

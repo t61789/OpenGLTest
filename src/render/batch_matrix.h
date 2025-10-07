@@ -22,6 +22,7 @@ namespace op
         void UnRegister(uint32_t index);
         void Reserve(uint32_t count);
         void SubmitData(uint32_t index, cr<Elem> data);
+        Elem Get(const uint32_t index) const { return m_bufferAccessor->Get(index); }
 
     private:
         struct ObjectInfo

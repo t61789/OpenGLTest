@@ -69,6 +69,11 @@ namespace op
             return Vec4(m_data + i * 4);
         }
 
+        Vec3 GetPos() const
+        {
+            return Vec3(m_data[3], m_data[7], m_data[11]);
+        }
+
         Matrix4x4 operator*(const Matrix4x4& other) const
         {
             Matrix4x4 result;

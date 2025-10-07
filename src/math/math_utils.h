@@ -160,11 +160,13 @@ namespace op
         {
             auto s = sign(plane);
             auto offset = extents4 * s;
-            offset.w = 1.0f;
+            auto o0 = center4 + offset;
+            auto o1 = center4 - offset;
+            o0.w = o1.w = 1.0f;
             // 只要有任何一个面，包围盒完全在这个面外面，则包围盒在视锥体外面
             result = result && (
-                dot(plane, center4 + offset) >= 0 ||
-                dot(plane, center4 - offset) >= 0);
+                dot(plane, o0) >= 0 ||
+                dot(plane, o1) >= 0);
         }
 
         return result;

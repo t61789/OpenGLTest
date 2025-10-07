@@ -145,12 +145,14 @@ namespace op
 
     inline __m128 sign(const __m128 v)
     {
-        auto s = _mm_and_ps(v, _mm_set1_ps(-0.0f));
-        auto notZero = _mm_cmpneq_ps(v, _mm_setzero_ps());
-        s = _mm_or_ps(s, _mm_set1_ps(1.0f));
-        s = _mm_and_ps(s, notZero);
-
-        return s;
+        __m128 zero = _mm_setzero_ps();
+        __m128 negative_mask = _mm_cmplt_ps(v, zero);  // 负数掩码
+        __m128 positive_mask = _mm_cmpgt_ps(v, zero);  // 正数掩码
+    
+        __m128 negative = _mm_and_ps(negative_mask, _mm_set1_ps(-1.0f));
+        __m128 positive = _mm_and_ps(positive_mask, _mm_set1_ps(1.0f));
+    
+        return _mm_or_ps(negative, positive);
     }
 
     inline void sign(const float* v, float* dst)

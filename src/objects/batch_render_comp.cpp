@@ -56,8 +56,8 @@ namespace op
             GetGR()->GetBatchRenderUnit()->BindComp(this);
         }
         
-        auto worldBounds = m_mesh->GetBounds().ToWorld(GetOwner()->transform->GetLocalToWorld());
-        m_cullingBufferAccessor.Submit(worldBounds);
+        m_worldBounds = m_mesh->GetBounds().ToWorld(GetOwner()->transform->GetLocalToWorld());
+        m_cullingBufferAccessor.Submit(m_worldBounds);
         
         UpdatePerObjectBuffer();
     }

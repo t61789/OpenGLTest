@@ -38,7 +38,7 @@ namespace op
     {
         m_cullingBuffer = new CullingBuffer();
 
-        m_input = sl<uint32_t>(10000000);
+        m_input = sl<uint32_t>(1);
         m_input.Resize(m_input.Capacity());
         m_output = sl<uint32_t>(m_input.Size());
         m_output.Resize(m_output.Capacity());
@@ -66,10 +66,10 @@ namespace op
 
         for (const auto& renderObj : renderObjs)
         {
-            // if (CullOnce(renderObj->GetWorldBounds(), planes))
-            // {
+            if (CullOnce(renderObj.lock()->GetWorldBounds(), planes))
+            {
                 GetRC()->visibleRenderObjs.push_back(renderObj.lock().get());
-            // }
+            }
         }
 
         m_cullingBuffer->Cull(planes);
@@ -217,7 +217,6 @@ namespace op
             planeSign[i].w = _mm_set1_ps(1.0f);
         }
         
-        auto resultP = _mm_set1_ps(1.0f);
         for (uint32_t i = start; i < end; i+=4)
         {
             SimdVec4 center = {
@@ -230,14 +229,18 @@ namespace op
                 _mm_load_ps(m_buffer.extentsX.Data() + i),
                 _mm_load_ps(m_buffer.extentsY.Data() + i),
                 _mm_load_ps(m_buffer.extentsZ.Data() + i),
-                _mm_set1_ps(1.0f)
+                _mm_set1_ps(0.0f)
             };
 
+            auto resultP = _mm_cmpeq_ps(_mm_setzero_ps(), _mm_setzero_ps());
             for (uint32_t j = 0; j < 6; ++j)
             {
                 auto offset = mul(extents, planeSign[j]);
-                auto d0 = dot(plane[j], add(center, offset));
-                auto d1 = dot(plane[j], sub(center, offset));
+                auto a = add(center, offset);
+                auto s = sub(center, offset);
+                a.w = s.w = _mm_set1_ps(1.0f);
+                auto d0 = dot(plane[j], a);
+                auto d1 = dot(plane[j], s);
                 
                 auto cmp_d0 = _mm_cmpge_ps(d0, _mm_setzero_ps());
                 auto cmp_d1 = _mm_cmpge_ps(d1, _mm_setzero_ps());
