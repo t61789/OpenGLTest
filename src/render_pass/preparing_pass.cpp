@@ -23,41 +23,19 @@ namespace op
             return;
         }
 
-        auto viewportSize = Vec4(
-            static_cast<float>(GetRC()->screenWidth),
-            static_cast<float>(GetRC()->screenHeight),
-            0, 0);
-        
-        auto perViewCBuffer = GetGR()->GetPredefinedCbuffer(PER_VIEW_CBUFFER);
-        perViewCBuffer->Set(VIEWPORT_SIZE, viewportSize);
+        PrepareMatrices();
 
-        // 把需要渲染的objs的矩阵都上传一下
-        for (auto renderComp : GetRC()->visibleRenderObjs)
-        {
-            renderComp->UpdateTransform();
-        }
+        PrepareViewport();
 
-        auto usingGBufferRenderTarget = GetRC()->UsingGBufferRenderTarget();
-        vec<Vec4> clearColors = {
-            Vec4(0.5f),
-            Vec4(0.0f),
-            Vec4(1.0f),
-        };
-        usingGBufferRenderTarget.Get()->Clear(clearColors, 1.0f);
+        UpdateTransforms();
+
+        ClearGBuffers();
 
         PrepareLightInfos();
 
-        auto scene = GetRC()->scene;
-        IndirectLighting::SetGradientAmbientColor(
-            scene->ambientLightColorSky,
-            scene->ambientLightColorEquator,
-            scene->ambientLightColorGround);
+        SetAmbientColors();
 
-        auto globalCBuffer = GetGR()->GetPredefinedCbuffer(GLOBAL_CBUFFER);
-        globalCBuffer->Set(FOG_INTENSITY, scene->fogIntensity);
-        globalCBuffer->Set(FOG_COLOR, Vec4(scene->fogColor, 0));
-
-        GetRC()->SetViewProjMatrix(GetRC()->camera);
+        SetFogParams();
     }
 
     void PreparingPass::DrawConsoleUi()
@@ -78,6 +56,56 @@ namespace op
         scene->ambientLightColorGround = Gui::SliderFloat3("GradientGround", scene->ambientLightColorGround, 0.0f, 10.0f, "%.2f");
         ImGui::SliderFloat("Fog Intensity", &scene->fogIntensity, 0.0f, 0.005f, "%.5f");
         scene->fogColor = Gui::SliderFloat3("Fog Color", scene->fogColor, 0.0f, 1.0f, "%.2f");
+    }
+
+    void PreparingPass::PrepareMatrices()
+    {
+        // Common camera
+        GetRC()->PopViewProjMatrix();
+        GetRC()->PushViewProjMatrix(GetRC()->camera->CreateVPMatrix());
+        GetRC()->CurViewProjMatrix()->UpdateFrustumPlanes();
+        GetGR()->GetCullingBuffer()->Cull(GetRC()->CurViewProjMatrix()->frustumPlanes.value(), ViewGroup::COMMON);
+
+        // Shadow camera
+        auto lightDirection = GetRC()->mainLight ?
+            -GetRC()->mainLight->GetOwner()->transform->GetLocalToWorld().Forward() :
+            Vec3::One().Normalize();
+        GetRC()->shadowVPInfo = GetRC()->camera->CreateShadowVPMatrix(lightDirection);
+        GetRC()->shadowVPInfo->UpdateFrustumPlanes();
+        GetGR()->GetCullingBuffer()->Cull(GetRC()->shadowVPInfo->frustumPlanes.value(), ViewGroup::SHADOW);
+
+        GetGR()->GetCullingSystem()->Cull();
+    }
+
+    void PreparingPass::PrepareViewport()
+    {
+        auto viewportSize = Vec4(
+            static_cast<float>(GetRC()->screenWidth),
+            static_cast<float>(GetRC()->screenHeight),
+            0, 0);
+        
+        auto perViewCBuffer = GetGR()->GetPredefinedCbuffer(PER_VIEW_CBUFFER);
+        perViewCBuffer->Set(VIEWPORT_SIZE, viewportSize);
+    }
+
+    void PreparingPass::UpdateTransforms()
+    {
+        // 把需要渲染的objs的矩阵都上传一下
+        for (auto renderComp : GetRC()->visibleRenderObjs)
+        {
+            renderComp->UpdateTransform();
+        }
+    }
+
+    void PreparingPass::ClearGBuffers()
+    {
+        auto usingGBufferRenderTarget = GetRC()->UsingGBufferRenderTarget();
+        vec<Vec4> clearColors = {
+            Vec4(0.5f),
+            Vec4(0.0f),
+            Vec4(1.0f),
+        };
+        usingGBufferRenderTarget.Get()->Clear(clearColors, 1.0f);
     }
 
     void PreparingPass::PrepareLightInfos()
@@ -155,5 +183,22 @@ namespace op
             updateBuffer,
             count * (sizeof(PointLightInfo) / sizeof(float)));
         globalCBuffer->Set(POINT_LIGHT_COUNT, count);
+    }
+
+    void PreparingPass::SetAmbientColors()
+    {
+        auto scene = GetRC()->scene;
+        IndirectLighting::SetGradientAmbientColor(
+            scene->ambientLightColorSky,
+            scene->ambientLightColorEquator,
+            scene->ambientLightColorGround);
+    }
+
+    void PreparingPass::SetFogParams()
+    {
+        auto scene = GetRC()->scene;
+        auto globalCBuffer = GetGR()->GetPredefinedCbuffer(GLOBAL_CBUFFER);
+        globalCBuffer->Set(FOG_INTENSITY, scene->fogIntensity);
+        globalCBuffer->Set(FOG_COLOR, Vec4(scene->fogColor, 0));
     }
 }

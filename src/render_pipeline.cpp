@@ -100,12 +100,6 @@ namespace op
         SwapBuffers();
     }
 
-    void RenderPipeline::GetViewProjMatrix(Matrix4x4& view, Matrix4x4& proj)
-    {
-        view = m_renderContext->vMatrix;
-        proj = m_renderContext->pMatrix;
-    }
-
     void RenderPipeline::GetScreenSize(uint32_t& width, uint32_t& height)
     {
         width = this->m_screenWidth;
@@ -130,8 +124,6 @@ namespace op
         };
 
         CategorizeObjects(*m_renderContext);
-
-        GetGR()->GetCullingSystem()->Cull();
     }
 
     bool RenderPipeline::UpdateRenderTargetsPass()

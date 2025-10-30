@@ -125,9 +125,9 @@ namespace op
     {
         if constexpr (Check)
         {
-            if (m_size >= m_capacity)
+            if (m_size + 1 > m_capacity)
             {
-                throw std::runtime_error("Out of range");
+                Reserve(std::max(m_capacity * 2, m_size + 1));
             }
         }
         

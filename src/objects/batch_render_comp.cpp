@@ -16,7 +16,7 @@ namespace op
     {
         m_preHasONS = HasONS();
         
-        m_cullingBufferAccessor = GetGR()->GetCullingSystem()->GetCullingBuffer()->Alloc();
+        m_cullingBufferAccessor = GetGR()->GetCullingBuffer()->Alloc();
         
         GetGR()->GetBatchRenderUnit()->BindComp(this);
         
@@ -30,7 +30,7 @@ namespace op
         
         GetGR()->GetBatchRenderUnit()->UnBindComp(this);
         
-        GetGR()->GetCullingSystem()->GetCullingBuffer()->Release(m_cullingBufferAccessor);
+        GetGR()->GetCullingBuffer()->Release(m_cullingBufferAccessor);
     }
 
     void BatchRenderComp::OnTransformDirty()

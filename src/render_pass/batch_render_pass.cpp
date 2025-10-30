@@ -15,6 +15,6 @@ namespace op
         
         auto usingGBufferRenderTarget = GetRC()->UsingGBufferRenderTarget();
 
-        GetGR()->GetBatchRenderUnit()->Execute();
+        GetGR()->GetBatchRenderUnit()->Execute(ViewGroup::COMMON);
     }
 }

@@ -2,6 +2,7 @@
 
 #include "math/math.h"
 #include "object.h"
+#include "render_context.h"
 
 namespace op
 {
@@ -17,9 +18,12 @@ namespace op
         float farClip = 30.0f;
         
         static CameraComp* GetMainCamera();
+
+        sp<ViewProjInfo> CreateVPMatrix();
+        sp<ViewProjInfo> CreateShadowVPMatrix(Vec3 lightDirection);
         
         void LoadFromJson(cr<nlohmann::json> objJson) override;
-    
+
     private:
         Vec3 m_targetPosition = {};
         Vec3 m_targetRotation = {};

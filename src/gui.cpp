@@ -52,9 +52,10 @@ namespace op
         {
             return;
         }
-        
-        const auto& view = renderContext->vMatrix;
-        const auto& proj = renderContext->pMatrix;
+
+        auto& viewProj = renderContext->CurViewProjMatrix();
+        const auto& view = viewProj->vMatrix;
+        const auto& proj = viewProj->pMatrix;
         auto width = renderContext->screenWidth;
         auto height = renderContext->screenHeight;
         
@@ -73,8 +74,9 @@ namespace op
             return;
         }
         
-        const auto& view = renderContext->vMatrix;
-        const auto& proj = renderContext->pMatrix;
+        auto& viewProj = renderContext->CurViewProjMatrix();
+        const auto& view = viewProj->vMatrix;
+        const auto& proj = viewProj->pMatrix;
         auto width = renderContext->screenWidth;
         auto height = renderContext->screenHeight;
         

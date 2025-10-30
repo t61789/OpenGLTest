@@ -23,7 +23,7 @@ namespace op
         void UpdateTransform();
         bool HasONS();
 
-        bool GetInView() { return m_cullingBufferAccessor.IsEnable() ? m_cullingBufferAccessor.GetVisible() : false; }
+        bool GetInView(const ViewGroup viewGroup) { return m_cullingBufferAccessor.IsEnable() ? m_cullingBufferAccessor.GetVisible(viewGroup) : false; }
         Bounds GetWorldBounds() { return m_worldBounds; }
 
         void LoadFromJson(cr<nlohmann::json> objJson) override;

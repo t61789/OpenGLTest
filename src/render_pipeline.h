@@ -33,7 +33,6 @@ namespace op
         void SetScreenSize(uint32_t width, uint32_t height);
         void GetScreenSize(uint32_t& width, uint32_t& height);
         void Render(const CameraComp* camera, Scene* scene);
-        void GetViewProjMatrix(Matrix4x4& view, Matrix4x4& proj);
 
     private:
         uint32_t m_screenWidth;

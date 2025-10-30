@@ -5,46 +5,36 @@
 
 #include "render_texture.h"
 #include "objects/camera_comp.h"
-#include "objects/transform_comp.h"
 #include "render/render_target_pool.h"
 
 namespace op
 {
-    void RenderContext::SetViewProjMatrix(const CameraComp* cam)
+    void ViewProjInfo::UpdateFrustumPlanes()
     {
-        auto cameraLocalToWorld = cam->GetOwner()->transform->GetLocalToWorld();
-        cameraLocalToWorld[0][2] = -cameraLocalToWorld[0][2];
-        cameraLocalToWorld[1][2] = -cameraLocalToWorld[1][2];
-        cameraLocalToWorld[2][2] = -cameraLocalToWorld[2][2];
-        auto viewMatrix = cameraLocalToWorld.Inverse();
-
-        auto aspect = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
-        auto projectionMatrix = create_projection(cam->fov, aspect, cam->nearClip, cam->farClip);
-
-        SetViewProjMatrix(viewMatrix, projectionMatrix, cam->GetOwner()->transform->GetPosition());
+        frustumPlanes = get_frustum_planes(vpMatrix);
     }
 
-    void RenderContext::SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj)
+    sp<ViewProjInfo> ViewProjInfo::Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix)
     {
-        auto invV = view.Inverse();
-        Vec3 cameraPos = {
+        auto invV = vMatrix.Inverse();
+        Vec3 viewCenter = {
             invV[0][3],
             invV[1][3],
             invV[2][3]
         };
 
-        SetViewProjMatrix(view, proj, cameraPos);
+        return Create(vMatrix, pMatrix, viewCenter);
     }
 
-    void RenderContext::SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj, const Vec3& cameraPos)
+    sp<ViewProjInfo> ViewProjInfo::Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix, cr<Vec3> viewCenter)
     {
-        vMatrix = view;
-        pMatrix = proj;
-        vpMatrix = proj * view;
-        
-        auto perViewCbuffer = GetPerViewCbuffer();
-        perViewCbuffer->Set(VP, vpMatrix);
-        perViewCbuffer->Set(CAMERA_POSITION_WS, Vec4(cameraPos, 0.0f));
+        auto info = msp<ViewProjInfo>();
+        info->vMatrix = vMatrix;
+        info->pMatrix = pMatrix;
+        info->vpMatrix = pMatrix * vMatrix;
+        info->viewCenter = viewCenter;
+
+        return info;
     }
 
     UsingRenderTarget RenderContext::UsingGBufferRenderTarget()
@@ -55,5 +45,52 @@ namespace op
             rts[i] = gBufferTextures[i].lock();
         }
         return UsingRenderTarget(rts);
+    }
+
+    void RenderContext::PushViewProjMatrix(crsp<ViewProjInfo> viewProjInfo)
+    {
+        m_vpMatrixStack.push_back(viewProjInfo);
+        
+        auto perViewCbuffer = GetPerViewCbuffer();
+        perViewCbuffer->Set(VP, viewProjInfo->vpMatrix);
+        perViewCbuffer->Set(CAMERA_POSITION_WS, Vec4(viewProjInfo->viewCenter, 0.0f));
+    }
+
+    void RenderContext::PopViewProjMatrix()
+    {
+        if (m_vpMatrixStack.empty())
+        {
+            return;
+        }
+        
+        this->m_vpMatrixStack.pop_back();
+        if (!m_vpMatrixStack.empty())
+        {
+            SetViewProjMatrix(m_vpMatrixStack.back());
+        }
+    }
+
+    UsingObject RenderContext::UsingViewProjMatrix(crsp<ViewProjInfo> viewProjInfo)
+    {
+        PushViewProjMatrix(viewProjInfo);
+
+        return UsingObject([this]
+        {
+            this->PopViewProjMatrix();
+        });
+    }
+
+    crsp<ViewProjInfo> RenderContext::CurViewProjMatrix() const
+    {
+        assert(!m_vpMatrixStack.empty());
+
+        return m_vpMatrixStack.back();
+    }
+
+    void RenderContext::SetViewProjMatrix(crsp<ViewProjInfo> viewProjInfo)
+    {
+        auto perViewCbuffer = GetPerViewCbuffer();
+        perViewCbuffer->Set(VP, viewProjInfo->vpMatrix);
+        perViewCbuffer->Set(CAMERA_POSITION_WS, Vec4(viewProjInfo->viewCenter, 0.0f));
     }
 }

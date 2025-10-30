@@ -598,4 +598,29 @@ namespace op
         float time = 0;
         float deltaTime = 999;
     };
+
+    struct UsingObject
+    {
+        template <typename F>
+        explicit UsingObject(F&& deleter);
+        ~UsingObject();
+        UsingObject(const UsingObject& other) = delete;
+        UsingObject(UsingObject&& other) noexcept = delete;
+        UsingObject& operator=(const UsingObject& other) = delete;
+        UsingObject& operator=(UsingObject&& other) noexcept = delete;
+
+    private:
+        std::function<void()> m_deleter;
+    };
+
+    template <typename F>
+    UsingObject::UsingObject(F&& deleter)
+    {
+        m_deleter = std::forward<F>(deleter);
+    }
+
+    inline UsingObject::~UsingObject()
+    {
+        m_deleter();
+    }
 }

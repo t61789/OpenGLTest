@@ -13,6 +13,12 @@ namespace op
         void DrawConsoleUi() override;
 
     private:
-        void PrepareLightInfos();
+        static void PrepareMatrices();
+        static void PrepareViewport();
+        static void UpdateTransforms();
+        static void ClearGBuffers();
+        static void PrepareLightInfos();
+        static void SetAmbientColors();
+        static void SetFogParams();
     };
 }

@@ -19,19 +19,37 @@ namespace op
     class RenderComp;
     class LightComp;
 
+
+    struct ViewProjInfo
+    {
+        Matrix4x4 vMatrix;
+        Matrix4x4 pMatrix;
+        Matrix4x4 vpMatrix;
+        Vec3 viewCenter;
+        std::optional<std::array<Vec4, 6>> frustumPlanes = std::nullopt;
+
+        void UpdateFrustumPlanes();
+
+        static sp<ViewProjInfo> Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix);
+        static sp<ViewProjInfo> Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix, cr<Vec3> viewCenter);
+    };
+    
+
     class RenderContext : public Singleton<RenderContext>
     {
+        struct VPMatrix
+        {
+            Matrix4x4 vMatrix;
+            Matrix4x4 pMatrix;
+            Vec3 cameraPos;
+        };
+        
     public:
         uint32_t screenWidth = 0;
         uint32_t screenHeight = 0;
 
-        int mainLightShadowSize = 0;
+        uint32_t mainLightShadowSize = 0;
         
-        Matrix4x4 vMatrix;
-        Matrix4x4 pMatrix;
-        Matrix4x4 vpMatrix;
-        Vec3 cameraPositionWS;
-
         LightComp* mainLight = nullptr;
 
         vecwp<RenderTexture> gBufferTextures;
@@ -48,6 +66,8 @@ namespace op
         const vecwp<RenderComp>* allRenderObjs;
         vec<RenderComp*> visibleRenderObjs;
 
+        sp<ViewProjInfo> shadowVPInfo = nullptr;
+
         RenderContext() = default;
         ~RenderContext() = default;
         RenderContext(const RenderContext& other) = delete;
@@ -55,13 +75,18 @@ namespace op
         RenderContext& operator=(const RenderContext& other) = delete;
         RenderContext& operator=(RenderContext&& other) noexcept = delete;
 
-        void SetViewProjMatrix(const CameraComp* cam);
-        void SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj);
-        void SetViewProjMatrix(const Matrix4x4& view, const Matrix4x4& proj, const Vec3& cameraPos);
         UsingRenderTarget UsingGBufferRenderTarget();
+        
+        void PushViewProjMatrix(crsp<ViewProjInfo> viewProjInfo);
+        void PopViewProjMatrix();
+        UsingObject UsingViewProjMatrix(crsp<ViewProjInfo> viewProjInfo);
+        crsp<ViewProjInfo> CurViewProjMatrix() const;
 
     private:
         std::unordered_map<std::string, RenderTexture*> m_rts;
+        vecsp<ViewProjInfo> m_vpMatrixStack;
+
+        void SetViewProjMatrix(crsp<ViewProjInfo> viewProjInfo);
     };
 
     static RenderContext* GetRC()

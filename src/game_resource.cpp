@@ -19,6 +19,7 @@ namespace op
         m_builtInRes = mup<BuiltInRes>();
         m_globalTextureSet = mup<TextureSet>();
         m_cullingSystem = msp<CullingSystem>();
+        m_cullingBuffer = mup<CullingBuffer>();
         
         m_batchRenderUnit = mup<BatchRenderUnit>();
         // m_mainScene = Scene::LoadScene("scenes/test_scene/test_scene.json");
@@ -32,6 +33,7 @@ namespace op
     {
         m_mainScene.reset();
         m_batchRenderUnit.reset();
+        m_cullingBuffer.reset();
         m_cullingSystem.reset();
         m_globalTextureSet.reset();
         m_builtInRes.reset();

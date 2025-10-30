@@ -6,8 +6,10 @@
 #include <boost/lockfree/queue.hpp>
 
 #include "batch_matrix.h"
+#include "culling_system.h"
 #include "utils.h"
 #include "common/simple_list.h"
+#include "common/tree_node.h"
 #include "job_system/job_scheduler.h"
 
 namespace op
@@ -20,17 +22,29 @@ namespace op
     
     class BatchRenderUnit
     {
+        struct BatchRenderParam;
+        struct IndirectCmd;
+        struct BatchRenderCompInfo;
+        struct BatchRenderSubCmd;
+        struct BatchRenderCmd;
+        struct BatchRenderTree;
+        
     public:
         BatchRenderUnit();
+        ~BatchRenderUnit();
+        BatchRenderUnit(const BatchRenderUnit& other) = delete;
+        BatchRenderUnit(BatchRenderUnit&& other) noexcept = delete;
+        BatchRenderUnit& operator=(const BatchRenderUnit& other) = delete;
+        BatchRenderUnit& operator=(BatchRenderUnit&& other) noexcept = delete;
 
         void BindComp(BatchRenderComp* comp);
         void UnBindComp(BatchRenderComp* comp);
         void UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices);
-        void Execute();
-        sp<JobScheduler::Job> StartEncodingCmds();
+        void Execute(ViewGroup viewGroup);
+        sp<JobScheduler::Job> CreateEncodingJob(ViewGroup viewGroup);
 
     private:
-        
+
         struct IndirectCmd
         {
             uint32_t count;
@@ -38,42 +52,65 @@ namespace op
             uint32_t firstIndex;
             uint32_t baseVertex;
             uint32_t baseInstance;
+            
+            static IndirectCmd CreateIndirectCmd(cr<BatchRenderParam> param);
         };
 
-        struct CompInfo
+        struct BatchRenderParam
+        {
+            BatchRenderUnit* unit = nullptr;
+            BatchRenderComp* comp = nullptr;
+            Material* material = nullptr;
+            sp<Mesh> mesh = nullptr;
+            bool hasONS = true;
+            uint32_t matrixIndex = ~0u;
+        };
+            
+        struct BatchRenderCompInfo
         {
             uint32_t matrixIndex;
             BatchRenderComp* comp;
         };
-
-        struct Cmd;
-
-        struct SubCmd
+        
+        struct BatchRenderSubCmd
         {
             Mesh* mesh = nullptr;
             
             IndirectCmd indirectCmd = {};
             
-            vec<CompInfo*> comps = {};
+            vec<BatchRenderCompInfo*> comps = {};
         };
 
-        struct Cmd
+        struct BatchRenderCmd
         {
             Material* material = nullptr;
             bool hasONS = true;
+            
             uint32_t compCount = 0;
-
             SimpleList<IndirectCmd> indirectCmds = {};
             SimpleList<uint32_t> matrixIndices = {};
             
-            vec<SubCmd*> subCmds = {};
+            vec<BatchRenderSubCmd*> subCmds = {};
+        };
+
+        struct BatchRenderTree
+        {
+            ViewGroup viewGroup;
+            vec<BatchRenderCmd*> cmds;
+            sp<JobScheduler::Job> encodingJob;
+            lock_free_queue<BatchRenderCmd*> encodedCmds;
+
+            BatchRenderCompInfo* AddComp(cr<BatchRenderParam> param);
+            void RemoveComp(BatchRenderComp* comp);
+            void EncodeCmdsTask();
         };
 
         struct DrawContext
         {
             Shader* shader = nullptr;
             Material* material = nullptr;
-            bool hasONS = false;
+            Mesh* mesh = nullptr;
+            bool hasONS = true;
             size_t textureSetHash = 0;
         };
 
@@ -81,19 +118,12 @@ namespace op
         sp<GlBuffer> m_matrixIndicesBuffer = nullptr;
         sp<BatchMesh> m_batchMesh = nullptr;
         sp<BatchMatrix> m_batchMatrix = nullptr;
-
-        vec<Cmd*> m_cmds;
-        umap<BatchRenderComp*, CompInfo*> m_comps;
+        umap<BatchRenderComp*, uint32_t> m_comps;
         
-        lock_free_queue<Cmd*> m_encodedCmds = lock_free_queue<Cmd*>(1024);
+        vec<BatchRenderTree*> m_renderTrees = vec<BatchRenderTree*>(static_cast<uint8_t>(ViewGroup::COUNT));
 
-        sp<JobScheduler::Job> m_encodeCmdsJob = nullptr;
-
-        void CallGlCmd(const Cmd* cmd, DrawContext& context);
-        void AddComp(BatchRenderComp* comp);
-        void RemoveComp(BatchRenderComp* comp);
-        void EncodeCmdsTask();
+        void CallGlCmd(const BatchRenderCmd* cmd, DrawContext& context);
         
-        IndirectCmd CreateIndirectCmd(Mesh* mesh);
+        friend struct IndirectCmd;
     };
 }

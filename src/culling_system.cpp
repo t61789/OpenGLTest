@@ -9,9 +9,7 @@
 #include "game_resource.h"
 #include "object.h"
 #include "scene.h"
-#include "objects/batch_render_comp.h"
 #include "objects/render_comp.h"
-#include "objects/transform_comp.h"
 
 // bool FrustumCulling(const float3 center, const float3 extents)
 // {
@@ -36,8 +34,6 @@ namespace op
 
     CullingSystem::CullingSystem()
     {
-        m_cullingBuffer = new CullingBuffer();
-
         m_input = sl<uint32_t>(1);
         m_input.Resize(m_input.Capacity());
         m_output = sl<uint32_t>(m_input.Size());
@@ -51,7 +47,6 @@ namespace op
 
     CullingSystem::~CullingSystem()
     {
-        delete m_cullingBuffer;
     }
 
     void CullingSystem::Cull()
@@ -62,7 +57,7 @@ namespace op
         GetRC()->visibleRenderObjs.clear();
     
         const auto& renderObjs = *GetRC()->allRenderObjs;
-        auto planes = get_frustum_planes(GetRC()->vpMatrix);
+        auto planes = GetRC()->CurViewProjMatrix()->frustumPlanes.value();
 
         for (const auto& renderObj : renderObjs)
         {
@@ -71,8 +66,6 @@ namespace op
                 GetRC()->visibleRenderObjs.push_back(renderObj.lock().get());
             }
         }
-
-        m_cullingBuffer->Cull(planes);
     }
 
     void CullingSystem::DrawConsoleUi()
@@ -105,9 +98,9 @@ namespace op
         m_buffer->SetBounds(m_index, bounds);
     }
 
-    bool CullingBufferAccessor::GetVisible()
+    bool CullingBufferAccessor::GetVisible(const ViewGroup cullingGroup)
     {
-        return m_buffer->GetVisible(m_index);
+        return m_buffer->GetVisible(m_index, cullingGroup);
     }
 
     
@@ -119,24 +112,7 @@ namespace op
             {
                 for (uint32_t i = 0; i < 4; ++i)
                 {
-                    if (m_buffer.centerX.Size() == m_buffer.centerX.Capacity())
-                    {
-                        m_buffer.centerX.Reserve(m_buffer.centerX.Capacity() * 2);
-                        m_buffer.centerY.Reserve(m_buffer.centerY.Capacity() * 2);
-                        m_buffer.centerZ.Reserve(m_buffer.centerZ.Capacity() * 2);
-                        m_buffer.extentsX.Reserve(m_buffer.extentsX.Capacity() * 2);
-                        m_buffer.extentsY.Reserve(m_buffer.extentsY.Capacity() * 2);
-                        m_buffer.extentsZ.Reserve(m_buffer.extentsZ.Capacity() * 2);
-                        m_buffer.visible.Reserve(m_buffer.visible.Capacity() * 2);
-                    }
-                    
-                    m_buffer.centerX.Add(0);
-                    m_buffer.centerY.Add(0);
-                    m_buffer.centerZ.Add(0);
-                    m_buffer.extentsX.Add(0);
-                    m_buffer.extentsY.Add(0);
-                    m_buffer.extentsZ.Add(0);
-                    m_buffer.visible.Add(1);
+                    m_buffer.Add();
 
                     m_elemInfos.push_back({});
                 }
@@ -173,12 +149,12 @@ namespace op
         m_buffer.extentsZ[index] = bounds.extents.z;
     }
 
-    bool CullingBuffer::GetVisible(const uint32_t index)
+    bool CullingBuffer::GetVisible(const uint32_t index, const ViewGroup cullingGroup)
     {
-        return m_buffer.visible[index] != 0;
+        return m_buffer.GetVisible(cullingGroup)[index] != 0;
     }
 
-    void CullingBuffer::Cull(cr<arr<Vec4, 6>> planes)
+    void CullingBuffer::Cull(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup)
     {
         auto count = m_buffer.centerX.Size();
         auto threadCount = GetGR()->GetJobScheduler()->GetThreadCount();
@@ -188,19 +164,19 @@ namespace op
 
         // assert(m_cullJobId == 0);
 
-        auto job = JobScheduler::Job::CreateParallel(m_buffer.centerX.Size(), [planes, this](const uint32_t start, const uint32_t end)
+        auto job = JobScheduler::Job::CreateParallel(m_buffer.centerX.Size(), [planes, viewGroup, this](const uint32_t start, const uint32_t end)
         {
-            this->CullBatch(planes, start, end);
+            this->CullBatch(planes, viewGroup, start, end);
         });
         job->fixedBatchSize = true;
         job->minBatchSize = batchSize;
 
-        job->SetNext(GetGR()->GetBatchRenderUnit()->StartEncodingCmds());
+        job->SetNext(GetGR()->GetBatchRenderUnit()->CreateEncodingJob(viewGroup));
 
         GetGR()->GetJobScheduler()->Schedule(job);
     }
 
-    void CullingBuffer::CullBatch(cr<arr<Vec4, 6>> planes, uint32_t start, uint32_t end)
+    void CullingBuffer::CullBatch(cr<arr<Vec4, 6>> planes, ViewGroup cullingGroup, uint32_t start, uint32_t end)
     {
         ZoneScoped;
         
@@ -248,7 +224,7 @@ namespace op
                 resultP = _mm_and_ps(resultP, _mm_or_ps(cmp_d0, cmp_d1));
             }
 
-            _mm_store_ps(m_buffer.visible.Data() + i, resultP);
+            _mm_store_ps(m_buffer.GetVisible(cullingGroup).Data() + i, resultP);
         }
     }
 
@@ -260,6 +236,25 @@ namespace op
         extentsX = sl<float>(1024);
         extentsY = sl<float>(1024);
         extentsZ = sl<float>(1024);
-        visible = sl<float>(1024);
+        
+        for (auto& i : visible)
+        {
+            i = sl<float>(1024);
+        }
+    }
+
+    void CullingBuffer::CullingSoA::Add()
+    {
+        centerX.Add(0);
+        centerY.Add(0);
+        centerZ.Add(0);
+        extentsX.Add(0);
+        extentsY.Add(0);
+        extentsZ.Add(0);
+
+        for (auto& i : visible)
+        {
+            i.Add(1);
+        }
     }
 }

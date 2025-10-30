@@ -12,6 +12,16 @@ namespace op
     class Object;
     class CullingBuffer;
 
+
+    enum class ViewGroup : uint8_t
+    {
+        COMMON = 0,
+        SHADOW = 1,
+
+        COUNT = 2
+    };
+    
+
     class CullingSystem final
     {
     public:
@@ -22,21 +32,18 @@ namespace op
         CullingSystem& operator=(const CullingSystem& other) = delete;
         CullingSystem& operator=(CullingSystem&& other) noexcept = delete;
 
-        CullingBuffer* GetCullingBuffer() const { return m_cullingBuffer; }
-
         void Cull();
 
         void DrawConsoleUi();
 
     private:
         vec<Bounds> m_bounds;
-        CullingBuffer* m_cullingBuffer = nullptr;
 
         sl<uint32_t> m_input;
         sl<uint32_t> m_output;
         JobScheduler m_jobScheduler;
 
-        bool CullOnce(const Bounds& bounds, const std::array<Vec4, 6>& planes);
+        static bool CullOnce(const Bounds& bounds, const std::array<Vec4, 6>& planes);
     };
 
 
@@ -46,7 +53,7 @@ namespace op
         CullingBufferAccessor(uint32_t index, CullingBuffer* buffer);
 
         void Submit(cr<Bounds> bounds);
-        bool GetVisible();
+        bool GetVisible(ViewGroup cullingGroup);
         bool IsEnable() const { return m_enable; }
 
     private:
@@ -65,10 +72,9 @@ namespace op
         void Release(CullingBufferAccessor& accessor);
 
         void SetBounds(uint32_t index, cr<Bounds> bounds);
-        bool GetVisible(uint32_t index);
+        bool GetVisible(uint32_t index, ViewGroup cullingGroup);
 
-        void Cull(cr<arr<Vec4, 6>> planes);
-        void CullBatch(cr<arr<Vec4, 6>> planes, uint32_t start, uint32_t end);
+        void Cull(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup);
 
     private:
         struct ElemInfo
@@ -84,15 +90,20 @@ namespace op
             sl<float> extentsX;
             sl<float> extentsY;
             sl<float> extentsZ;
-            sl<float> visible;
+
+            sl<float> visible[static_cast<uint8_t>(ViewGroup::COUNT)];
 
             CullingSoA();
+
+            void Add();
+
+            sl<float>& GetVisible(ViewGroup group) { return visible[static_cast<uint8_t>(group)]; }
         };
         
         CullingSoA m_buffer;
         uint32_t m_firstEmpty = 0;
         vec<ElemInfo> m_elemInfos;
-        size_t m_cullJobId = 0;
-        uint32_t m_lastCullCompleteFrame = 0;
+        
+        void CullBatch(cr<arr<Vec4, 6>> planes, ViewGroup cullingGroup, uint32_t start, uint32_t end);
     };
 }

@@ -19,6 +19,8 @@ cbuffer _Global : register(b0)
 
     float4 _ParallelLightInfo[MAX_PARALLEL_LIGHT_COUNT * PARALLEL_LIGHT_INFO_STRIDE_VEC4];
     float4 _PointLightInfo[MAX_POINT_LIGHT_COUNT * POINT_LIGHT_INFO_STRIDE_VEC4];
+
+    float4x4 _MainLightShadowVP;
 };
 
 cbuffer PerViewCBuffer : register(b1)

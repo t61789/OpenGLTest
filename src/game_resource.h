@@ -1,5 +1,6 @@
 #pragma once
 #include "built_in_res.h"
+#include "culling_system.h"
 #include "i_resource.h"
 #include "utils.h"
 #include "common/thread_pool.h"
@@ -37,6 +38,7 @@ namespace op
         PerObjectBuffer* GetPerObjectBuffer() const { return m_perObjectBuffer.get(); }
         BatchRenderUnit* GetBatchRenderUnit() const { return m_batchRenderUnit.get(); }
         CullingSystem* GetCullingSystem() const { return m_cullingSystem.get(); }
+        CullingBuffer* GetCullingBuffer() const { return m_cullingBuffer.get(); }
         ThreadPool* GetThreadPool() const { return m_threadPool.get(); }
         JobScheduler* GetJobScheduler() const { return m_jobScheduler.get(); }
         
@@ -58,6 +60,7 @@ namespace op
         up<TextureSet> m_globalTextureSet;
         up<BatchRenderUnit> m_batchRenderUnit;
         sp<CullingSystem> m_cullingSystem;
+        up<CullingBuffer> m_cullingBuffer = nullptr;
         sp<Scene> m_mainScene = nullptr;
         up<BuiltInRes> m_builtInRes = nullptr;
         up<ThreadPool> m_threadPool = nullptr;

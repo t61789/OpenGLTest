@@ -16,49 +16,167 @@
 
 namespace op
 {
+    class BatchRenderUnit;
+    
+    BatchRenderUnit::IndirectCmd BatchRenderUnit::IndirectCmd::CreateIndirectCmd(cr<BatchRenderParam> param)
+    {
+        uint32_t vertexOffset, vertexSize, indexOffset, indexSize;
+        param.unit->m_batchMesh->GetMeshInfo(
+            param.mesh.get(),
+            vertexOffset,
+            vertexSize,
+            indexOffset,
+            indexSize);
+        
+        auto cmd = IndirectCmd();
+        cmd.count = static_cast<uint32_t>(indexSize / sizeof(uint32_t));
+        cmd.instanceCount = 0;
+        cmd.firstIndex = static_cast<uint32_t>(indexOffset / sizeof(uint32_t));
+        cmd.baseVertex = static_cast<uint32_t>(vertexOffset / (MAX_VERTEX_ATTR_STRIDE_F * sizeof(float)));
+        cmd.baseInstance = 0;
+
+        return cmd;
+    }
+
+    BatchRenderUnit::BatchRenderCompInfo* BatchRenderUnit::BatchRenderTree::AddComp(cr<BatchRenderParam> param)
+    {
+        auto material = param.material;
+        auto mesh = param.mesh;
+        auto comp = param.comp;
+        auto hasONS = param.hasONS;
+
+        assert(material && mesh && comp);
+
+        // find cmd
+        auto cmd = op::find_if(cmds, [material, hasONS](const BatchRenderCmd* x)
+        {
+            return x->material == material && x->hasONS == hasONS;
+        });
+        if (!cmd)
+        {
+            cmds.push_back(new BatchRenderCmd{
+                material,
+                hasONS,
+            });
+            cmd = cmds.back();
+        }
+
+        // find subCmd
+        auto subCmd = find_if(cmd->subCmds, [mesh](const BatchRenderSubCmd* x)
+        {
+            return x->mesh == mesh.get();
+        });
+        if (!subCmd)
+        {
+            param.unit->m_batchMesh->RegisterMesh(comp->GetMesh());
+            cmd->subCmds.push_back(new BatchRenderSubCmd{
+                mesh.get(),
+                IndirectCmd::CreateIndirectCmd(param)
+            });
+            subCmd = cmd->subCmds.back();
+        }
+
+        // find comp
+        assert(!exists_if(subCmd->comps, [comp](const BatchRenderCompInfo* x){ return x->comp == comp; }));
+        subCmd->comps.push_back(new BatchRenderCompInfo{
+            param.matrixIndex,
+            comp
+        });
+        cmd->compCount++;
+
+        return subCmd->comps.back();
+    }
+
+    void BatchRenderUnit::BatchRenderTree::RemoveComp(BatchRenderComp* comp)
+    {
+        auto removeFromSubCmd = [comp](BatchRenderSubCmd* subCmd)
+        {
+            if (auto compInfo = find(subCmd->comps, &BatchRenderCompInfo::comp, comp))
+            {
+                remove(subCmd->comps, compInfo);
+                delete compInfo;
+                return true;
+            }
+
+            return false;
+        };
+
+        auto removeFromCmd = [removeFromSubCmd](BatchRenderCmd* cmd)
+        {
+            if (auto subCmd = find_if(cmd->subCmds, removeFromSubCmd))
+            {
+                cmd->compCount--;
+
+                if (subCmd->comps.empty())
+                {
+                    remove(cmd->subCmds, subCmd);
+                    delete subCmd;
+                }
+
+                return true;
+            }
+
+            return false;
+        };
+
+        if (auto cmd = find_if(cmds, removeFromCmd))
+        {
+            if (cmd->subCmds.empty())
+            {
+                remove(cmds, cmd);
+                delete cmd;
+            }
+        }
+    }
+
     BatchRenderUnit::BatchRenderUnit()
     {
         m_cmdBuffer = msp<GlBuffer>(GL_DRAW_INDIRECT_BUFFER);
         m_matrixIndicesBuffer = msp<GlBuffer>(GL_SHADER_STORAGE_BUFFER, 5);
         m_batchMesh = msp<BatchMesh>();
         m_batchMatrix = msp<BatchMatrix>(200, 6);
+
+        for (auto i = 0; i < static_cast<int>(ViewGroup::COUNT); ++i)
+        {
+            m_renderTrees[i] = new BatchRenderTree{
+                static_cast<ViewGroup>(i),
+                {},
+                nullptr,
+                lock_free_queue<BatchRenderCmd*>(1024)
+            };
+        }
     }
 
-    void BatchRenderUnit::BindComp(BatchRenderComp* comp)
+    BatchRenderUnit::~BatchRenderUnit()
     {
-        AddComp(comp);
-    }
-
-    void BatchRenderUnit::UnBindComp(BatchRenderComp* comp)
-    {
-        RemoveComp(comp);
+        assert(m_comps.empty());
     }
 
     void BatchRenderUnit::UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices)
     {
         auto compInfo = m_comps.find(comp);
         assert(compInfo != m_comps.end());
-        m_batchMatrix->SubmitData(compInfo->second->matrixIndex, matrices);
+        m_batchMatrix->SubmitData(compInfo->second, matrices);
     }
     
-    void BatchRenderUnit::Execute()
+    void BatchRenderUnit::Execute(const ViewGroup viewGroup)
     {
-        assert(m_encodeCmdsJob);
-
+        auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)];
+        
         m_batchMatrix->Use();
         m_batchMesh->Use();
         
         GetGlobalCbuffer()->BindBase();
         GetPerViewCbuffer()->BindBase();
 
-        m_encodeCmdsJob->WaitForStart();
+        renderTree->encodingJob->WaitForStart();
 
         DrawContext context;
         
         while (true)
         {
-            Cmd* cmd = nullptr;
-            if (!m_encodedCmds.pop(cmd))
+            BatchRenderCmd* cmd = nullptr;
+            if (!renderTree->encodedCmds.pop(cmd))
             {
                 std::this_thread::yield();
                 continue;
@@ -74,129 +192,31 @@ namespace op
             }
         }
 
-        m_encodeCmdsJob.reset();
+        renderTree->encodingJob.reset();
     }
 
-    sp<JobScheduler::Job> BatchRenderUnit::StartEncodingCmds()
+    sp<JobScheduler::Job> BatchRenderUnit::CreateEncodingJob(ViewGroup viewGroup)
     {
-        assert(!m_encodeCmdsJob && m_encodedCmds.empty());
-
-        auto job = JobScheduler::Job::CreateCommon([this]
+        auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)];
+        
+        auto job = JobScheduler::Job::CreateCommon([this, renderTree]
         {
-            this->EncodeCmdsTask();
+            renderTree->EncodeCmdsTask();
         });
 
-        m_encodeCmdsJob = job;
+        renderTree->encodingJob = job;
 
         return job;
     }
 
-    void BatchRenderUnit::AddComp(BatchRenderComp* comp)
-    {
-        auto material = comp->GetMaterial().get();
-        auto mesh = comp->GetMesh();
-        auto hasONS = comp->HasONS();
-
-        if (mesh == nullptr || material == nullptr)
-        {
-            return;
-        }
-        
-        auto cmd = op::find_if(m_cmds, [material, hasONS](const Cmd* x)
-        {
-            return x->material == material && x->hasONS == hasONS;
-        });
-        if (!cmd)
-        {
-            m_cmds.push_back(new Cmd{
-                material,
-                hasONS,
-            });
-            cmd = m_cmds.back();
-        }
-
-        
-        auto subCmd = find_if(cmd->subCmds, [mesh=mesh.get()](const SubCmd* x)
-        {
-            return x->mesh == mesh;
-        });
-        if (!subCmd)
-        {
-            m_batchMesh->RegisterMesh(mesh);
-            cmd->subCmds.push_back(new SubCmd{
-                mesh.get(),
-                CreateIndirectCmd(mesh.get())
-            });
-            subCmd = cmd->subCmds.back();
-        }
-
-        
-        assert(!exists_if(subCmd->comps, [comp](const CompInfo* x){ return x->comp == comp; }));
-        subCmd->comps.push_back(new CompInfo{
-            m_batchMatrix->Register(),
-            comp
-        });
-        m_comps[comp] = subCmd->comps.back();
-        cmd->compCount++;
-    }
-
-    void BatchRenderUnit::RemoveComp(BatchRenderComp* comp)
-    {
-        auto material = comp->GetMaterial().get();
-        auto mesh = comp->GetMesh().get();
-        auto hasONS = comp->HasONS();
-        
-        if (mesh == nullptr || material == nullptr)
-        {
-            return;
-        }
-        
-        auto cmd = find_if(m_cmds, [material, hasONS](const Cmd* x)
-        {
-            return x->material == material && x->hasONS == hasONS;
-        });
-        if (cmd == nullptr)
-        {
-            return;
-        }
-        
-
-        auto subCmd = find(cmd->subCmds, &SubCmd::mesh, mesh);
-        if (subCmd == nullptr)
-        {
-            return;
-        }
-
-        
-        auto compInfo = find(subCmd->comps, &CompInfo::comp, comp);
-        if (compInfo == nullptr)
-        {
-            return;
-        }
-        
-
-        cmd->compCount--;
-        m_batchMatrix->UnRegister(compInfo->matrixIndex);
-        remove(subCmd->comps, compInfo);
-        m_comps.erase(comp);
-        delete compInfo;
-        if (subCmd->comps.empty())
-        {
-            remove(cmd->subCmds, subCmd);
-            delete subCmd;
-        }
-        if (cmd->subCmds.empty())
-        {
-            remove(m_cmds, cmd);
-            delete cmd;
-        }
-    }
-
-    void BatchRenderUnit::EncodeCmdsTask()
+    void BatchRenderUnit::BatchRenderTree::EncodeCmdsTask()
     {
         ZoneScoped;
-        
-        for (auto cmd : m_cmds)
+
+        BatchRenderCmd* dummy;
+        while (encodedCmds.pop(dummy)) {}
+
+        for (auto cmd : cmds)
         {
             ZoneScopedN("Encode Cmd");
             
@@ -211,7 +231,7 @@ namespace op
                 auto instanceCount = 0;
                 for (auto& compInfo : subCmd->comps)
                 {
-                    if (compInfo->comp->GetInView())
+                    if (compInfo->comp->GetInView(viewGroup))
                     {
                         cmd->matrixIndices.Add<false>(compInfo->matrixIndex);
                         instanceCount++;
@@ -231,28 +251,59 @@ namespace op
 
             if (!cmd->indirectCmds.Empty())
             {
-                this->m_encodedCmds.push(cmd);
+                encodedCmds.push(cmd);
             }
         }
 
-        this->m_encodedCmds.push(nullptr);
+        encodedCmds.push(nullptr);
     }
-    
-    BatchRenderUnit::IndirectCmd BatchRenderUnit::CreateIndirectCmd(Mesh* mesh)
+
+    void BatchRenderUnit::BindComp(BatchRenderComp* comp)
     {
-        uint32_t vertexOffset, vertexSize, indexOffset, indexSize;
-        m_batchMesh->GetMeshInfo(mesh, vertexOffset, vertexSize, indexOffset, indexSize);
-        auto cmd = IndirectCmd();
-        cmd.count = static_cast<uint32_t>(indexSize / sizeof(uint32_t));
-        cmd.instanceCount = 0;
-        cmd.firstIndex = static_cast<uint32_t>(indexOffset / sizeof(uint32_t));
-        cmd.baseVertex = static_cast<uint32_t>(vertexOffset / (MAX_VERTEX_ATTR_STRIDE_F * sizeof(float)));
-        cmd.baseInstance = 0;
+        if (m_comps.find(comp) != m_comps.end())
+        {
+            return;
+        }
+        auto matrixIndex = m_batchMatrix->Register();
+        m_comps[comp] = matrixIndex;
 
-        return cmd;
+        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::COMMON)];
+        commonRenderTree->AddComp({
+            this,
+            comp,
+            comp->GetMaterial().get(),
+            comp->GetMesh(),
+            comp->HasONS(),
+            matrixIndex
+        });
+
+        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::SHADOW)];
+        shadowRenderTree->AddComp({
+            this,
+            comp,
+            comp->GetMaterial().get(), // TODO
+            comp->GetMesh(),
+            comp->HasONS(),
+            matrixIndex
+        });
     }
 
-    void BatchRenderUnit::CallGlCmd(const Cmd* cmd, DrawContext& context)
+    void BatchRenderUnit::UnBindComp(BatchRenderComp* comp)
+    {
+        if (m_comps.find(comp) == m_comps.end())
+        {
+            return;
+        }
+        m_comps.erase(comp);
+
+        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::COMMON)];
+        commonRenderTree->RemoveComp(comp);
+
+        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::SHADOW)];
+        shadowRenderTree->RemoveComp(comp);
+    }
+
+    void BatchRenderUnit::CallGlCmd(const BatchRenderCmd* cmd, DrawContext& context)
     {
         ZoneScoped;
 

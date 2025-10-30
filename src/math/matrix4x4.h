@@ -69,11 +69,6 @@ namespace op
             return Vec4(m_data + i * 4);
         }
 
-        Vec3 GetPos() const
-        {
-            return Vec3(m_data[3], m_data[7], m_data[11]);
-        }
-
         Matrix4x4 operator*(const Matrix4x4& other) const
         {
             Matrix4x4 result;
@@ -244,6 +239,11 @@ namespace op
         Vec3 Right() const
         {
             return Vec3(m_data[0], m_data[4], m_data[8]).Normalize();
+        }
+
+        Vec3 Position() const
+        {
+            return Vec3(m_data[3], m_data[7], m_data[11]);
         }
 
         std::string ToString() const
