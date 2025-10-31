@@ -2,62 +2,60 @@
 
 namespace op
 {
-    ThreadPool::ThreadPool(const uint32_t threadCount)
+    ThreadPool::ThreadPool(uint32_t numThreads)
     {
-        m_threads = vec<ConsumerThread<func_ptr>*>(threadCount);
-        for (uint32_t i = 0; i < threadCount; ++i)
+        for (uint32_t i = 0; i < numThreads; ++i)
         {
-            auto thread = new ConsumerThread<func_ptr>(1024, ExecuteFunc);
-            
-            m_threads[i] = thread;
+            m_threads.emplace_back(&ThreadPool::Worker, this);
         }
     }
 
     ThreadPool::~ThreadPool()
     {
-        Stop(true);
-    }
-
-    void ThreadPool::Wait()
-    {
-        for (auto thread : m_threads)
         {
-            thread->Wait();
+            std::lock_guard lock(m_taskMutex);
+            m_shutdown = true;
+            m_taskCond.notify_all();
+        }
+
+        for (auto& thread : m_threads)
+        {
+            thread.join();
         }
     }
 
-    inline void ThreadPool::Stop(const bool immediate)
+    void ThreadPool::Run(const Task task)
     {
-        if (m_threads.empty())
-        {
-            return;
-        }
-        
-        for (auto thread : m_threads)
-        {
-            thread->Stop(immediate);
-        }
+        std::lock_guard lock(m_taskMutex);
+        m_tasks.push(task);
+        m_taskCond.notify_all();
+    }
 
-        for (auto thread : m_threads)
+    void ThreadPool::Worker()
+    {
+        while (true)
         {
-            thread->Join();
-
-            func_ptr func;
-            while (thread->Dequeue(func))
+            Task task = nullptr;
+            
             {
-                FunctionPool<void()>::Ins()->Free(func);
+                std::unique_lock lock(m_taskMutex);
+                m_taskCond.wait(lock, [this]
+                {
+                    return m_shutdown || !m_tasks.empty();
+                });
+                
+                if (m_shutdown)
+                {
+                    return;
+                }
+                
+                task = m_tasks.front();
+                m_tasks.pop();
             }
 
-            delete thread;
+            (*task)();
+
+            FunctionPool<void()>::Ins()->Free(task);
         }
-
-        m_threads.clear();
-    }
-
-    void ThreadPool::ExecuteFunc(const func_ptr func)
-    {
-        (*func)();
-
-        FunctionPool<void()>::Ins()->Free(func);
     }
 }

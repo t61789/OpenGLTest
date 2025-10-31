@@ -1,52 +1,42 @@
 #pragma once
-#include <cstdint>
-#include <functional>
-#include <mutex>
+#include <queue>
+#include <thread>
 
-#include "consumer_thread.h"
 #include "function_pool.h"
+#include "math/vec.h"
 
 namespace op
 {
     class ThreadPool
     {
+        using Task = std::function<void()>*;
+        
     public:
-        explicit ThreadPool(uint32_t threadCount);
+        explicit ThreadPool(uint32_t numThreads);
         ~ThreadPool();
         ThreadPool(const ThreadPool& other) = delete;
         ThreadPool(ThreadPool&& other) noexcept = delete;
         ThreadPool& operator=(const ThreadPool& other) = delete;
         ThreadPool& operator=(ThreadPool&& other) noexcept = delete;
 
-        uint32_t GetThreadCount() const { return m_threads.size(); }
-        
-        template <typename Func>
-        void Start(Func&& f);
-        void Wait();
-        void Stop(bool immediate);
+        template <typename F>
+        void Run(F&& func);
 
     private:
-        using func_ptr = std::function<void()>*;
-        
-        vec<ConsumerThread<func_ptr>*> m_threads;
+        vec<std::thread> m_threads;
+        std::queue<Task> m_tasks;
+        std::mutex m_taskMutex;
+        std::condition_variable m_taskCond;
+        bool m_shutdown = false;
 
-        static void ExecuteFunc(func_ptr func);
+        void Run(Task task);
+        void Worker();
     };
 
-    template <typename Func>
-    void ThreadPool::Start(Func&& f)
+    template <typename F>
+    void ThreadPool::Run(F&& func)
     {
-        uint32_t minTaskCount = ~0u;
-        auto minTaskThread = 0;
-        for (uint32_t i = 0; i < m_threads.size(); ++i)
-        {
-            auto taskCount = m_threads[i]->GetTaskCount();
-            if (taskCount < minTaskCount)
-            {
-                minTaskCount = taskCount;
-                minTaskThread = i;
-            }
-        }
-        m_threads[minTaskThread]->Enqueue(FunctionPool<void()>::Ins()->Alloc(f));
+        auto task = FunctionPool<void()>::Ins()->Alloc(std::forward<F>(func));
+        Run(task);
     }
 }

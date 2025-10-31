@@ -86,7 +86,7 @@ namespace op
             job->WaitForStop();
         }
         
-        m_threadPool->Stop(false);
+        m_threadPool.reset();
     }
 
     void JobScheduler::Schedule(crsp<Job> job)
@@ -119,7 +119,7 @@ namespace op
         job->m_exceptTaskNum = 1;
         job->m_completeTaskNum = 0;
         
-        m_threadPool->Start([job, this]
+        m_threadPool->Run([job, this]
         {
             (*job->m_taskFunc)();
 
@@ -153,7 +153,7 @@ namespace op
         for (uint32_t start = 0; start < job->m_taskElemCount; start += batchSize)
         {
             auto end = std::min(start + batchSize, job->m_taskElemCount);
-            m_threadPool->Start([start, end, job, this]
+            m_threadPool->Run([start, end, job, this]
             {
                 (*job->m_parallelTaskFunc)(start, end);
 

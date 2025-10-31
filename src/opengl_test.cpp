@@ -14,6 +14,7 @@
 #include "common/managed_buffer.h"
 #include "common/elem_accessor_var.h"
 #include "common/thread_pool.h"
+#include "common/thread_pool.h"
 #include "job_system/job_scheduler.h"
 #include "math/matrix4x4.h"
 #include "math/vec.h"
@@ -32,14 +33,15 @@ static void ReleaseStaticRes()
 
 int main(int argc, char* argv[])
 {
-    // vec<uint32_t> data(1000000);
-    // vec<uint32_t> result(data.size());
-    // for (int i = 0; i < data.size(); ++i)
-    // {
-    //     data[i] = i;
-    // }
+    // auto count = 1000000;
+    // auto data = new uint32_t[count];
+    // auto result = new uint32_t[count];
     //
-    // JobScheduler js;
+    // auto threadPoolNew = ThreadPoolNew(2);
+    //
+    // std::mutex mtx;
+    // std::condition_variable cv;
+    // auto taskCount = 0;
     //
     // double sum0 = 0;
     // double sum1 = 0;
@@ -48,29 +50,60 @@ int main(int argc, char* argv[])
     // for (int i = 0; i < 100; ++i)
     // {
     //     start = std::chrono::high_resolution_clock::now();
-    //     for (uint32_t k = 0; k < data.size(); ++k)
+    //     for (uint32_t k = 0; k < count; ++k)
     //     {
-    //         result[k] = data[k] * 2;
+    //         result[k] = std::sqrt(data[k] * data[k] + 1.0) * 2;
     //     }
     //     end = std::chrono::high_resolution_clock::now();
     //     sum0 += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     //
     //     start = std::chrono::high_resolution_clock::now();
-    //     auto id = js.Schedule(data.size(), [&data, &result](uint32_t start, uint32_t end)
+    //
+    //     taskCount = 0;
+    //     threadPoolNew.Run([&]
     //     {
-    //         for (uint32_t i = start; i < end; ++i)
+    //         for (uint32_t k = 0; k < count / 2; ++k)
     //         {
-    //             result[i] = data[i] * 2;
+    //             result[k] = std::sqrt(data[k] * data[k] + 1.0) * 2;
+    //         }
+    //     
+    //         std::lock_guard lk(mtx);
+    //         ++taskCount;
+    //         if (taskCount == 2)
+    //         {
+    //             cv.notify_one();
+    //         }
+    //     });
+    //     
+    //     threadPoolNew.Run([&]
+    //     {
+    //         for (uint32_t k = count / 2; k < count; ++k)
+    //         {
+    //             result[k] = std::sqrt(data[k] * data[k] + 1.0) * 2;
+    //         }
+    //         
+    //         std::lock_guard lk(mtx);
+    //         ++taskCount;
+    //         if (taskCount == 2)
+    //         {
+    //             cv.notify_one();
     //         }
     //     });
     //
-    //     js.Wait(id);
+    //     {
+    //         std::unique_lock lk(mtx);
+    //         cv.wait(lk);
+    //     }
+    //
     //     end = std::chrono::high_resolution_clock::now();
     //     sum1 += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     // }
     //
     // std::cout << "sum0: " << sum0 / 100 << "\n";
     // std::cout << "sum1: " << sum1 / 100 << "\n";
+    //
+    // delete[] data;
+    // delete[] result;
     //
     // return 0;
     
