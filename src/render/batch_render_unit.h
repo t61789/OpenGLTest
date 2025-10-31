@@ -120,7 +120,7 @@ namespace op
         sp<BatchMatrix> m_batchMatrix = nullptr;
         umap<BatchRenderComp*, uint32_t> m_comps;
         
-        vec<BatchRenderTree*> m_renderTrees = vec<BatchRenderTree*>(static_cast<uint8_t>(ViewGroup::COUNT));
+        vecup<BatchRenderTree> m_renderTrees;
 
         void CallGlCmd(const BatchRenderCmd* cmd, DrawContext& context);
         

@@ -34,6 +34,8 @@ namespace op
     template <typename T>
     using vecwp = std::vector<wp<T>>;
     template <typename T>
+    using vecup = std::vector<up<T>>;
+    template <typename T>
     using vecpt = std::vector<T*>;
     template <typename T>
     using cvec = const vec<T>;

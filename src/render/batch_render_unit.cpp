@@ -138,12 +138,13 @@ namespace op
 
         for (auto i = 0; i < static_cast<int>(ViewGroup::COUNT); ++i)
         {
-            m_renderTrees[i] = new BatchRenderTree{
+            auto renderTree = new BatchRenderTree{
                 static_cast<ViewGroup>(i),
                 {},
                 nullptr,
                 lock_free_queue<BatchRenderCmd*>(1024)
             };
+            m_renderTrees.emplace_back(renderTree);
         }
     }
 
@@ -161,7 +162,7 @@ namespace op
     
     void BatchRenderUnit::Execute(const ViewGroup viewGroup)
     {
-        auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)];
+        auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)].get();
         
         m_batchMatrix->Use();
         m_batchMesh->Use();
@@ -197,7 +198,7 @@ namespace op
 
     sp<JobScheduler::Job> BatchRenderUnit::CreateEncodingJob(ViewGroup viewGroup)
     {
-        auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)];
+        auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)].get();
         
         auto job = JobScheduler::Job::CreateCommon([this, renderTree]
         {
@@ -267,7 +268,7 @@ namespace op
         auto matrixIndex = m_batchMatrix->Register();
         m_comps[comp] = matrixIndex;
 
-        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::COMMON)];
+        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::COMMON)].get();
         commonRenderTree->AddComp({
             this,
             comp,
@@ -277,7 +278,7 @@ namespace op
             matrixIndex
         });
 
-        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::SHADOW)];
+        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::SHADOW)].get();
         shadowRenderTree->AddComp({
             this,
             comp,
@@ -296,10 +297,10 @@ namespace op
         }
         m_comps.erase(comp);
 
-        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::COMMON)];
+        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::COMMON)].get();
         commonRenderTree->RemoveComp(comp);
 
-        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::SHADOW)];
+        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::SHADOW)].get();
         shadowRenderTree->RemoveComp(comp);
     }
 
