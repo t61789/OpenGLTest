@@ -74,7 +74,7 @@ namespace op
         void SetBounds(uint32_t index, cr<Bounds> bounds);
         bool GetVisible(uint32_t index, ViewGroup cullingGroup);
 
-        void Cull(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup);
+        sp<Job> CreateCullJob(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup);
 
     private:
         struct ElemInfo

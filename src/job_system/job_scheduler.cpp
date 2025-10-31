@@ -4,10 +4,11 @@
 #include <tracy/Tracy.hpp>
 
 #include "common/function_pool.h"
+#include "math/math_utils.h"
 
 namespace op
 {
-    JobScheduler::Job::~Job()
+    Job::~Job()
     {
         std::lock_guard lock(m_accessMutex);
         
@@ -15,7 +16,7 @@ namespace op
         FunctionPool<void(uint32_t, uint32_t)>::Ins()->Free(m_parallelTaskFunc);
     }
 
-    void JobScheduler::Job::WaitForStart()
+    void Job::WaitForStart()
     {
         ZoneScopedC(TRACY_IDLE_COLOR);
 
@@ -27,7 +28,7 @@ namespace op
         });
     }
 
-    void JobScheduler::Job::WaitForStop()
+    void Job::WaitForStop()
     {
         ZoneScopedC(TRACY_IDLE_COLOR);
 
@@ -41,14 +42,14 @@ namespace op
         });
     }
 
-    void JobScheduler::Job::SetNext(crsp<Job> next)
+    void Job::AppendNext(crsp<Job> next)
     {
         std::lock_guard lock(m_accessMutex);
-        
-        m_next = next;
+
+        m_next.push_back(next);
     }
 
-    bool JobScheduler::Job::CompleteOnce()
+    bool Job::CompleteOnce()
     {
         std::lock_guard lock(m_accessMutex);
         
@@ -64,7 +65,7 @@ namespace op
     
     JobScheduler::JobScheduler()
     {
-        m_threadPool = std::make_unique<ThreadPool>(2);
+        m_threadPool = std::make_unique<ThreadPool>(JOB_THREAD_COUNT);
     }
 
     JobScheduler::~JobScheduler()
@@ -94,6 +95,7 @@ namespace op
         std::lock_guard lock1(job->m_accessMutex);
         
         assert(!job->m_completed);
+        assert(job->m_exceptTaskNum == 0);
         assert(!find(m_runningParallelTasks, job->m_taskGroupId));
         assert(!(job->m_taskFunc == nullptr && job->m_parallelTaskFunc == nullptr));
         assert(!(job->m_taskFunc != nullptr && job->m_parallelTaskFunc != nullptr));
@@ -130,29 +132,27 @@ namespace op
 
     void JobScheduler::ScheduleParallelJob(crsp<Job> job)
     {
-        assert(job->count != 0);
-        
-        uint32_t batchSize;
-        if (job->fixedBatchSize)
-        {
-            batchSize = job->minBatchSize;
-        }
-        else
-        {
-            batchSize = (job->count + m_threadPool->GetThreadCount() - 1) / m_threadPool->GetThreadCount();
-            batchSize = std::min(batchSize, job->minBatchSize);
-            assert(batchSize > 0);
-        }
+        assert(job->m_minBatchSize > 0);
+        assert(job->m_taskElemCount != 0);
+        assert(job->m_alignedBatchSize == 0 || job->m_taskElemCount % job->m_alignedBatchSize == 0);
 
+        auto batchSize = ceil_div(job->m_taskElemCount, JOB_THREAD_COUNT);
+        batchSize = std::max(batchSize, job->m_minBatchSize);
+        if (job->m_alignedBatchSize > 0)
+        {
+            batchSize = ceil_div(batchSize, job->m_alignedBatchSize) * job->m_alignedBatchSize;
+        }
+        assert(batchSize > 0);
+        
         job->m_exceptTaskNum = 0;
-        for (uint32_t start = 0; start < job->count; start += batchSize)
+        for (uint32_t start = 0; start < job->m_taskElemCount; start += batchSize)
         {
             job->m_exceptTaskNum++;
         }
         
-        for (uint32_t start = 0; start < job->count; start += batchSize)
+        for (uint32_t start = 0; start < job->m_taskElemCount; start += batchSize)
         {
-            auto end = std::min(start + batchSize, job->count);
+            auto end = std::min(start + batchSize, job->m_taskElemCount);
             m_threadPool->Start([start, end, job, this]
             {
                 (*job->m_parallelTaskFunc)(start, end);
@@ -167,9 +167,9 @@ namespace op
     
     void JobScheduler::JobComplete(crsp<Job> job)
     {
-        if (job->m_next)
+        for (auto& next : job->m_next)
         {
-            Schedule(job->m_next);
+            Schedule(next);
         }
         
         {

@@ -196,11 +196,11 @@ namespace op
         renderTree->encodingJob.reset();
     }
 
-    sp<JobScheduler::Job> BatchRenderUnit::CreateEncodingJob(ViewGroup viewGroup)
+    sp<Job> BatchRenderUnit::CreateEncodingJob(ViewGroup viewGroup)
     {
         auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)].get();
         
-        auto job = JobScheduler::Job::CreateCommon([this, renderTree]
+        auto job = Job::CreateCommon([this, renderTree]
         {
             renderTree->EncodeCmdsTask();
         });

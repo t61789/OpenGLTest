@@ -29,16 +29,24 @@ namespace op
         using func_ptr = std::function<void()>*;
         
         vec<ConsumerThread<func_ptr>*> m_threads;
-        uint32_t m_preUsedThread = 0;
 
-        void ExecuteFunc(func_ptr func);
+        static void ExecuteFunc(func_ptr func);
     };
 
     template <typename Func>
     void ThreadPool::Start(Func&& f)
     {
-        m_threads[m_preUsedThread]->Enqueue<true>(FunctionPool<void()>::Ins()->Alloc(f));
-
-        m_preUsedThread = (m_preUsedThread + 1) % m_threads.size();
+        uint32_t minTaskCount = ~0u;
+        auto minTaskThread = 0;
+        for (uint32_t i = 0; i < m_threads.size(); ++i)
+        {
+            auto taskCount = m_threads[i]->GetTaskCount();
+            if (taskCount < minTaskCount)
+            {
+                minTaskCount = taskCount;
+                minTaskThread = i;
+            }
+        }
+        m_threads[minTaskThread]->Enqueue(FunctionPool<void()>::Ins()->Alloc(f));
     }
 }

@@ -11,6 +11,8 @@
 namespace op
 {
     #define TRACY_IDLE_COLOR 0x25281E
+
+    static uint32_t JOB_THREAD_COUNT = 3;
     
     static bool LOG_RENDER_TARGET_STACK_NOT_EMPTY = false;
     static bool ENABLE_GL_CHECK_ERROR = false;

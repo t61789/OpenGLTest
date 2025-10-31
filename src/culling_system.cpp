@@ -154,26 +154,15 @@ namespace op
         return m_buffer.GetVisible(cullingGroup)[index] != 0;
     }
 
-    void CullingBuffer::Cull(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup)
+    sp<Job> CullingBuffer::CreateCullJob(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup)
     {
-        auto count = m_buffer.centerX.Size();
-        auto threadCount = GetGR()->GetJobScheduler()->GetThreadCount();
-        auto batchSize = ceil_div(count, threadCount);
-        batchSize = ceil_div(batchSize, 4) * 4;
-        batchSize = std::max(batchSize, 4u);
-
-        // assert(m_cullJobId == 0);
-
-        auto job = JobScheduler::Job::CreateParallel(m_buffer.centerX.Size(), [planes, viewGroup, this](const uint32_t start, const uint32_t end)
+        auto job = Job::CreateParallel(m_buffer.centerX.Size(), [planes, viewGroup, this](const uint32_t start, const uint32_t end)
         {
             this->CullBatch(planes, viewGroup, start, end);
         });
-        job->fixedBatchSize = true;
-        job->minBatchSize = batchSize;
+        job->SetAlignedBatchSize(4);
 
-        job->SetNext(GetGR()->GetBatchRenderUnit()->CreateEncodingJob(viewGroup));
-
-        GetGR()->GetJobScheduler()->Schedule(job);
+        return job;
     }
 
     void CullingBuffer::CullBatch(cr<arr<Vec4, 6>> planes, ViewGroup cullingGroup, uint32_t start, uint32_t end)

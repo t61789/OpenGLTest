@@ -23,15 +23,15 @@ namespace op
         ConsumerThread& operator=(const ConsumerThread& other) = delete;
         ConsumerThread& operator=(ConsumerThread&& other) noexcept = delete;
 
-        template <bool EnsureEnqueue = false>
         void Enqueue(const T& product);
         bool Dequeue(T& product);
         void Stop(bool immediate = false);
         void Wait();
         void Join();
+        uint32_t GetTaskCount();
 
     private:
-        lock_free_queue<T> m_taskQueue;
+        vec<T> m_taskQueue;
         std::mutex m_consumeMutex;
         std::condition_variable m_hasTaskCond;
         std::condition_variable m_idleCond;
@@ -47,7 +47,7 @@ namespace op
 
     template <typename T>
     template <typename ConsumeFunc>
-    ConsumerThread<T>::ConsumerThread(uint32_t productCapacity, ConsumeFunc&& f) : m_taskQueue(productCapacity)
+    ConsumerThread<T>::ConsumerThread(uint32_t productCapacity, ConsumeFunc&& f)
     {
         m_thread = std::thread([this, f=std::move(f)]
         {
@@ -64,28 +64,26 @@ namespace op
     }
 
     template <typename T>
-    template <bool EnsureEnqueue>
     void ConsumerThread<T>::Enqueue(const T& product)
     {
         ZoneScoped;
 
-        if constexpr (EnsureEnqueue)
-        {
-            std::lock_guard lock(m_consumeMutex);
-            m_taskQueue.push(product);
-            m_hasTaskCond.notify_one();
-        }
-        else
-        {
-            m_taskQueue.push(product);
-            m_hasTaskCond.notify_one();
-        }
+        std::lock_guard lock(m_consumeMutex);
+        m_taskQueue.push_back(product);
+        m_hasTaskCond.notify_one();
     }
 
     template <typename T>
     bool ConsumerThread<T>::Dequeue(T& product)
     {
-        return m_taskQueue.pop(product);
+        std::lock_guard lock(m_consumeMutex);
+        if (m_taskQueue.empty())
+        {
+            return false;
+        }
+        product = std::move(m_taskQueue.back());
+        m_taskQueue.pop_back();
+        return true;
     }
 
     template <typename T>
@@ -117,6 +115,13 @@ namespace op
     }
 
     template <typename T>
+    uint32_t ConsumerThread<T>::GetTaskCount()
+    {
+        std::lock_guard lock(m_consumeMutex);
+        return static_cast<uint32_t>(m_taskQueue.size());
+    }
+
+    template <typename T>
     template <typename ConsumeFunc>
     void ConsumerThread<T>::Thread(ConsumeFunc&& consumeFunc)
     {
@@ -133,7 +138,7 @@ namespace op
             
             T product;
 
-            if (m_taskQueue.pop(product))
+            if (Dequeue(product))
             {
                 consumeFunc(product);
                 retryCount = 0;

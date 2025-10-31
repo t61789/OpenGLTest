@@ -7,10 +7,7 @@ namespace op
         m_threads = vec<ConsumerThread<func_ptr>*>(threadCount);
         for (uint32_t i = 0; i < threadCount; ++i)
         {
-            auto thread = new ConsumerThread<func_ptr>(1024, [this](const func_ptr func)
-            {
-                this->ExecuteFunc(func);
-            });
+            auto thread = new ConsumerThread<func_ptr>(1024, ExecuteFunc);
             
             m_threads[i] = thread;
         }

@@ -4,6 +4,7 @@
 
 #include "simd_math.h"
 #include "vec.h"
+#include "matrix4x4.h"
 #include "quaternion.h"
 
 namespace op

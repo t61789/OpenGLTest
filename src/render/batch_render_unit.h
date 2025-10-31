@@ -41,7 +41,7 @@ namespace op
         void UnBindComp(BatchRenderComp* comp);
         void UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices);
         void Execute(ViewGroup viewGroup);
-        sp<JobScheduler::Job> CreateEncodingJob(ViewGroup viewGroup);
+        sp<Job> CreateEncodingJob(ViewGroup viewGroup);
 
     private:
 
@@ -97,7 +97,7 @@ namespace op
         {
             ViewGroup viewGroup;
             vec<BatchRenderCmd*> cmds;
-            sp<JobScheduler::Job> encodingJob;
+            sp<Job> encodingJob;
             lock_free_queue<BatchRenderCmd*> encodedCmds;
 
             BatchRenderCompInfo* AddComp(cr<BatchRenderParam> param);
