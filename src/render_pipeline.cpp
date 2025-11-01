@@ -81,12 +81,11 @@ namespace op
 
         PrepareRenderContext(scene);
         
-        for (auto pass : m_passes)
+        for (const auto& pass : m_passes)
         {
             begin_debug_group(pass->GetName().c_str());
             pass->Execute();
             end_debug_group();
-
         }
         
         begin_debug_group("Draw UI");

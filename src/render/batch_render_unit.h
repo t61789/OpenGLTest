@@ -99,6 +99,8 @@ namespace op
             vec<BatchRenderCmd*> cmds;
             sp<Job> encodingJob;
             lock_free_queue<BatchRenderCmd*> encodedCmds;
+            std::mutex mtx;
+            std::condition_variable startExecuteCond;
 
             BatchRenderCompInfo* AddComp(cr<BatchRenderParam> param);
             void RemoveComp(BatchRenderComp* comp);

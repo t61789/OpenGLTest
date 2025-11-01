@@ -40,6 +40,8 @@ namespace op
 
         // DrawBounds(renderContext);
         
+        DoDrawLines();
+        
         DrawConsolePanel();
 
         ImGui::Render();
@@ -53,18 +55,9 @@ namespace op
             return;
         }
 
-        auto& viewProj = renderContext->CurViewProjMatrix();
-        const auto& view = viewProj->vMatrix;
-        const auto& proj = viewProj->pMatrix;
-        auto width = renderContext->screenWidth;
-        auto height = renderContext->screenHeight;
-        
-        RenderPipeline::Ins()->GetScreenSize(width, height);
-        auto screenSize = Vec2(static_cast<float>(width), static_cast<float>(height));
-        
-        DebugDrawLine(Vec3::Zero(), Vec3::Right(), view, proj, screenSize, IM_COL32(255, 0, 0, 255));
-        DebugDrawLine(Vec3::Zero(), Vec3::Up(), view, proj, screenSize, IM_COL32(0, 255, 0, 255));
-        DebugDrawLine(Vec3::Zero(), Vec3::Forward(), view, proj, screenSize, IM_COL32(0, 0, 255, 255));
+        DrawLine(Vec3::Zero(), Vec3::Right(), IM_COL32(255, 60, 60, 255), 7.0f);
+        DrawLine(Vec3::Zero(), Vec3::Forward(), IM_COL32(60, 60, 255, 255), 7.0f);
+        DrawLine(Vec3::Zero(), Vec3::Up(), IM_COL32(60, 255, 60, 255), 7.0f);
     }
 
     void Gui::DrawBounds(const RenderContext* renderContext)
@@ -74,69 +67,18 @@ namespace op
             return;
         }
         
-        auto& viewProj = renderContext->CurViewProjMatrix();
-        const auto& view = viewProj->vMatrix;
-        const auto& proj = viewProj->pMatrix;
-        auto width = renderContext->screenWidth;
-        auto height = renderContext->screenHeight;
-        
-        auto screenSize = Vec2(static_cast<float>(width), static_cast<float>(height));
         for (auto const& renderComp : renderContext->visibleRenderObjs)
         {
-            DebugDrawCube(
-                renderComp->GetWorldBounds(),
-                view,
-                proj,
-                screenSize);
+            DrawCube(renderComp->GetWorldBounds(), ImColor(255, 255, 255, 255));
         }
         
         for (auto const& renderComp : GetGR()->GetMainScene()->GetIndices()->GetCompStorage()->GetComps<BatchRenderComp>())
         {
-            DebugDrawCube(
-                renderComp.lock()->GetWorldBounds(),
-                view,
-                proj,
-                screenSize,
-                ImColor(255, 0, 0, 255));
+            DrawCube(renderComp.lock()->GetWorldBounds(), ImColor(255, 0, 0, 255));
         }
     }
     
-    // 封装的绘制线条函数
-    void Gui::DebugDrawLine(const Vec3& worldStart, const Vec3& worldEnd, 
-                       const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, 
-                       const Vec2& screenSize, 
-                       ImU32 color, float thickness)
-    {
-        auto drawList = ImGui::GetBackgroundDrawList();
-        
-        // 转换世界坐标到屏幕坐标
-        auto screenStart = world_to_screen(worldStart, viewMatrix, projMatrix, screenSize);
-        auto screenEnd = world_to_screen(worldEnd, viewMatrix, projMatrix, screenSize);
-
-        if(screenStart.z < 0 || screenEnd.z < 0)
-        {
-            return;
-        }
-
-        float x0 = screenStart.x, y0 = screenStart.y, x1 = screenEnd.x, y1 = screenEnd.y;
-
-        auto inScreen = cohen_sutherland_clip(x0, y0, x1, y1, 0, 0, screenSize.x, screenSize.y);
-        if(!inScreen)
-        {
-            return;
-        }
-
-        // 使用 ImGui 的绘图 API 绘制线条
-        drawList->AddLine(ImVec2(x0, y0), ImVec2(x1, y1), color, thickness);
-    }
-
-    void Gui::DebugDrawCube(
-        const Bounds& bounds,
-        const Matrix4x4& viewMatrix,
-        const Matrix4x4& projMatrix,
-        const Vec2& screenSize,
-        ImU32 color,
-        float thickness)
+    void Gui::DrawCube(const Bounds& bounds, const ImU32 color, const float thickness)
     {
         // 计算八个顶点
         std::array<Vec3, 8> vertices =
@@ -162,15 +104,18 @@ namespace op
         // 绘制所有边
         for (const auto& [start, end] : edges)
         {
-            DebugDrawLine(
-                vertices[start],
-                vertices[end],
-                viewMatrix,
-                projMatrix,
-                screenSize,
-                color,
-                thickness);
+            DrawLine(vertices[start], vertices[end], color, thickness);
         }
+    }
+
+    void Gui::DrawLine(cr<Vec3> start, cr<Vec3> end, const ImU32 color, const float thickness)
+    {
+        m_drawLineCmds.push_back({
+            start,
+            end,
+            color,
+            thickness
+        });
     }
 
     Vec3 Gui::SliderFloat3(const std::string& label, const Vec3 input, const float v_min, const float v_max, const std::string& format)
@@ -202,4 +147,51 @@ namespace op
         
         ImGui::End();
     }
+
+    void Gui::DoDrawLines()
+    {
+        auto vpInfo = GetRC()->CurViewProjMatrix();
+        auto screenSize = Vec2(static_cast<float>(GetRC()->screenWidth), static_cast<float>(GetRC()->screenHeight));
+        for (auto const& cmd : m_drawLineCmds)
+        {
+            ImGuiDrawLine(
+                cmd.start,
+                cmd.end,
+                vpInfo->vMatrix,
+                vpInfo->pMatrix,
+                screenSize,
+                cmd.color,
+                cmd.thickness);
+        }
+        m_drawLineCmds.clear();
+    }
+    
+    void Gui::ImGuiDrawLine(const Vec3& worldStart, const Vec3& worldEnd, 
+                       const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, 
+                       const Vec2& screenSize,
+                       const ImU32 color, const float thickness)
+    {
+        auto drawList = ImGui::GetBackgroundDrawList();
+        
+        // 转换世界坐标到屏幕坐标
+        auto screenStart = world_to_screen(worldStart, viewMatrix, projMatrix, screenSize);
+        auto screenEnd = world_to_screen(worldEnd, viewMatrix, projMatrix, screenSize);
+
+        if(screenStart.z < 0 || screenEnd.z < 0)
+        {
+            return;
+        }
+
+        float x0 = screenStart.x, y0 = screenStart.y, x1 = screenEnd.x, y1 = screenEnd.y;
+
+        auto inScreen = cohen_sutherland_clip(x0, y0, x1, y1, 0, 0, screenSize.x, screenSize.y);
+        if(!inScreen)
+        {
+            return;
+        }
+
+        // 使用 ImGui 的绘图 API 绘制线条
+        drawList->AddLine(ImVec2(x0, y0), ImVec2(x1, y1), color, thickness);
+    }
+
 }

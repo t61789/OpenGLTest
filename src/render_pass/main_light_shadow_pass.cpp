@@ -48,33 +48,13 @@ namespace op
 
     void MainLightShadowPass::DrawUI()
     {
-        auto vpInfo = GetRC()->CurViewProjMatrix();
-        auto shadowVpInfo = GetRC()->shadowVPInfo;
-        auto shadowLocalToWorld = shadowVpInfo->vMatrix.Inverse();
-        
-        Gui::Ins()->DebugDrawLine(
-            shadowLocalToWorld.Position(),
-            shadowLocalToWorld.Position() + shadowLocalToWorld.OriginRight(),
-            vpInfo->vMatrix,
-            vpInfo->pMatrix,
-            Vec2(GetRC()->screenWidth, GetRC()->screenHeight),
-            IM_COL32(255, 0, 0, 255));
-        
-        Gui::Ins()->DebugDrawLine(
-            shadowLocalToWorld.Position(),
-            shadowLocalToWorld.Position() + shadowLocalToWorld.OriginUp(),
-            vpInfo->vMatrix,
-            vpInfo->pMatrix,
-            Vec2(GetRC()->screenWidth, GetRC()->screenHeight),
-            IM_COL32(0, 255, 0, 255));
-        
-        Gui::Ins()->DebugDrawLine(
-            shadowLocalToWorld.Position(),
-            shadowLocalToWorld.Position() + shadowLocalToWorld.OriginForward(),
-            vpInfo->vMatrix,
-            vpInfo->pMatrix,
-            Vec2(GetRC()->screenWidth, GetRC()->screenHeight),
-            IM_COL32(0, 0, 255, 255));
+        // auto vpInfo = GetRC()->CurViewProjMatrix();
+        // auto shadowVpInfo = GetRC()->shadowVPInfo;
+        // auto shadowLocalToWorld = shadowVpInfo->vMatrix.Inverse();
+        //
+        // Gui::Ins()->DrawLine(shadowLocalToWorld.Position(), shadowLocalToWorld.Position() + shadowLocalToWorld.OriginRight(), IM_COL32(255, 0, 0, 255));
+        // Gui::Ins()->DrawLine(shadowLocalToWorld.Position(), shadowLocalToWorld.Position() + shadowLocalToWorld.OriginUp(), IM_COL32(0, 255, 0, 255));
+        // Gui::Ins()->DrawLine(shadowLocalToWorld.Position(), shadowLocalToWorld.Position() + shadowLocalToWorld.OriginForward(), IM_COL32(0, 0, 255, 255));
     }
 
     void MainLightShadowPass::UpdateRt()

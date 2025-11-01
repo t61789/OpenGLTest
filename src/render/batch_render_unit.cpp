@@ -142,7 +142,9 @@ namespace op
                 static_cast<ViewGroup>(i),
                 {},
                 nullptr,
-                lock_free_queue<BatchRenderCmd*>(1024)
+                lock_free_queue<BatchRenderCmd*>(1024),
+                 {},
+                 {},
             };
             m_renderTrees.emplace_back(renderTree);
         }
@@ -175,7 +177,15 @@ namespace op
         GetGlobalCbuffer()->BindBase();
         GetPerViewCbuffer()->BindBase();
 
-        renderTree->encodingJob->WaitForStart();
+        {
+            ZoneScopedNC("Waiting For Cmd", TRACY_IDLE_COLOR);
+            
+            std::unique_lock lock(renderTree->mtx);    
+            renderTree->startExecuteCond.wait(lock, [renderTree]
+            {
+                return !renderTree->encodedCmds.empty();
+            });
+        }
 
         DrawContext context;
         
@@ -222,6 +232,19 @@ namespace op
         BatchRenderCmd* dummy;
         while (encodedCmds.pop(dummy)) {}
 
+        bool firstProduct = true;
+
+        auto pushProduct = [this, &firstProduct](BatchRenderCmd* cmd)
+        { 
+            encodedCmds.push(cmd);
+            if (firstProduct)
+            {
+                std::lock_guard lock(mtx);
+                startExecuteCond.notify_all();
+                firstProduct = false;
+            }
+        };
+
         for (auto cmd : cmds)
         {
             ZoneScopedN("Encode Cmd");
@@ -257,11 +280,11 @@ namespace op
 
             if (!cmd->indirectCmds.Empty())
             {
-                encodedCmds.push(cmd);
+                pushProduct(cmd);
             }
         }
 
-        encodedCmds.push(nullptr);
+        pushProduct(nullptr);
     }
 
     void BatchRenderUnit::BindComp(BatchRenderComp* comp)
