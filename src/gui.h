@@ -38,6 +38,7 @@ namespace op
         void DrawBounds(const RenderContext* renderContext);
         void DrawCoordinateDirLine(const RenderContext* renderContext);
         void DrawCube(const Bounds& bounds, ImU32 color = IM_COL32(255, 255, 255, 255), float thickness = 1.0f);
+        void DrawFrustumPlanes(cr<Matrix4x4> vpMatrix, ImU32 color = IM_COL32(0, 0, 255, 255), float thickness = 1.0f);
         
         void DrawConsolePanel();
         void DoDrawLines();

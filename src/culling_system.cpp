@@ -57,7 +57,7 @@ namespace op
         GetRC()->visibleRenderObjs.clear();
     
         const auto& renderObjs = *GetRC()->allRenderObjs;
-        auto planes = GetRC()->CurViewProjMatrix()->frustumPlanes.value();
+        auto planes = GetRC()->mainVPInfo->frustumPlanes.value();
 
         for (const auto& renderObj : renderObjs)
         {
@@ -213,7 +213,6 @@ namespace op
                 resultP = _mm_and_ps(resultP, _mm_or_ps(cmp_d0, cmp_d1));
             }
 
-            resultP = _mm_set1_ps(1.0f); // TODO
             _mm_store_ps(m_buffer.GetVisible(cullingGroup).Data() + i, resultP);
         }
     }

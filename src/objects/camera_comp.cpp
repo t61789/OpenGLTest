@@ -160,11 +160,9 @@ namespace op
     {
         auto lightForward = -lightDirection;
         auto cameraPos = GetOwner()->transform->GetWorldPosition();
-        // auto lightForward = -Vec3(1, 0.8f, 1).Normalize();
-        // auto cameraPos = Vec3(10, 10, 10);
         
-        constexpr float range = 30;
-        float range2 = 20;
+        constexpr float range = 50;
+        float range2 = 30;
         auto distancePerTexel = range * 2 / static_cast<float>(GetRC()->mainLightShadowSize);
         // 计算阴影矩阵
         Vec3 forward, right, up;
@@ -182,7 +180,7 @@ namespace op
         cameraPositionVS.y = std::floor(cameraPositionVS.y / distancePerTexel) * distancePerTexel;
         auto alignedCameraPositionWS = (shadowCameraToWorld * cameraPositionVS).ToVec3();
         // 得到对齐后的摄像机位置
-        auto viewCenter = alignedCameraPositionWS + forward * range2;
+        auto viewCenter = alignedCameraPositionWS - forward * range2;
         // 把阴影矩阵的中心设置为对齐后的摄像机位置
         shadowCameraToWorld[0][3] = viewCenter.x; // 第3列第0行
         shadowCameraToWorld[1][3] = viewCenter.y;

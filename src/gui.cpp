@@ -39,7 +39,7 @@ namespace op
         DrawCoordinateDirLine(renderContext);
 
         // DrawBounds(renderContext);
-        
+
         DoDrawLines();
         
         DrawConsolePanel();
@@ -69,12 +69,12 @@ namespace op
         
         for (auto const& renderComp : renderContext->visibleRenderObjs)
         {
-            DrawCube(renderComp->GetWorldBounds(), ImColor(255, 255, 255, 255));
+            DrawCube(renderComp->GetWorldBounds(), ImColor(155, 155, 155, 255));
         }
         
         for (auto const& renderComp : GetGR()->GetMainScene()->GetIndices()->GetCompStorage()->GetComps<BatchRenderComp>())
         {
-            DrawCube(renderComp.lock()->GetWorldBounds(), ImColor(255, 0, 0, 255));
+            DrawCube(renderComp.lock()->GetWorldBounds(), ImColor(155, 0, 0, 255));
         }
     }
     
@@ -106,6 +106,44 @@ namespace op
         {
             DrawLine(vertices[start], vertices[end], color, thickness);
         }
+    }
+
+    void Gui::DrawFrustumPlanes(cr<Matrix4x4> vpMatrix, const ImU32 color, const float thickness)
+    {
+        auto ivp = vpMatrix.Inverse();
+
+        auto toWorld = [&ivp](cr<Vec3> positionSS)
+        {
+            auto p = positionSS;
+            p.x = p.x * 2.0f - 1.0f;
+            p.y = p.y * 2.0f - 1.0f;
+            auto result = ivp * Vec4(p, 1.0f);
+            return Vec3(result.x, result.y, result.z) / result.w;
+        };
+
+        auto flb = toWorld(Vec3(0.0f, 0.0f, 1.0f));
+        auto flt = toWorld(Vec3(0.0f, 1.0f, 1.0f));
+        auto frb = toWorld(Vec3(1.0f, 0.0f, 1.0f));
+        auto frt = toWorld(Vec3(1.0f, 1.0f, 1.0f));
+        auto nlb = toWorld(Vec3(0.0f, 0.0f, 0.0f));
+        auto nlt = toWorld(Vec3(0.0f, 1.0f, 0.0f));
+        auto nrb = toWorld(Vec3(1.0f, 0.0f, 0.0f));
+        auto nrt = toWorld(Vec3(1.0f, 1.0f, 0.0f));
+
+        DrawLine(flb, flt, color, thickness);
+        DrawLine(flt, frt, color, thickness);
+        DrawLine(frt, frb, color, thickness);
+        DrawLine(frb, flb, color, thickness);
+        
+        DrawLine(nlb, nlt, color, thickness);
+        DrawLine(nlt, nrt, color, thickness);
+        DrawLine(nrt, nrb, color, thickness);
+        DrawLine(nrb, nlb, color, thickness);
+
+        DrawLine(flb, nlb, color, thickness);
+        DrawLine(flt, nlt, color, thickness);
+        DrawLine(frt, nrt, color, thickness);
+        DrawLine(frb, nrb, color, thickness);
     }
 
     void Gui::DrawLine(cr<Vec3> start, cr<Vec3> end, const ImU32 color, const float thickness)
@@ -150,7 +188,7 @@ namespace op
 
     void Gui::DoDrawLines()
     {
-        auto vpInfo = GetRC()->CurViewProjMatrix();
+        auto vpInfo = GetRC()->mainVPInfo;
         auto screenSize = Vec2(static_cast<float>(GetRC()->screenWidth), static_cast<float>(GetRC()->screenHeight));
         for (auto const& cmd : m_drawLineCmds)
         {

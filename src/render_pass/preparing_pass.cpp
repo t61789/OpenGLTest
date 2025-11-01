@@ -11,7 +11,6 @@
 #include "material.h"
 #include "objects/render_comp.h"
 #include "render/render_target.h"
-#include "render/render_target_pool.h"
 #include "render/gl/gl_cbuffer.h"
 
 namespace op
@@ -73,9 +72,9 @@ namespace op
         // Common camera
         GetRC()->PopViewProjMatrix();
         GetRC()->mainVPInfo = GetRC()->camera->CreateVPMatrix();
+        GetRC()->mainVPInfo->UpdateFrustumPlanes();
         GetRC()->PushViewProjMatrix(GetRC()->mainVPInfo);
-        GetRC()->CurViewProjMatrix()->UpdateFrustumPlanes();
-        auto commonCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->CurViewProjMatrix()->frustumPlanes.value(), ViewGroup::COMMON);
+        auto commonCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->mainVPInfo->frustumPlanes.value(), ViewGroup::COMMON);
         auto commonEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::COMMON);
         commonCullJob->AppendNext(commonEncodingJob);
 
