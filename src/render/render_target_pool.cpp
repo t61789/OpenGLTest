@@ -6,34 +6,6 @@
 
 namespace op
 {
-    UsingRenderTarget::UsingRenderTarget()
-    {
-        static vecsp<RenderTexture> emptyVec;
-        m_renderTarget = GetRC()->renderTargetPool->Push(emptyVec);
-    }
-
-    UsingRenderTarget::UsingRenderTarget(crsp<RenderTexture> rt)
-    {
-        if (rt == nullptr)
-        {
-            static vecsp<RenderTexture> emptyVec;
-            m_renderTarget = GetRC()->renderTargetPool->Push(emptyVec);
-            return;
-        }
-        
-        m_renderTarget = GetRC()->renderTargetPool->Push(std::vector{rt});
-    }
-
-    UsingRenderTarget::UsingRenderTarget(crvecsp<RenderTexture> rts)
-    {
-        m_renderTarget = GetRC()->renderTargetPool->Push(rts);
-    }
-
-    UsingRenderTarget::~UsingRenderTarget()
-    {
-        GetRC()->renderTargetPool->Pop();
-    }
-
     RenderTarget* RenderTargetPool::Push(crvecsp<RenderTexture> rts)
     {
         assert(m_renderTargetStack.size() < 10);

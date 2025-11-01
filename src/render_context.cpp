@@ -5,6 +5,7 @@
 
 #include "render_texture.h"
 #include "objects/camera_comp.h"
+#include "render/render_target.h"
 #include "render/render_target_pool.h"
 
 namespace op
@@ -46,14 +47,14 @@ namespace op
         return info;
     }
 
-    UsingRenderTarget RenderContext::UsingGBufferRenderTarget()
+    UsingRenderTargetObj RenderContext::UsingGBufferRenderTarget()
     {
         vecsp<RenderTexture> rts(gBufferTextures.size());
         for (size_t i = 0; i < gBufferTextures.size(); ++i)
         {
             rts[i] = gBufferTextures[i].lock();
         }
-        return UsingRenderTarget(rts);
+        return RenderTarget::Using(rts);
     }
 
     void RenderContext::PushViewProjMatrix(crsp<ViewProjInfo> viewProjInfo)

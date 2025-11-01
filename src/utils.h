@@ -623,4 +623,22 @@ namespace op
     {
         m_deleter();
     }
+    
+    template <typename T>
+    struct UsingObjectT : UsingObject
+    {
+        template <typename F>
+        explicit UsingObjectT(cr<T> obj, F&& deleter);
+        const T& Get() { return m_obj; }
+
+    private:
+        T m_obj;
+    };
+
+    template <typename T>
+    template <typename F>
+    UsingObjectT<T>::UsingObjectT(cr<T> obj, F&& deleter): UsingObject(std::move(deleter))
+    {
+        m_obj = obj;
+    }
 }

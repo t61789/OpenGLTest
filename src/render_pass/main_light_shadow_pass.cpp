@@ -11,9 +11,7 @@
 #include "render_context.h"
 #include "utils.h"
 #include "objects/camera_comp.h"
-#include "objects/transform_comp.h"
 #include "render/render_target.h"
-#include "render/render_target_pool.h"
 #include "render/gl/gl_texture.h"
 
 namespace op
@@ -37,7 +35,7 @@ namespace op
         DrawUI();
 
         {
-            UsingRenderTarget usingRenderTarget(m_mainLightShadowRt);
+            auto usingRenderTarget = RenderTarget::Using(m_mainLightShadowRt);
             auto usingShadowVPMatrix = GetRC()->UsingViewProjMatrix(shadowViewProj);
             
             usingRenderTarget.Get()->Clear(1.0f);

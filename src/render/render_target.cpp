@@ -1,6 +1,8 @@
 #include "render_target.h"
 
 #include "event.h"
+#include "render_context.h"
+#include "render_target_pool.h"
 #include "math/vec.h"
 #include "render_texture.h"
 #include "gl/gl_render_target.h"
@@ -82,5 +84,29 @@ namespace op
                m_glRenderTarget->AddAttachment(glTexture);
           }
           m_glRenderTarget->EndSetting();
+     }
+     
+     UsingObjectT<RenderTarget*> RenderTarget::Using()
+     {
+        static vecsp<RenderTexture> emptyVec;
+        return Using(emptyVec);
+     }
+
+     UsingObjectT<RenderTarget*> RenderTarget::Using(crsp<RenderTexture> rt)
+     {
+          if (rt == nullptr)
+          {
+               return Using();
+          }
+          return Using(std::vector{rt});
+     }
+
+     UsingObjectT<RenderTarget*> RenderTarget::Using(crvecsp<RenderTexture> rts)
+     {
+          auto renderTarget = GetRC()->renderTargetPool->Push(rts);
+          return UsingObjectT(renderTarget, []
+          {
+               GetRC()->renderTargetPool->Pop();
+          });
      }
 }

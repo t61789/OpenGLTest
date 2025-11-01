@@ -7,6 +7,9 @@ namespace op
     struct Vec4;
     class GlRenderTarget;
     class RenderTexture;
+    class RenderTarget;
+
+    using UsingRenderTargetObj = UsingObjectT<RenderTarget*>;
 
     class RenderTarget final
     {
@@ -23,6 +26,10 @@ namespace op
         void Clear(float depth);
         void Clear(crvec<Vec4> colors, float depth);
         void ClearUnchecked(crvec<Vec4> colors, float depth);
+
+        static UsingRenderTargetObj Using();
+        static UsingRenderTargetObj Using(crvecsp<RenderTexture> rts);
+        static UsingRenderTargetObj Using(crsp<RenderTexture> rt);
 
     private:
         bool m_dirty = true;

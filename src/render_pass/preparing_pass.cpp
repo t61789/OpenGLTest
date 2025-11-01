@@ -72,7 +72,8 @@ namespace op
         
         // Common camera
         GetRC()->PopViewProjMatrix();
-        GetRC()->PushViewProjMatrix(GetRC()->camera->CreateVPMatrix());
+        GetRC()->mainVPInfo = GetRC()->camera->CreateVPMatrix();
+        GetRC()->PushViewProjMatrix(GetRC()->mainVPInfo);
         GetRC()->CurViewProjMatrix()->UpdateFrustumPlanes();
         auto commonCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->CurViewProjMatrix()->frustumPlanes.value(), ViewGroup::COMMON);
         auto commonEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::COMMON);

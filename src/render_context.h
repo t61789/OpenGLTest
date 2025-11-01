@@ -6,10 +6,10 @@
 
 #include "utils.h"
 #include "math/math.h"
+#include "render/render_target.h"
 
 namespace op
 {
-    struct UsingRenderTarget;
     class RenderTargetPool;
     class RenderTarget;
     class RenderTexture;
@@ -68,6 +68,7 @@ namespace op
         const vecwp<RenderComp>* allRenderObjs;
         vec<RenderComp*> visibleRenderObjs;
 
+        sp<ViewProjInfo> mainVPInfo = nullptr;
         sp<ViewProjInfo> shadowVPInfo = nullptr;
 
         RenderContext() = default;
@@ -77,7 +78,7 @@ namespace op
         RenderContext& operator=(const RenderContext& other) = delete;
         RenderContext& operator=(RenderContext&& other) noexcept = delete;
 
-        UsingRenderTarget UsingGBufferRenderTarget();
+        UsingRenderTargetObj UsingGBufferRenderTarget();
         
         void PushViewProjMatrix(crsp<ViewProjInfo> viewProjInfo);
         void PopViewProjMatrix();

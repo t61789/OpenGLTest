@@ -55,7 +55,7 @@ namespace op
 
     void RenderingUtils::Blit(crsp<RenderTexture> src, crsp<RenderTexture> dst, Material* material)
     {
-        UsingRenderTarget usingRenderTarget(dst);
+        auto usingRenderTarget = RenderTarget::Using(dst);
         
         auto blitMat = material ? material : GetBR()->blitMatNew.get();
         if (src)

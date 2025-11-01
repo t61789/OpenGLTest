@@ -6,27 +6,6 @@ namespace op
     class RenderTarget;
     class RenderTexture;
 
-    struct UsingRenderTarget
-    {
-        UsingRenderTarget();
-        explicit UsingRenderTarget(crsp<RenderTexture> rt);
-        explicit UsingRenderTarget(crvecsp<RenderTexture> rts);
-        ~UsingRenderTarget();
-        UsingRenderTarget(const UsingRenderTarget& other) = delete;
-        UsingRenderTarget(UsingRenderTarget&& other) noexcept = delete;
-        UsingRenderTarget& operator=(const UsingRenderTarget& other) = delete;
-        UsingRenderTarget& operator=(UsingRenderTarget&& other) noexcept = delete;
-        void* operator new(size_t size) = delete;
-        void* operator new[](size_t size) = delete;
-        void operator delete(void* ptr) = delete;
-        void operator delete[](void* ptr) = delete;
-
-        RenderTarget* Get() const { return m_renderTarget;}
-
-    private:
-        RenderTarget* m_renderTarget = nullptr;
-    };
-    
     class RenderTargetPool
     {
         friend struct UsingRenderTarget;
