@@ -225,6 +225,21 @@ namespace op
         {
             return Vec4(m_data + static_cast<size_t>(row) * 4);
         }
+        
+        Vec3 OriginForward() const
+        {
+            return Vec3(m_data[2], m_data[6], m_data[10]);
+        }
+
+        Vec3 OriginUp() const
+        {
+            return Vec3(m_data[1], m_data[5], m_data[9]);
+        }
+
+        Vec3 OriginRight() const
+        {
+            return Vec3(m_data[0], m_data[4], m_data[8]);
+        }
 
         Vec3 Forward() const
         {

@@ -14,7 +14,12 @@ namespace op
         frustumPlanes = get_frustum_planes(vpMatrix);
     }
 
-    sp<ViewProjInfo> ViewProjInfo::Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix)
+    void ViewProjInfo::UpdateIVP()
+    {
+        ivpMatrix = vpMatrix.Inverse();
+    }
+
+    sp<ViewProjInfo> ViewProjInfo::Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix, const bool useIVP)
     {
         auto invV = vMatrix.Inverse();
         Vec3 viewCenter = {
@@ -23,16 +28,20 @@ namespace op
             invV[2][3]
         };
 
-        return Create(vMatrix, pMatrix, viewCenter);
+        return Create(vMatrix, pMatrix, viewCenter, useIVP);
     }
 
-    sp<ViewProjInfo> ViewProjInfo::Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix, cr<Vec3> viewCenter)
+    sp<ViewProjInfo> ViewProjInfo::Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix, cr<Vec3> viewCenter, const bool useIVP)
     {
         auto info = msp<ViewProjInfo>();
         info->vMatrix = vMatrix;
         info->pMatrix = pMatrix;
         info->vpMatrix = pMatrix * vMatrix;
         info->viewCenter = viewCenter;
+        if (useIVP)
+        {
+            info->ivpMatrix = info->vpMatrix.Inverse();
+        }
 
         return info;
     }
@@ -50,10 +59,8 @@ namespace op
     void RenderContext::PushViewProjMatrix(crsp<ViewProjInfo> viewProjInfo)
     {
         m_vpMatrixStack.push_back(viewProjInfo);
-        
-        auto perViewCbuffer = GetPerViewCbuffer();
-        perViewCbuffer->Set(VP, viewProjInfo->vpMatrix);
-        perViewCbuffer->Set(CAMERA_POSITION_WS, Vec4(viewProjInfo->viewCenter, 0.0f));
+
+        SetViewProjMatrix(viewProjInfo);
     }
 
     void RenderContext::PopViewProjMatrix()
@@ -92,5 +99,10 @@ namespace op
         auto perViewCbuffer = GetPerViewCbuffer();
         perViewCbuffer->Set(VP, viewProjInfo->vpMatrix);
         perViewCbuffer->Set(CAMERA_POSITION_WS, Vec4(viewProjInfo->viewCenter, 0.0f));
+
+        if (viewProjInfo->ivpMatrix.has_value())
+        {
+            perViewCbuffer->Set(IVP, viewProjInfo->ivpMatrix);
+        }
     }
 }

@@ -153,13 +153,15 @@ namespace op
 
         auto viewCenter = cameraLocalToWorld.Position();
 
-        return ViewProjInfo::Create(view, proj, viewCenter);
+        return ViewProjInfo::Create(view, proj, viewCenter, true);
     }
     
     sp<ViewProjInfo> CameraComp::CreateShadowVPMatrix(const Vec3 lightDirection)
     {
         auto lightForward = -lightDirection;
         auto cameraPos = GetOwner()->transform->GetWorldPosition();
+        // auto lightForward = -Vec3(1, 0.8f, 1).Normalize();
+        // auto cameraPos = Vec3(10, 10, 10);
         
         constexpr float range = 30;
         float range2 = 20;
@@ -171,7 +173,7 @@ namespace op
         auto shadowCameraToWorld = Matrix4x4(
             right.x, up.x, forward.x, 0,
             right.y, up.y, forward.y, 0,
-            forward.x, forward.y, forward.z, 0,
+            right.z, up.z, forward.z, 0,
             0, 0, 0, 1);
         auto view = shadowCameraToWorld.Inverse();
         // 希望以摄像机为中心，但是先把摄像机位置转到阴影空间，然后对齐每个纹素，避免阴影光栅化时闪烁

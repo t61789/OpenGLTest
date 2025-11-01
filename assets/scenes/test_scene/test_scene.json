@@ -169,9 +169,9 @@
                     ]
                 },
                 {
-                    "name": "RenderComp",
+                    "name": "BatchRenderComp",
                     "mesh": "meshes/quad.obj",
-                    "material": "materials/lit_mat.json"
+                    "material": "materials/lit_mat_batch.json"
                 }
             ]
         }

@@ -60,14 +60,6 @@ namespace op
 
     void PreparingPass::PrepareMatrices()
     {
-        // Common camera
-        GetRC()->PopViewProjMatrix();
-        GetRC()->PushViewProjMatrix(GetRC()->camera->CreateVPMatrix());
-        GetRC()->CurViewProjMatrix()->UpdateFrustumPlanes();
-        auto commonCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->CurViewProjMatrix()->frustumPlanes.value(), ViewGroup::COMMON);
-        auto commonEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::COMMON);
-        commonCullJob->AppendNext(commonEncodingJob);
-
         // Shadow camera
         auto lightDirection = GetRC()->mainLight ?
             -GetRC()->mainLight->GetOwner()->transform->GetLocalToWorld().Forward() :
@@ -77,10 +69,18 @@ namespace op
         auto shadowCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->shadowVPInfo->frustumPlanes.value(), ViewGroup::SHADOW);
         auto shadowEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::SHADOW);
         shadowCullJob->AppendNext(shadowEncodingJob);
+        
+        // Common camera
+        GetRC()->PopViewProjMatrix();
+        GetRC()->PushViewProjMatrix(GetRC()->camera->CreateVPMatrix());
+        GetRC()->CurViewProjMatrix()->UpdateFrustumPlanes();
+        auto commonCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->CurViewProjMatrix()->frustumPlanes.value(), ViewGroup::COMMON);
+        auto commonEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::COMMON);
+        commonCullJob->AppendNext(commonEncodingJob);
 
-        commonCullJob->AppendNext(shadowCullJob);
+        shadowCullJob->AppendNext(commonCullJob);
 
-        GetGR()->GetJobScheduler()->Schedule(commonCullJob);
+        GetGR()->GetJobScheduler()->Schedule(shadowCullJob);
 
         GetGR()->GetCullingSystem()->Cull();
     }

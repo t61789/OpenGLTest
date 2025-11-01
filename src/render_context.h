@@ -27,11 +27,13 @@ namespace op
         Matrix4x4 vpMatrix;
         Vec3 viewCenter;
         std::optional<std::array<Vec4, 6>> frustumPlanes = std::nullopt;
+        std::optional<Matrix4x4> ivpMatrix;
 
         void UpdateFrustumPlanes();
+        void UpdateIVP();
 
-        static sp<ViewProjInfo> Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix);
-        static sp<ViewProjInfo> Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix, cr<Vec3> viewCenter);
+        static sp<ViewProjInfo> Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix, bool useIVP = false);
+        static sp<ViewProjInfo> Create(cr<Matrix4x4> vMatrix, cr<Matrix4x4> pMatrix, cr<Vec3> viewCenter, bool useIVP = false);
     };
     
 

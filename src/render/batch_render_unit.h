@@ -119,6 +119,8 @@ namespace op
         sp<BatchMesh> m_batchMesh = nullptr;
         sp<BatchMatrix> m_batchMatrix = nullptr;
         umap<BatchRenderComp*, uint32_t> m_comps;
+
+        sp<Material> m_drawShadowMat = nullptr;
         
         vecup<BatchRenderTree> m_renderTrees;
 

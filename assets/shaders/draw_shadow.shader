@@ -1,10 +1,11 @@
 #include "shaders/lib/common.hlsl"
+#include "shaders/lib/batch_rendering.hlsl"
 
 PSInput VS_Main(VSInput input)
 {
     PSInput output;
 
-    output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+    output.positionCS = TransformObjectToHClipBatch(input.positionOS.xyz, input.id);
     output.positionSS = output.positionCS;
 
     return output;
@@ -12,5 +13,5 @@ PSInput VS_Main(VSInput input)
 
 float4 PS_Main(PSInput input) : SV_TARGET
 {
-    return float4(input.positionSS.z / input.positionSS.w);
+    return float4(1,1,1,1);
 }

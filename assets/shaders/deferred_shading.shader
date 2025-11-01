@@ -14,21 +14,22 @@ PSInput VS_Main(VSInput input)
 float4 PS_Main(PSInput input) : SV_TARGET
 {
     float3 albedo, normalWS;
-    float pixelType;
+    float pixelType, sceneDepth;
     ReadGBuffer0(input.uv, albedo, pixelType);
     ReadGBuffer1(input.uv, normalWS);
+    ReadGBuffer2(input.uv, sceneDepth);
+
+    float3 positionWS = RebuildWorldPosition(input.uv, sceneDepth);
 
     float4 finalColor = float4(0,0,0,1);
     if (pixelType == PIXEL_TYPE_LIT)
     {
-        float3 col = Lit(input.positionSS.xyz, normalWS, albedo);
+        float3 col = Lit(positionWS, normalWS, albedo);
         finalColor.rgb = col;
-        // finalColor.rgb = lerp(finalColor.rgb, normalWS, 0.99f);
     }
     else
     {
         finalColor.rgb = albedo;
-        // finalColor.rgb = normalWS;
     }
 
     return finalColor;

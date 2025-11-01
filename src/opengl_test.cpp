@@ -16,6 +16,7 @@
 #include "common/thread_pool.h"
 #include "common/thread_pool.h"
 #include "job_system/job_scheduler.h"
+#include "math/math_utils.h"
 #include "math/matrix4x4.h"
 #include "math/vec.h"
 #include "math/quaternion.h"
@@ -33,77 +34,33 @@ static void ReleaseStaticRes()
 
 int main(int argc, char* argv[])
 {
-    // auto count = 1000000;
-    // auto data = new uint32_t[count];
-    // auto result = new uint32_t[count];
+    // auto position = Vec3(0.0f, 0.0f, 0.0f);
+    // auto forward = Vec3(0.0f, 0.0f, 1.0f);
+    // Vec3 right, up;
+    // gram_schmidt_ortho(&forward.x, &Vec3::Up().x, &right.x, &up.x);
+    // auto localToWorld = Matrix4x4(
+    //     right.x, up.x, forward.x, position.x,
+    //     right.y, up.y, forward.y, position.y,
+    //     right.z, up.z, forward.z, position.z,
+    //     0.0f, 0.0f, 0.0f, 1.0f);
+    // auto view = localToWorld.Inverse();
+    // auto proj = create_ortho_projection(10, -10, 10, -10, 10, 1);
+    // auto viewProj = proj * view;
     //
-    // auto threadPoolNew = ThreadPoolNew(2);
+    // auto test0 = Vec3(0.0f, 0.0f, 1.0f);
+    // auto test1 = Vec3(0.0f, 0.0f, 10.0f);
+    // auto test2 = Vec3(10.0f, 0.0f, 10.0f);
+    // auto test3 = Vec3(10.0f, 0.0f, 5.5f);
     //
-    // std::mutex mtx;
-    // std::condition_variable cv;
-    // auto taskCount = 0;
+    // auto result0 = viewProj * Vec4(test0, 1.0f);
+    // auto result1 = viewProj * Vec4(test1, 1.0f);
+    // auto result2 = viewProj * Vec4(test2, 1.0f);
+    // auto result3 = viewProj * Vec4(test3, 1.0f);
     //
-    // double sum0 = 0;
-    // double sum1 = 0;
-    //
-    // std::chrono::high_resolution_clock::time_point start, end;
-    // for (int i = 0; i < 100; ++i)
-    // {
-    //     start = std::chrono::high_resolution_clock::now();
-    //     for (uint32_t k = 0; k < count; ++k)
-    //     {
-    //         result[k] = std::sqrt(data[k] * data[k] + 1.0) * 2;
-    //     }
-    //     end = std::chrono::high_resolution_clock::now();
-    //     sum0 += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    //
-    //     start = std::chrono::high_resolution_clock::now();
-    //
-    //     taskCount = 0;
-    //     threadPoolNew.Run([&]
-    //     {
-    //         for (uint32_t k = 0; k < count / 2; ++k)
-    //         {
-    //             result[k] = std::sqrt(data[k] * data[k] + 1.0) * 2;
-    //         }
-    //     
-    //         std::lock_guard lk(mtx);
-    //         ++taskCount;
-    //         if (taskCount == 2)
-    //         {
-    //             cv.notify_one();
-    //         }
-    //     });
-    //     
-    //     threadPoolNew.Run([&]
-    //     {
-    //         for (uint32_t k = count / 2; k < count; ++k)
-    //         {
-    //             result[k] = std::sqrt(data[k] * data[k] + 1.0) * 2;
-    //         }
-    //         
-    //         std::lock_guard lk(mtx);
-    //         ++taskCount;
-    //         if (taskCount == 2)
-    //         {
-    //             cv.notify_one();
-    //         }
-    //     });
-    //
-    //     {
-    //         std::unique_lock lk(mtx);
-    //         cv.wait(lk);
-    //     }
-    //
-    //     end = std::chrono::high_resolution_clock::now();
-    //     sum1 += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    // }
-    //
-    // std::cout << "sum0: " << sum0 / 100 << "\n";
-    // std::cout << "sum1: " << sum1 / 100 << "\n";
-    //
-    // delete[] data;
-    // delete[] result;
+    // log_info("%s", result0.ToString().c_str());
+    // log_info("%s", result1.ToString().c_str());
+    // log_info("%s", result2.ToString().c_str());
+    // log_info("%s", result3.ToString().c_str());
     //
     // return 0;
     

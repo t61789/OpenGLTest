@@ -26,6 +26,7 @@ cbuffer _Global : register(b0)
 cbuffer PerViewCBuffer : register(b1)
 {
     float4x4 _VP;
+    float4x4 _IVP;
 };
 
 cbuffer PerObjectCBuffer : register(b2)
@@ -64,6 +65,7 @@ struct PSInput
     float4 positionCS : SV_POSITION;
     float4 positionSS : TEXCOORD0;
     float3 normalWS : TEXCOORD1;
+    float3 positionWS : TEXCOORD2;
     float2 uv : TEXCOORD2;
 };
 
@@ -78,6 +80,7 @@ TEXTURE2D(_GBuffer0Tex)
 TEXTURE2D(_GBuffer1Tex)
 TEXTURE2D(_GBuffer2Tex)
 TEXTURE2D(_ShadingBufferTex)
+TEXTURE2D(_MainLightShadowMapTex)
 
 TEXTURECUBE(_SkyboxTex)
 
@@ -137,6 +140,16 @@ float4x4 GetWorldToLocal()
     return _ObjectMatrices[_ObjectIndex].worldToLocal;
 }
 
+float3 TransformObjectToWorld(float3 positionOS, float4x4 localToWorld)
+{
+    return mul(float4(positionOS, 1.0f), localToWorld).xyz;
+}
+
+float3 TransformObjectToWorld(float3 positionOS)
+{
+    return mul(float4(positionOS, 1.0f), GetLocalToWorld()).xyz;
+}
+
 float4 TransformObjectToHClip(float3 positionOS, float4x4 localToWorld)
 {
     return mul(mul(float4(positionOS, 1.0f), localToWorld), _VP);
@@ -160,6 +173,14 @@ float3 TransformObjectToWorldNormal(float3 normalOS, float4x4 worldToLocal)
 float3 TransformObjectToWorldNormal(float3 normalOS)
 {
     return TransformObjectToWorldNormal(normalOS, GetWorldToLocal());
+}
+
+float3 RebuildWorldPosition(float2 screenUV, float depth)
+{
+    float4 positionCS = float4(screenUV * 2 - 1, depth, 1);
+    float4 positionWS = mul(positionCS, _IVP);
+    
+    return positionWS.xyz / positionWS.w;
 }
 
 float4 SampleSkybox(float3 direction)

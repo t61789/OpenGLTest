@@ -9,20 +9,16 @@ namespace op
     class RenderTexture;
     class Material;
 
-    class MainLightShadowPass : public IRenderPass
+    class MainLightShadowPass final : public IRenderPass
     {
     public:
-        explicit MainLightShadowPass();
-        ~MainLightShadowPass() override;
-        std::string GetName() override;
+        std::string GetName() override { return "Main Light Shadow Pass"; }
         void Execute() override;
+        void DrawUI();
 
     private:
         void UpdateRt();
         
-        static void CalcShadowMatrix(TransformComp* lightTrans, TransformComp* cameraTrans, Matrix4x4& viewMatrix, Matrix4x4& projMatrix, Vec3& shadowCenter);
-
-        sp<Material> m_drawShadowMat = nullptr;
         sp<RenderTexture> m_mainLightShadowRt = nullptr;
     };
 }

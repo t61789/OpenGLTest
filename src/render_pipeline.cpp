@@ -48,8 +48,8 @@ namespace op
         GetGlobalTextureSet()->SetTexture(GBUFFER_2_TEX, m_gBuffer2Tex);
         
         m_passes.push_back(msp<PreparingPass>());
-        // m_passes.push_back(msp<MainLightShadowPass>());
         m_passes.push_back(msp<RenderSkyboxPass>());
+        m_passes.push_back(msp<MainLightShadowPass>());
         m_passes.push_back(msp<BatchRenderPass>());
         m_passes.push_back(msp<RenderScenePass>());
         // m_passes.push_back(msp<TestDrawPass>());

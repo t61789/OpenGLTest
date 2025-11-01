@@ -15,6 +15,11 @@ BatchObjectInfo GetBatchObjectInfo(uint id)
     return _BatchObjectInfo[_BatchObjectIndices[id]];
 }
 
+float3 TransformObjectToWorldBatch(float3 positionOS, uint id)
+{
+    return TransformObjectToWorld(positionOS, GetBatchObjectInfo(id).localToWorld);
+}
+
 float4 TransformObjectToHClipBatch(float3 positionOS, uint id)
 {
     return TransformObjectToHClip(positionOS, GetBatchObjectInfo(id).localToWorld);

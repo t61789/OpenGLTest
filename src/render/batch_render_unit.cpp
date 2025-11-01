@@ -146,6 +146,11 @@ namespace op
             };
             m_renderTrees.emplace_back(renderTree);
         }
+
+        m_drawShadowMat = Material::CreateFromShader("shaders/draw_shadow.shader");
+        m_drawShadowMat->blendMode = BlendMode::NONE;
+        m_drawShadowMat->cullMode = CullMode::BACK;
+        m_drawShadowMat->depthMode = DepthMode::LESS;
     }
 
     BatchRenderUnit::~BatchRenderUnit()
@@ -282,7 +287,7 @@ namespace op
         shadowRenderTree->AddComp({
             this,
             comp,
-            comp->GetMaterial().get(), // TODO
+            m_drawShadowMat.get(),
             comp->GetMesh(),
             comp->HasONS(),
             matrixIndex
