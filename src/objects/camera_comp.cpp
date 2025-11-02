@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "game_framework.h"
 #include "game_resource.h"
+#include "gui.h"
 #include "render_context.h"
 #include "transform_comp.h"
 
@@ -158,37 +159,70 @@ namespace op
     
     sp<ViewProjInfo> CameraComp::CreateShadowVPMatrix(const Vec3 lightDirection)
     {
-        auto lightForward = -lightDirection;
-        auto cameraPos = GetOwner()->transform->GetWorldPosition();
+        ZoneScoped;
         
-        constexpr float range = 50;
-        float range2 = 30;
-        auto distancePerTexel = range * 2 / static_cast<float>(GetRC()->mainLightShadowSize);
-        // 计算阴影矩阵
+        float range = 100;
+        auto lightForward = -lightDirection.Normalize();
+        auto shadowRange = GetRC()->mainLightShadowRange;
+        shadowRange = std::min(shadowRange, farClip);
+        
         Vec3 forward, right, up;
         forward = lightForward;
         gram_schmidt_ortho(&forward.x, &Vec3::Up().x, &right.x, &up.x);
+
+        auto& cameraL2W = GetOwner()->transform->GetLocalToWorld();
+        auto cameraRight = cameraL2W.Right();
+        auto cameraUp = cameraL2W.Up();
+        auto cameraForward = cameraL2W.Forward();
+        auto cameraPos = cameraL2W.Position();
+        auto aspect = static_cast<float>(GetRC()->screenWidth) / static_cast<float>(GetRC()->screenHeight);
+        
+        Vec3 corners[8];
+        get_frustum_corners(cameraRight, cameraUp, cameraForward, cameraPos, fov, nearClip, shadowRange, aspect, corners);
+
+        // Gui::Ins()->DrawFrustumPlanes(corners, IM_COL32(0, 255, 0, 255));
+
+        auto shadowWidth = (corners[6] - corners[0]).Magnitude() * 0.5f;
+        shadowWidth = std::max(shadowWidth, (corners[4] - corners[5]).Magnitude() * 0.5f);
+        shadowWidth = std::max(shadowWidth, (corners[5] - corners[6]).Magnitude() * 0.5f);
+
+        float minU, maxU, minF, maxF;
+        float minR = minU = minF = 999999999.0f;
+        float maxR = maxU = maxF = -999999999.0f;
+        for (auto corner : corners)
+        {
+            auto r = corner.Dot(right);
+            minR = std::min(minR, r);
+            maxR = std::max(maxR, r);
+            auto u = corner.Dot(up);
+            minU = std::min(minU, u);
+            maxU = std::max(maxU, u);
+            auto f = corner.Dot(forward);
+            minF = std::min(minF, f);
+            maxF = std::max(maxF, f);
+        }
+
+        auto depthRange = maxF - minF + range;
+        auto distancePerTexel = shadowWidth * 2 / static_cast<float>(GetRC()->mainLightShadowSize);
+        auto rightMove = (minR + maxR) * 0.5f;
+        rightMove = std::floor(rightMove / distancePerTexel) * distancePerTexel;
+        auto upMove = (minU + maxU) * 0.5f;
+        upMove = std::floor(upMove / distancePerTexel) * distancePerTexel;
+        auto forwardMove = maxF - depthRange;
+        auto shadowCameraPos = right * rightMove + up * upMove + forward * forwardMove;
+        
+        // 计算阴影矩阵
         auto shadowCameraToWorld = Matrix4x4(
-            right.x, up.x, forward.x, 0,
-            right.y, up.y, forward.y, 0,
-            right.z, up.z, forward.z, 0,
+            right.x, up.x, forward.x, shadowCameraPos.x,
+            right.y, up.y, forward.y, shadowCameraPos.y,
+            right.z, up.z, forward.z, shadowCameraPos.z,
             0, 0, 0, 1);
         auto view = shadowCameraToWorld.Inverse();
-        // 希望以摄像机为中心，但是先把摄像机位置转到阴影空间，然后对齐每个纹素，避免阴影光栅化时闪烁
-        auto cameraPositionVS = view * Vec4(cameraPos, 1);
-        cameraPositionVS.x = std::floor(cameraPositionVS.x / distancePerTexel) * distancePerTexel;
-        cameraPositionVS.y = std::floor(cameraPositionVS.y / distancePerTexel) * distancePerTexel;
-        auto alignedCameraPositionWS = (shadowCameraToWorld * cameraPositionVS).ToVec3();
-        // 得到对齐后的摄像机位置
-        auto viewCenter = alignedCameraPositionWS - forward * range2;
-        // 把阴影矩阵的中心设置为对齐后的摄像机位置
-        shadowCameraToWorld[0][3] = viewCenter.x; // 第3列第0行
-        shadowCameraToWorld[1][3] = viewCenter.y;
-        shadowCameraToWorld[2][3] = viewCenter.z;
-        view = shadowCameraToWorld.Inverse();
 
-        auto proj = create_ortho_projection(range, -range, range, -range, 2 * range2, 0.05f);
+        auto proj = create_ortho_projection(shadowWidth, -shadowWidth, shadowWidth, -shadowWidth, depthRange, 0);
 
-        return ViewProjInfo::Create(view, proj, viewCenter);
+        // Gui::Ins()->DrawFrustumPlanes(proj * view);
+
+        return ViewProjInfo::Create(view, proj, shadowCameraPos);
     }
 }

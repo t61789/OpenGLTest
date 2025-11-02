@@ -197,7 +197,36 @@ namespace op
         };
     }
 
-    // 将世界坐标转换为屏幕坐标的工具函数
+    static void get_frustum_corners(
+        cr<Vec3> cameraRight,
+        cr<Vec3> cameraUp,
+        cr<Vec3> cameraForward,
+        cr<Vec3> cameraPos,
+        const float verticalFov,
+        const float nearClip,
+        const float farClip,
+        const float aspect,
+        Vec3* corners)
+    {
+        auto tan = std::tan(verticalFov * 0.5f * DEG2RAD);
+        auto nearCenter = cameraPos + cameraForward * nearClip;
+        auto farCenter = cameraPos + cameraForward * farClip;
+        auto nearHeight = tan * nearClip;
+        auto farHeight = tan * farClip;
+        auto nearWidth = nearHeight * aspect;
+        auto farWidth = farHeight * aspect;
+
+        corners[0] = nearCenter - cameraRight * nearWidth - cameraUp * nearHeight; // nlb
+        corners[1] = nearCenter - cameraRight * nearWidth + cameraUp * nearHeight; // nlt
+        corners[2] = nearCenter + cameraRight * nearWidth + cameraUp * nearHeight; // nrt
+        corners[3] = nearCenter + cameraRight * nearWidth - cameraUp * nearHeight; // nrb
+        
+        corners[4] = farCenter - cameraRight * farWidth - cameraUp * farHeight; // flb
+        corners[5] = farCenter - cameraRight * farWidth + cameraUp * farHeight; // flt
+        corners[6] = farCenter + cameraRight * farWidth + cameraUp * farHeight; // frt
+        corners[7] = farCenter + cameraRight * farWidth - cameraUp * farHeight; // frb
+    }
+
     static Vec3 world_to_screen(const Vec3& worldPos, const Matrix4x4& viewMatrix, const Matrix4x4& projMatrix, const Vec2& screenSize)
     {
         Vec4 clipSpacePos = projMatrix * viewMatrix * Vec4(worldPos, 1.0f);

@@ -146,6 +146,24 @@ namespace op
         DrawLine(frb, nrb, color, thickness);
     }
 
+    void Gui::DrawFrustumPlanes(const Vec3* corners, const ImU32 color, const float thickness)
+    {
+        DrawLine(corners[0], corners[1], color, thickness);
+        DrawLine(corners[1], corners[2], color, thickness);
+        DrawLine(corners[2], corners[3], color, thickness);
+        DrawLine(corners[3], corners[0], color, thickness);
+        
+        DrawLine(corners[4], corners[5], color, thickness);
+        DrawLine(corners[5], corners[6], color, thickness);
+        DrawLine(corners[6], corners[7], color, thickness);
+        DrawLine(corners[7], corners[4], color, thickness);
+        
+        DrawLine(corners[0], corners[4], color, thickness);
+        DrawLine(corners[1], corners[5], color, thickness);
+        DrawLine(corners[2], corners[6], color, thickness);
+        DrawLine(corners[3], corners[7], color, thickness);
+    }
+
     void Gui::DrawLine(cr<Vec3> start, cr<Vec3> end, const ImU32 color, const float thickness)
     {
         m_drawLineCmds.push_back({

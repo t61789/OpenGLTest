@@ -17,6 +17,8 @@ namespace op
 {
     void PreparingPass::Execute()
     {
+        ZoneScoped;
+        
         if(GetRC()->camera == nullptr)
         {
             return;
@@ -45,29 +47,24 @@ namespace op
             return;
         }
 
-        if (!ImGui::CollapsingHeader("Ambient Lights"))
+        if (ImGui::CollapsingHeader("Ambient Lights"))
         {
-            return;
+            scene->ambientLightColorSky = Gui::SliderFloat3("GradientSky", scene->ambientLightColorSky, 0.0f, 10.0f, "%.2f");
+            scene->ambientLightColorEquator = Gui::SliderFloat3("GradientEquator", scene->ambientLightColorEquator, 0.0f, 10.0f, "%.2f");
+            scene->ambientLightColorGround = Gui::SliderFloat3("GradientGround", scene->ambientLightColorGround, 0.0f, 10.0f, "%.2f");
+            ImGui::SliderFloat("Fog Intensity", &scene->fogIntensity, 0.0f, 0.005f, "%.5f");
+            scene->fogColor = Gui::SliderFloat3("Fog Color", scene->fogColor, 0.0f, 1.0f, "%.2f");
         }
-    
-        scene->ambientLightColorSky = Gui::SliderFloat3("GradientSky", scene->ambientLightColorSky, 0.0f, 10.0f, "%.2f");
-        scene->ambientLightColorEquator = Gui::SliderFloat3("GradientEquator", scene->ambientLightColorEquator, 0.0f, 10.0f, "%.2f");
-        scene->ambientLightColorGround = Gui::SliderFloat3("GradientGround", scene->ambientLightColorGround, 0.0f, 10.0f, "%.2f");
-        ImGui::SliderFloat("Fog Intensity", &scene->fogIntensity, 0.0f, 0.005f, "%.5f");
-        scene->fogColor = Gui::SliderFloat3("Fog Color", scene->fogColor, 0.0f, 1.0f, "%.2f");
+        
+        if (ImGui::CollapsingHeader("Main Light Shadow"))
+        {
+            ImGui::SliderFloat("Range", &GetRC()->mainLightShadowRange, 0.1f, 200.0f, "%.2f");
+        }
     }
 
     void PreparingPass::PrepareMatrices()
     {
-        // Shadow camera
-        auto lightDirection = GetRC()->mainLight ?
-            -GetRC()->mainLight->GetOwner()->transform->GetLocalToWorld().Forward() :
-            Vec3::One().Normalize();
-        GetRC()->shadowVPInfo = GetRC()->camera->CreateShadowVPMatrix(lightDirection);
-        GetRC()->shadowVPInfo->UpdateFrustumPlanes();
-        auto shadowCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->shadowVPInfo->frustumPlanes.value(), ViewGroup::SHADOW);
-        auto shadowEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::SHADOW);
-        shadowCullJob->AppendNext(shadowEncodingJob);
+        ZoneScoped;
         
         // Common camera
         GetRC()->PopViewProjMatrix();
@@ -77,16 +74,28 @@ namespace op
         auto commonCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->mainVPInfo->frustumPlanes.value(), ViewGroup::COMMON);
         auto commonEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::COMMON);
         commonCullJob->AppendNext(commonEncodingJob);
+        
+        // Shadow camera
+        auto lightDirection = GetRC()->mainLight ?
+            -GetRC()->mainLight->GetOwner()->transform->GetLocalToWorld().Forward() :
+            Vec3::One().Normalize();
+        GetRC()->shadowVPInfo = GetRC()->camera->CreateShadowVPMatrix(lightDirection);
+        GetRC()->shadowVPInfo->UpdateFrustumPlanes();
+        auto shadowCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->shadowVPInfo->frustumPlanes.value(), ViewGroup::SHADOW);
+        auto shadowEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::SHADOW);
+        shadowCullJob->AppendNext(shadowEncodingJob);
 
-        shadowCullJob->AppendNext(commonCullJob);
+        commonCullJob->AppendNext(shadowCullJob);
 
-        GetGR()->GetJobScheduler()->Schedule(shadowCullJob);
+        GetGR()->GetJobScheduler()->Schedule(commonCullJob);
 
         GetGR()->GetCullingSystem()->Cull();
     }
 
     void PreparingPass::PrepareViewport()
     {
+        ZoneScoped;
+        
         auto viewportSize = Vec4(
             static_cast<float>(GetRC()->screenWidth),
             static_cast<float>(GetRC()->screenHeight),
@@ -98,6 +107,8 @@ namespace op
 
     void PreparingPass::UpdateTransforms()
     {
+        ZoneScoped;
+        
         // 把需要渲染的objs的矩阵都上传一下
         for (auto renderComp : GetRC()->visibleRenderObjs)
         {
@@ -107,6 +118,8 @@ namespace op
 
     void PreparingPass::ClearGBuffers()
     {
+        ZoneScoped;
+        
         auto usingGBufferRenderTarget = GetRC()->UsingGBufferRenderTarget();
         vec<Vec4> clearColors = {
             Vec4(0.5f),
@@ -118,6 +131,8 @@ namespace op
 
     void PreparingPass::PrepareLightInfos()
     {
+        ZoneScoped;
+        
         GetRC()->mainLight = nullptr;
 
         vec<LightComp*> parallelLights;
@@ -195,6 +210,8 @@ namespace op
 
     void PreparingPass::SetAmbientColors()
     {
+        ZoneScoped;
+        
         auto scene = GetRC()->scene;
         IndirectLighting::SetGradientAmbientColor(
             scene->ambientLightColorSky,
@@ -204,6 +221,8 @@ namespace op
 
     void PreparingPass::SetFogParams()
     {
+        ZoneScoped;
+        
         auto scene = GetRC()->scene;
         auto globalCBuffer = GetGR()->GetPredefinedCbuffer(GLOBAL_CBUFFER);
         globalCBuffer->Set(FOG_INTENSITY, scene->fogIntensity);

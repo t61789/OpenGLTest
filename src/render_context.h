@@ -51,6 +51,7 @@ namespace op
         uint32_t screenHeight = 0;
 
         uint32_t mainLightShadowSize = 0;
+        float mainLightShadowRange = 80;
         
         LightComp* mainLight = nullptr;
 

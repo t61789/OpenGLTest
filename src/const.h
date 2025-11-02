@@ -15,7 +15,7 @@ namespace op
     static uint32_t JOB_THREAD_COUNT = 3;
     
     static bool LOG_RENDER_TARGET_STACK_NOT_EMPTY = false;
-    static bool ENABLE_GL_CHECK_ERROR = false;
+    static bool ENABLE_GL_CHECK_ERROR = true;
     
     #define THROW_ERROR(msg) throw std::runtime_error(format_log(Error, msg));
     #define THROW_ERRORF(msg, ...) throw std::runtime_error(format_log(Error, msg, __VA_ARGS__));
@@ -129,6 +129,7 @@ namespace op
     STRING_HANDLE(MAIN_LIGHT_SHADOW_MAP_TEX, _MainLightShadowMapTex)
     STRING_HANDLE(EXPOSURE_MULTIPLIER, _ExposureMultiplier)
     STRING_HANDLE(MAINLIGHT_SHADOW_VP, _MainLightShadowVP)
+    STRING_HANDLE(MAINLIGHT_SHADOW_RANGE, _MainLightShadowRange)
     STRING_HANDLE(ITERATIONS, _Iterations)
     STRING_HANDLE(CAMERA_POSITION_WS, _CameraPositionWS)
     STRING_HANDLE(ALBEDO, _Albedo)

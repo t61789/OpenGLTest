@@ -21,19 +21,20 @@ cbuffer _Global : register(b0)
     float4 _PointLightInfo[MAX_POINT_LIGHT_COUNT * POINT_LIGHT_INFO_STRIDE_VEC4];
 
     float4x4 _MainLightShadowVP;
+    float _MainLightShadowRange;
 };
 
 cbuffer PerViewCBuffer : register(b1)
 {
     float4x4 _VP;
     float4x4 _IVP;
+    float4 _CameraPositionWS;
 };
 
 cbuffer PerObjectCBuffer : register(b2)
 {
     float4x4 _M;
     float4x4 _IM;
-    float4 _CameraPositionWS;
     float4 _ViewportSize;
 };
 

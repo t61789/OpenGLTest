@@ -31,6 +31,7 @@ namespace op
 
         auto shadowViewProj = GetRC()->shadowVPInfo;
         GetGlobalCbuffer()->Set(MAINLIGHT_SHADOW_VP, shadowViewProj->vpMatrix);
+        GetGlobalCbuffer()->Set(MAINLIGHT_SHADOW_RANGE, GetRC()->mainLightShadowRange);
 
         DrawUI();
 
