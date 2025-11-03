@@ -68,8 +68,8 @@ namespace op
     class CullingBuffer
     {
     public:
-        CullingBufferAccessor Alloc();
-        void Release(CullingBufferAccessor& accessor);
+        CullingBufferAccessor Register();
+        void UnRegister(CullingBufferAccessor& accessor);
 
         void SetBounds(uint32_t index, cr<Bounds> bounds);
         bool GetVisible(uint32_t index, ViewGroup cullingGroup);

@@ -134,14 +134,9 @@ namespace op
     {
         assert(job->m_minBatchSize > 0);
         assert(job->m_taskElemCount != 0);
-        assert(job->m_alignedBatchSize == 0 || job->m_taskElemCount % job->m_alignedBatchSize == 0);
 
-        auto batchSize = ceil_div(job->m_taskElemCount, JOB_THREAD_COUNT);
+        auto batchSize = ceil_div(job->m_taskElemCount, JOB_THREAD_COUNT * 5);
         batchSize = std::max(batchSize, job->m_minBatchSize);
-        if (job->m_alignedBatchSize > 0)
-        {
-            batchSize = ceil_div(batchSize, job->m_alignedBatchSize) * job->m_alignedBatchSize;
-        }
         assert(batchSize > 0);
         
         job->m_exceptTaskNum = 0;

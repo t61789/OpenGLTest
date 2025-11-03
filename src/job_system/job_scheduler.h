@@ -28,7 +28,6 @@ namespace op
         void AppendNext(crsp<Job> next);
 
         void SetMinBatchSize(const uint32_t minBatchSize) { m_minBatchSize = minBatchSize; }
-        void SetAlignedBatchSize(const uint32_t alignedBatchSize) { m_alignedBatchSize = alignedBatchSize; }
         
         template <typename TaskFunc>
         static sp<Job> CreateCommon(TaskFunc&& f);
@@ -38,7 +37,6 @@ namespace op
     private:
         uint32_t m_taskElemCount = 0;
         uint32_t m_minBatchSize = 32;
-        uint32_t m_alignedBatchSize = 0;
         size_t m_taskGroupId = 0;
         
         task_func* m_taskFunc = nullptr;

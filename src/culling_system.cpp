@@ -104,7 +104,7 @@ namespace op
     }
 
     
-    CullingBufferAccessor CullingBuffer::Alloc()
+    CullingBufferAccessor CullingBuffer::Register()
     {
         for (auto searchIndex = m_firstEmpty; searchIndex <= m_elemInfos.size(); ++searchIndex)
         {
@@ -129,7 +129,7 @@ namespace op
         throw std::runtime_error("CullingBuffer::Alloc: This could not happened");
     }
 
-    void CullingBuffer::Release(CullingBufferAccessor& accessor)
+    void CullingBuffer::UnRegister(CullingBufferAccessor& accessor)
     {
         assert(!m_elemInfos[accessor.m_index].empty);
 
@@ -156,11 +156,11 @@ namespace op
 
     sp<Job> CullingBuffer::CreateCullJob(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup)
     {
-        auto job = Job::CreateParallel(m_buffer.centerX.Size(), [planes, viewGroup, this](const uint32_t start, const uint32_t end)
+        // 每个simd命令为一组，需要除4
+        auto job = Job::CreateParallel(m_buffer.centerX.Size() / 4, [planes, viewGroup, this](const uint32_t start, const uint32_t end)
         {
             this->CullBatch(planes, viewGroup, start, end);
         });
-        job->SetAlignedBatchSize(4);
 
         return job;
     }
@@ -182,8 +182,10 @@ namespace op
             planeSign[i].w = _mm_set1_ps(1.0f);
         }
         
-        for (uint32_t i = start; i < end; i+=4)
+        for (uint32_t j = start; j < end; j++)
         {
+            auto i = j * 4;
+            
             SimdVec4 center = {
                 _mm_load_ps(m_buffer.centerX.Data() + i),
                 _mm_load_ps(m_buffer.centerY.Data() + i),

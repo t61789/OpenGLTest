@@ -24,6 +24,7 @@ find_package(tinyxml2 REQUIRED)
 find_package(Tracy REQUIRED)
 find_package(spirv-cross REQUIRED)
 find_package(Boost REQUIRED)
+find_package(TBB REQUIRED)
 
 include_directories(src)
 include_directories(lib/imgui)
@@ -41,6 +42,13 @@ add_executable(OpenGLTest
 include_directories(lib/glad/include)
 target_link_directories(OpenGLTest PRIVATE "lib/glad/lib")
 
+# tbb
+configure_file(
+    "${CMAKE_SOURCE_DIR}/lib/tbb/dll/tbb12_debug.dll"
+    "${CMAKE_BINARY_DIR}/tbb12_debug.dll"
+    COPYONLY
+)
+
 target_compile_definitions(OpenGLTest PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLEW)
 target_link_libraries(
 	OpenGLTest PRIVATE 
@@ -55,5 +63,6 @@ target_link_libraries(
 		Tracy::TracyClient
 		spirv-cross::spirv-cross
 		boost::boost
+		onetbb::onetbb
 )
 

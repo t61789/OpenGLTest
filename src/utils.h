@@ -495,6 +495,14 @@ namespace op
         return dis(gen);
     }
 
+    static uint32_t random_uint32(const uint32_t min = 0, const uint32_t max = UINT32_MAX)
+    {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_int_distribution<uint32_t> dis(min, max);
+        return dis(gen);
+    }
+
     static GLsizei get_type_size(const GLenum type)
     {
         switch (type)

@@ -4,6 +4,12 @@
 
 #include "utils.h"
 #include "objects/comp.h"
+#include "render/gl/gl_state.h"
+
+namespace op
+{
+    class RenderComp;
+}
 
 namespace op
 {
@@ -44,12 +50,6 @@ namespace op
     {
         friend class Object;
         
-        wp<Scene> m_scene;
-        vecwp<Object> m_objects;
-        CompStorage m_compStorage;
-        
-        bool ObjectExists(crsp<Object> obj);
-        
     public:
         explicit SceneObjectIndices(crsp<Scene> scene);
         
@@ -60,6 +60,21 @@ namespace op
 
         crvecwp<Object> GetAllObjects() const { return m_objects;}
         CompStorage* GetCompStorage() { return &m_compStorage; }
+        crvecwp<RenderComp> GetOpaqueRenderComps() const { return m_opaqueComps; }
+        crvecwp<RenderComp> GetTransparentRenderComps() const { return m_transparentComps; }
+
+    private:
+        wp<Scene> m_scene;
+        vecwp<Object> m_objects;
+        CompStorage m_compStorage;
+
+        vecwp<RenderComp> m_opaqueComps;
+        vecwp<RenderComp> m_transparentComps;
+        
+        bool ObjectExists(crsp<Object> obj);
+        void RegisterRenderComp(crsp<RenderComp> comp);
+        void UnRegisterRenderComp(crsp<RenderComp> comp);
+        vecwp<RenderComp>& GetRenderComps(BlendMode blendMode);
     };
 
     inline void CompStorage::AddComp(const std::shared_ptr<Comp>& comp)

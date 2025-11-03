@@ -1,5 +1,7 @@
 #include "thread_pool.h"
 
+#include "consumer_thread.h"
+
 namespace op
 {
     ThreadPool::ThreadPool(uint32_t numThreads)
@@ -33,6 +35,8 @@ namespace op
 
     void ThreadPool::Worker()
     {
+        tracy::SetThreadName("ThreadPool Worker");
+        
         while (true)
         {
             Task task = nullptr;

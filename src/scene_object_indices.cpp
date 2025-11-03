@@ -1,7 +1,10 @@
 #include "scene_object_indices.h"
 
+#include "material.h"
 #include "object.h"
 #include "objects/batch_render_comp.h"
+#include "objects/render_comp.h"
+#include "render/gl/gl_state.h"
 
 namespace op
 {
@@ -56,16 +59,63 @@ namespace op
     void SceneObjectIndices::AddComp(crsp<Comp> comp)
     {
         m_compStorage.AddComp(comp);
+
+        if (auto renderComp = std::dynamic_pointer_cast<RenderComp>(comp))
+        {
+            RegisterRenderComp(renderComp);
+        }
     }
 
     void SceneObjectIndices::RemoveComp(crsp<Comp> comp)
     {
         m_compStorage.RemoveComp(comp);
+        
+        if (auto renderComp = std::dynamic_pointer_cast<RenderComp>(comp))
+        {
+            UnRegisterRenderComp(renderComp);
+        }
     }
 
     bool SceneObjectIndices::ObjectExists(crsp<Object> obj)
     {
         return exists_if(m_objects, [&obj](crwp<Object> x){ return x.lock() == obj;});
+    }
+
+    void SceneObjectIndices::RegisterRenderComp(crsp<RenderComp> comp)
+    {
+        assert(comp != nullptr);
+        auto material = comp->GetMaterial();
+        assert(material != nullptr);
+
+        auto comps = GetRenderComps(material->blendMode);
+        assert(!std::any_of(comps.begin(), comps.end(), [&comp](crwp<RenderComp> x){ return x.lock() == comp; }));
+
+        comps.push_back(comp);
+    }
+
+    void SceneObjectIndices::UnRegisterRenderComp(crsp<RenderComp> comp)
+    {
+        assert(comp != nullptr);
+        auto material = comp->GetMaterial();
+        assert(material != nullptr);
+
+        auto comps = GetRenderComps(material->blendMode);
+        remove_if(comps, [&comp](crwp<RenderComp> x){ return x.lock() == comp; });
+    }
+
+    vecwp<RenderComp>& SceneObjectIndices::GetRenderComps(const BlendMode blendMode)
+    {
+        switch (blendMode)
+        {
+            case BlendMode::NONE:
+            case BlendMode::UNSET:
+                return m_opaqueComps;
+            case BlendMode::BLEND:
+            case BlendMode::ADD:
+                return m_transparentComps;
+            default:
+                throw std::runtime_error("Unsupported blend mode");
+        }
     }
 }
  

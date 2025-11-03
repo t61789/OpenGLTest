@@ -21,6 +21,7 @@ class ImGuiExample(ConanFile):
         self.requires("tracy/0.12.1")
         self.requires("spirv-cross/1.4.313.0")
         self.requires("boost/1.88.0")
+        self.requires("onetbb/2022.3.0")
         
 
     def generate(self):
