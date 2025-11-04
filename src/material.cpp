@@ -14,7 +14,8 @@ namespace op
     {
         cullMode = CullMode::BACK;
         blendMode = BlendMode::NONE;
-        depthMode = DepthMode::LESS;
+        depthMode = DepthMode::LESS_EQUAL;
+        depthWrite = true;
         m_dataSet = mup<DataSet>();
         m_textureSet = mup<TextureSet>();
     }
@@ -134,6 +135,12 @@ namespace op
             if (elemKey.Str() == "depthMode")
             {
                 result->depthMode = GlState::GetDepthMode(elemValue.get<std::string>());
+                continue;
+            }
+            
+            if (elemKey.Str() == "depthWrite")
+            {
+                result->depthWrite = elemValue.get<bool>();
                 continue;
             }
             

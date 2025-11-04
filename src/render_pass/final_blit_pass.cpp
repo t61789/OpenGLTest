@@ -14,7 +14,8 @@ namespace op
     FinalBlitPass::FinalBlitPass()
     {
         m_finalBlitMat = Material::CreateFromShader("shaders/final_blit.shader");
-        m_finalBlitMat->depthMode = DepthMode::DISABLE;
+        m_finalBlitMat->depthMode = DepthMode::ALWAYS;
+        m_finalBlitMat->depthWrite = false;
         m_lutTexture = Image::LoadFromFile("textures/testLut.png");
     }
 

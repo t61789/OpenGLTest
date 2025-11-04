@@ -366,7 +366,7 @@ namespace op
             context.material->UseCBuffer();
             
             GlState::Ins()->SetBlendMode(context.material->blendMode);
-            GlState::Ins()->SetDepthMode(context.material->depthMode);
+            GlState::Ins()->SetDepthMode(context.material->depthMode, context.material->depthWrite);
         }
 
         {

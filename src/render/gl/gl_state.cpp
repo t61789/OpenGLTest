@@ -213,6 +213,7 @@ namespace op
 
         m_glCullMode = CullMode::UNSET;
         m_glBlendMode = BlendMode::UNSET;
+        m_glDepthReset = true;
     }
 
     void GlState::Check()
@@ -384,61 +385,66 @@ namespace op
         m_glBlendMode = mode;
     }
 
-    void GlState::SetDepthMode(const DepthMode mode)
+    void GlState::SetDepthMode(const DepthMode mode, const bool write)
     {
-        if (m_glDepthMode == mode)
+        if (!m_glDepthReset && m_glDepthMode == mode && m_glDepthWrite == write)
         {
             return;
         }
+        m_glDepthReset = false;
 
-        if (mode == DepthMode::DISABLE)
+        auto curDepthEnable = mode != DepthMode::ALWAYS || write;
+
+        if (curDepthEnable)
+        {
+            GlEnable(GL_DEPTH_TEST);
+        }
+        else
         {
             GlDisable(GL_DEPTH_TEST);
         }
-        else if (mode != DepthMode::UNSET)
+
+        if (curDepthEnable)
         {
-            if (m_glDepthMode == DepthMode::DISABLE || m_glDepthMode == DepthMode::UNSET)
+            if (write)
             {
-                GlEnable(GL_DEPTH_TEST);
+                GlDepthMask(GL_TRUE);
             }
-            
-            if (mode == DepthMode::ALWAYS)
+            else
             {
-                GlDepthFunc(GL_ALWAYS);
-            }
-
-            if (mode == DepthMode::LESS)
-            {
-                GlDepthFunc(GL_LESS);
+                GlDepthMask(GL_FALSE);
             }
 
-            if (mode == DepthMode::LESS_EQUAL)
+            switch (mode)
             {
-                GlDepthFunc(GL_LEQUAL);
-            }
-
-            if (mode == DepthMode::EQUAL)
-            {
-                GlDepthFunc(GL_EQUAL);
-            }
-
-            if (mode == DepthMode::NOT_EQUAL)
-            {
-                GlDepthFunc(GL_NOTEQUAL);
-            }
-
-            if (mode == DepthMode::GREATER)
-            {
-                GlDepthFunc(GL_GREATER);
-            }
-
-            if (mode == DepthMode::GREATER_EQUAL)
-            {
-                GlDepthFunc(GL_GEQUAL);
+                case DepthMode::ALWAYS:
+                    GlDepthFunc(GL_ALWAYS);
+                    break;
+                case DepthMode::LESS:
+                    GlDepthFunc(GL_LESS);
+                    break;
+                case DepthMode::LESS_EQUAL:
+                    GlDepthFunc(GL_LEQUAL);
+                    break;
+                case DepthMode::EQUAL:
+                    GlDepthFunc(GL_EQUAL);
+                    break;
+                case DepthMode::NOT_EQUAL:
+                    GlDepthFunc(GL_NOTEQUAL);
+                    break;
+                case DepthMode::GREATER:
+                    GlDepthFunc(GL_GREATER);
+                    break;
+                case DepthMode::GREATER_EQUAL:
+                    GlDepthFunc(GL_GEQUAL);
+                    break;
+                default:
+                    throw std::runtime_error("Unsupported depth mode");
             }
         }
-
+        
         m_glDepthMode = mode;
+        m_glDepthWrite = write;
     }
 
     CullMode GlState::GetCullMode(cr<StringHandle> str)
@@ -472,8 +478,6 @@ namespace op
     {
         static const umap<string_hash, DepthMode> DEPTH_MODE_MAP =
         {
-            {StringHandle("Unset"), DepthMode::UNSET},
-            {StringHandle("Disable"), DepthMode::DISABLE},
             {StringHandle("Always"), DepthMode::ALWAYS},
             {StringHandle("Less"), DepthMode::LESS},
             {StringHandle("LessEqual"), DepthMode::LESS_EQUAL},
@@ -810,10 +814,17 @@ namespace op
         GlCheckError();
     }
 
-    void GlState::GlClearBufferFv(cr<Vec4> color, const uint32_t colorAttachmentIndex)
+    void GlState::GlClearBufferFv(const uint32_t attachmentType, const float* color, const uint32_t colorAttachmentIndex)
     {
-        glClearBufferfv(GL_COLOR, static_cast<GLint>(colorAttachmentIndex), &color.x);
+        glClearBufferfv(attachmentType, static_cast<GLint>(colorAttachmentIndex), color);
 
+        GlCheckError();
+    }
+
+    void GlState::GlClearBufferFi(const uint32_t attachmentType, const float depth, const uint32_t stencil, const uint32_t colorAttachmentIndex)
+    {
+        glClearBufferfi(attachmentType, static_cast<GLint>(colorAttachmentIndex), depth, static_cast<GLint>(stencil));
+        
         GlCheckError();
     }
 
@@ -880,6 +891,13 @@ namespace op
     void GlState::GlDepthFunc(const uint32_t flag)
     {
         glDepthFunc(flag);
+
+        GlCheckError();
+    }
+    
+    void GlState::GlDepthMask(const bool flag)
+    {
+        glDepthMask(flag);
 
         GlCheckError();
     }

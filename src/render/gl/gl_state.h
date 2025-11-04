@@ -42,8 +42,6 @@ namespace op
 
     enum class DepthMode : uint8_t
     {
-        UNSET,
-        DISABLE,
         ALWAYS,
         LESS,
         LESS_EQUAL,
@@ -76,7 +74,7 @@ namespace op
         bool BindShader(crsp<GlShader> shader);
         void SetCullMode(CullMode mode, bool hasOddNegativeScale = false);
         void SetBlendMode(BlendMode mode);
-        void SetDepthMode(DepthMode mode);
+        void SetDepthMode(DepthMode mode, bool write);
 
         static CullMode GetCullMode(cr<StringHandle> str);
         static BlendMode GetBlendMode(cr<StringHandle> str);
@@ -104,7 +102,9 @@ namespace op
 
         CullMode m_glCullMode = CullMode::UNSET;
         BlendMode m_glBlendMode = BlendMode::UNSET;
-        DepthMode m_glDepthMode = DepthMode::UNSET;
+        DepthMode m_glDepthMode = DepthMode::ALWAYS;
+        bool m_glDepthWrite = false;
+        bool m_glDepthReset = true;
         wp<IGlResource> m_usingResource;
         vec<GlBufferInfo> m_glBufferInfos;
         sp<GlVertexArray> m_glVertexArray = nullptr;
@@ -168,7 +168,8 @@ namespace op
         static void GlDrawBuffer(uint32_t attachmentIndex);
         static void GlDrawBuffers(uint32_t count, const uint32_t* attachments);
         static void GlFrameBufferTexture2D(uint32_t attachmentType, uint32_t textureId);
-        static void GlClearBufferFv(cr<Vec4> color, uint32_t colorAttachmentIndex);
+        static void GlClearBufferFv(uint32_t attachmentType, const float* color, uint32_t colorAttachmentIndex);
+        static void GlClearBufferFi(uint32_t attachmentType, float depth, uint32_t stencil, uint32_t colorAttachmentIndex);
         static void GlClearDepth(float depth);
         static void GlClear(uint32_t clearBits);
         static void GlViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
@@ -178,6 +179,7 @@ namespace op
         static void GlCullFace(uint32_t flag);
         static void GlBlendFunc(uint32_t sfactor, uint32_t dfactor);
         static void GlDepthFunc(uint32_t flag);
+        static void GlDepthMask(bool flag);
         static void GlDrawElements(uint32_t mode, uint32_t count, uint32_t type, const void* indices);
         static void GlShaderSource(uint32_t shaderId, uint32_t count, const char** source, const int* length);
         static void GlCompileShader(uint32_t shaderId);
@@ -195,9 +197,9 @@ namespace op
         static void GlUniformMatrix4fv(uint32_t location, uint32_t count, bool transpose, const float* value);
         static void GlUniform1fv(uint32_t location, uint32_t count, const float* value);
         
-        
         static void GlCheckError();
 
         static GLenum ToGl(GlTextureType target);
     };
+
 }

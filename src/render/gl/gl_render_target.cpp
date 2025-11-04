@@ -85,15 +85,20 @@ namespace op
         auto needClearColor = clearType & 0b01 && !m_colorAttachments.empty() && !clearColors.empty();
         auto needClearDepth = clearType & 0b10 && m_depthAttachment;
         assert(!needClearColor || clearColors.size() == m_colorAttachments.size());
+        auto needClearStencil = needClearDepth && m_depthAttachment->GetFormat() == TextureFormat::DEPTH_STENCIL;
 
         uint32_t realClearType = 0;
         if (needClearColor)
         {
-            realClearType |= 0b01;
+            realClearType |= 0b001;
         }
         if (needClearDepth)
         {
-            realClearType |= 0b10;
+            realClearType |= 0b010;
+        }
+        if (needClearStencil)
+        {
+            realClearType |= 0b100;
         }
 
         ClearUnchecked(clearColors, clearDepth, realClearType);
@@ -103,24 +108,24 @@ namespace op
     {
         assert(GlState::Ins()->GetGlRenderTarget() == this);
         
-        GLuint clearBits = 0;
-        
-        if (clearType & 0b01)
+        if (clearType & 0b001)
         {
-            clearBits |= GL_COLOR_BUFFER_BIT;
             for (uint32_t i = 0; i < clearColors.size(); ++i)
             {
-                GlState::GlClearBufferFv(clearColors[i], i);
+                GlState::GlClearBufferFv(GL_COLOR, &clearColors[i].x, i);
             }
         }
 
-        if (clearType & 0b10)
+        if (clearType & 0b100)
         {
-            clearBits |= GL_DEPTH_BUFFER_BIT;
-            GlState::GlClearDepth(clearDepth);
+            GlState::Ins()->SetDepthMode(DepthMode::ALWAYS, true);
+            GlState::GlClearBufferFi(GL_DEPTH_STENCIL, clearDepth, 0, 0);
         }
-
-        GlState::GlClear(clearBits);
+        else if (clearType & 0b010)
+        {
+            GlState::Ins()->SetDepthMode(DepthMode::ALWAYS, true);
+            GlState::GlClearBufferFv(GL_DEPTH, &clearDepth, 0);
+        }
     }
 
     sp<GlRenderTarget> GlRenderTarget::GetFrameRenderTarget()

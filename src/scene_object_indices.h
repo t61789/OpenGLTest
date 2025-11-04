@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "utils.h"
+#include "job_system/job_scheduler.h"
 #include "objects/comp.h"
 #include "render/gl/gl_state.h"
 
@@ -62,6 +63,9 @@ namespace op
         CompStorage* GetCompStorage() { return &m_compStorage; }
         crvecwp<RenderComp> GetOpaqueRenderComps() const { return m_opaqueComps; }
         crvecwp<RenderComp> GetTransparentRenderComps() const { return m_transparentComps; }
+        sp<Job> GetTransparentSortJob() const { return m_transparentSortJob; }
+        
+        sp<Job> CreateTransparentSortJob();
 
     private:
         wp<Scene> m_scene;
@@ -70,6 +74,8 @@ namespace op
 
         vecwp<RenderComp> m_opaqueComps;
         vecwp<RenderComp> m_transparentComps;
+
+        sp<Job> m_transparentSortJob = nullptr;
         
         bool ObjectExists(crsp<Object> obj);
         void RegisterRenderComp(crsp<RenderComp> comp);

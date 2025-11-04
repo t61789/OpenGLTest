@@ -4,6 +4,7 @@
 #include "object.h"
 #include "objects/batch_render_comp.h"
 #include "objects/render_comp.h"
+#include "objects/transform_comp.h"
 #include "render/gl/gl_state.h"
 
 namespace op
@@ -76,6 +77,26 @@ namespace op
         }
     }
 
+    sp<Job> SceneObjectIndices::CreateTransparentSortJob()
+    {
+        assert(!m_transparentSortJob || m_transparentSortJob->IsComplete());
+        
+        m_transparentSortJob = Job::CreateCommon([this]
+        {
+            ZoneScopedN("Transparent Sort");
+            
+            insert_sort(m_transparentComps, [](crwp<RenderComp> x, crwp<RenderComp> y)
+            {
+                assert(!x.expired() && !y.expired());
+                auto cameraPos = GetRC()->camera->GetOwner()->transform->GetWorldPosition();
+                auto xPos = x.lock()->GetOwner()->transform->GetWorldPosition();
+                auto yPos = y.lock()->GetOwner()->transform->GetWorldPosition();
+                return (cameraPos - xPos).Magnitude() >= (cameraPos - yPos).Magnitude();
+            });
+        });
+        return m_transparentSortJob;
+    }
+
     bool SceneObjectIndices::ObjectExists(crsp<Object> obj)
     {
         return exists_if(m_objects, [&obj](crwp<Object> x){ return x.lock() == obj;});
@@ -87,7 +108,7 @@ namespace op
         auto material = comp->GetMaterial();
         assert(material != nullptr);
 
-        auto comps = GetRenderComps(material->blendMode);
+        auto& comps = GetRenderComps(material->blendMode);
         assert(!std::any_of(comps.begin(), comps.end(), [&comp](crwp<RenderComp> x){ return x.lock() == comp; }));
 
         comps.push_back(comp);
@@ -99,7 +120,7 @@ namespace op
         auto material = comp->GetMaterial();
         assert(material != nullptr);
 
-        auto comps = GetRenderComps(material->blendMode);
+        auto& comps = GetRenderComps(material->blendMode);
         remove_if(comps, [&comp](crwp<RenderComp> x){ return x.lock() == comp; });
     }
 

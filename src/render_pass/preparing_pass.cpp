@@ -26,6 +26,8 @@ namespace op
 
         PrepareMatrices();
 
+        SortTransparentComps();
+
         PrepareViewport();
 
         UpdateTransforms();
@@ -90,6 +92,12 @@ namespace op
         GetGR()->GetJobScheduler()->Schedule(commonCullJob);
 
         GetGR()->GetCullingSystem()->Cull();
+    }
+
+    void PreparingPass::SortTransparentComps()
+    {
+        auto sortJob = GetRC()->scene->GetIndices()->CreateTransparentSortJob();
+        GetGR()->GetJobScheduler()->Schedule(sortJob);
     }
 
     void PreparingPass::PrepareViewport()

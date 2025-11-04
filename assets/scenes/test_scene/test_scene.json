@@ -105,7 +105,7 @@
                 {
                     "name": "TransformComp",
                     "scale": [
-                        -1,
+                        1,
                         1,
                         1
                     ],
@@ -121,9 +121,9 @@
                     ]
                 },
                 {
-                    "name": "BatchRenderComp",
+                    "name": "RenderComp",
                     "mesh": "meshes/beast.obj",
-                    "material": "materials/lit_mat_batch.json"
+                    "material": "materials/lit_mat_transparent.json"
                 }
             ],
             "children": [
@@ -133,15 +133,15 @@
                         {
                             "name": "TransformComp",
                             "position": [
+                                3,
                                 1,
-                                0,
                                 0
                             ]
                         },
                         {
-                            "name": "BatchRenderComp",
+                            "name": "RenderComp",
                             "mesh": "meshes/smooth_cube.obj",
-                            "material": "materials/lit_mat_batch.json"
+                            "material": "materials/lit_mat_transparent.json"
                         }
                     ]
                 }

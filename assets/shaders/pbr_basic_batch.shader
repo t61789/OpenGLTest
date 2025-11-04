@@ -13,8 +13,7 @@ PSInput VS_Main(VSInput input)
     return output;
 }
 
-Texture2D _MainTex;
-SamplerState _MainTexSampler;
+TEXTURE2D(_MainTex)
 
 PSOutput PS_Main(PSInput input) : SV_TARGET
 {

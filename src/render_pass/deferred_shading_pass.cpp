@@ -19,7 +19,8 @@ namespace op
         auto shader = Shader::LoadFromFile("shaders/deferred_shading.shader");
         m_deferredShadingMat = msp<Material>();
         m_deferredShadingMat->BindShader(shader);
-        m_deferredShadingMat->depthMode = DepthMode::DISABLE;
+        m_deferredShadingMat->depthMode = DepthMode::ALWAYS;
+        m_deferredShadingMat->depthWrite = false;
     }
 
     std::string DeferredShadingPass::GetName()

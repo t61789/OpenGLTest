@@ -54,11 +54,6 @@ namespace op
           m_glRenderTarget->Clear(colors, depth, 0b11);
      }
 
-     void RenderTarget::ClearUnchecked(crvec<Vec4> colors, const float depth)
-     {
-          m_glRenderTarget->ClearUnchecked(colors, depth, 0b11);
-     }
-
      void RenderTarget::OnAnyRtResized()
      {
           m_dirty = true;

@@ -27,6 +27,7 @@ namespace op
         void WaitForStop();
         void AppendNext(crsp<Job> next);
 
+        bool IsComplete() const { return m_completed; }
         void SetMinBatchSize(const uint32_t minBatchSize) { m_minBatchSize = minBatchSize; }
         
         template <typename TaskFunc>

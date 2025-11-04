@@ -304,6 +304,7 @@ namespace op
         {
             return nullptr;
         }
+        comp->LoadFromJson(compJson);
 
         comp->m_owner = this;
         m_comps.push_back(comp);
@@ -311,8 +312,6 @@ namespace op
         {
             m_scene.lock()->GetIndices()->AddComp(comp);
         }
-
-        comp->LoadFromJson(compJson);
 
         comp->Awake();
         comp->SetEnable(true);

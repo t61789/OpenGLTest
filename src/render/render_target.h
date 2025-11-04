@@ -25,7 +25,6 @@ namespace op
         void Clear(crvec<Vec4> colors);
         void Clear(float depth);
         void Clear(crvec<Vec4> colors, float depth);
-        void ClearUnchecked(crvec<Vec4> colors, float depth);
 
         static UsingRenderTargetObj Using();
         static UsingRenderTargetObj Using(crvecsp<RenderTexture> rts);

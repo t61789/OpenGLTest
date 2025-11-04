@@ -20,10 +20,8 @@ namespace op
         void DrawConsoleUi() override;
 
     private:
-        vec<uint32_t> m_testInput = vec<uint32_t>(1000000);
-        vec<uint32_t> m_testOutput = vec<uint32_t>(1000000);
-        
         void PrepareMatrices();
+        void SortTransparentComps();
         static void PrepareViewport();
         static void UpdateTransforms();
         static void ClearGBuffers();

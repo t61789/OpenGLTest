@@ -111,7 +111,7 @@ namespace op
         // Set Render State
         GlState::Ins()->SetCullMode(material->cullMode, renderParam.hasOddNegativeScale);
         GlState::Ins()->SetBlendMode(material->blendMode);
-        GlState::Ins()->SetDepthMode(material->depthMode);
+        GlState::Ins()->SetDepthMode(material->depthMode, material->depthWrite);
     }
     
     void RenderingUtils::CallGlDraw(const Mesh* mesh)

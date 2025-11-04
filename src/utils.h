@@ -541,6 +541,22 @@ namespace op
         base ^= newHash * 0x9e3779b9;
     }
 
+    template <typename T, typename Predicate>
+    static void insert_sort(std::vector<T>& vec, Predicate&& predicate)
+    {
+        auto data = vec.data();
+        auto size = vec.size();
+        for (size_t i = 1; i < size; ++i)
+        {
+            auto j = i;
+            while (j > 0 && !predicate(data[j - 1], data[j]))
+            {
+                std::swap(data[j - 1], data[j]);
+                --j;
+            }
+        }
+    }
+
     template <typename T>
     void Utils::BinarySerialize(T& obj, crstr path)
     {

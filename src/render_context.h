@@ -56,6 +56,7 @@ namespace op
         LightComp* mainLight = nullptr;
 
         vecwp<RenderTexture> gBufferTextures;
+        wp<RenderTexture> depthBufferTex;
         wp<RenderTexture> shadingBufferTex;
         
         CameraComp* camera = nullptr;

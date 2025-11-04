@@ -21,6 +21,7 @@ namespace op
         CullMode cullMode;
         BlendMode blendMode;
         DepthMode depthMode;
+        bool depthWrite;
         
         Material();
 

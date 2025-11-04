@@ -27,6 +27,7 @@
 #include "render_pass/render_scene_pass.h"
 #include "render_pass/render_skybox_pass.h"
 #include "render_pass/test_draw_pass.h"
+#include "render_pass/transparent_pass.h"
 
 namespace op
 {
@@ -51,9 +52,10 @@ namespace op
         m_passes.push_back(msp<RenderSkyboxPass>());
         m_passes.push_back(msp<BatchRenderPass>());
         m_passes.push_back(msp<MainLightShadowPass>());
-        m_passes.push_back(msp<RenderScenePass>());
+        // m_passes.push_back(msp<RenderScenePass>());
         // m_passes.push_back(msp<TestDrawPass>());
         m_passes.push_back(msp<DeferredShadingPass>());
+        m_passes.push_back(msp<TransparentPass>());
         // m_passes.push_back(msp<KawaseBlur>());
         // m_passes.push_back(msp<DualKawaseBlur>());
         m_passes.push_back(msp<FinalBlitPass>());
@@ -121,6 +123,7 @@ namespace op
             m_gBuffer2Tex,
             m_gBufferDepthTex
         };
+        m_renderContext->depthBufferTex = m_gBufferDepthTex;
 
         CategorizeObjects(*m_renderContext);
     }
