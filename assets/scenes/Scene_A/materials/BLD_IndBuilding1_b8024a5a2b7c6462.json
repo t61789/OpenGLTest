@@ -1,10 +1,11 @@
 {
-  "shader": "shaders/pbr_basic_batch.shader",
+  "blendMode": "None",
   "_Albedo": [
     1.0,
     1.0,
     1.0,
     1.0
   ],
-  "_MainTex": "scenes/Scene_A/textures/BLD_IndBuilding1_A_b8936f20d5f2f4ea.png"
+  "_MainTex": "scenes/Scene_A/textures/BLD_IndBuilding1_A_b8936f20d5f2f4ea.png",
+  "shader": "shaders/pbr_basic_batch.shader"
 }

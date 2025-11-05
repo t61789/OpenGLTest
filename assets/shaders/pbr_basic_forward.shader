@@ -1,4 +1,5 @@
 #include "shaders/lib/common.hlsl"
+#include "shaders/lib/lighting.hlsl"
 
 cbuffer PerMaterialCBuffer : register(b5)
 {
@@ -9,7 +10,8 @@ PSInput VS_Main(VSInput input)
 {
     PSInput output;
 
-    output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+    output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
+    output.positionCS = TransformWorldToHClip(output.positionWS);
     output.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz);
     output.uv = input.uv0;
 
@@ -24,7 +26,8 @@ float4 PS_Main(PSInput input) : SV_TARGET
     float3 normalWS = normalize(input.normalWS);
 
     float4 finalColor = albedo * _Albedo;
-    // finalColor.rgb = lerp(finalColor.rgb, normalWS * 0.5f + 0.5f, 0.5f);
+
+    float3 col = Lit(input.positionWS, normalWS, albedo);
 
     return finalColor;
 }

@@ -1,10 +1,11 @@
 {
-  "shader": "shaders/pbr_basic_batch.shader",
+  "blendMode": "None",
   "_Albedo": [
     1.0,
     1.0,
     1.0,
     1.0
   ],
-  "_MainTex": "scenes/Scene_A/textures/diffuse_085e00d6d496f574.png"
+  "_MainTex": "scenes/Scene_A/textures/diffuse_085e00d6d496f574.png",
+  "shader": "shaders/pbr_basic_batch.shader"
 }

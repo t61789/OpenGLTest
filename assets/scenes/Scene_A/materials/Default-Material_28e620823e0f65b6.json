@@ -1,10 +1,11 @@
 {
-  "shader": "shaders/pbr_basic_batch.shader",
+  "blendMode": "None",
   "_Albedo": [
     1.0,
     1.0,
     1.0,
     1.0
   ],
-  "_MainTex": "built_in/texture/white.png"
+  "_MainTex": "built_in/texture/white.png",
+  "shader": "shaders/pbr_basic_batch.shader"
 }

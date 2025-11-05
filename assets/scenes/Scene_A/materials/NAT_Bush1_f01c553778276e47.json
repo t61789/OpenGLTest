@@ -1,10 +1,12 @@
 {
-  "shader": "shaders/pbr_basic_batch.shader",
+  "blendMode": "Blend",
   "_Albedo": [
     1.0,
     1.0,
     1.0,
     1.0
   ],
-  "_MainTex": "scenes/Scene_A/textures/NAT_Hedge1_A_87794c30b8bbbd06.png"
+  "_MainTex": "scenes/Scene_A/textures/NAT_Hedge1_A_87794c30b8bbbd06.png",
+  "shader": "shaders/pbr_basic_forward.shader",
+  "depthWrite": false
 }
