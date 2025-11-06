@@ -16,11 +16,8 @@ namespace op
     {
         m_preHasONS = HasONS();
         
-        for (uint8_t i = 0; i < CULLING_BUFFER_COUNT; ++i)
-        {
-            auto accessor = GetGR()->GetCullingBuffer(static_cast<CullingGroup>(i))->Alloc();
-            m_cullingBufferAccessor[i] = accessor;
-        }
+        m_cullingBufferAccessor[static_cast<uint8_t>(CullingGroup::COMMON)] = GetGR()->GetCullingBuffer(CullingGroup::COMMON)->Alloc();
+        m_cullingBufferAccessor[static_cast<uint8_t>(CullingGroup::SHADOW)] = GetGR()->GetCullingBuffer(CullingGroup::SHADOW)->Alloc();
         
         GetGR()->GetBatchRenderUnit()->BindComp(this);
         

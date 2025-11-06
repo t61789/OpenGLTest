@@ -1,5 +1,6 @@
 #include "transparent_pass.h"
 
+#include "game_resource.h"
 #include "rendering_utils.h"
 #include "render_context.h"
 #include "scene.h"
@@ -18,10 +19,18 @@ namespace op
         assert(GetRC()->scene->GetIndices()->GetTransparentSortJob());
         GetRC()->scene->GetIndices()->GetTransparentSortJob()->WaitForStop();
 
+        GetGR()->GetCullingBuffer(CullingGroup::TRANSPARENT)->WaitForCull();
+
         for (const auto& rc : GetRC()->scene->GetIndices()->GetTransparentRenderComps())
         {
             assert(!rc.expired());
             auto renderComp = rc.lock();
+            
+            if (auto accessor = renderComp->GetTransparentCullingBufferAccessor(); !accessor->GetVisible())
+            {
+                continue;
+            }
+            
             RenderingUtils::RenderMesh({
                 renderComp->GetMesh().get(),
                 renderComp->GetMaterial().get(),

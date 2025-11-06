@@ -1,5 +1,7 @@
 #include "render_target.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "event.h"
 #include "render_context.h"
 #include "render_target_pool.h"
@@ -51,6 +53,8 @@ namespace op
      
      void RenderTarget::Clear(crvec<Vec4> colors, const float depth)
      {
+          ZoneScoped;
+          
           m_glRenderTarget->Clear(colors, depth, 0b11);
      }
 

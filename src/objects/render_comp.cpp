@@ -19,6 +19,23 @@ namespace op
     {
         m_onTransformDirtyHandler = GetOwner()->transform->dirtyEvent.Add(this, &RenderComp::OnTransformDirty);
         OnTransformDirty();
+        UpdateTransform();
+    }
+
+    void RenderComp::OnEnable()
+    {
+        m_transparentCullingBufferAccessor = GetGR()->GetCullingBuffer(CullingGroup::TRANSPARENT)->Alloc();
+        OnTransformDirty();
+        UpdateTransform();
+    }
+
+    void RenderComp::OnDisable()
+    {
+        if (m_transparentCullingBufferAccessor)
+        {
+            m_transparentCullingBufferAccessor->Release();
+            m_transparentCullingBufferAccessor = nullptr;
+        }
     }
 
     void RenderComp::OnDestroy()
@@ -78,6 +95,10 @@ namespace op
     void RenderComp::UpdateWorldBounds()
     {
         m_worldBounds = m_mesh->GetBounds().ToWorld(GetOwner()->transform->GetLocalToWorld());
+        if (m_transparentCullingBufferAccessor)
+        {
+            m_transparentCullingBufferAccessor->Submit(m_worldBounds);
+        }
     }
 
     void RenderComp::UpdatePerObjectBuffer()

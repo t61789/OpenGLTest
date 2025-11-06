@@ -114,7 +114,7 @@ namespace op
                     auto accessor = new Accessor();
                     accessor->m_buffer = this;
                     accessor->m_enable = false;
-                    accessor->m_index = m_accessors.size() + i;
+                    accessor->m_index = m_accessors.size();
                     m_accessors.push_back(accessor);
                 }
             }

@@ -4,6 +4,7 @@
 
 #include "bounds.h"
 #include "comp.h"
+#include "culling_system.h"
 #include "event.h"
 
 namespace op
@@ -16,6 +17,8 @@ namespace op
     public:
         void Awake() override;
         void Start() override;
+        void OnEnable() override;
+        void OnDisable() override;
         void OnDestroy() override;
         void UpdateTransform();
         cr<Bounds> GetWorldBounds();
@@ -24,6 +27,7 @@ namespace op
         sp<Mesh> GetMesh() const { return m_mesh;}
         sp<Material> GetMaterial() const { return m_material;}
         uint32_t GetObjectIndex() const { return m_perObjectBufferIndex;}
+        CullingBuffer::Accessor* GetTransparentCullingBufferAccessor() const { return m_transparentCullingBufferAccessor;}
 
         void LoadFromJson(const nlohmann::json& objJson) override;
 
@@ -35,6 +39,7 @@ namespace op
         bool m_transformDirty = true;
         Bounds m_worldBounds;
         uint32_t m_perObjectBufferIndex = ~0u;
+        CullingBuffer::Accessor* m_transparentCullingBufferAccessor = nullptr;
 
         void OnTransformDirty();
 

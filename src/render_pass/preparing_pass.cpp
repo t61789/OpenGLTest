@@ -96,7 +96,10 @@ namespace op
         GetGR()->GetJobScheduler()->Schedule(commonCullJob);
         GetGR()->GetJobScheduler()->Schedule(shadowCullJob);
 
-        GetGR()->GetCullingSystem()->Cull();
+        // GetGR()->GetCullingSystem()->Cull();
+
+        auto transparentCullJob = GetGR()->GetCullingBuffer(CullingGroup::TRANSPARENT)->CreateCullJob(GetRC()->mainVPInfo->frustumPlanes.value());
+        GetGR()->GetJobScheduler()->Schedule(transparentCullJob);
     }
 
     void PreparingPass::SortTransparentComps()
