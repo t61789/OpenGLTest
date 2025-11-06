@@ -80,6 +80,7 @@ namespace op
         assert(!exists_if(subCmd->comps, [comp](const BatchRenderCompInfo* x){ return x->comp == comp; }));
         subCmd->comps.push_back(new BatchRenderCompInfo{
             param.matrixIndex,
+            comp->GetCullingAccessor(GetCullingGroup(group)),
             comp
         });
         cmd->compCount++;
@@ -136,10 +137,10 @@ namespace op
         m_batchMesh = msp<BatchMesh>();
         m_batchMatrix = msp<BatchMatrix>(200, 6);
 
-        for (auto i = 0; i < static_cast<int>(ViewGroup::COUNT); ++i)
+        for (auto i = 0; i < BATCH_RENDER_GROUP_COUNT; ++i)
         {
             auto renderTree = new BatchRenderTree{
-                static_cast<ViewGroup>(i),
+                static_cast<BatchRenderGroup>(i),
                 {},
                 nullptr,
                 lock_free_queue<BatchRenderCmd*>(1024),
@@ -167,9 +168,9 @@ namespace op
         m_batchMatrix->SubmitData(compInfo->second, matrices);
     }
     
-    void BatchRenderUnit::Execute(const ViewGroup viewGroup)
+    void BatchRenderUnit::Execute(const BatchRenderGroup group)
     {
-        auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)].get();
+        auto renderTree = m_renderTrees[static_cast<uint8_t>(group)].get();
         
         m_batchMatrix->Use();
         m_batchMesh->Use();
@@ -211,9 +212,9 @@ namespace op
         renderTree->encodingJob.reset();
     }
 
-    sp<Job> BatchRenderUnit::CreateEncodingJob(ViewGroup viewGroup)
+    sp<Job> BatchRenderUnit::CreateEncodingJob(BatchRenderGroup group)
     {
-        auto renderTree = m_renderTrees[static_cast<uint8_t>(viewGroup)].get();
+        auto renderTree = m_renderTrees[static_cast<uint8_t>(group)].get();
         
         auto job = Job::CreateCommon([this, renderTree]
         {
@@ -260,7 +261,7 @@ namespace op
                 auto instanceCount = 0;
                 for (auto& compInfo : subCmd->comps)
                 {
-                    if (compInfo->comp->GetInView(viewGroup))
+                    if (compInfo->cullingAccessor->GetVisible())
                     {
                         cmd->matrixIndices.Add<false>(compInfo->matrixIndex);
                         instanceCount++;
@@ -296,7 +297,7 @@ namespace op
         auto matrixIndex = m_batchMatrix->Register();
         m_comps[comp] = matrixIndex;
 
-        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::COMMON)].get();
+        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(BatchRenderGroup::COMMON)].get();
         commonRenderTree->AddComp({
             this,
             comp,
@@ -306,7 +307,7 @@ namespace op
             matrixIndex
         });
 
-        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::SHADOW)].get();
+        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(BatchRenderGroup::SHADOW)].get();
         shadowRenderTree->AddComp({
             this,
             comp,
@@ -325,10 +326,10 @@ namespace op
         }
         m_comps.erase(comp);
 
-        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::COMMON)].get();
+        auto commonRenderTree = m_renderTrees[static_cast<uint8_t>(BatchRenderGroup::COMMON)].get();
         commonRenderTree->RemoveComp(comp);
 
-        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(ViewGroup::SHADOW)].get();
+        auto shadowRenderTree = m_renderTrees[static_cast<uint8_t>(BatchRenderGroup::SHADOW)].get();
         shadowRenderTree->RemoveComp(comp);
     }
 
@@ -387,5 +388,15 @@ namespace op
         }
         
         GlState::GlMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(cmd->indirectCmds.Size()), 0);
+    }
+
+    CullingGroup BatchRenderUnit::GetCullingGroup(const BatchRenderGroup group)
+    {
+        static const umap<BatchRenderGroup, CullingGroup> MAPPER = {
+            {BatchRenderGroup::COMMON, CullingGroup::COMMON},
+            {BatchRenderGroup::SHADOW, CullingGroup::SHADOW}
+        };
+
+        return MAPPER.at(group);
     }
 }

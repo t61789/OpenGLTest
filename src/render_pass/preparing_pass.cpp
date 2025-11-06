@@ -73,8 +73,10 @@ namespace op
         GetRC()->mainVPInfo = GetRC()->camera->CreateVPMatrix();
         GetRC()->mainVPInfo->UpdateFrustumPlanes();
         GetRC()->PushViewProjMatrix(GetRC()->mainVPInfo);
-        auto commonCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->mainVPInfo->frustumPlanes.value(), ViewGroup::COMMON);
-        auto commonEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::COMMON);
+        auto commonCullJob = GetGR()->GetCullingBuffer(CullingGroup::COMMON)->CreateCullJob(GetRC()->mainVPInfo->frustumPlanes.value());
+        commonCullJob->SetPriority(2);
+        auto commonEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(BatchRenderGroup::COMMON);
+        commonEncodingJob->SetPriority(2);
         commonCullJob->AppendNext(commonEncodingJob);
         
         // Shadow camera
@@ -83,13 +85,16 @@ namespace op
             Vec3::One().Normalize();
         GetRC()->shadowVPInfo = GetRC()->camera->CreateShadowVPMatrix(lightDirection);
         GetRC()->shadowVPInfo->UpdateFrustumPlanes();
-        auto shadowCullJob = GetGR()->GetCullingBuffer()->CreateCullJob(GetRC()->shadowVPInfo->frustumPlanes.value(), ViewGroup::SHADOW);
-        auto shadowEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(ViewGroup::SHADOW);
+        auto shadowCullJob = GetGR()->GetCullingBuffer(CullingGroup::SHADOW)->CreateCullJob(GetRC()->shadowVPInfo->frustumPlanes.value());
+        shadowCullJob->SetPriority(1);
+        auto shadowEncodingJob = GetGR()->GetBatchRenderUnit()->CreateEncodingJob(BatchRenderGroup::SHADOW);
+        shadowEncodingJob->SetPriority(1);
         shadowCullJob->AppendNext(shadowEncodingJob);
 
-        commonCullJob->AppendNext(shadowCullJob);
+        // commonCullJob->AppendNext(shadowCullJob);
 
         GetGR()->GetJobScheduler()->Schedule(commonCullJob);
+        GetGR()->GetJobScheduler()->Schedule(shadowCullJob);
 
         GetGR()->GetCullingSystem()->Cull();
     }

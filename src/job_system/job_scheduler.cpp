@@ -38,7 +38,7 @@ namespace op
         
         m_completeSignal.wait(lock, [this]
         {
-            return m_completed;
+            return m_completed.load();
         });
     }
 
@@ -127,7 +127,7 @@ namespace op
             {
                 this->JobComplete(job);
             }
-        });
+        }, job->m_priority);
     }
 
     void JobScheduler::ScheduleParallelJob(crsp<Job> job)
@@ -156,7 +156,7 @@ namespace op
                 {
                     this->JobComplete(job);
                 }
-            });
+            }, job->m_priority);
         }
     }
     

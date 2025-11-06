@@ -22,12 +22,16 @@ TEXTURE2D(_MainTex)
 
 float4 PS_Main(PSInput input) : SV_TARGET
 {
-    float4 albedo = _MainTex.Sample(_MainTexSampler, input.uv);
     float3 normalWS = normalize(input.normalWS);
 
-    float4 finalColor = albedo * _Albedo;
+    float4 mainTexColor = _MainTex.Sample(_MainTexSampler, input.uv) * _Albedo;
 
-    float3 col = Lit(input.positionWS, normalWS, albedo);
+    float3 albedo = mainTexColor.rgb;
+    float alpha = mainTexColor.a;
+
+    float3 litColor = Lit(input.positionWS, normalWS, albedo);
+
+    float4 finalColor = float4(litColor, alpha);
 
     return finalColor;
 }

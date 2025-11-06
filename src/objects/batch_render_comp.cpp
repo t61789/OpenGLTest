@@ -16,7 +16,11 @@ namespace op
     {
         m_preHasONS = HasONS();
         
-        m_cullingBufferAccessor = GetGR()->GetCullingBuffer()->Register();
+        for (uint8_t i = 0; i < CULLING_BUFFER_COUNT; ++i)
+        {
+            auto accessor = GetGR()->GetCullingBuffer(static_cast<CullingGroup>(i))->Alloc();
+            m_cullingBufferAccessor[i] = accessor;
+        }
         
         GetGR()->GetBatchRenderUnit()->BindComp(this);
         
@@ -29,8 +33,15 @@ namespace op
         GetOwner()->transform->dirtyEvent.Remove(m_onTransformDirtyHandler);
         
         GetGR()->GetBatchRenderUnit()->UnBindComp(this);
-        
-        GetGR()->GetCullingBuffer()->UnRegister(m_cullingBufferAccessor);
+
+        for (auto& accessor : m_cullingBufferAccessor)
+        {
+            if (accessor)
+            {
+                accessor->Release();
+                accessor = nullptr;
+            }
+        }
     }
 
     void BatchRenderComp::OnTransformDirty()
@@ -57,7 +68,13 @@ namespace op
         }
         
         m_worldBounds = m_mesh->GetBounds().ToWorld(GetOwner()->transform->GetLocalToWorld());
-        m_cullingBufferAccessor.Submit(m_worldBounds);
+        for (auto& accessor : m_cullingBufferAccessor)
+        {
+            if (accessor)
+            {
+                accessor->Submit(m_worldBounds);
+            }
+        }
         
         UpdatePerObjectBuffer();
     }
@@ -65,6 +82,11 @@ namespace op
     bool BatchRenderComp::HasONS()
     {
         return GetOwner()->transform->HasOddNegativeScale();
+    }
+
+    CullingBuffer::Accessor* BatchRenderComp::GetCullingAccessor(CullingGroup group)
+    {
+        return m_cullingBufferAccessor[static_cast<uint8_t>(group)];
     }
 
     void BatchRenderComp::UpdatePerObjectBuffer()

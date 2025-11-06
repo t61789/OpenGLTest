@@ -27,8 +27,9 @@ namespace op
         void WaitForStop();
         void AppendNext(crsp<Job> next);
 
-        bool IsComplete() const { return m_completed; }
+        bool IsComplete() const { return m_completed.load(); }
         void SetMinBatchSize(const uint32_t minBatchSize) { m_minBatchSize = minBatchSize; }
+        void SetPriority(const int32_t priority) { m_priority = priority; }
         
         template <typename TaskFunc>
         static sp<Job> CreateCommon(TaskFunc&& f);
@@ -36,6 +37,7 @@ namespace op
         static sp<Job> CreateParallel(uint32_t taskElemCount, TaskFunc&& f);
 
     private:
+        int32_t m_priority = 0;
         uint32_t m_taskElemCount = 0;
         uint32_t m_minBatchSize = 32;
         size_t m_taskGroupId = 0;
@@ -45,7 +47,7 @@ namespace op
         
         uint32_t m_exceptTaskNum = 0;
         uint32_t m_completeTaskNum = 0;
-        uint32_t m_completed = false;
+        std::atomic_bool m_completed = false;
 
         vecsp<Job> m_next;
         

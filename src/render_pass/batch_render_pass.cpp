@@ -5,7 +5,6 @@
 #include "game_resource.h"
 #include "render_context.h"
 #include "render/batch_render_unit.h"
-#include "render/render_target_pool.h"
 
 namespace op
 {
@@ -15,6 +14,6 @@ namespace op
         
         auto usingGBufferRenderTarget = GetRC()->UsingGBufferRenderTarget();
 
-        GetGR()->GetBatchRenderUnit()->Execute(ViewGroup::COMMON);
+        GetGR()->GetBatchRenderUnit()->Execute(BatchRenderGroup::COMMON);
     }
 }

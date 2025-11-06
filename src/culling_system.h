@@ -12,15 +12,16 @@ namespace op
     class Object;
     class CullingBuffer;
 
-
-    enum class ViewGroup : uint8_t
+    enum class CullingGroup : uint8_t
     {
         COMMON = 0,
         SHADOW = 1,
+        TRANSPARENT = 2,
 
-        COUNT = 2
+        COUNT = 3
     };
-    
+
+    #define CULLING_BUFFER_COUNT static_cast<uint8_t>(CullingGroup::COUNT)
 
     class CullingSystem final
     {
@@ -46,42 +47,40 @@ namespace op
         static bool CullOnce(const Bounds& bounds, const std::array<Vec4, 6>& planes);
     };
 
-
-    struct CullingBufferAccessor
-    {
-        CullingBufferAccessor() = default;
-        CullingBufferAccessor(uint32_t index, CullingBuffer* buffer);
-
-        void Submit(cr<Bounds> bounds);
-        bool GetVisible(ViewGroup cullingGroup);
-        bool IsEnable() const { return m_enable; }
-
-    private:
-        bool m_enable = false;
-        uint32_t m_index;
-        CullingBuffer* m_buffer;
-
-        friend class CullingBuffer;
-    };
-
-
     class CullingBuffer
     {
     public:
-        CullingBufferAccessor Register();
-        void UnRegister(CullingBufferAccessor& accessor);
+        struct Accessor
+        {
+            Accessor() = default;
+            
+            void Submit(cr<Bounds> bounds);
+            bool GetVisible() const { assert(m_enable); return *(m_buffer->m_soa.visible.Data() + m_index) != 0.0f; }
+            bool IsEnable() const { return m_enable; }
+            void Release() { assert(m_enable); m_enable = false; }
 
-        void SetBounds(uint32_t index, cr<Bounds> bounds);
-        bool GetVisible(uint32_t index, ViewGroup cullingGroup);
+        private:
+            
+            bool m_enable = false;
+            uint32_t m_index;
+            CullingBuffer* m_buffer;
 
-        sp<Job> CreateCullJob(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup);
+            friend class CullingBuffer;
+        };
+
+        CullingBuffer() = default;
+        ~CullingBuffer();
+        CullingBuffer(const CullingBuffer& other) = delete;
+        CullingBuffer(CullingBuffer&& other) noexcept = delete;
+        CullingBuffer& operator=(const CullingBuffer& other) = delete;
+        CullingBuffer& operator=(CullingBuffer&& other) noexcept = delete;
+
+        Accessor* Alloc();
+
+        sp<Job> CreateCullJob(cr<arr<Vec4, 6>> planes);
+        void WaitForCull();
 
     private:
-        struct ElemInfo
-        {
-            bool empty = true;
-        };
-    
         struct CullingSoA
         {
             sl<float> centerX;
@@ -91,19 +90,19 @@ namespace op
             sl<float> extentsY;
             sl<float> extentsZ;
 
-            sl<float> visible[static_cast<uint8_t>(ViewGroup::COUNT)];
+            sl<float> visible;
 
             CullingSoA();
 
             void Add();
-
-            sl<float>& GetVisible(ViewGroup group) { return visible[static_cast<uint8_t>(group)]; }
         };
         
-        CullingSoA m_buffer;
+        CullingSoA m_soa;
         uint32_t m_firstEmpty = 0;
-        vec<ElemInfo> m_elemInfos;
+        vec<Accessor*> m_accessors;
+        sp<Job> m_cullJob = nullptr;
         
-        void CullBatch(cr<arr<Vec4, 6>> planes, ViewGroup cullingGroup, uint32_t start, uint32_t end);
+        void SetBounds(uint32_t index, cr<Bounds> bounds);
+        void CullBatch(cr<arr<Vec4, 6>> planes, uint32_t start, uint32_t end);
     };
 }

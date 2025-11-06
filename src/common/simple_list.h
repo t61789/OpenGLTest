@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <cstdint>
 #include <stdexcept>
 #include <type_traits>
@@ -11,7 +12,7 @@ namespace op
         static_assert(std::is_trivial_v<T>);
 
         SimpleList() = default;
-        explicit SimpleList(uint32_t capacity);
+        explicit SimpleList(uint32_t capacity, uint32_t alignment = 16);
         ~SimpleList();
         SimpleList(const SimpleList& other);
         SimpleList(SimpleList&& other) noexcept;
@@ -22,9 +23,9 @@ namespace op
         const T& operator[](size_t index) const { return m_data[index]; }
 
         T* Data() const { return m_data; }
-        uint32_t Size() const { return m_size; }
+        uint32_t Size() const { return m_back - m_data; }
         uint32_t Capacity() const { return m_capacity; }
-        bool Empty() const { return m_size == 0; }
+        bool Empty() const { return m_back <= m_data; }
         
         template <bool Check = true>
         void Add(const T& element);
@@ -36,48 +37,50 @@ namespace op
 
     private:
         T* m_data = nullptr;
-        uint32_t m_size = 0;
+        T* m_back = nullptr;
         uint32_t m_capacity = 0;
+        std::align_val_t m_alignment = static_cast<std::align_val_t>(16);
+
+        void CopyFrom(const SimpleList& other);
+        void StealFrom(SimpleList& other);
+        
+        T* Alloc(uint32_t count);
+        void Release(T* ptr);
     };
 
     template <typename T>
-    SimpleList<T>::SimpleList(const uint32_t capacity)
+    SimpleList<T>::SimpleList(const uint32_t capacity, const uint32_t alignment)
     {
-        m_data = new T[capacity];
+        assert(alignment >= 16 && (alignment & (alignment - 1)) == 0);
+        
+        m_alignment = static_cast<std::align_val_t>(alignment);
+        m_data = Alloc(capacity);
         m_capacity = capacity;
-        m_size = 0;
+        m_back = m_data;
     }
 
     template <typename T>
     SimpleList<T>::~SimpleList()
     {
-        delete[] m_data;
-        m_size = 0;
+        if (m_data)
+        {
+            Release(m_data);
+            m_data = nullptr;
+        }
         m_capacity = 0;
+        m_back = nullptr;
     }
 
     template <typename T>
     SimpleList<T>::SimpleList(const SimpleList& other)
     {
-        if (other.m_capacity != 0)
-        {
-            m_data = new T[other.m_capacity];
-            memcpy(m_data, other.m_data, other.m_capacity * sizeof(T));
-        }
-        m_capacity = other.m_capacity;
-        m_size = other.m_size;
+        CopyFrom(other);
     }
 
     template <typename T>
     SimpleList<T>::SimpleList(SimpleList&& other) noexcept
     {
-        m_data = other.m_data;
-        m_size = other.m_size;
-        m_capacity = other.m_capacity;
-
-        other.m_data = nullptr;
-        other.m_size = 0;
-        other.m_capacity = 0;
+        StealFrom(other);
     }
 
     template <typename T>
@@ -88,17 +91,7 @@ namespace op
             return *this;
         }
 
-        delete[] m_data;
-        m_data = nullptr;
-        
-        if (other.m_capacity != 0)
-        {
-            m_data = new T[other.m_capacity];
-            memcpy(m_data, other.m_data, other.m_capacity * sizeof(T));
-        }
-        
-        m_capacity = other.m_capacity;
-        m_size = other.m_size;
+        CopyFrom(other);
 
         return *this;
     }
@@ -106,16 +99,13 @@ namespace op
     template <typename T>
     SimpleList<T>& SimpleList<T>::operator=(SimpleList&& other) noexcept
     {
-        delete[] m_data;
+        if (this == &other)
+        {
+            return *this;
+        }
+
+        StealFrom(other);
         
-        m_data = other.m_data;
-        m_size = other.m_size;
-        m_capacity = other.m_capacity;
-
-        other.m_data = nullptr;
-        other.m_size = 0;
-        other.m_capacity = 0;
-
         return *this;
     }
 
@@ -125,26 +115,27 @@ namespace op
     {
         if constexpr (Check)
         {
-            if (m_size + 1 > m_capacity)
+            auto newSize = Size() + 1;
+            if (newSize >= m_capacity)
             {
-                Reserve(std::max(m_capacity * 2, m_size + 1));
+                Reserve(std::max(m_capacity * 2, newSize));
             }
         }
-        
-        m_data[m_size] = element;
-        m_size++;
+
+        *m_back = element;
+        ++m_back;
     }
 
     template <typename T>
     bool SimpleList<T>::Pop(T& element)
     {
-        if (m_size == 0)
+        if (m_back <= m_data)
         {
             return false;
         }
 
-        element = m_data[m_size - 1];
-        m_size--;
+        --m_back;
+        element = *m_back;
 
         return true;
     }
@@ -154,7 +145,7 @@ namespace op
     {
         Reserve(newSize);
 
-        m_size = newSize;
+        m_back = m_data + newSize;
     }
 
     template <typename T>
@@ -165,19 +156,72 @@ namespace op
             return;
         }
 
-        auto newData = new T[newCapacity];
+        auto newData = Alloc(newCapacity);
+        auto preSize = Size();
         if (m_data)
         {
-            memcpy(newData, m_data, m_size * sizeof(T));
-            delete[] m_data;
+            if (preSize > 0)
+            {
+                memcpy(newData, m_data, preSize * sizeof(T));
+            }
+            Release(m_data);
         }
         m_data = newData;
+        m_back = m_data + preSize;
         m_capacity = newCapacity;
     }
 
     template <typename T>
     void SimpleList<T>::Clear()
     {
-        m_size = 0;
+        m_back = m_data;
+    }
+
+    template <typename T>
+    void SimpleList<T>::CopyFrom(const SimpleList& other)
+    {
+        if (m_data)
+        {
+            Release(m_data);
+        }
+        
+        auto otherSize = other.Size();
+        if (other.m_capacity != 0)
+        {
+            m_data = Alloc(other.m_capacity);
+            if (otherSize > 0)
+            {
+                memcpy(m_data, other.m_data, otherSize * sizeof(T));
+            }
+        }
+        m_capacity = other.m_capacity;
+        m_back = m_data + otherSize;
+    }
+
+    template <typename T>
+    void SimpleList<T>::StealFrom(SimpleList& other)
+    {
+        assert(m_alignment == other.m_alignment);
+        
+        m_data = other.m_data;
+        m_back = other.m_back;
+        m_capacity = other.m_capacity;
+
+        other.m_data = nullptr;
+        other.m_back = nullptr;
+        other.m_capacity = 0;
+    }
+
+    template <typename T>
+    T* SimpleList<T>::Alloc(const uint32_t count)
+    {
+        auto ptr = operator new(count * sizeof(T), m_alignment);
+        return static_cast<T*>(ptr);
+    }
+
+    template <typename T>
+    void SimpleList<T>::Release(T* ptr)
+    {
+        operator delete(ptr, m_alignment);
     }
 }

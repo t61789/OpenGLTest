@@ -41,7 +41,7 @@ namespace op
             
             usingRenderTarget.Get()->Clear(1.0f);
 
-            GetGR()->GetBatchRenderUnit()->Execute(ViewGroup::SHADOW);
+            GetGR()->GetBatchRenderUnit()->Execute(BatchRenderGroup::SHADOW);
         }
     }
 

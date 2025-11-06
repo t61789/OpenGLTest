@@ -4,7 +4,7 @@
 
 namespace op
 {
-    ThreadPool::ThreadPool(uint32_t numThreads)
+    ThreadPool::ThreadPool(const uint32_t numThreads)
     {
         for (uint32_t i = 0; i < numThreads; ++i)
         {
@@ -26,10 +26,10 @@ namespace op
         }
     }
 
-    void ThreadPool::Run(const Task task)
+    void ThreadPool::Run(const Task task, const int32_t priority)
     {
         std::lock_guard lock(m_taskMutex);
-        m_tasks.push(task);
+        m_tasks.emplace(priority, task);
         m_taskCond.notify_all();
     }
 
@@ -53,7 +53,7 @@ namespace op
                     return;
                 }
                 
-                task = m_tasks.front();
+                task = m_tasks.top().second;
                 m_tasks.pop();
             }
 

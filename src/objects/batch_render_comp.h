@@ -17,13 +17,13 @@ namespace op
     public:
         crsp<Mesh> GetMesh() const { return m_mesh;}
         crsp<Material> GetMaterial() const { return m_material;}
-        
+
         void OnEnable() override;
         void OnDisable() override;
         void UpdateTransform();
         bool HasONS();
 
-        bool GetInView(const ViewGroup viewGroup) { return m_cullingBufferAccessor.IsEnable() ? m_cullingBufferAccessor.GetVisible(viewGroup) : false; }
+        CullingBuffer::Accessor* GetCullingAccessor(CullingGroup group);
         Bounds GetWorldBounds() { return m_worldBounds; }
 
         void LoadFromJson(cr<nlohmann::json> objJson) override;
@@ -34,7 +34,7 @@ namespace op
         EventHandler m_onTransformDirtyHandler = 0;
         BatchMatrix::Elem m_submitBuffer;
         bool m_preHasONS = false;
-        CullingBufferAccessor m_cullingBufferAccessor = {};
+        CullingBuffer::Accessor* m_cullingBufferAccessor[CULLING_BUFFER_COUNT] = { nullptr };
         Bounds m_worldBounds;
 
         void OnTransformDirty();

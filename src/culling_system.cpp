@@ -86,86 +86,82 @@ namespace op
     }
 
     
-    CullingBufferAccessor::CullingBufferAccessor(const uint32_t index, CullingBuffer* buffer)
+    void CullingBuffer::Accessor::Submit(cr<Bounds> bounds)
     {
-        m_index = index;
-        m_buffer = buffer;
-        m_enable = true;
-    }
-
-    void CullingBufferAccessor::Submit(cr<Bounds> bounds)
-    {
+        assert(m_enable);
+        
         m_buffer->SetBounds(m_index, bounds);
     }
 
-    bool CullingBufferAccessor::GetVisible(const ViewGroup cullingGroup)
+    CullingBuffer::~CullingBuffer()
     {
-        return m_buffer->GetVisible(m_index, cullingGroup);
+        for (auto accessor : m_accessors)
+        {
+            delete accessor;
+        }
     }
 
-    
-    CullingBufferAccessor CullingBuffer::Register()
+    CullingBuffer::Accessor* CullingBuffer::Alloc()
     {
-        for (auto searchIndex = m_firstEmpty; searchIndex <= m_elemInfos.size(); ++searchIndex)
+        for (auto searchIndex = m_firstEmpty; searchIndex <= m_accessors.size(); ++searchIndex)
         {
-            if (searchIndex == m_elemInfos.size())
+            if (searchIndex >= m_accessors.size())
             {
                 for (uint32_t i = 0; i < 4; ++i)
                 {
-                    m_buffer.Add();
+                    m_soa.Add();
 
-                    m_elemInfos.push_back({});
+                    auto accessor = new Accessor();
+                    accessor->m_buffer = this;
+                    accessor->m_enable = false;
+                    accessor->m_index = m_accessors.size() + i;
+                    m_accessors.push_back(accessor);
                 }
             }
-            
-            if (m_elemInfos[searchIndex].empty)
+
+            if (!m_accessors[searchIndex]->m_enable)
             {
                 m_firstEmpty = searchIndex + 1;
-                m_elemInfos[searchIndex].empty = false;
-                return { searchIndex, this };
+                m_accessors[searchIndex]->m_enable = true;
+                return m_accessors[searchIndex];
             }
         }
 
         throw std::runtime_error("CullingBuffer::Alloc: This could not happened");
     }
 
-    void CullingBuffer::UnRegister(CullingBufferAccessor& accessor)
-    {
-        assert(!m_elemInfos[accessor.m_index].empty);
-
-        m_elemInfos[accessor.m_index].empty = true;
-        accessor.m_enable = false;
-
-        m_firstEmpty = std::min(m_firstEmpty, accessor.m_index);
-    }
-
     void CullingBuffer::SetBounds(const uint32_t index, cr<Bounds> bounds)
     {
-        m_buffer.centerX[index] = bounds.center.x;
-        m_buffer.centerY[index] = bounds.center.y;
-        m_buffer.centerZ[index] = bounds.center.z;
-        m_buffer.extentsX[index] = bounds.extents.x;
-        m_buffer.extentsY[index] = bounds.extents.y;
-        m_buffer.extentsZ[index] = bounds.extents.z;
+        m_soa.centerX[index] = bounds.center.x;
+        m_soa.centerY[index] = bounds.center.y;
+        m_soa.centerZ[index] = bounds.center.z;
+        m_soa.extentsX[index] = bounds.extents.x;
+        m_soa.extentsY[index] = bounds.extents.y;
+        m_soa.extentsZ[index] = bounds.extents.z;
     }
 
-    bool CullingBuffer::GetVisible(const uint32_t index, const ViewGroup cullingGroup)
+    sp<Job> CullingBuffer::CreateCullJob(cr<arr<Vec4, 6>> planes)
     {
-        return m_buffer.GetVisible(cullingGroup)[index] != 0;
-    }
-
-    sp<Job> CullingBuffer::CreateCullJob(cr<arr<Vec4, 6>> planes, ViewGroup viewGroup)
-    {
+        assert(!m_cullJob || m_cullJob->IsComplete());
+        
         // 每个simd命令为一组，需要除4
-        auto job = Job::CreateParallel(m_buffer.centerX.Size() / 4, [planes, viewGroup, this](const uint32_t start, const uint32_t end)
+        auto job = Job::CreateParallel(m_soa.centerX.Size() / 4, [planes, this](const uint32_t start, const uint32_t end)
         {
-            this->CullBatch(planes, viewGroup, start, end);
+            this->CullBatch(planes, start, end);
         });
+
+        m_cullJob = job;
 
         return job;
     }
 
-    void CullingBuffer::CullBatch(cr<arr<Vec4, 6>> planes, ViewGroup cullingGroup, uint32_t start, uint32_t end)
+    void CullingBuffer::WaitForCull()
+    {
+        assert(m_cullJob);
+        m_cullJob->WaitForStop();
+    }
+
+    void CullingBuffer::CullBatch(cr<arr<Vec4, 6>> planes, uint32_t start, uint32_t end)
     {
         ZoneScoped;
         
@@ -187,15 +183,15 @@ namespace op
             auto i = j * 4;
             
             SimdVec4 center = {
-                _mm_load_ps(m_buffer.centerX.Data() + i),
-                _mm_load_ps(m_buffer.centerY.Data() + i),
-                _mm_load_ps(m_buffer.centerZ.Data() + i),
+                _mm_load_ps(m_soa.centerX.Data() + i),
+                _mm_load_ps(m_soa.centerY.Data() + i),
+                _mm_load_ps(m_soa.centerZ.Data() + i),
                 _mm_set1_ps(0.0f)
             };
             SimdVec4 extents = {
-                _mm_load_ps(m_buffer.extentsX.Data() + i),
-                _mm_load_ps(m_buffer.extentsY.Data() + i),
-                _mm_load_ps(m_buffer.extentsZ.Data() + i),
+                _mm_load_ps(m_soa.extentsX.Data() + i),
+                _mm_load_ps(m_soa.extentsY.Data() + i),
+                _mm_load_ps(m_soa.extentsZ.Data() + i),
                 _mm_set1_ps(0.0f)
             };
 
@@ -215,7 +211,7 @@ namespace op
                 resultP = _mm_and_ps(resultP, _mm_or_ps(cmp_d0, cmp_d1));
             }
 
-            _mm_store_ps(m_buffer.GetVisible(cullingGroup).Data() + i, resultP);
+            _mm_store_ps(m_soa.visible.Data() + i, resultP);
         }
     }
 
@@ -227,11 +223,7 @@ namespace op
         extentsX = sl<float>(1024);
         extentsY = sl<float>(1024);
         extentsZ = sl<float>(1024);
-        
-        for (auto& i : visible)
-        {
-            i = sl<float>(1024);
-        }
+        visible = sl<float>(1024);
     }
 
     void CullingBuffer::CullingSoA::Add()
@@ -242,10 +234,6 @@ namespace op
         extentsX.Add(0);
         extentsY.Add(0);
         extentsZ.Add(0);
-
-        for (auto& i : visible)
-        {
-            i.Add(1);
-        }
+        visible.Add(1);
     }
 }

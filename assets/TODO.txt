@@ -1,4 +1,4 @@
-﻿生成Object反序列化接口
+生成Object反序列化接口
 SSAO
 GTAO
 光追GroundTruth
@@ -9,16 +9,19 @@ Instancing粒子流
 TAA
 为纹理添加导入设置json
 MCP
-支持设置世界空间的坐标
 用斜度处理阴影纹理
 修复tonemapping
-缓存shader所使用的参数
-处理unity到opengl的旋转问题
 处理sRGB问题
 动态天空盒以及动态ReflectionProbe
 LOD
 Shader变体
+半透剔除
+优先队列Job
+面数统计
 
+- 支持设置世界空间的坐标
+- 缓存shader所使用的参数
+- 处理unity到opengl的旋转问题
 - 半透着色
 - Unity导入半透物体
 - 从Unity里导入场景
@@ -41,3 +44,5 @@ Shader变体
 - 视锥体剔除
 - 自制数学库
 - 支持资源meta
+- JobSystem
+

@@ -19,6 +19,16 @@ namespace op
     class Mesh;
     class Material;
     class BatchRenderComp;
+
+    enum class BatchRenderGroup : uint8_t
+    {
+        COMMON = 0,
+        SHADOW = 1,
+
+        COUNT = 2
+    };
+
+    #define BATCH_RENDER_GROUP_COUNT static_cast<uint8_t>(BatchRenderGroup::COUNT)
     
     class BatchRenderUnit
     {
@@ -40,8 +50,8 @@ namespace op
         void BindComp(BatchRenderComp* comp);
         void UnBindComp(BatchRenderComp* comp);
         void UpdateMatrix(BatchRenderComp* comp, cr<BatchMatrix::Elem> matrices);
-        void Execute(ViewGroup viewGroup);
-        sp<Job> CreateEncodingJob(ViewGroup viewGroup);
+        void Execute(BatchRenderGroup group);
+        sp<Job> CreateEncodingJob(BatchRenderGroup group);
 
     private:
 
@@ -69,6 +79,7 @@ namespace op
         struct BatchRenderCompInfo
         {
             uint32_t matrixIndex;
+            CullingBuffer::Accessor* cullingAccessor;
             BatchRenderComp* comp;
         };
         
@@ -95,7 +106,7 @@ namespace op
 
         struct BatchRenderTree
         {
-            ViewGroup viewGroup;
+            BatchRenderGroup group;
             vec<BatchRenderCmd*> cmds;
             sp<Job> encodingJob;
             lock_free_queue<BatchRenderCmd*> encodedCmds;
@@ -127,6 +138,8 @@ namespace op
         vecup<BatchRenderTree> m_renderTrees;
 
         void CallGlCmd(const BatchRenderCmd* cmd, DrawContext& context);
+        
+        static CullingGroup GetCullingGroup(BatchRenderGroup group);
         
         friend struct IndirectCmd;
     };
