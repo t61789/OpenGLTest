@@ -539,6 +539,7 @@ namespace op
     static void combine_hash_no_order(size_t& base, const size_t newHash)
     {
         base ^= newHash * 0x9e3779b9;
+        assert(base != 0);
     }
 
     template <typename T, typename Predicate>

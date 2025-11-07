@@ -31,6 +31,11 @@ float4 PS_Main(PSInput input) : SV_TARGET
 
     float3 litColor = Lit(input.positionWS, normalWS, albedo);
 
+    #if defined(ENABLE_COLOR)
+        litColor *= 0.5f;
+    #endif
+    
+
     float4 finalColor = float4(litColor, alpha);
 
     return finalColor;

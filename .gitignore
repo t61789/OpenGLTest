@@ -252,3 +252,5 @@ build/*
 !/lib/**
 
 assets/cache/*
+
+tools/temp.file

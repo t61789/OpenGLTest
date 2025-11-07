@@ -11,13 +11,14 @@
 
 namespace op
 {
+    class ShaderVariants;
     class ITexture;
     class DataSet;
     class GlShader;
     struct CBufferLayout;
     enum class GlTextureType : uint8_t;
 
-    class Shader final : public IResource
+    class Shader final
     {
     public:
         struct TextureInfo
@@ -31,16 +32,14 @@ namespace op
 
         Shader();
 
+        sp<ShaderVariants> GetVariants() { return m_variants.lock(); }
+
         template <typename T>
         void SetVal(size_t nameId, cr<T> value);
         void SetVal(string_hash nameId, const float* value, uint32_t countF);
 
         void Use();
 
-        cr<StringHandle> GetPath() override { return m_path;}
-
-        static sp<Shader> LoadFromFile(cr<StringHandle> path);
-        static sp<Shader> LoadFromFile(cr<std::string> preparedVert, cr<std::string> preparedFrag, cr<StringHandle> glslPath = NOT_A_FILE);
         static sp<Shader> LoadFromSpvBase64(cr<std::string> vert, cr<std::string> frag, cr<StringHandle> path = NOT_A_FILE);
         static sp<Shader> LoadFromSpvBinary(vec<uint32_t> vert, vec<uint32_t> frag, cr<StringHandle> path = NOT_A_FILE);
 
@@ -49,6 +48,8 @@ namespace op
         
         sp<GlShader> m_glShader;
         sp<DataSet> m_dataSet;
+
+        wp<ShaderVariants> m_variants;
         
         template <class T, class GlSetValueFunc>
         void SetValImp(string_hash nameId, const T& value, GlSetValueFunc&& glSetValue);
@@ -59,6 +60,8 @@ namespace op
 
         static vec<uint32_t> LoadSpvFileData(cr<std::string> absolutePath);
         static void CombineSeparateTextures(spirv_cross::CompilerGLSL& compiler);
+
+        friend class ShaderVariants;
     };
 
     template <>

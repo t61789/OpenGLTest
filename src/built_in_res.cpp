@@ -5,6 +5,7 @@
 #include "image.h"
 #include "material.h"
 #include "shader.h"
+#include "render/shader_variants.h"
 
 namespace op
 {
@@ -30,10 +31,7 @@ namespace op
 
         for (auto& [path, shaderStr] : json.items())
         {
-            const auto& shader = Shader::LoadFromSpvBase64(
-                shaderStr["vert"].get<std::string>(),
-                shaderStr["frag"].get<std::string>(),
-                path);
+            const auto& shader = ShaderVariants::LoadFromJson(path, shaderStr);
             
             m_packedShaders.push_back(shader);
         }

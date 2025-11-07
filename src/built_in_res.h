@@ -3,10 +3,10 @@
 
 namespace op
 {
+    class ShaderVariants;
     class Mesh;
     class Material;
     class Image;
-    class Shader;
 
     class BuiltInRes : public Singleton<BuiltInRes>
     {
@@ -24,7 +24,7 @@ namespace op
         sp<Image> missTex = nullptr;
 
     private:
-        vecsp<Shader> m_packedShaders;
+        vecsp<ShaderVariants> m_packedShaders;
         
         void LoadPackedShaders();
     };

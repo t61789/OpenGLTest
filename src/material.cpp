@@ -4,6 +4,7 @@
 #include "image.h"
 #include "shader.h"
 #include "common/data_set.h"
+#include "render/shader_variants.h"
 #include "render/texture_set.h"
 #include "render/gl/gl_cbuffer.h"
 #include "render/gl/gl_state.h"
@@ -116,7 +117,7 @@ namespace op
             
             if (elemKey.Str() == "shader")
             {
-                shader = Shader::LoadFromFile(elemValue.get<std::string>());
+                shader = ShaderVariants::LoadFromFile(elemValue.get<std::string>())->GetShader();
                 continue;
             }
 
@@ -192,7 +193,7 @@ namespace op
     sp<Material> Material::CreateFromShader(cr<StringHandle> path)
     {
         auto mat = msp<Material>();
-        auto shader = Shader::LoadFromFile(path);
+        auto shader = ShaderVariants::LoadFromFile(path)->GetShader();
         mat->BindShader(shader);
         return mat;
     }

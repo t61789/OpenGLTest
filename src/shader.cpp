@@ -41,37 +41,6 @@ namespace op
         }
     }
 
-    sp<Shader> Shader::LoadFromFile(cr<StringHandle> path)
-    {
-        if(auto result = GetGR()->GetResource<Shader>(path))
-        {
-            return result;
-        }
-
-        THROW_ERRORF("Shader未在pack中找到：%s", path.CStr())
-    }
-    
-    sp<Shader> Shader::LoadFromFile(const std::string& preparedVert, const std::string& preparedFrag, cr<StringHandle> glslPath)
-    {
-        auto result = msp<Shader>();
-        
-        try
-        {
-            result->m_glShader = msp<GlShader>(preparedVert, preparedFrag);
-        }
-        catch (const std::exception& e)
-        {
-            THROW_ERRORF("Shader加载失败：%s \n %s", glslPath.CStr(), e.what())
-        }
-
-        GetGR()->RegisterResource(glslPath, result);
-        result->m_path = glslPath;
-        
-        log_info("成功载入Shader %s", glslPath.CStr());
-        
-        return result;
-    }
-
     sp<Shader> Shader::LoadFromSpvBase64(cr<std::string> vert, cr<std::string> frag, cr<StringHandle> path)
     {
         auto vertStr = Utils::Binary8To32(Utils::Base64ToBinary(vert));
@@ -97,7 +66,15 @@ namespace op
         auto fSource = fragCompilerGlsl.compile();
         spirv_cross::ShaderResources fragShaderResources = fragCompilerGlsl.get_shader_resources();
         
-        auto result = LoadFromFile(vSource, fSource, path);
+        auto result = msp<Shader>();
+        try
+        {
+            result->m_glShader = msp<GlShader>(vSource, fSource);
+        }
+        catch (const std::exception& e)
+        {
+            THROW_ERRORF("Shader加载失败：%s \n %s", path.CStr(), e.what())
+        }
 
         // Load CBuffer
         result->LoadCBuffer(vertShaderResources);
