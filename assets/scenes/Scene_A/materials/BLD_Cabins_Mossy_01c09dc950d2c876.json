@@ -7,5 +7,8 @@
     1.0
   ],
   "_MainTex": "scenes/Scene_A/textures/BLD_Cabins1_A_3a38c1d4b0d9aed8.png",
-  "shader": "shaders/pbr_basic_batch.shader"
+  "shader": "shaders/pbr_basic.shader",
+  "variant": [
+    "BATCH_RENDERING"
+  ]
 }

@@ -1,192 +1,194 @@
-#ifndef COMMON_HLSL_INCLUDED
-#define COMMON_HLSL_INCLUDED
+#if !defined(COMMON_HLSL_INCLUDED)
+    #define COMMON_HLSL_INCLUDED
 
-#define PIXEL_TYPE_SKYBOX 1.0f
-#define PIXEL_TYPE_LIT 2.0f
-#define MAX_PARALLEL_LIGHT_COUNT 4
-#define MAX_POINT_LIGHT_COUNT 16
-#define PARALLEL_LIGHT_INFO_STRIDE_VEC4 2
-#define POINT_LIGHT_INFO_STRIDE_VEC4 2
+    #define PIXEL_TYPE_SKYBOX 1.0f
+    #define PIXEL_TYPE_LIT 2.0f
+    #define MAX_PARALLEL_LIGHT_COUNT 4
+    #define MAX_POINT_LIGHT_COUNT 16
+    #define PARALLEL_LIGHT_INFO_STRIDE_VEC4 2
+    #define POINT_LIGHT_INFO_STRIDE_VEC4 2
 
-#define TEXTURE2D(name) Texture2D name; SamplerState name##Sampler;
-#define TEXTURECUBE(name) TextureCube name; SamplerState name##Sampler;
+    #define TEXTURE2D(name) Texture2D name; SamplerState name##Sampler;
+    #define TEXTURECUBE(name) TextureCube name; SamplerState name##Sampler;
 
-cbuffer _Global : register(b0)
-{
-    float _FogIntensity;
-    float4 _FogColor;
-    float3 _MainLightDirection;
+    cbuffer _Global : register(b0)
+    {
+        float _FogIntensity;
+        float4 _FogColor;
+        float3 _MainLightDirection;
 
-    float4 _ParallelLightInfo[MAX_PARALLEL_LIGHT_COUNT * PARALLEL_LIGHT_INFO_STRIDE_VEC4];
-    float4 _PointLightInfo[MAX_POINT_LIGHT_COUNT * POINT_LIGHT_INFO_STRIDE_VEC4];
+        float4 _ParallelLightInfo[MAX_PARALLEL_LIGHT_COUNT * PARALLEL_LIGHT_INFO_STRIDE_VEC4];
+        float4 _PointLightInfo[MAX_POINT_LIGHT_COUNT * POINT_LIGHT_INFO_STRIDE_VEC4];
 
-    float4x4 _MainLightShadowVP;
-    float _MainLightShadowRange;
-};
+        float4x4 _MainLightShadowVP;
+        float _MainLightShadowRange;
+    };
 
-cbuffer PerViewCBuffer : register(b1)
-{
-    float4x4 _VP;
-    float4x4 _IVP;
-    float4 _CameraPositionWS;
-};
+    cbuffer PerViewCBuffer : register(b1)
+    {
+        float4x4 _VP;
+        float4x4 _IVP;
+        float4 _CameraPositionWS;
+    };
 
-cbuffer PerObjectCBuffer : register(b2)
-{
-    float4x4 _M;
-    float4x4 _IM;
-    float4 _ViewportSize;
-};
+    cbuffer PerObjectCBuffer : register(b2)
+    {
+        float4x4 _M;
+        float4x4 _IM;
+        float4 _ViewportSize;
+    };
 
-cbuffer ObjectIndexCBuffer : register(b3)
-{
-    uint _ObjectIndex;
-};
+    cbuffer ObjectIndexCBuffer : register(b3)
+    {
+        uint _ObjectIndex;
+    };
 
-struct ObjectMatrix
-{
-    float4x4 localToWorld;
-    float4x4 worldToLocal;
-};
+    struct ObjectMatrix
+    {
+        float4x4 localToWorld;
+        float4x4 worldToLocal;
+    };
 
-StructuredBuffer<ObjectMatrix> _ObjectMatrices : register(t4);
+    StructuredBuffer<ObjectMatrix> _ObjectMatrices : register(t4);
 
-struct VSInput 
-{
-    float4 positionOS : POSITION;
-    float4 normalOS : NORMAL;
-    float4 tangentOS : TANGENT;
-    float2 uv0 : TEXCOORD0;
-    float2 uv1 : TEXCOORD1;
-    uint id : SV_InstanceID;
-};
+    struct VSInput 
+    {
+        float4 positionOS : POSITION;
+        float4 normalOS : NORMAL;
+        float4 tangentOS : TANGENT;
+        float2 uv0 : TEXCOORD0;
+        float2 uv1 : TEXCOORD1;
+        uint id : SV_InstanceID;
+    };
 
-struct PSInput
-{
-    float4 positionCS : SV_POSITION;
-    float4 positionSS : TEXCOORD0;
-    float3 normalWS : TEXCOORD1;
-    float3 positionWS : TEXCOORD2;
-    float2 uv : TEXCOORD2;
-};
+    struct PSInput
+    {
+        float4 positionCS : SV_POSITION;
+        float4 positionSS : TEXCOORD0;
+        float3 normalWS : TEXCOORD1;
+        float3 positionWS : TEXCOORD2;
+        float2 uv : TEXCOORD2;
+    };
 
-struct PSOutput
-{
-    float4 Target0 : SV_Target0;
-    float4 Target1 : SV_Target1;
-    float4 Target2 : SV_Target2;
-};
+    struct PSOutput
+    {
+        float4 Target0 : SV_Target0;
+        float4 Target1 : SV_Target1;
+        float4 Target2 : SV_Target2;
+    };
 
-TEXTURE2D(_GBuffer0Tex)
-TEXTURE2D(_GBuffer1Tex)
-TEXTURE2D(_GBuffer2Tex)
-TEXTURE2D(_ShadingBufferTex)
-TEXTURE2D(_MainLightShadowMapTex)
+    TEXTURE2D(_GBuffer0Tex)
+    TEXTURE2D(_GBuffer1Tex)
+    TEXTURE2D(_GBuffer2Tex)
+    TEXTURE2D(_ShadingBufferTex)
+    TEXTURE2D(_MainLightShadowMapTex)
 
-TEXTURECUBE(_SkyboxTex)
+    TEXTURECUBE(_SkyboxTex)
 
 
-float4 WriteGBuffer0(float3 albedo)
-{
-    return float4(albedo, PIXEL_TYPE_LIT);
-}
+    float4 WriteGBuffer0(float3 albedo)
+    {
+        return float4(albedo, PIXEL_TYPE_LIT);
+    }
 
-float4 WriteGBuffer0(float3 albedo, float pixelType)
-{
-    return float4(albedo, pixelType);
-}
+    float4 WriteGBuffer0(float3 albedo, float pixelType)
+    {
+        return float4(albedo, pixelType);
+    }
 
-float4 WriteGBuffer1(float3 normalWS)
-{
-    return float4(normalWS * 0.5 + 0.5, 0.0f);
-}
+    float4 WriteGBuffer1(float3 normalWS)
+    {
+        return float4(normalWS * 0.5 + 0.5, 0.0f);
+    }
 
-float4 WriteGBuffer2(float depth)
-{
-    return float4(depth, 0.0f, 0.0f, 0.0f);
-}
+    float4 WriteGBuffer2(float depth)
+    {
+        return float4(depth, 0.0f, 0.0f, 0.0f);
+    }
 
-void ReadGBuffer0(float2 screenUV, out float3 albedo)
-{
-    float4 color = _GBuffer0Tex.Sample(_GBuffer0TexSampler, screenUV);
-    albedo = color.xyz;
-}
+    void ReadGBuffer0(float2 screenUV, out float3 albedo)
+    {
+        float4 color = _GBuffer0Tex.Sample(_GBuffer0TexSampler, screenUV);
+        albedo = color.xyz;
+    }
 
-void ReadGBuffer0(float2 screenUV, out float3 albedo, out float pixelType)
-{
-    float4 color = _GBuffer0Tex.Sample(_GBuffer0TexSampler, screenUV);
-    albedo = color.xyz;
-    pixelType = color.w;
-}
+    void ReadGBuffer0(float2 screenUV, out float3 albedo, out float pixelType)
+    {
+        float4 color = _GBuffer0Tex.Sample(_GBuffer0TexSampler, screenUV);
+        albedo = color.xyz;
+        pixelType = color.w;
+    }
 
-void ReadGBuffer1(float2 screenUV, out float3 normalWS)
-{
-    float4 color = _GBuffer1Tex.Sample(_GBuffer1TexSampler, screenUV);
-    normalWS = color.xyz * 2 - 1;
-}
+    void ReadGBuffer1(float2 screenUV, out float3 normalWS)
+    {
+        float4 color = _GBuffer1Tex.Sample(_GBuffer1TexSampler, screenUV);
+        normalWS = color.xyz * 2 - 1;
+    }
 
-void ReadGBuffer2(float2 screenUV, out float depth)
-{
-    float4 color = _GBuffer2Tex.Sample(_GBuffer2TexSampler, screenUV);
-    depth = color.r;
-}
+    void ReadGBuffer2(float2 screenUV, out float depth)
+    {
+        float4 color = _GBuffer2Tex.Sample(_GBuffer2TexSampler, screenUV);
+        depth = color.r;
+    }
 
-float4x4 GetLocalToWorld()
-{
-    return _ObjectMatrices[_ObjectIndex].localToWorld;
-}
+    float4x4 GetLocalToWorld()
+    {
+        return _ObjectMatrices[_ObjectIndex].localToWorld;
+    }
 
-float4x4 GetWorldToLocal()
-{
-    return _ObjectMatrices[_ObjectIndex].worldToLocal;
-}
+    float4x4 GetWorldToLocal()
+    {
+        return _ObjectMatrices[_ObjectIndex].worldToLocal;
+    }
 
-float3 TransformObjectToWorld(float3 positionOS, float4x4 localToWorld)
-{
-    return mul(float4(positionOS, 1.0f), localToWorld).xyz;
-}
+    float3 TransformObjectToWorld(float3 positionOS, float4x4 localToWorld)
+    {
+        return mul(float4(positionOS, 1.0f), localToWorld).xyz;
+    }
 
-float3 TransformObjectToWorld(float3 positionOS)
-{
-    return mul(float4(positionOS, 1.0f), GetLocalToWorld()).xyz;
-}
+    float3 TransformObjectToWorld(float3 positionOS)
+    {
+        return mul(float4(positionOS, 1.0f), GetLocalToWorld()).xyz;
+    }
 
-float4 TransformObjectToHClip(float3 positionOS, float4x4 localToWorld)
-{
-    return mul(mul(float4(positionOS, 1.0f), localToWorld), _VP);
-}
+    float4 TransformObjectToHClip(float3 positionOS, float4x4 localToWorld)
+    {
+        return mul(mul(float4(positionOS, 1.0f), localToWorld), _VP);
+    }
 
-float4 TransformObjectToHClip(float3 positionOS)
-{
-    return TransformObjectToHClip(positionOS, GetLocalToWorld());
-}
+    float4 TransformObjectToHClip(float3 positionOS)
+    {
+        return TransformObjectToHClip(positionOS, GetLocalToWorld());
+    }
 
-float4 TransformWorldToHClip(float3 positionWS)
-{
-    return mul(float4(positionWS, 1.0f), _VP);
-}
+    float4 TransformWorldToHClip(float3 positionWS)
+    {
+        return mul(float4(positionWS, 1.0f), _VP);
+    }
 
-float3 TransformObjectToWorldNormal(float3 normalOS, float4x4 worldToLocal)
-{
-    return mul(float4(normalOS, 0.0f), transpose(worldToLocal)).xyz;
-}
+    float3 TransformObjectToWorldNormal(float3 normalOS, float4x4 worldToLocal)
+    {
+        return mul(float4(normalOS, 0.0f), transpose(worldToLocal)).xyz;
+    }
 
-float3 TransformObjectToWorldNormal(float3 normalOS)
-{
-    return TransformObjectToWorldNormal(normalOS, GetWorldToLocal());
-}
+    float3 TransformObjectToWorldNormal(float3 normalOS)
+    {
+        return TransformObjectToWorldNormal(normalOS, GetWorldToLocal());
+    }
 
-float3 RebuildWorldPosition(float2 screenUV, float depth)
-{
-    float4 positionCS = float4(screenUV * 2 - 1, depth, 1);
-    float4 positionWS = mul(positionCS, _IVP);
-    
-    return positionWS.xyz / positionWS.w;
-}
+    float3 RebuildWorldPosition(float2 screenUV, float depth)
+    {
+        float4 positionCS = float4(screenUV * 2 - 1, depth, 1);
+        float4 positionWS = mul(positionCS, _IVP);
+        
+        return positionWS.xyz / positionWS.w;
+    }
 
-float4 SampleSkybox(float3 direction)
-{
-    return _SkyboxTex.Sample(_SkyboxTexSampler, direction);
-}
+    float4 SampleSkybox(float3 direction)
+    {
+        return _SkyboxTex.Sample(_SkyboxTexSampler, direction);
+    }
+
+    #include "shaders/lib/batch_rendering.hlsl"
 
 #endif // COMMON_HLSL_INCLUDED

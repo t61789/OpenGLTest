@@ -144,6 +144,17 @@ namespace op
                 result->depthWrite = elemValue.get<bool>();
                 continue;
             }
+
+            if (elemKey.Str() == "variant")
+            {
+                VariantKeyword variantKeyword;
+                for (const auto& keyword : elemValue)
+                {
+                    variantKeyword.EnableKeyword(keyword.get<std::string>());
+                }
+                result->m_variantKeyword = variantKeyword;
+                continue;
+            }
             
             if (elemValue.is_number_integer())
             {
@@ -182,6 +193,7 @@ namespace op
         
         if (shader)
         {
+            shader = shader->GetVariants()->GetShader(result->m_variantKeyword);
             result->BindShader(shader);
         }
         

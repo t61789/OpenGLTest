@@ -1,11 +1,10 @@
 #include "shaders/lib/common.hlsl"
-#include "shaders/lib/batch_rendering.hlsl"
 
 PSInput VS_Main(VSInput input)
 {
     PSInput output;
 
-    output.positionCS = TransformObjectToHClipBatch(input.positionOS.xyz, input.id);
+    output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
     output.positionSS = output.positionCS;
 
     return output;

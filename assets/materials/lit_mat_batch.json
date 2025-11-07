@@ -1,6 +1,7 @@
 {
-    "shader": "shaders/pbr_basic_batch.shader",
+    "shader": "shaders/pbr_basic.shader",
     "cullMode": "Back",
+    "variant": ["BATCH_RENDERING"],
     "_MainTex" : "built_in/texture/white.png",
     "_Albedo": [
         1,

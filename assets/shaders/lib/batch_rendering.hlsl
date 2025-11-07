@@ -1,31 +1,26 @@
-#include "shaders/lib/common.hlsl"
+#if !defined(BATCH_RENDERING_HLSL_INCLUDED)
+    #define BATCH_RENDERING_HLSL_INCLUDED
 
-struct BatchObjectInfo
-{
-    float4x4 localToWorld;
-    float4x4 worldToLocal;
-};
+    #include "shaders/lib/common.hlsl"
 
-StructuredBuffer<uint> _BatchObjectIndices : register(t5);
-StructuredBuffer<BatchObjectInfo> _BatchObjectInfo : register(t6);
+    struct BatchObjectInfo
+    {
+        float4x4 localToWorld;
+        float4x4 worldToLocal;
+    };
 
+    StructuredBuffer<uint> _BatchObjectIndices : register(t5);
+    StructuredBuffer<BatchObjectInfo> _BatchObjectInfo : register(t6);
 
-BatchObjectInfo GetBatchObjectInfo(uint id)
-{
-    return _BatchObjectInfo[_BatchObjectIndices[id]];
-}
+    BatchObjectInfo GetBatchObjectInfo(uint id)
+    {
+        return _BatchObjectInfo[_BatchObjectIndices[id]];
+    }
 
-float3 TransformObjectToWorldBatch(float3 positionOS, uint id)
-{
-    return TransformObjectToWorld(positionOS, GetBatchObjectInfo(id).localToWorld);
-}
+    #if defined(BATCH_RENDERING)
+        #define TransformObjectToWorld(positionOS) TransformObjectToWorld(positionOS, GetBatchObjectInfo(input.id).localToWorld)
+        #define TransformObjectToHClip(positionOS) TransformObjectToHClip(positionOS, GetBatchObjectInfo(input.id).localToWorld)
+        #define TransformObjectToWorldNormal(normalOS) TransformObjectToWorldNormal(normalOS, GetBatchObjectInfo(input.id).worldToLocal)
+    #endif
 
-float4 TransformObjectToHClipBatch(float3 positionOS, uint id)
-{
-    return TransformObjectToHClip(positionOS, GetBatchObjectInfo(id).localToWorld);
-}
-
-float3 TransformObjectToWorldNormalBatch(float3 normalOS, uint id)
-{
-    return TransformObjectToWorldNormal(normalOS, GetBatchObjectInfo(id).worldToLocal);
-}
+#endif // BATCH_RENDERING_HLSL_INCLUDED

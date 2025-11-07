@@ -3,6 +3,7 @@
 #include "i_resource.h"
 #include "common/data_set.h"
 #include "math/vec.h"
+#include "render/shader_variants.h"
 #include "render/texture_set.h"
 #include "render/gl/gl_cbuffer.h"
 
@@ -61,6 +62,7 @@ namespace op
         up<GlCbuffer> m_cbuffer = nullptr;
         up<DataSet> m_dataSet = nullptr;
         up<TextureSet> m_textureSet = nullptr;
+        VariantKeyword m_variantKeyword;
 
         void OnFrameEnd();
 
